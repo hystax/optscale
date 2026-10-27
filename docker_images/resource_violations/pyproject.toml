@@ -1,0 +1,19 @@
+[project]
+name = "resource-violations"
+version = "0.1.0"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "kombu==5.3.4",
+    "config-client",
+    "restapi-client",
+]
+
+[tool.uv.sources]
+config-client = { path = "../../optscale_client/config_client", editable = true }
+restapi-client = { path = "../../optscale_client/rest_api_client", editable = true }
+
+[dependency-groups]
+dev = [
+    "pycodestyle==2.11.1",
+    "pylint==3.0.2",
+]

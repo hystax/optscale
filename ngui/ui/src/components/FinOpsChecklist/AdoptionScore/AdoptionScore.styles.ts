@@ -6,16 +6,16 @@ const useStyles = makeStyles()((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: theme.spacing(SPACING_2)
+    padding: theme.spacing(SPACING_2),
   },
   badge: {
     position: "relative",
     display: "inline-flex",
-    marginTop: theme.spacing(SPACING_1)
+    marginTop: theme.spacing(SPACING_1),
   },
   circleBack: {
     position: "absolute",
-    opacity: 0.2
+    opacity: 0.2,
   },
   scoreContainer: {
     position: "absolute",
@@ -25,8 +25,8 @@ const useStyles = makeStyles()((theme) => ({
     right: 0,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 }));
 
 export default useStyles;

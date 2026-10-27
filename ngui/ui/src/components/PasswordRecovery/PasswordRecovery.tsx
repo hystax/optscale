@@ -51,7 +51,7 @@ const PasswordRecovery = () => {
       <SendVerificationCodeContainer
         onSuccess={(email) => {
           updateSearchParams({
-            email
+            email,
           });
           setStep(CONFIRM_VERIFICATION_CODE);
         }}
@@ -96,7 +96,7 @@ const PasswordRecovery = () => {
 
                 navigate(
                   `${INITIALIZE}?${stringifySearchParams({
-                    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability
+                    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability,
                   })}`
                 );
               }}
@@ -106,7 +106,7 @@ const PasswordRecovery = () => {
           </Typography>
         </div>
       </Stack>
-    )
+    ),
   }[step];
 
   return <Greeter content={stepContent} />;

@@ -35,7 +35,7 @@ type PowerScheduleDetailsProps = {
 
 const TABS = Object.freeze({
   INSTANCES: "instances",
-  TRIGGERS: "triggers"
+  TRIGGERS: "triggers",
 });
 
 const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadingProps = {} }: PowerScheduleDetailsProps) => {
@@ -58,14 +58,14 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
     resources_count: resourcesOnSchedule,
     resources: instances = [],
     triggers = [],
-    timezone: timeZone
+    timezone: timeZone,
   } = powerSchedule;
 
   const actionBarDefinition = {
     breadcrumbs: [
       <Link key={1} to={POWER_SCHEDULES} component={RouterLink}>
         <FormattedMessage id="powerSchedulesTitle" />
-      </Link>
+      </Link>,
     ],
     title: {
       text: name ? (
@@ -85,7 +85,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
         "-"
       ),
       dataTestId: "lbl_power_schedule_details",
-      isLoading: isGetPowerScheduleLoading
+      isLoading: isGetPowerScheduleLoading,
     },
     items: [
       {
@@ -96,7 +96,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
         dataTestId: "btn_edit_power_schedule",
         isLoading: isGetPowerScheduleLoading,
         action: () => navigate(getEditPowerScheduleUrl(id)),
-        requiredActions: ["EDIT_PARTNER"]
+        requiredActions: ["EDIT_PARTNER"],
       },
       enabled
         ? {
@@ -111,8 +111,8 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
             disabled: isRestricted,
             tooltip: {
               show: isRestricted,
-              value: restrictionReasonMessage
-            }
+              value: restrictionReasonMessage,
+            },
           }
         : {
             key: "activate",
@@ -126,8 +126,8 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
             disabled: isRestricted,
             tooltip: {
               show: isRestricted,
-              value: restrictionReasonMessage
-            }
+              value: restrictionReasonMessage,
+            },
           },
       {
         key: "delete",
@@ -137,22 +137,22 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
         dataTestId: "btn_delete_power_schedule",
         isLoading: isGetPowerScheduleLoading,
         action: () => openSideModal(DeletePowerScheduleModal, { id, name }),
-        requiredActions: ["EDIT_PARTNER"]
-      }
-    ]
+        requiredActions: ["EDIT_PARTNER"],
+      },
+    ],
   };
 
   const tabs = [
     {
       title: TABS.INSTANCES,
       dataTestId: "tab_instances",
-      node: <PowerScheduleInstances instances={instances} />
+      node: <PowerScheduleInstances instances={instances} />,
     },
     {
       title: TABS.TRIGGERS,
       dataTestId: "tab_triggers",
-      node: <PowerScheduleTriggersTable triggers={triggers} />
-    }
+      node: <PowerScheduleTriggersTable triggers={triggers} />,
+    },
   ];
 
   const [activeTab, setActiveTab] = useState();
@@ -186,7 +186,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
                 activeTab,
                 handleChange: (event, value) => {
                   setActiveTab(value);
-                }
+                },
               }}
             />
           </div>

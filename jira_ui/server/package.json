@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.3.1",
-    "express": "^4.21.2",
+    "express": "^4.22.1",
     "express-rate-limit": "^6.10.0"
   },
   "devDependencies": {

@@ -15,11 +15,11 @@ const ReportBucketName = ({ disabled = false }) => (
         <QuestionMark
           messageId="nebiusReportBucketNameTooltip"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_report_bucket_name"
         />
-      )
+      ),
     }}
     label={<FormattedMessage id="bucketName" />}
     autoComplete="off"

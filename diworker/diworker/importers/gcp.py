@@ -2,6 +2,8 @@ from collections import defaultdict
 import hashlib
 import logging
 from datetime import timedelta
+from etcd import EtcdKeyError
+
 from diworker.diworker.importers.base import BaseReportImporter
 import tools.optscale_time as opttime
 
@@ -10,10 +12,22 @@ WRITE_CHUNK_SIZE = 200
 READ_CHUNK_SIZE = 20
 CORES_SYSTEM_TAG = 'compute.googleapis.com/cores'
 FLAVOR_SYSTEM_TAG = 'compute.googleapis.com/machine_spec'
-OPTSCALE_RESOURCE_ID_TAG = 'optscale_tracking_id'
 
 
 class GcpReportImporter(BaseReportImporter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tracking_id = self._get_tracking_id()
+
+    def _get_tracking_id(self):
+        try:
+            tracking_id = self.config_cl.product_tracking_id()
+        except EtcdKeyError:
+            tracking_id = None
+        if not tracking_id:
+            raise Exception('product_tracking_id is not set')
+        return tracking_id
 
     def detect_period_start(self):
         ca_last_import_at = self.cloud_acc.get('last_import_at')
@@ -102,7 +116,7 @@ class GcpReportImporter(BaseReportImporter):
         row_dict['tags'] = self._convert_tags_list_to_dict(row_dict['tags'])
         row_dict['system_tags'] = self._convert_tags_list_to_dict(
             row_dict['system_tags'])
-        resource_hash = row_dict['tags'].get(OPTSCALE_RESOURCE_ID_TAG)
+        resource_hash = row_dict['tags'].get(self.tracking_id)
         # Check that hash is sha1. This is only needed for our hystaxcom account
         # where we experimented with our resource tagging strategies
         # and some expenses have unexpected values for resource hash.
@@ -137,8 +151,7 @@ class GcpReportImporter(BaseReportImporter):
     def load_raw_data(self):
         current_day = self.period_start.replace(
             hour=0, minute=0, second=0, microsecond=0)
-        now = opttime.utcnow()
-        while current_day <= now:
+        while current_day <= self.period_end:
             chunk = []
             end_date = current_day + timedelta(days=1)
             # sometimes Gcp splits the same expenses for a date into
@@ -270,8 +283,13 @@ class GcpReportImporter(BaseReportImporter):
                                          unique_id_field=unique_id_field)
 
         base_filters = [{'cloud_account_id': self.cloud_acc_id}]
+        date_filters = {}
         if self.period_start:
-            base_filters.append({'start_date': {'$gte': self.period_start}})
+            date_filters = {'$gte': self.period_start}
+        if self.import_to is not None:
+            date_filters['$lte'] = self.period_end
+        if date_filters:
+            base_filters.append({'start_date': date_filters})
 
         distinct_filters = {}
         for f in base_filters:

@@ -413,3 +413,20 @@ class VerificationCode(Base, BaseMixin):
     valid_until = Column(TIMESTAMP, nullable=False)
     code = Column(String(32), nullable=False,
                   info=ColumnPermissions.create_only)
+
+
+class UserOption(Base, BaseMixin):
+    __tablename__ = 'user_option'
+    __table_args__ = (
+        Index('ix_user_option_user_name', "user_id", "name", unique=True),
+        UniqueConstraint("user_id", "name", "deleted_at",
+                         name="uc_user_id_name_deleted_at")
+    )
+
+    user_id = Column(String(36), ForeignKey('user.id'), nullable=False,
+                     info=ColumnPermissions.create_only)
+    user = relationship("User", foreign_keys=[user_id])
+    name = Column(String(256), nullable=False,
+                  info=ColumnPermissions.create_only)
+    value = Column(TEXT, nullable=False, default='{}',
+                   info=ColumnPermissions.full)

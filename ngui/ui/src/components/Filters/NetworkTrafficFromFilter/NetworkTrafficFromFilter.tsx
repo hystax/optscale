@@ -7,7 +7,7 @@ import {
   CLOUD_ACCOUNT_TYPES_LIST,
   LINEAR_SELECTOR_ITEMS_TYPES,
   NETWORK_TRAFFIC_FROM_BE_FILTER,
-  NETWORK_TRAFFIC_FROM_FILTER
+  NETWORK_TRAFFIC_FROM_FILTER,
 } from "utils/constants";
 import Filter from "../Filter";
 
@@ -31,24 +31,24 @@ class NetworkTrafficFromFilter extends Filter {
         additionalProperties: false,
         properties: {
           name: {
-            type: "string"
+            type: "string",
           },
           cloud_type: {
             type: "string",
-            enum: CLOUD_ACCOUNT_TYPES_LIST
-          }
-        }
+            enum: CLOUD_ACCOUNT_TYPES_LIST,
+          },
+        },
       },
       {
         type: "string",
-        const: "ANY"
-      }
-    ]
+        const: "ANY",
+      },
+    ],
   };
 
   // TODO: Use ajv TS integration to create schema based on types def
   static appliedFilterSchema = {
-    type: "string"
+    type: "string",
   };
 
   static _getValue(filterItem) {
@@ -82,10 +82,10 @@ class NetworkTrafficFromFilter extends Filter {
       value: appliedFilter,
       displayedValue: this.constructor.getDisplayedValueRenderer(filterItem, () => ({
         iconProps: {
-          dataTestId: `${this.constructor.filterName}_filter_logo`
-        }
+          dataTestId: `${this.constructor.filterName}_filter_logo`,
+        },
       })),
-      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem),
     };
   }
 
@@ -94,7 +94,7 @@ class NetworkTrafficFromFilter extends Filter {
       sortObjects({
         array: values,
         field: "name",
-        type: "asc"
+        type: "asc",
       });
 
     const anyNetworkTrafficLocationValueIndex = items.findIndex(
@@ -106,7 +106,7 @@ class NetworkTrafficFromFilter extends Filter {
     return isAnyNetworkTrafficLocationValueExist
       ? [
           items[anyNetworkTrafficLocationValueIndex],
-          ...sortItems(items.filter((_, index) => index !== anyNetworkTrafficLocationValueIndex))
+          ...sortItems(items.filter((_, index) => index !== anyNetworkTrafficLocationValueIndex)),
         ]
       : sortItems(items);
   }

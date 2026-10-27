@@ -9,7 +9,7 @@ import TextWithInlineInput from "./components/TextWithInlineInput";
 import { useCommonSettingsData, useFormWithValuesFromOptions } from "./hooks";
 
 const VALUE_KEYS = Object.freeze({
-  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold"
+  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
 });
 
 const ReservedInstancesThresholds = ({ recommendationType, onSuccess }) => {
@@ -45,8 +45,8 @@ class InstancesSubscriptionModal extends BaseSideModal {
     messageId: "instanceSubscription",
     dataTestIds: {
       title: "lbl_instance_subscription_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_instance_subscription";

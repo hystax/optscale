@@ -17,7 +17,7 @@ const AcceptInvitation = ({ invitation, sendState, onSuccessAccept, onSuccessDec
     owner_name: ownerName,
     owner_email: ownerEmail,
     invite_assignments: assignments = [],
-    organization
+    organization,
   } = invitation;
 
   const { pool: invitesToPools = [], organization: invitesToOrganization = [] } = createGroupsObjectFromArray(

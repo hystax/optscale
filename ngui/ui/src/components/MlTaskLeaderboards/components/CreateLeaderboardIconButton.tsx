@@ -11,7 +11,7 @@ const CreateLeaderboardIconButton = ({ leaderboardTemplate, task, onSuccess }) =
       icon={<AddOutlinedIcon fontSize="small" />}
       tooltip={{
         show: true,
-        messageId: "add"
+        messageId: "add",
       }}
       onClick={() => openSideModal(CreateLeaderboardModal, { leaderboardTemplate, task, onSuccess })}
     />

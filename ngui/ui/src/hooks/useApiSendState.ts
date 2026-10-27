@@ -33,6 +33,6 @@ export const useApiSendState = (label, submitFunc) => {
     lastResult,
     sendState,
     onSubmit,
-    onResend
+    onResend,
   };
 };

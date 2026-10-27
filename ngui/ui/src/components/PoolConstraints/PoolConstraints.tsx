@@ -33,8 +33,8 @@ const PoolConstraints = ({ isLoading, policies, poolId }) => (
             <Link data-test-id="link_help" href={DOCS_HYSTAX_RESOURCE_CONSTRAINTS} target="_blank" rel="noopener">
               {chunks}
             </Link>
-          )
-        }
+          ),
+        },
       }}
     />
   </>

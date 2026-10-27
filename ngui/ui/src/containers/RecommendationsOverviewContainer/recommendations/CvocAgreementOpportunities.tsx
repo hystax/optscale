@@ -9,13 +9,13 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_cvos_agreement_opportunities_resource"
+    headerDataTestId: "lbl_cvos_agreement_opportunities_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_cvos_agreement_opportunities_location"
+    headerDataTestId: "lbl_cvos_agreement_opportunities_location",
   }),
   size({
-    headerDataTestId: "lbl_cvos_agreement_opportunities_size"
+    headerDataTestId: "lbl_cvos_agreement_opportunities_size",
   }),
   detectedAt({ headerDataTestId: "lbl_cvos_agreement_opportunities_detected_at" }),
   {
@@ -32,7 +32,7 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
-    }
+    },
   },
   {
     header: (
@@ -47,8 +47,8 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
-    }
-  }
+    },
+  },
 ];
 
 class CvocAgreementOpportunities extends BaseRecommendation {
@@ -86,12 +86,12 @@ class CvocAgreementOpportunities extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

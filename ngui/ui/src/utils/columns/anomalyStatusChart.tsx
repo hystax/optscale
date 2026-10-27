@@ -29,7 +29,7 @@ const anomalyStatusChart = ({ constraint, headerMessageId = "statusAtHit", today
         todayMessageId={todayMessageId}
       />
     );
-  }
+  },
 });
 
 export default anomalyStatusChart;

@@ -48,13 +48,13 @@ const useUpdateUserPassword = () => {
     updateUser({
       variables: {
         id: token.user_id,
-        params: { password: newPassword }
+        params: { password: newPassword },
       },
       context: {
         headers: {
-          "x-optscale-token": token.token
-        }
-      }
+          "x-optscale-token": token.token,
+        },
+      },
     });
 
   return { onUpdate, isLoading: updateUserLoading };

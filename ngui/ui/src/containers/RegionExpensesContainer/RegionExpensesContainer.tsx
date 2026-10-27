@@ -18,7 +18,7 @@ const RegionExpensesContainer = () => {
   const { isLoading, shouldInvoke } = useApiState(GET_REGION_EXPENSES, {
     startDate: startDateTimestamp,
     endDate: endDateTimestamp,
-    organizationId
+    organizationId,
   });
 
   useEffect(() => {
@@ -26,14 +26,14 @@ const RegionExpensesContainer = () => {
       dispatch(
         getRegionExpenses(organizationId, {
           startDate: startDateTimestamp,
-          endDate: endDateTimestamp
+          endDate: endDateTimestamp,
         })
       );
     }
   }, [dispatch, endDateTimestamp, organizationId, shouldInvoke, startDateTimestamp]);
 
   const {
-    apiData: { expenses = {} }
+    apiData: { expenses = {} },
   } = useApiData(GET_REGION_EXPENSES);
 
   return <RegionExpenses isLoading={isLoading} expenses={expenses} />;

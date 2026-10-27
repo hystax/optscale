@@ -1,8 +1,9 @@
 ARG BUILDTAG=build
 FROM bi_scheduler:${BUILDTAG}
 
-WORKDIR /usr/src/app/docker_images/bi_scheduler/
-COPY docker_images/bi_scheduler/__init__.py .
-COPY docker_images/bi_scheduler/test_bi_scheduler.py .
+WORKDIR /usr/src/app/
 
-CMD ["python","-m","unittest","test_bi_scheduler.py"]
+COPY docker_images/bi_scheduler/__init__.py docker_images/bi_scheduler/
+COPY docker_images/bi_scheduler/test_bi_scheduler.py docker_images/bi_scheduler/
+
+CMD ["uv", "--project", "docker_images/bi_scheduler", "run", "python", "-m", "unittest", "docker_images.bi_scheduler.test_bi_scheduler"]

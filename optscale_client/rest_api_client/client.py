@@ -115,13 +115,13 @@ class RequestsHttpProvider(AbstractHttpProvider):
         response.raise_for_status()
         response_body = None
         if response.status_code != requests.codes.no_content:
-            if 'application/json' in response.headers['Content-Type']:
+            content_type = response.headers.get('Content-Type', '')
+            if 'application/json' in content_type:
                 response_body = json.loads(
                     response.content.decode('utf-8'))
-            if ('text/plain' in response.headers['Content-Type'] or
-                    'text/csv' in response.headers['Content-Type']):
+            elif 'text/plain' in content_type or 'text/csv' in content_type:
                 response_body = response.content.decode()
-            if 'application/octet-stream' in response.headers['Content-Type']:
+            else:
                 response_body = response.content
         return response.status_code, response_body
 
@@ -141,17 +141,16 @@ class FetchMethodHttpProvider(AbstractHttpProvider):
             allow_nonstandard_methods=True)
         if self._rethrow:
             response.rethrow()
-        response_body = None
         try:
-            content_type = response.headers.get('Content-Type')
-            if content_type:
-                if 'application/json' in content_type:
-                    response_body = json.loads(response.body.decode('utf-8'))
-                elif ('text/plain' in content_type or
-                      'text/csv' in content_type):
-                    response_body = response.body.decode()
-                elif 'application/octet-stream' in content_type:
-                    response_body = response.body
+            content_type = response.headers.get('Content-Type', '')
+            if not content_type:
+                response_body = None
+            elif 'application/json' in content_type:
+                response_body = json.loads(response.body.decode('utf-8'))
+            elif 'text/plain' in content_type or 'text/csv' in content_type:
+                response_body = response.body.decode()
+            else:
+                response_body = response.body
         except Exception as e:
             LOG.error("failed to decode response body %s", e)
             response_body = None

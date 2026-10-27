@@ -15,22 +15,22 @@ const getFiles = (files: string[]) =>
       case file.includes("expenses.csv"):
         return {
           path: file,
-          type: "expenses"
+          type: "expenses",
         } as const;
       case file.includes("recommendations.csv"):
         return {
           path: file,
-          type: "recommendations"
+          type: "recommendations",
         } as const;
       case file.includes("resources.csv"):
         return {
           path: file,
-          type: "resources"
+          type: "resources",
         } as const;
       default:
         return {
           path: null,
-          type: ""
+          type: "",
         } as const;
     }
   });

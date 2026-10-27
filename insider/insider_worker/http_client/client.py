@@ -7,7 +7,7 @@ def retry_if_connection_error(exception):
     if isinstance(exception, requests.ConnectionError):
         return True
     if isinstance(exception, requests.HTTPError):
-        if exception.response.status_code in (503,):
+        if exception.response.status_code in (503, 504):
             return True
         # retry too many requests
         elif exception.response.status_code in (429,):
@@ -35,11 +35,14 @@ class Client:
         response_body = None
         # pylint: disable=E1101
         if response.status_code != requests.codes.no_content:
-            if 'application/json' in response.headers['Content-Type']:
+            content_type = response.headers.get('Content-Type', '')
+            if 'application/json' in content_type:
                 response_body = json.loads(
                     response.content.decode('utf-8'))
-            if 'text/plain' in response.headers['Content-Type']:
+            elif 'text/plain' in content_type:
                 response_body = response.content.decode()
+            else:
+                response_body = response.content
         return response.status_code, response_body
 
     def get(self, url):

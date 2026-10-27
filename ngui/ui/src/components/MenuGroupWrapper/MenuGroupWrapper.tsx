@@ -25,7 +25,7 @@ const MenuGroupWrapper = ({ menuSectionTitle, children, id, keepExpanded = false
         sx={{
           display: "flex",
           alignItems: "center",
-          height: "32px"
+          height: "32px",
         }}
       >
         <AccordionSummary sx={{ paddingRight: "0px" }} expandIcon={<ArrowDropDownIcon fontSize="small" />}>

@@ -29,18 +29,18 @@ const DeleteClusterTypeContainer = ({ onCancel, clusterTypeId, clusterTypeName }
       onCancel={onCancel}
       isLoading={isLoading}
       deleteButtonProps={{
-        onDelete: onSubmit
+        onDelete: onSubmit,
       }}
       dataTestIds={{
         text: "p_delete",
         deleteButton: "btn_smodal_delete",
-        cancelButton: "btn_cancel"
+        cancelButton: "btn_cancel",
       }}
       message={{
         messageId: "deleteClusterTypeQuestion",
         values: {
-          clusterTypeName
-        }
+          clusterTypeName,
+        },
       }}
     />
   );

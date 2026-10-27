@@ -13,35 +13,35 @@ const ExpensesSummaryContainer = ({ requestParams }) => {
       key: "totalExpenses",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: totalExpenses
+        value: totalExpenses,
       },
       captionMessageId: "totalExpenses",
       isLoading,
       dataTestIds: {
         cardTestId: "card_total_expenses",
         titleTestId: "p_expenses",
-        valueTestId: "p_expenses_value"
-      }
+        valueTestId: "p_expenses_value",
+      },
     },
     {
       key: "totalCount",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
       valueComponentProps: {
-        value: totalCount
+        value: totalCount,
       },
       captionMessageId: "resourceCount",
       isLoading,
       dataTestIds: {
         cardTestId: "card_total_count",
         titleTestId: "p_count",
-        valueTestId: "p_count_value"
-      }
+        valueTestId: "p_count_value",
+      },
     },
     {
       key: "possibleMonthlySavings",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: totalSaving
+        value: totalSaving,
       },
       captionMessageId: "possibleMonthlySavings",
       renderCondition: () => totalSaving !== 0,
@@ -52,15 +52,15 @@ const ExpensesSummaryContainer = ({ requestParams }) => {
         tooltip: {
           show: true,
           messageId: "seeAllRecommendations",
-          placement: "top"
-        }
+          placement: "top",
+        },
       },
       dataTestIds: {
         cardTestId: "card_possible_savings",
         titleTestId: "p_savings",
-        valueTestId: "p_savings_value"
-      }
-    }
+        valueTestId: "p_savings_value",
+      },
+    },
   ];
 
   return <SummaryGrid summaryData={summaryData} />;

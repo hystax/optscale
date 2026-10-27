@@ -61,7 +61,7 @@ const SideModal = ({ isOpen, closeHandler, dataTestId, headerProps, onClose, chi
   return (
     <Drawer
       SlideProps={{
-        "data-test-id": dataTestId
+        "data-test-id": dataTestId,
       }}
       anchor="right"
       open={isOpen}

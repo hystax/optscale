@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider
       state={{
-        rangeDates: {}
+        rangeDates: {},
       }}
     >
       <TtlAnalysisForm
@@ -19,7 +19,7 @@ it("renders without crashing", () => {
           ttlModeFieldName: "ttlModeFieldName",
           customTtlFieldName: "customTtlFieldName",
           startDateFieldName: "startDateFieldName",
-          endDateFieldName: "endDateFieldName"
+          endDateFieldName: "endDateFieldName",
         }}
         defaultValues={{}}
         isLoading={false}

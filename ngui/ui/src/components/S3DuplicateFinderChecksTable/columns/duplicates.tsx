@@ -11,7 +11,7 @@ const Stats = ({ stats }) => {
     total_objects: totalObjects,
     duplicated_objects: duplicatedObjects,
     total_size: totalSize,
-    duplicates_size: duplicatesSize
+    duplicates_size: duplicatesSize,
   } = stats;
 
   const getObjectsCountLabel = () => {
@@ -29,7 +29,7 @@ const Stats = ({ stats }) => {
           id="value / value"
           values={{
             value1: <FormattedDigitalUnit value={duplicatesSize} baseUnit={SI_UNITS.BYTE} />,
-            value2: <FormattedDigitalUnit value={totalSize} baseUnit={SI_UNITS.BYTE} />
+            value2: <FormattedDigitalUnit value={totalSize} baseUnit={SI_UNITS.BYTE} />,
           }}
         />
       </div>
@@ -46,9 +46,9 @@ const duplicates = () => ({
   id: "duplicates",
   cell: ({
     row: {
-      original: { stats, status }
-    }
-  }) => (status === STATUS.SUCCESS ? <Stats stats={stats} /> : CELL_EMPTY_VALUE)
+      original: { stats, status },
+    },
+  }) => (status === STATUS.SUCCESS ? <Stats stats={stats} /> : CELL_EMPTY_VALUE),
 });
 
 export default duplicates;

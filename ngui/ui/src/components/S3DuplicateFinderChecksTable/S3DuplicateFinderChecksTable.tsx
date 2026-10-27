@@ -18,7 +18,7 @@ const S3DuplicateFinderChecksTable = ({ geminis, isLoading }) => {
     () =>
       geminis.map((gemini) => ({
         ...gemini,
-        bucketsString: gemini.filters.buckets.map(({ name }) => name).join("")
+        bucketsString: gemini.filters.buckets.map(({ name }) => name).join(""),
       })),
     [geminis]
   );
@@ -47,15 +47,15 @@ const S3DuplicateFinderChecksTable = ({ geminis, isLoading }) => {
                 action: () => openSideModal(CreateS3DuplicateFinderCheckModal),
                 dataTestId: "btn_new_check",
                 requiredActions: ["EDIT_PARTNER"],
-                disabled: inScopeOfPageMockup
-              }
-            ]
-          }
+                disabled: inScopeOfPageMockup,
+              },
+            ],
+          },
         }}
         dataTestIds={{
           searchInput: "input_search",
           searchButton: "btn_search",
-          deleteSearchButton: "btn_delete_search"
+          deleteSearchButton: "btn_delete_search",
         }}
         localization={{ emptyMessageId: "noDuplicateChecks" }}
         pageSize={50}

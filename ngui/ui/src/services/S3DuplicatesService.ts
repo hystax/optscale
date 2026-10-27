@@ -16,7 +16,7 @@ const useGetAll = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { geminis = [] }
+    apiData: { geminis = [] },
   } = useApiData(GET_ORGANIZATION_GEMINIS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ORGANIZATION_GEMINIS, { organizationId });

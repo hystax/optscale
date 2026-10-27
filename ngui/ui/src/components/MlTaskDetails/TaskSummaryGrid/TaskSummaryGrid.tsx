@@ -21,63 +21,63 @@ const TaskSummaryGrid = ({ task, recommendations, isGetRecommendationsLoading, i
         [ML_TASK_STATUS.RUNNING]: "primary",
         [ML_TASK_STATUS.ABORTED]: "info",
         [ML_TASK_STATUS.COMPLETED]: "success",
-        [ML_TASK_STATUS.FAILED]: "error"
+        [ML_TASK_STATUS.FAILED]: "error",
       }[status],
       captionMessageId: "status",
       renderCondition: () => status !== undefined,
       isLoading: isTaskDetailsLoading,
       dataTestIds: {
-        cardTestId: "card_run_status"
-      }
+        cardTestId: "card_run_status",
+      },
     },
     {
       key: "duration",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.Custom,
       CustomValueComponent: FormattedDuration,
       valueComponentProps: {
-        durationInSeconds: lastRunDuration
+        durationInSeconds: lastRunDuration,
       },
       renderCondition: () => lastRunDuration && lastRunDuration !== 0,
       captionMessageId: "lastRunDuration",
       dataTestIds: {
-        cardTestId: "card_last_task_duration"
+        cardTestId: "card_last_task_duration",
       },
-      isLoading: isTaskDetailsLoading
+      isLoading: isTaskDetailsLoading,
     },
     {
       key: "lifetimeCost",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: totalCost
+        value: totalCost,
       },
       captionMessageId: "lifetimeCost",
       isLoading: isTaskDetailsLoading,
-      renderCondition: () => isFinOpsEnabled
+      renderCondition: () => isFinOpsEnabled,
     },
     {
       key: "recommendations",
       type: SUMMARY_CARD_TYPES.EXTENDED,
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: totalSaving
+        value: totalSaving,
       },
       help: {
         show: true,
-        messageId: "projectedMonthlySavingsForRelatedInfrastructure"
+        messageId: "projectedMonthlySavingsForRelatedInfrastructure",
       },
       captionMessageId: "summarySavings",
       relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
       relativeValueComponentProps: {
-        value: recommendationsCount
+        value: recommendationsCount,
       },
       relativeValueCaptionMessageId: "recommendationsCount",
       dataTestIds: {
-        cardTestId: "card_total_exp"
+        cardTestId: "card_total_exp",
       },
       color: totalSaving || recommendationsCount > 20 ? "error" : "success",
       isLoading: isGetRecommendationsLoading,
-      renderCondition: () => isFinOpsEnabled
-    }
+      renderCondition: () => isFinOpsEnabled,
+    },
   ];
 
   return <SummaryGrid summaryData={items} />;

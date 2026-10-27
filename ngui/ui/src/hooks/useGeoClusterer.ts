@@ -56,7 +56,7 @@ const useGeoClusterer = (markers, zoom) => {
       latitude,
       longitude,
       isCluster: true,
-      items: sortObjects({ array: cluster, field: "total" })
+      items: sortObjects({ array: cluster, field: "total" }),
     };
 
     return clusterDefinition;

@@ -1000,3 +1000,16 @@ class Err(enum.Enum):
         ["my_param"],
         []
     ]
+    OE0572 = [
+        "Cannot get data for gemini in status '%s'",
+        ["gemini_status"],
+        ['failed']
+    ]
+    OE0573 = [
+        "%s already exists (id='%s')",
+        ["duplicated object"],
+        ['34b44313-fada-4605-b809-7f31f65db037']
+    ]
+    OE0574 = [
+        "The interval between dates must not exceed %s"
+    ]

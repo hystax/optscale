@@ -9,8 +9,8 @@ class ExcludePoolsFromRecommendationModal extends BaseSideModal {
       formattedMessageValues: { recommendation: <FormattedMessage id={this.payload.recommendationName} /> },
       dataTestIds: {
         title: "lbl_exclude_pools_sidemodal_title",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

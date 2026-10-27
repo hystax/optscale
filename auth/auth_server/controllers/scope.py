@@ -44,12 +44,16 @@ class ScopeController(object):
             user, [action])
         if not action_resources:
             return []
-        downward_hierarchy = base_controller.get_downward_hierarchy(
-            'root', None)
         sorted_action_res = sorted(action_resources,
                                    key=base_controller.get_type_sorter())
-        aset = OrderedSet(sorted_action_res)
-        base_controller.render(sorted_action_res, aset, downward_hierarchy)
+        aset = OrderedSet()
+        for id_, res_type, action in sorted_action_res:
+            if (id_, res_type, action) in aset:
+                # downward hierarchy was derived from a higher entity
+                continue
+            downward_hierarchy = base_controller.get_downward_hierarchy(
+                res_type, id_)
+            base_controller.render(sorted_action_res, aset, downward_hierarchy)
         payload = list(map(lambda x: (x[1], x[0]), aset))
         resources_info = base_controller.get_resources_info(payload)
         res_type_dict = self._list_types()

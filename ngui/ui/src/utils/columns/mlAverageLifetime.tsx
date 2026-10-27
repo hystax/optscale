@@ -12,7 +12,7 @@ const mlAverageLifetime = ({ headerDataTestId = "lbl_average_lifetime", accessor
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: ({ cell }) => <LifeTime value={cell.getValue()} />
+  cell: ({ cell }) => <LifeTime value={cell.getValue()} />,
 });
 
 export default mlAverageLifetime;

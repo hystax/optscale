@@ -10,10 +10,10 @@ const OAuthSignIn = ({ googleButton, microsoftButton }) => (
         <FormattedMessage id="signInWith" />
       </SubTitle>
     </Grid>
-    <Grid item xs={6}>
+    <Grid item xs={12} sm={6}>
       {googleButton}
     </Grid>
-    <Grid item xs={6}>
+    <Grid item xs={12} sm={6}>
       {microsoftButton}
     </Grid>
   </Grid>

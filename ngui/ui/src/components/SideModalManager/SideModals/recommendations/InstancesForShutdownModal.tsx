@@ -11,7 +11,7 @@ import { useCommonSettingsData, useFormWithValuesFromOptions } from "./hooks";
 const VALUE_KEYS = Object.freeze({
   [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
   [THRESHOLD_INPUT_NAMES.CPU_PERCENT_THRESHOLD]: "cpu_percent_threshold",
-  [THRESHOLD_INPUT_NAMES.NETWORK_BPS_THRESHOLD]: "network_bps_threshold"
+  [THRESHOLD_INPUT_NAMES.NETWORK_BPS_THRESHOLD]: "network_bps_threshold",
 });
 
 const InstancesForShutdownForm = ({ recommendationType, onSuccess }) => {
@@ -26,7 +26,7 @@ const InstancesForShutdownForm = ({ recommendationType, onSuccess }) => {
     <FormProvider {...methods}>
       <form noValidate onSubmit={submitHandler}>
         <TextWithInlineInput
-          messageId={"thresholds.instancesForShutdown.intro"}
+          messageId="thresholds.instancesForShutdown.intro"
           isLoading={isGetDataLoading}
           lessOrEqualValidation={lessOrEqual(COMMON_YEAR_LENGTH)}
           name={THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD}
@@ -63,8 +63,8 @@ class InstancesForShutdownModal extends BaseSideModal {
     messageId: "instancesForShutdown",
     dataTestIds: {
       title: "lbl_instances_for_shutdown_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_instances_for_shutdown";

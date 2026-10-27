@@ -14,12 +14,12 @@ class WithoutTagFilter extends Filter {
 
   // TODO: Use ajv TS integration to create schema based on types def
   static filterItemSchema = {
-    type: "string"
+    type: "string",
   };
 
   // TODO: Use ajv TS integration to create schema based on types def
   static appliedFilterSchema = {
-    type: "string"
+    type: "string",
   };
 
   static _getValue(filterItem) {
@@ -38,7 +38,7 @@ class WithoutTagFilter extends Filter {
     return {
       value: appliedFilter,
       displayedValue: this.constructor.getDisplayedValueRenderer(filterItem),
-      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem),
     };
   }
 }

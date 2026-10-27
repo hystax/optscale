@@ -10,14 +10,14 @@ export const FIELD_NAMES = Object.freeze({
     ARRAY_FIELD_NAMES: Object.freeze({
       METRIC_MIN: "min",
       METRIC_MAX: "max",
-      METRIC: "metric"
-    })
+      METRIC: "metric",
+    }),
   }),
   DATASETS_COVERAGE_ARRAY_FIELD_NAMES: Object.freeze({
     NAME: "datasetsCoverage",
     ARRAY_FIELD_NAMES: Object.freeze({
       DATASET_LABEL: "datasetLabel",
-      LAST_DATASETS_COVERED: "lastDatasetsCovered"
-    })
-  })
+      LAST_DATASETS_COVERED: "lastDatasetsCovered",
+    }),
+  }),
 });

@@ -5,8 +5,8 @@ import ResourcesPerspectivesComponent from "components/ResourcesPerspectives";
 const actionBarDefinition = {
   title: {
     messageId: "perspectives",
-    dataTestId: "lbl_perspectives"
-  }
+    dataTestId: "lbl_perspectives",
+  },
 };
 
 const ResourcesPerspectives = () => (

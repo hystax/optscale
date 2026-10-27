@@ -108,7 +108,7 @@ class CloudResource:
             'cloud_console_link': self.cloud_console_link,
         }
 
-    def post_discover(self):
+    def post_discover(self, tracking_id):
         # Method that will be called after resource has been discovered
         pass
 

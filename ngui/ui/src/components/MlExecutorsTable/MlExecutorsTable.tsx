@@ -8,7 +8,7 @@ const MlExecutorsTable = ({
   withExpenses = false,
   disableExecutorLink = false,
   disableLocationLink = false,
-  isLoading = false
+  isLoading = false,
 }) => {
   const memoizedExecutors = useMemo(() => executors, [executors]);
 
@@ -17,7 +17,7 @@ const MlExecutorsTable = ({
       getColumns({
         withExpenses,
         disableExecutorLink,
-        disableLocationLink
+        disableLocationLink,
       }),
     [disableExecutorLink, disableLocationLink, withExpenses]
   );

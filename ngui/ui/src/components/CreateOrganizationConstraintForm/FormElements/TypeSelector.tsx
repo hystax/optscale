@@ -9,7 +9,7 @@ const FIELD_NAME = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.TYPE;
 const TypeSelector = ({ types }) => {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -22,8 +22,8 @@ const TypeSelector = ({ types }) => {
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
-        }
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
+        },
       }}
       render={({ field: controllerField }) => (
         <Selector
@@ -39,7 +39,7 @@ const TypeSelector = ({ types }) => {
             <Item key={type} value={type}>
               <ItemContent>
                 {intl.formatMessage({
-                  id: ANOMALY_TYPES[type] || QUOTAS_AND_BUDGETS_TYPES[type] || TAGGING_POLICY_TYPES[type]
+                  id: ANOMALY_TYPES[type] || QUOTAS_AND_BUDGETS_TYPES[type] || TAGGING_POLICY_TYPES[type],
                 })}
               </ItemContent>
             </Item>

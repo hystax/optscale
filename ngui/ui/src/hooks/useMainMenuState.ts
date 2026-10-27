@@ -13,7 +13,7 @@ export const useMainMenuState = () => {
 
   return {
     isExpanded,
-    updateIsExpanded
+    updateIsExpanded,
   };
 };
 

@@ -4,58 +4,58 @@ const testCases = {
   primitives: [
     {
       input: null,
-      expected: 3938
+      expected: 3938,
     },
     {
       input: undefined,
-      expected: 3938
+      expected: 3938,
     },
     {
       input: 123,
-      expected: 48690
+      expected: 48690,
     },
     {
       input: "123",
-      expected: 32909138
+      expected: 32909138,
     },
     {
       input: true,
-      expected: 3569038
-    }
+      expected: 3569038,
+    },
   ],
   objects: [
     {
       input: [123],
-      expected: 85549894
+      expected: 85549894,
     },
     {
       input: { c: "1", a: [1, 2, 3] },
-      expected: -1632154681
+      expected: -1632154681,
     },
     {
       input: {},
-      expected: 3938
+      expected: 3938,
     },
     {
       input: [],
-      expected: 2914
-    }
-  ]
+      expected: 2914,
+    },
+  ],
 };
 
 const stabilityTestCases = {
   "reordered properties names": [
     { b: 1, c: 2, a: [3, 4, 1] },
-    { c: 2, b: 1, a: [3, 4, 1] }
+    { c: 2, b: 1, a: [3, 4, 1] },
   ],
   "property value reordered array": [
     { b: 1, c: 2, a: [3, 4, 1] },
-    { b: 1, c: 2, a: [1, 4, 3] }
+    { b: 1, c: 2, a: [1, 4, 3] },
   ],
   "reordered arrays": [
     [1, 2, 3],
-    [3, 2, 1]
-  ]
+    [3, 2, 1],
+  ],
 };
 
 describe("hashParams works on different data", () => {

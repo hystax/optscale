@@ -13,7 +13,7 @@ const ClusterTypesContainer = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { clusterTypes = [] }
+    apiData: { clusterTypes = [] },
   } = useApiData(GET_CLUSTER_TYPES);
 
   const { isLoading: isGetClusterTypesLoading, shouldInvoke } = useApiState(GET_CLUSTER_TYPES, organizationId);

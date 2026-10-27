@@ -10,21 +10,21 @@ const useStyles = makeStyles()((theme, color) => ({
     flexDirection: "column",
     justifyContent: "space-between",
     border: !color ? `1px solid ${lighten(theme.palette.info.main, 0.8)}` : "",
-    backgroundColor: color ? lighten(theme.palette[color].main, ALPHA) : ""
+    backgroundColor: color ? lighten(theme.palette[color].main, ALPHA) : "",
   },
   content: {
     display: "flex",
     flexDirection: "column",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   description: {
-    marginBottom: theme.spacing(SPACING_2)
+    marginBottom: theme.spacing(SPACING_2),
   },
   actions: {
     justifyContent: "space-between",
     paddingLeft: theme.spacing(SPACING_2),
-    paddingRight: theme.spacing(SPACING_2)
-  }
+    paddingRight: theme.spacing(SPACING_2),
+  },
 }));
 
 export default useStyles;

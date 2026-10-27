@@ -37,7 +37,7 @@ const useDataSourceNodesTableData = (nodes) => {
             caption={[
               {
                 key: "cpu",
-                node: <KeyValueLabel keyText={cpuCapacityString} value={cpu} variant={capacityLabelVariant} />
+                node: <KeyValueLabel keyText={cpuCapacityString} value={cpu} variant={capacityLabelVariant} />,
               },
               {
                 key: "memory",
@@ -47,13 +47,13 @@ const useDataSourceNodesTableData = (nodes) => {
                     value={`${memory} ${intl.formatMessage({ id: "GB" })}`}
                     variant={capacityLabelVariant}
                   />
-                )
-              }
+                ),
+              },
             ]}
           >
             {flavorName}
           </CaptionedCell>
-        )
+        ),
       };
     };
 
@@ -64,7 +64,7 @@ const useDataSourceNodesTableData = (nodes) => {
       return {
         ...node,
         flavorInfoString: getFlavorInfoStringRepresentation(),
-        renderFlavorInfoCell
+        renderFlavorInfoCell,
       };
     };
 
@@ -85,9 +85,9 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
         cell: ({
           cell,
           row: {
-            original: { provider }
-          }
-        }) => <CloudLabel label={cell.getValue()} type={provider} />
+            original: { provider },
+          },
+        }) => <CloudLabel label={cell.getValue()} type={provider} />,
       },
       {
         header: (
@@ -96,7 +96,7 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
           </TextWithDataTestId>
         ),
         accessorKey: "flavorInfoString",
-        cell: ({ row: { original } }) => original.renderFlavorInfoCell()
+        cell: ({ row: { original } }) => original.renderFlavorInfoCell(),
       },
       {
         header: (
@@ -106,7 +106,7 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
         ),
         accessorKey: "hourly_price",
         cell: ({ cell }) => <CostModelFormattedMoney value={cell.getValue()} />,
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       {
         header: (
@@ -119,8 +119,8 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
           const value = cell.getValue();
 
           return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
-        }
-      }
+        },
+      },
     ],
     []
   );
@@ -134,7 +134,7 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
       data={tableData}
       columns={nodeTableColumns}
       localization={{
-        emptyMessageId: "noNodes"
+        emptyMessageId: "noNodes",
       }}
       pageSize={50}
       queryParamPrefix="nodes"

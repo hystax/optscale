@@ -14,7 +14,7 @@ const slicedText = ({
   accessorKey,
   maxTextLength = DEFAULT_MAX_TEXT_LENGTH,
   copy = false,
-  enableSorting
+  enableSorting,
 } = {}) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -39,7 +39,7 @@ const slicedText = ({
     }
 
     return slicedTextElement;
-  }
+  },
 });
 
 export default slicedText;

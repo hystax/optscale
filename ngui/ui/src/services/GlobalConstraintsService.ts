@@ -5,7 +5,7 @@ import {
   getGlobalResourceConstraints,
   RESTAPI,
   getPoolAllowedActions,
-  getResourceAllowedActions
+  getResourceAllowedActions,
 } from "api";
 import { GET_POOL_ALLOWED_ACTIONS, GET_RESOURCE_ALLOWED_ACTIONS } from "api/auth/actionTypes";
 import { GET_GLOBAL_POOL_POLICIES, GET_GLOBAL_RESOURCE_CONSTRAINTS } from "api/restapi/actionTypes";
@@ -23,7 +23,7 @@ const useGetPoolPolicies = () => {
 
   const { isLoading: isGetGlobalPoolPoliciesLoading, shouldInvoke } = useApiState(GET_GLOBAL_POOL_POLICIES, {
     organizationId,
-    ...params
+    ...params,
   });
 
   const { isLoading: isGetPoolAllowedActionsLoading } = useApiState(GET_POOL_ALLOWED_ACTIONS);
@@ -56,7 +56,7 @@ const useGetResourceConstraints = () => {
 
   const { isLoading: isGetGlobalResourceConstraintsLoading, shouldInvoke } = useApiState(GET_GLOBAL_RESOURCE_CONSTRAINTS, {
     organizationId,
-    ...params
+    ...params,
   });
   const { apiData: constraints } = useApiData(GET_GLOBAL_RESOURCE_CONSTRAINTS, []);
 

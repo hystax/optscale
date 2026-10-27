@@ -152,22 +152,25 @@ class FilterDetailsController(AvailableFiltersController):
     def _generate_base_filter(self, organization_id, start_date, end_date):
         _, cloud_accs = self.get_organization_and_cloud_accs(organization_id)
         cloud_account_ids = [c.id for c in cloud_accs]
+        filters = [
+            {'_first_seen_date': {'$lte': timestamp_to_day_start(
+                end_date)}},
+            {'_last_seen_date': {'$gte': timestamp_to_day_start(
+                start_date)}},
+            {'first_seen': {'$lte': end_date}},
+            {'last_seen': {'$gte': start_date}},
+            {'deleted_at': 0}
+        ]
         query = {
-            '$and': [
-                {'$or': [
-                    {'$and': [
-                        {'organization_id': organization_id},
-                        {'cloud_account_id': None}
-                    ]},
-                    {'cloud_account_id': {'$in': cloud_account_ids}}
+            '$or': [
+                {'$and': [
+                    {'organization_id': organization_id, 'cloud_account_id': None},
+                    *filters
                 ]},
-                {'_first_seen_date': {'$lte': timestamp_to_day_start(
-                    end_date)}},
-                {'_last_seen_date': {'$gte': timestamp_to_day_start(
-                    start_date)}},
-                {'first_seen': {'$lte': end_date}},
-                {'last_seen': {'$gte': start_date}},
-                {'deleted_at': 0}
+                {'$and': [
+                    {'cloud_account_id': {'$in': cloud_account_ids}},
+                    *filters
+                ]}
             ]
         }
         return query
@@ -177,7 +180,8 @@ class FilterDetailsController(AvailableFiltersController):
         params.pop('cloud_account_id', None)
         query = self._generate_base_filter(
             organization_id, start_date, end_date)
-        query['$and'].append({'cluster_id': None})
+        for part in query['$or']:
+            part['$and'].append({'cluster_id': None})
 
         subquery = []
         resource_type_condition = self.get_resource_type_condition(
@@ -247,7 +251,8 @@ class FilterDetailsController(AvailableFiltersController):
                     ]})
 
         if subquery:
-            query['$and'].append({'$or': subquery})
+            for part in query['$or']:
+                part['$and'].append({'$or': subquery})
         return query
 
     def get_resources_data(self, organization_id, query_filters,

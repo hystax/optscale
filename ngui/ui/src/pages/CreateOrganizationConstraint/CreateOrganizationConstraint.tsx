@@ -11,7 +11,7 @@ import {
   QUOTAS_AND_BUDGETS,
   QUOTA_AND_BUDGET_CREATE,
   TAGGING_POLICIES,
-  TAGGING_POLICY_CREATE
+  TAGGING_POLICY_CREATE,
 } from "urls";
 import { ANOMALY_TYPES, QUOTAS_AND_BUDGETS_TYPES, TAGGING_POLICY_TYPES } from "utils/constants";
 
@@ -23,13 +23,13 @@ const properties = {
       breadcrumbs: [
         <Link key={1} to={ANOMALIES} component={RouterLink}>
           <FormattedMessage id="anomalyDetectionTitle" />
-        </Link>
+        </Link>,
       ],
       title: {
         text: <FormattedMessage id="createAnomalyDetectionPolicyTitle" />,
-        dataTestId: "lbl_create_anomaly_detection_policy"
-      }
-    }
+        dataTestId: "lbl_create_anomaly_detection_policy",
+      },
+    },
   },
   [QUOTA_AND_BUDGET_CREATE]: {
     types: Object.keys(QUOTAS_AND_BUDGETS_TYPES),
@@ -38,13 +38,13 @@ const properties = {
       breadcrumbs: [
         <Link key={1} to={QUOTAS_AND_BUDGETS} component={RouterLink}>
           <FormattedMessage id="quotasAndBudgetsTitle" />
-        </Link>
+        </Link>,
       ],
       title: {
         text: <FormattedMessage id="createQuotaAndBudgetPolicyTitle" />,
-        dataTestId: "lbl_create_quota_and_budget_policy"
-      }
-    }
+        dataTestId: "lbl_create_quota_and_budget_policy",
+      },
+    },
   },
   [TAGGING_POLICY_CREATE]: {
     types: Object.keys(TAGGING_POLICY_TYPES),
@@ -53,14 +53,14 @@ const properties = {
       breadcrumbs: [
         <Link key={1} to={TAGGING_POLICIES} component={RouterLink}>
           <FormattedMessage id="taggingPolicy.taggingPoliciesTitle" />
-        </Link>
+        </Link>,
       ],
       title: {
         text: <FormattedMessage id="taggingPolicy.createTaggingPolicyTitle" />,
-        dataTestId: "lbl_create_tagging_policy"
-      }
-    }
-  }
+        dataTestId: "lbl_create_tagging_policy",
+      },
+    },
+  },
 };
 const getProperties = (pathname) => properties[pathname];
 

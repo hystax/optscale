@@ -27,6 +27,6 @@ export const useRecommendationPinActions = (recommendationType) => {
 
   return {
     pin: () => dispatch(pinRecommendation(recommendationType)),
-    unpin: () => dispatch(unpinRecommendation(recommendationType))
+    unpin: () => dispatch(unpinRecommendation(recommendationType)),
   };
 };

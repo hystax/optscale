@@ -7,12 +7,12 @@ import useStyles from "./SortGroupsBySelector.styles";
 export const SORT_GROUPS_BY = [
   {
     name: intl.formatMessage({ id: "expenses" }).toLowerCase(),
-    value: TOTAL_EXPENSES
+    value: TOTAL_EXPENSES,
   },
   {
     name: intl.formatMessage({ id: "resourceCount" }).toLowerCase(),
-    value: COUNT
-  }
+    value: COUNT,
+  },
 ];
 
 const SortGroupsBySelector = ({ sortGroupsBy, setSortGroupsBy }) => {
@@ -29,7 +29,7 @@ const SortGroupsBySelector = ({ sortGroupsBy, setSortGroupsBy }) => {
         }}
         value={sortGroupsBy}
         sx={{
-          minWidth: "initial"
+          minWidth: "initial",
         }}
       >
         <Item value={TOTAL_EXPENSES}>

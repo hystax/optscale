@@ -22,15 +22,15 @@ const useGetBuckets = (dataSourceIds) => {
         type: "bucket",
         cloud_type: AWS_CNR,
         filters: JSON.stringify({
-          cloud_account_id: dataSourceIds
-        })
+          cloud_account_id: dataSourceIds,
+        }),
       });
     }
   }, [getData, dataSourceIds]);
 
   return {
     buckets,
-    isLoading
+    isLoading,
   };
 };
 
@@ -39,7 +39,7 @@ const CreateS3DuplicateFinderCheckContainer = ({ handleClose }) => {
   const { onCreate, isLoading: isCreateLoading } = useCreate();
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit, watch } = methods;
@@ -57,9 +57,9 @@ const CreateS3DuplicateFinderCheckContainer = ({ handleClose }) => {
         min_size: Number(formData.size) * 1024 * 1024,
         buckets: selectedBuckets.map(({ name, cloud_account_id: cloudAccountId }) => ({
           name,
-          cloud_account_id: cloudAccountId
-        }))
-      }
+          cloud_account_id: cloudAccountId,
+        })),
+      },
     }).then(handleClose);
   });
 
@@ -74,7 +74,7 @@ const CreateS3DuplicateFinderCheckContainer = ({ handleClose }) => {
           onCancel={handleClose}
           isLoadingProps={{
             isSubmitLoading: isCreateLoading,
-            isGetBucketsLoading
+            isGetBucketsLoading,
           }}
           onSubmit={onSubmit}
         />

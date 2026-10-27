@@ -35,7 +35,7 @@ const ColumnSets = ({ columnSets, tableContext, onApply, onDelete, isLoadingProp
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessorKey: "name"
+        accessorKey: "name",
       },
       {
         header: (
@@ -55,7 +55,7 @@ const ColumnSets = ({ columnSets, tableContext, onApply, onDelete, isLoadingProp
                   messageId: "apply",
                   icon: <ManageSearchOutlinedIcon />,
                   isLoading: getIsGetColumnSetLoading(id),
-                  action: () => onApply(id)
+                  action: () => onApply(id),
                 },
                 {
                   key: "delete",
@@ -63,13 +63,13 @@ const ColumnSets = ({ columnSets, tableContext, onApply, onDelete, isLoadingProp
                   color: "error",
                   icon: <DeleteOutlinedIcon />,
                   isLoading: getIsDeleteColumnSetLoading(id),
-                  action: () => onDelete(id)
-                }
+                  action: () => onDelete(id),
+                },
               ]}
             />
           );
-        }
-      }
+        },
+      },
     ],
     [getIsDeleteColumnSetLoading, getIsGetColumnSetLoading, onApply, onDelete]
   );
@@ -94,7 +94,7 @@ const ColumnSets = ({ columnSets, tableContext, onApply, onDelete, isLoadingProp
             enableSearchQueryParam={false}
             enablePaginationQueryParam={false}
             localization={{
-              emptyMessageId: "noSets"
+              emptyMessageId: "noSets",
             }}
           />
         )}

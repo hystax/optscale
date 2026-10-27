@@ -31,7 +31,7 @@ const ThanksForSigningUp = ({ refetchInvitations, isInvitationsRefetching }) => 
                 if (isEmptyArray(invitations)) {
                   setShowSnackbar(true);
                 }
-              }
+              },
             })
           }
           isLoading={isInvitationsRefetching}

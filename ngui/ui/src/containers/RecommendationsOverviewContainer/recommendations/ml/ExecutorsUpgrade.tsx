@@ -7,22 +7,22 @@ import BaseRecommendation from "../BaseRecommendation";
 const columns = [
   mlExecutor(),
   lastUsed({
-    defaultSort: "desc"
+    defaultSort: "desc",
   }),
   resourceLocation({
     headerDataTestId: "lbl_location",
     idAccessor: "cloud_id",
     typeAccessor: "cloud_type",
-    accessorKey: "cloud_name"
+    accessorKey: "cloud_name",
   }),
   size({
     accessorKey: "size",
-    headerDataTestId: "lbl_size"
+    headerDataTestId: "lbl_size",
   }),
   recommendedSize({
     accessorKey: "recommended_size",
-    headerDataTestId: "lbl_recommended_size"
-  })
+    headerDataTestId: "lbl_recommended_size",
+  }),
 ];
 
 class ExecutorsUpgrade extends BaseRecommendation {
@@ -49,8 +49,8 @@ class ExecutorsUpgrade extends BaseRecommendation {
               icon={<CloudTypeIcon type={cloudType} hasRightMargin />}
               label={<CloudResourceId resourceId={cloudResourceId} cloudResourceIdentifier={id} />}
             />
-          )
-        }
+          ),
+        },
       ];
     });
   }

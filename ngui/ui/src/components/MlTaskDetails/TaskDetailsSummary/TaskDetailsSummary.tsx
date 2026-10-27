@@ -28,7 +28,7 @@ const LastRunExecutorSummary = ({ isLoading, lastRunExecutor }) => {
     instance_type: instanceType,
     platform_type: platformType,
     resource,
-    discovered
+    discovered,
   } = lastRunExecutor ?? {};
 
   return (
@@ -61,7 +61,7 @@ const LastRunExecutorSummary = ({ isLoading, lastRunExecutor }) => {
         />,
         <KeyValueLabel key="name" keyMessageId="name" value={resource?.name} />,
         <KeyValueLabel key="region" keyMessageId="region" value={instanceRegion} />,
-        <KeyValueLabel key="size" keyMessageId="size" value={instanceType} />
+        <KeyValueLabel key="size" keyMessageId="size" value={instanceType} />,
       ]}
     />
   );
@@ -77,7 +77,7 @@ const SummaryInfo = ({
   lastSuccessfulRunTimestamp,
   lastRunCost,
   ownerName,
-  lastRunExecutor
+  lastRunExecutor,
 }) => {
   const navigate = useNavigate();
 
@@ -93,10 +93,10 @@ const SummaryInfo = ({
               navigate(
                 getEditMlTaskUrl(taskId, {
                   tab: "metrics",
-                  [ML_TASK_DETAILS_TAB_NAME]: mlTaskDetailsTabName
+                  [ML_TASK_DETAILS_TAB_NAME]: mlTaskDetailsTabName,
                 })
               );
-            }
+            },
           }}
           isLoading={isLoading}
           items={
@@ -122,7 +122,7 @@ const SummaryInfo = ({
                 <FormattedMessage
                   id={lastSuccessfulRunTimestamp === 0 ? "never" : "valueAgo"}
                   values={{
-                    value: lastSuccessfulRunTimestamp ? getTimeDistance(lastSuccessfulRunTimestamp) : null
+                    value: lastSuccessfulRunTimestamp ? getTimeDistance(lastSuccessfulRunTimestamp) : null,
                   }}
                 />
               }
@@ -130,7 +130,7 @@ const SummaryInfo = ({
             <CapabilityWrapper key="lastRunCost" capability={OPTSCALE_CAPABILITY.FINOPS}>
               <KeyValueLabel keyMessageId="lastRunCost" value={<FormattedMoney value={lastRunCost} />} />
             </CapabilityWrapper>,
-            <KeyValueLabel key="owner" keyMessageId="owner" value={ownerName ?? "-"} />
+            <KeyValueLabel key="owner" keyMessageId="owner" value={ownerName ?? "-"} />,
           ]}
         />
       </Box>
@@ -151,7 +151,7 @@ const TaskDetailsSummary = ({ task, isTaskDetailsLoading = false }) => {
     last_successful_run: lastSuccessfulRunTimestamp,
     runs_count: runsCount = 0,
     last_run_executor: lastRunExecutor,
-    last_run_reached_goals: lastRunReachedGoals = {}
+    last_run_reached_goals: lastRunReachedGoals = {},
   } = task;
 
   return (

@@ -67,7 +67,7 @@ export const getResourceExpensesSplits = (breakdown) => {
     // Date to show in daily and weekly breakdowns as bar label
     date: formatUTC(b.date, EN_FORMAT_SHORT_YEAR),
     // Used to group items by months and to show date below chart as bar label
-    dateMonthYear: formatUTC(b.date, FORMAT_MMM_YYYY)
+    dateMonthYear: formatUTC(b.date, FORMAT_MMM_YYYY),
   }));
 
   // each item represents one day, to get week ranges
@@ -83,6 +83,6 @@ export const getResourceExpensesSplits = (breakdown) => {
     ),
     [EXPENSES_SPLIT_PERIODS.MONTHLY]: Object.entries(createGroupsObjectFromArray(withDates, "dateMonthYear")).flatMap(
       ([date, monthData]) => summarize(monthData, date)
-    )
+    ),
   };
 };

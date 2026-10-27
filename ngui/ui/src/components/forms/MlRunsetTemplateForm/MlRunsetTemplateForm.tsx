@@ -18,7 +18,7 @@ import {
   RegionsField,
   InstanceTypesField,
   TasksField,
-  MaximumRunsetRunners
+  MaximumRunsetRunners,
 } from "./FormElements";
 import { FormValues } from "./types";
 
@@ -30,7 +30,7 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
   const { isGetAllTasksLoading = false, isGetRunsetTemplateLoading = false, isSubmitLoading = false } = isLoading;
 
   const methods = useForm<FormValues>({
-    defaultValues
+    defaultValues,
   });
 
   const { reset, handleSubmit } = methods;
@@ -47,8 +47,8 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
         alertProps={{
           messageId: "runsetTemplateDescription",
           sx: {
-            width: "100%"
-          }
+            width: "100%",
+          },
         }}
       />
       <form
@@ -63,7 +63,7 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
             budget: isFinOpsEnabled ? Number(formData[FIELD_NAMES.BUDGET]) : UNLIMITED_BUDGET,
             name_prefix: formData[FIELD_NAMES.RESOURCE_NAME_PREFIX],
             tags: {
-              [formData[FIELD_NAMES.TAG_KEY]]: formData[FIELD_NAMES.TAG_VALUE]
+              [formData[FIELD_NAMES.TAG_KEY]]: formData[FIELD_NAMES.TAG_VALUE],
             },
             hyperparameters: Object.fromEntries(
               formData[FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.FIELD_NAME].map((field) => {
@@ -73,7 +73,7 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
                 return [hyperparameterName, hyperparameterEnvironmentVariable];
               })
             ),
-            max_runner_num: Number(formData[FIELD_NAMES.MAXIMUM_RUNSET_RUNNERS])
+            max_runner_num: Number(formData[FIELD_NAMES.MAXIMUM_RUNSET_RUNNERS]),
           };
 
           onSubmit(data);

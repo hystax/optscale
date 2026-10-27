@@ -41,7 +41,7 @@ const SaveButton = ({ isLoading }: SaveButtonProps) => {
       disabled={isRestricted}
       tooltip={{
         show: isRestricted,
-        value: restrictionReasonMessage
+        value: restrictionReasonMessage,
       }}
       isLoading={isLoading}
     />
@@ -56,7 +56,7 @@ const EditFormButtons = ({
   modelName,
   modelId,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: MlEditModelFormButtonsProps & {
   modelName: string;
   modelId: string;

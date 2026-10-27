@@ -7,13 +7,13 @@ export const CONSTRAINTS = [TTL, TOTAL_EXPENSE_LIMIT, DAILY_EXPENSE_LIMIT];
 export const CONSTRAINTS_TYPES = Object.freeze({
   [TOTAL_EXPENSE_LIMIT]: "totalExpenseLimit",
   [DAILY_EXPENSE_LIMIT]: "dailyExpenseLimit",
-  [TTL]: "ttl"
+  [TTL]: "ttl",
 });
 
 export const CONSTRAINT_MESSAGE_FORMAT = Object.freeze({
   TEXT: "text",
   DATETIME: "datetime",
-  EXPIRES_AT_DATETIME: "expiresAtDatetime"
+  EXPIRES_AT_DATETIME: "expiresAtDatetime",
 });
 
 export const isExpensesLimit = (limitType) => [TOTAL_EXPENSE_LIMIT, DAILY_EXPENSE_LIMIT].includes(limitType);

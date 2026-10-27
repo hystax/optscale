@@ -22,14 +22,14 @@ const TableField = ({ instances, value, onChange }) => {
         activeAccessor: "active",
         powerScheduleAccessor: "power_schedule",
         headerDataTestId: "lbl_instance_to_add",
-        titleMessageId: "instance"
+        titleMessageId: "instance",
       }),
       resourcePoolOwner({
         id: "pool/owner",
         accessorFn: (rowOriginal) => {
           const { owner: { name: ownerName } = {} } = rowOriginal;
           const {
-            pool: { name: poolName }
+            pool: { name: poolName },
           } = rowOriginal;
 
           return [poolName, ownerName].filter((str) => str !== "").join(" ");
@@ -39,7 +39,7 @@ const TableField = ({ instances, value, onChange }) => {
 
           return owner
             ? {
-                name: owner.name
+                name: owner.name,
               }
             : undefined;
         },
@@ -50,19 +50,19 @@ const TableField = ({ instances, value, onChange }) => {
             ? {
                 id: pool.id,
                 name: pool.name,
-                purpose: pool.purpose
+                purpose: pool.purpose,
               }
             : undefined;
-        }
+        },
       }),
       resourceLocation({
         headerDataTestId: "lbl_location",
-        typeAccessor: "cloud_account_type"
+        typeAccessor: "cloud_account_type",
       }),
       size({
         id: "size",
         accessorFn: (originalRow) => originalRow.meta?.flavor,
-        headerDataTestId: "lbl_size"
+        headerDataTestId: "lbl_size",
       }),
       tags({
         id: "tags",
@@ -70,8 +70,8 @@ const TableField = ({ instances, value, onChange }) => {
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
-        getTags: (originalRow) => originalRow.tags
-      })
+        getTags: (originalRow) => originalRow.tags,
+      }),
     ],
     []
   );
@@ -87,7 +87,7 @@ const TableField = ({ instances, value, onChange }) => {
       onRowSelectionChange={onChange}
       pageSize={10}
       localization={{
-        emptyMessageId: "noInstances"
+        emptyMessageId: "noInstances",
       }}
       enableSearchQueryParam={false}
       enablePaginationQueryParam={false}
@@ -97,7 +97,7 @@ const TableField = ({ instances, value, onChange }) => {
 
 const InstancesField = ({ instances, instancesCountLimit, isLoading = false }) => {
   const {
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   const intl = useIntl();
@@ -108,8 +108,8 @@ const InstancesField = ({ instances, instancesCountLimit, isLoading = false }) =
       rules={{
         validate: {
           atLeastOneSelected: (value) =>
-            isEmptyObject(value) ? intl.formatMessage({ id: "atLeastOneInstanceMustBeSelected" }) : true
-        }
+            isEmptyObject(value) ? intl.formatMessage({ id: "atLeastOneInstanceMustBeSelected" }) : true,
+        },
       }}
       render={({ field: { value, onChange } }) => {
         if (isLoading) {
@@ -128,8 +128,8 @@ const InstancesField = ({ instances, instancesCountLimit, isLoading = false }) =
                   messageId: "rowsLimitWarning",
                   messageValues: {
                     entities: intl.formatMessage({ id: "instances" }).toLocaleLowerCase(),
-                    count: instancesCountLimit
-                  }
+                    count: instancesCountLimit,
+                  },
                 }}
               />
             )}

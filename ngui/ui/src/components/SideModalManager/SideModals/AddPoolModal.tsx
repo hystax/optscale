@@ -24,7 +24,7 @@ class AddPoolModal extends BaseSideModal {
                       : this.payload?.parentPoolName}
                   </span>
                 </Tooltip>
-              )
+              ),
             }}
           />
         </div>
@@ -32,8 +32,8 @@ class AddPoolModal extends BaseSideModal {
       color: "success",
       dataTestIds: {
         title: "lbl_add_pool",
-        closeButton: "bnt_close"
-      }
+        closeButton: "bnt_close",
+      },
     };
   }
 

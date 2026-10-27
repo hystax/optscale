@@ -9,5 +9,5 @@ export const ram = () => ({
     </TextWithDataTestId>
   ),
   accessorKey: "ram",
-  cell: ({ cell }) => <FormattedDigitalUnit value={cell.getValue()} baseUnit={IEC_UNITS.GIBIBYTE} />
+  cell: ({ cell }) => <FormattedDigitalUnit value={cell.getValue()} baseUnit={IEC_UNITS.GIBIBYTE} />,
 });

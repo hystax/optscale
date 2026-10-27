@@ -1,0 +1,18 @@
+[project]
+name = "herald-client"
+version = "0.0.0"
+description = "OptScale Herald Client"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "requests==2.32.4",
+    "retrying==1.4.1",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["optscale_client.herald_client*"]
+namespaces = true

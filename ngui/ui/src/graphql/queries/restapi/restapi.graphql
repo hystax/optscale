@@ -1,7 +1,10 @@
 fragment AwsDataSourceConfigFragment on AwsDataSource {
+  last_import_source_id
+  last_import_source_account_id
   config {
     assume_role_account_id
     assume_role_name
+    assume_role_external_id
     access_key_id
     linked
     use_edp_discount
@@ -11,6 +14,8 @@ fragment AwsDataSourceConfigFragment on AwsDataSource {
     config_scheme
     region_name
     report_name
+    included_regions
+    excluded_regions
   }
 }
 
@@ -333,6 +338,10 @@ mutation UpdateDataSource($dataSourceId: ID!, $params: UpdateDataSourceInput!) {
   }
 }
 
+mutation ScheduleDataSourceReimport($dataSourceId: ID!, $importFrom: Int!) {
+  scheduleDataSourceReimport(dataSourceId: $dataSourceId, importFrom: $importFrom)
+}
+
 mutation DeleteDataSource($dataSourceId: ID!) {
   deleteDataSource(dataSourceId: $dataSourceId)
 }
@@ -442,5 +451,18 @@ query OrganizationSummary($organizationId: ID!, $params: OrganizationSummaryPara
     currency
     cleaned_at
     disabled
+  }
+}
+
+mutation ScheduleGeminiDataPreparation($geminiId: ID!, $buckets: [String!]!) {
+  scheduleGeminiDataPreparation(geminiId: $geminiId, buckets: $buckets) {
+    id
+  }
+}
+
+query GeminiDataPreparation($id: ID!) {
+  geminiDataPreparation(id: $id) {
+    id
+    status
   }
 }

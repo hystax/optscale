@@ -1,9 +1,11 @@
 ARG BUILDTAG=build
 FROM power_schedule:${BUILDTAG}
-
-COPY docker_images/power_schedule/test-requirements.txt .
-RUN pip install --no-cache-dir -r test-requirements.txt
-COPY docker_images/power_schedule/tests/*.py docker_images/power_schedule/tests/
-COPY docker_images/power_schedule/run_test.sh docker_images/power_schedule/run_test.sh
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /usr/src/app/
+
+COPY docker_images/power_schedule/pyproject.toml docker_images/power_schedule/uv.lock docker_images/power_schedule/
+RUN uv --project docker_images/power_schedule sync --locked
+
+COPY docker_images/power_schedule/tests/*.py docker_images/power_schedule/tests/
+COPY docker_images/power_schedule/run_test.sh docker_images/power_schedule/run_test.sh

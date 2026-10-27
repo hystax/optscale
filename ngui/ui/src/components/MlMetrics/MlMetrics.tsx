@@ -20,8 +20,8 @@ import aggregateFunction from "utils/columns/aggregateFunction";
 const actionBarDefinition = {
   title: {
     messageId: "mlMetricsLibraryTitle",
-    dataTestId: "lbl_ml_global_metrics"
-  }
+    dataTestId: "lbl_ml_global_metrics",
+  },
 };
 
 const tableActionBarDefinition = {
@@ -35,9 +35,9 @@ const tableActionBarDefinition = {
       type: "button",
       link: ML_METRIC_CREATE,
       requiredActions: ["EDIT_PARTNER"],
-      dataTestId: "btn_add"
-    }
-  ]
+      dataTestId: "btn_add",
+    },
+  ],
 };
 
 const MlMetrics = ({ metrics, isLoading }) => {
@@ -56,7 +56,7 @@ const MlMetrics = ({ metrics, isLoading }) => {
       tendency(),
       dynamicFractionDigitsValue({
         accessorKey: "target_value",
-        titleMessageId: "targetValue"
+        titleMessageId: "targetValue",
       }),
       text({ headerMessageId: "unit", headerDataTestId: "lbl_unit", accessorKey: "unit" }),
       aggregateFunction(),
@@ -69,8 +69,8 @@ const MlMetrics = ({ metrics, isLoading }) => {
               cell: ({
                 row: {
                   id: index,
-                  original: { id, name: metricName }
-                }
+                  original: { id, name: metricName },
+                },
               }) => (
                 <TableCellActions
                   items={[
@@ -79,7 +79,7 @@ const MlMetrics = ({ metrics, isLoading }) => {
                       messageId: "edit",
                       icon: <EditOutlinedIcon />,
                       dataTestId: `btn_edit_${index}`,
-                      action: () => navigate(getEditMetricUrl(id))
+                      action: () => navigate(getEditMetricUrl(id)),
                     },
                     {
                       key: "delete",
@@ -88,17 +88,17 @@ const MlMetrics = ({ metrics, isLoading }) => {
                       action: () =>
                         openSideModal(DeleteMlMetricModal, {
                           id,
-                          name: metricName
+                          name: metricName,
                         }),
                       color: "error",
-                      dataTestId: `btn_delete_${index}`
-                    }
+                      dataTestId: `btn_delete_${index}`,
+                    },
                   ]}
                 />
-              )
-            }
+              ),
+            },
           ]
-        : [])
+        : []),
     ],
     [areActionsAllowed, navigate, openSideModal]
   );
@@ -115,10 +115,10 @@ const MlMetrics = ({ metrics, isLoading }) => {
             columns={columns}
             actionBar={{
               show: true,
-              definition: tableActionBarDefinition
+              definition: tableActionBarDefinition,
             }}
             localization={{
-              emptyMessageId: "noMetrics"
+              emptyMessageId: "noMetrics",
             }}
             pageSize={50}
           />
@@ -126,7 +126,7 @@ const MlMetrics = ({ metrics, isLoading }) => {
         <PageContentDescription
           position="bottom"
           alertProps={{
-            messageId: "mlMetricsDescription"
+            messageId: "mlMetricsDescription",
           }}
         />
       </PageContentWrapper>

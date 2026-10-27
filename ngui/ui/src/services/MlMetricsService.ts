@@ -6,7 +6,7 @@ import {
   GET_ML_GLOBAL_METRIC,
   GET_ML_METRICS,
   UPDATE_GLOBAL_METRIC,
-  DELETE_GLOBAL_METRIC
+  DELETE_GLOBAL_METRIC,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -19,11 +19,11 @@ const useGetMlMetrics = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { metrics = [] }
+    apiData: { metrics = [] },
   } = useApiData(GET_ML_METRICS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_METRICS, {
-    organizationId
+    organizationId,
   });
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const useAlwaysGetMlMetric = (metricId) => {
   const [metric, setMetric] = useState({});
 
   const { isLoading } = useApiState(GET_ML_GLOBAL_METRIC, {
-    organizationId
+    organizationId,
   });
 
   useEffect(() => {
@@ -129,7 +129,7 @@ function MlMetricsService() {
     useCreateMlMetric,
     useUpdateMlMetric,
     useAlwaysGetMlMetric,
-    useDeleteMlMetric
+    useDeleteMlMetric,
   };
 }
 

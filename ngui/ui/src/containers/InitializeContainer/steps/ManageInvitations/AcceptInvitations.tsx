@@ -10,13 +10,13 @@ const useStyles = makeStyles()((theme) => ({
     [theme.breakpoints.up("md")]: {
       position: "absolute",
       right: 40,
-      bottom: 40
+      bottom: 40,
     },
     padding: theme.spacing(SPACING_2),
     "& > *:not(:last-child)": {
-      marginRight: theme.spacing(SPACING_1)
-    }
-  }
+      marginRight: theme.spacing(SPACING_1),
+    },
+  },
 }));
 
 const AcceptInvitations = ({ invitations, refetchInvitations, onProceed }) => {

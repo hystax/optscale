@@ -7,8 +7,8 @@ class AwsAssumedRoleCredentialsModal extends BaseSideModal {
     color: "primary",
     dataTestIds: {
       title: "lbl_aws_assumed_role_credentials",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_aws_assumed_role_credentials";

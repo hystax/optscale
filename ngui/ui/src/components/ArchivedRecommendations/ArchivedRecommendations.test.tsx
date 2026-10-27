@@ -10,11 +10,11 @@ it("renders without crashing", () => {
       <ArchivedRecommendations
         dateRange={{
           startDate: 1652659200,
-          endDate: 1653004799
+          endDate: 1653004799,
         }}
         archivedRecommendationsChartBreakdown={[]}
         archivedRecommendations={{
-          breakdown: []
+          breakdown: [],
         }}
         onTimeRangeChange={vi.fn}
         isChartLoading={false}

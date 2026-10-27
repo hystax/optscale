@@ -7,8 +7,8 @@ class DataSourceBillingReimportModal extends BaseSideModal {
     color: "primary",
     dataTestIds: {
       title: "lbl_reimport_data_source_expenses",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_reimport_data_source_expenses";

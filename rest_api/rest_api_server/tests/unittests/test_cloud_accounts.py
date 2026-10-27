@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from freezegun import freeze_time
 from sqlalchemy import and_
-from unittest.mock import patch, ANY, call
+from unittest.mock import patch, ANY, call, PropertyMock, MagicMock
 from rest_api.rest_api_server.models.models import (
     CloudAccount, DiscoveryInfo, OrganizationLimitHit, Organization)
 from rest_api.rest_api_server.models.db_base import BaseDB
@@ -192,24 +192,63 @@ class TestCloudAccountApi(TestApiBase):
     def test_create_aws_cloud_acc_assume(self):
         assume_role_account_id = '87629'
         assume_role_name = 'va-test'
+        external_id = 'test-external-id'
         code, cloud_acc = self.create_cloud_account(self.org_id, {
             'name': 'assume_cloud_acc',
             'type': 'aws_cnr',
             'config': {
                 'assume_role_account_id': assume_role_account_id,
                 'assume_role_name': assume_role_name,
+                'assume_role_external_id': external_id,
                 'config_scheme': 'create_report'
             }
         })
         self.assertEqual(code, 201)
-        # check service creds account id in config
         self.assertEqual(cloud_acc['config']['access_key_id'],
                          self._aws_service_creds['access_key_id'])
-        # check assume parameters in config
         self.assertEqual(cloud_acc['config']['assume_role_account_id'],
                          assume_role_account_id)
         self.assertEqual(cloud_acc['config']['assume_role_name'],
                          assume_role_name)
+        self.assertEqual(cloud_acc['config']['assume_role_external_id'],
+                         external_id)
+
+    def test_create_aws_cloud_acc_assume_invalid_external_id(self):
+        base_config = {
+            'name': 'assume_cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'assume_role_account_id': '87629',
+                'assume_role_name': 'sd-test',
+                'config_scheme': 'create_report'
+            }
+        }
+        for value in ['x', 'a' * 1225]:
+            config = base_config.copy()
+            config['config'] = {**base_config['config'],
+                                'assume_role_external_id': value}
+            code, resp = self.create_cloud_account(self.org_id, config)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0215')
+        for value in ['bad value!', 'bad$value']:
+            config = base_config.copy()
+            config['config'] = {**base_config['config'],
+                                'assume_role_external_id': value}
+            code, resp = self.create_cloud_account(self.org_id, config)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0218')
+
+    def test_create_aws_cloud_acc_assume_no_external_id(self):
+        code, cloud_acc = self.create_cloud_account(self.org_id, {
+            'name': 'assume_cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'assume_role_account_id': '87629',
+                'assume_role_name': 'va-test',
+                'config_scheme': 'create_report'
+            }
+        })
+        self.assertEqual(code, 201)
 
     @patch('rest_api.rest_api_server.controllers.cloud_account.'
            'ExpensesRecalculationScheduleController.schedule')
@@ -220,6 +259,7 @@ class TestCloudAccountApi(TestApiBase):
             'config': {
                 'assume_role_account_id': '87629',
                 'assume_role_name': 'va-test',
+                'assume_role_external_id': 'test-ext-id',
                 'config_scheme': 'create_report'
             }
         }
@@ -297,6 +337,7 @@ class TestCloudAccountApi(TestApiBase):
             'config': {
                 'assume_role_account_id': '87629',
                 'assume_role_name': 'va-test',
+                'assume_role_external_id': 'test-ext-id',
                 'config_scheme': 'create_report'
             }
         }
@@ -331,6 +372,7 @@ class TestCloudAccountApi(TestApiBase):
             'config': {
                 'assume_role_account_id': '87629',
                 'assume_role_name': 'va-test',
+                'assume_role_external_id': 'test-ext-id',
                 'config_scheme': 'create_report'
             }
         }
@@ -367,6 +409,7 @@ class TestCloudAccountApi(TestApiBase):
             'config': {
                 'assume_role_account_id': '87629',
                 'assume_role_name': 'va-test',
+                'assume_role_external_id': 'test-ext-id',
                 'linked': True,  # linked acc with assumed role
             }
         }
@@ -397,6 +440,7 @@ class TestCloudAccountApi(TestApiBase):
             'config': {
                 'assume_role_account_id': '87629',
                 'assume_role_name': 'va-test',
+                'assume_role_external_id': 'test-ext-id',
                 'linked': True,  # linked acc with assumed role
             }
         }
@@ -426,6 +470,7 @@ class TestCloudAccountApi(TestApiBase):
             'config': {
                 'assume_role_account_id': '87629',
                 'assume_role_name': 'va-test',
+                'assume_role_external_id': 'test-ext-id',
                 'linked': True,  # linked acc with assumed role
             }
         }
@@ -457,6 +502,7 @@ class TestCloudAccountApi(TestApiBase):
             'config': {
                 'assume_role_account_id': '87629',
                 'assume_role_name': 'va-test',
+                'assume_role_external_id': 'test-ext-id',
             }
         }
         code, cloud_acc = self.create_cloud_account(self.org_id, config)
@@ -485,6 +531,7 @@ class TestCloudAccountApi(TestApiBase):
             config = {
                     'assume_role_account_id': '87629',
                     'assume_role_name': 'va-test',
+                    'assume_role_external_id': 'test-ext-id',
                     'config_scheme': 'create_report',
                 }
             config.update(i)
@@ -513,6 +560,117 @@ class TestCloudAccountApi(TestApiBase):
             })
             self.assertEqual(code, 400)
             self.assertEqual(cloud_acc['error']['error_code'], 'OE0216')
+
+    def test_create_aws_cloud_acc_assume_with_external_id(self):
+        assume_role_account_id = '87629'
+        assume_role_name = 'sd-test'
+        external_id = 'my-external-id-123'
+        code, cloud_acc = self.create_cloud_account(self.org_id, {
+            'name': 'assume_cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'assume_role_account_id': assume_role_account_id,
+                'assume_role_name': assume_role_name,
+                'assume_role_external_id': external_id,
+                'config_scheme': 'create_report'
+            }
+        })
+        self.assertEqual(code, 201)
+        self.assertEqual(cloud_acc['config']['assume_role_external_id'],
+                         external_id)
+
+    @patch('rest_api.rest_api_server.controllers.cloud_account.'
+           'ExpensesRecalculationScheduleController.schedule')
+    def test_edit_aws_cloud_acc_assume_external_id(self, t_schedule):
+        config = {
+            'name': 'assume_cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'assume_role_account_id': '87629',
+                'assume_role_name': 'sd-test',
+                'assume_role_external_id': 'original-ext-id',
+                'config_scheme': 'create_report'
+            }
+        }
+        code, cloud_acc = self.create_cloud_account(self.org_id, config)
+        ca_id = cloud_acc['id']
+        patch('tools.cloud_adapter.clouds.aws.Aws.validate_credentials',
+              return_value={'account_id': ca_id, 'warnings': []}).start()
+
+        # update role name — external_id must be preserved from old config
+        ch_config = {'config': {'assume_role_name': 'sd-test-2'}}
+        code, new_cloud_acc = self.client.cloud_account_update(ca_id, ch_config)
+        self.assertEqual(code, 200)
+        self.assertEqual(new_cloud_acc['config']['assume_role_external_id'],
+                         'original-ext-id')
+
+    @patch('rest_api.rest_api_server.controllers.cloud_account.'
+           'ExpensesRecalculationScheduleController.schedule')
+    def test_edit_aws_cloud_acc_assume_external_id_immutable(self, t_schedule):
+        config = {
+            'name': 'assume_cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'assume_role_account_id': '87629',
+                'assume_role_name': 'va-test',
+                'assume_role_external_id': 'original-ext-id',
+                'config_scheme': 'create_report'
+            }
+        }
+        code, cloud_acc = self.create_cloud_account(self.org_id, config)
+        ca_id = cloud_acc['id']
+        patch('tools.cloud_adapter.clouds.aws.Aws.validate_credentials',
+              return_value={'account_id': ca_id, 'warnings': []}).start()
+
+        # changing to a different value is rejected
+        for bad_value in ['new-ext-id', '', None]:
+            ch_config = {
+                'config': {
+                    'assume_role_name': 'va-test',
+                    'assume_role_external_id': bad_value,
+                }
+            }
+            code, resp = self.client.cloud_account_update(ca_id, ch_config)
+            self.assertEqual(code, 400)
+            self.assertEqual(resp['error']['error_code'], 'OE0211')
+
+        # passing the same value is allowed
+        ch_config = {
+            'config': {
+                'assume_role_name': 'va-test2',
+                'assume_role_external_id': 'original-ext-id',
+            }
+        }
+        code, resp = self.client.cloud_account_update(ca_id, ch_config)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['config']['assume_role_external_id'],
+                         'original-ext-id')
+
+    @patch('rest_api.rest_api_server.controllers.cloud_account.'
+           'ExpensesRecalculationScheduleController.schedule')
+    def test_edit_assume_external_id_unexpected_in_non_assumed(self,
+                                                               t_schedule):
+        valid_config = {
+            'name': 'my cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'access_key_id': 'key',
+                'secret_access_key': 'secret',
+            }
+        }
+        code, cloud_acc = self.create_cloud_account(self.org_id, valid_config)
+        cloud_acc_id = cloud_acc['id']
+        patch('tools.cloud_adapter.clouds.aws.Aws.validate_credentials',
+              return_value={'account_id': cloud_acc_id, 'warnings': []}).start()
+
+        ch_config = {
+            'config': {
+                'assume_role_external_id': 'some-id',
+            }
+        }
+        code, resp = self.client.cloud_account_update(cloud_acc_id, ch_config)
+        self.assertEqual(code, 400)
+        self.assertEqual(resp['error']['error_code'], 'OE0212')
 
     def test_pool_and_rule_for_created_cloud_acc(self):
         auth_user_id = self.gen_id()
@@ -773,21 +931,14 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 201)
         now = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
         code, resp = self.client.cloud_account_update(
-            cloud_acc['id'], {'last_import_at': now,
-                              'last_import_modified_at': now})
+            cloud_acc['id'], {'last_import_at': now})
         self.assertEqual(code, 200)
         self.assertEqual(resp['last_import_at'], now)
-        self.assertEqual(resp['last_import_modified_at'], now)
 
         patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler.'
               'check_cluster_secret', return_value=False).start()
         code, resp = self.client.cloud_account_update(
             cloud_acc['id'], {'last_import_at': 456})
-        self.assertEqual(code, 400)
-        self.assertEqual(resp['error']['error_code'], 'OE0559')
-
-        code, resp = self.client.cloud_account_update(
-            cloud_acc['id'], {'last_import_modified_at': 789})
         self.assertEqual(code, 400)
         self.assertEqual(resp['error']['error_code'], 'OE0559')
 
@@ -1306,7 +1457,7 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 201)
         now = int(datetime.datetime.now(
             tz=datetime.timezone.utc).timestamp()) - 31 * 24 * 60 * 60
-        for param in ['last_import_at', 'last_import_modified_at']:
+        for param in ['last_import_at']:
             params = {param: 1}
             patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler.'
                   'check_cluster_secret', return_value=True).start()
@@ -1392,7 +1543,6 @@ class TestCloudAccountApi(TestApiBase):
             'secret_access_key': 'new_secret',
             'config_scheme': 'create_report'},
             'last_import_at': now,
-            'last_import_modified_at': now,
             'last_import_attempt_at': now,
             'last_import_attempt_error': 'error'
         }
@@ -1418,13 +1568,8 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 200)
         p_publish_activities2.assert_not_called()
 
-        code, cloud_acc = self.client.cloud_account_update(
-            cloud_acc['id'], {'last_import_modified_at': 1})
-        self.assertEqual(code, 200)
-        p_publish_activities2.assert_not_called()
-
         code, cloud_acc = self.client.cloud_account_update(cloud_acc['id'], {
-            'last_import_modified_at': 1, 'last_import_at': 1})
+            'last_import_at': 1})
         self.assertEqual(code, 200)
         p_publish_activities2.assert_not_called()
 
@@ -1442,6 +1587,48 @@ class TestCloudAccountApi(TestApiBase):
             'last_import_attempt_at': 1, 'last_import_attempt_error': 'error'})
         self.assertEqual(code, 200)
         p_publish_activities2.assert_not_called()
+
+    def test_update_last_import_source(self):
+        code, root = self.create_cloud_account(
+            self.org_id, self.valid_aws_cloud_acc)
+        self.assertEqual(code, 201)
+        self.assertIsNone(root['last_import_source_id'])
+        self.assertIsNone(root['last_import_source_account_id'])
+        params = {
+            'last_import_source_id': root['id'],
+            'last_import_source_account_id': root['account_id']
+        }
+        code, resp = self.client.cloud_account_update(root['id'], params)
+        self.assertEqual(code, 200)
+        for k, v in params.items():
+            self.assertEqual(resp[k], v)
+        code, resp = self.client.cloud_account_get(root['id'])
+        self.assertEqual(code, 200)
+        for k, v in params.items():
+            self.assertEqual(resp[k], v)
+        code, resp = self.client.cloud_account_list(self.org_id)
+        self.assertEqual(code, 200)
+        for k, v in params.items():
+            self.assertEqual(resp['cloud_accounts'][0][k], v)
+
+        code, resp = self.client.cloud_account_update(
+            root['id'], {'last_import_source_id': 'not_uuid'})
+        self.assertEqual(code, 400)
+
+        patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler.'
+              'check_cluster_secret', return_value=False).start()
+        for k, v in params.items():
+            code, resp = self.client.cloud_account_update(root['id'], {k: v})
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0449')
+
+    def test_create_with_last_import_source(self):
+        for param in ['last_import_source_id',
+                      'last_import_source_account_id']:
+            body = self.valid_aws_cloud_acc.copy()
+            body[param] = str(uuid.uuid4())
+            code, resp = self.create_cloud_account(self.org_id, body)
+            self.assertEqual(code, 400)
 
     def test_create_linked_aws_cloud_acc(self):
         self.p_configure_aws.stop()
@@ -2035,10 +2222,58 @@ class TestCloudAccountApi(TestApiBase):
     def test_create_gcp_non_standard_billing(self):
         ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
         ca_config['config']['billing_data']['table_name'] = "bad_table_name"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
         code, resp = self.client.cloud_account_create(
             self.org_id, ca_config)
         self.assertEqual(code, 400)
         self.verify_error_code(resp, 'OE0455')
+
+    def test_create_gcp_billing_view_with_standard_prefix_name(self):
+        # view named with standard prefix is accepted when it has partition_time
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "gcp_billing_export_v1_filtered"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock,
+              return_value={'partition_time': 'TIMESTAMP'}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._test_bigquery_connection').start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._validate_cloud_connection').start()
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 200)
+
+    def test_create_gcp_billing_view_with_standard_prefix_no_partition_time(self):
+        # standard-prefix view without partition_time — detected via failed _PARTITIONTIME query
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "gcp_billing_export_v1_filtered"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp.bigquery_client').start().query\
+            .return_value.result.side_effect = Exception(
+                "Unrecognized name: _PARTITIONTIME")
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 400)
+        self.assertIn("partition_time", resp['error']['reason'])
+
+    def test_create_gcp_billing_view_with_partition_time(self):
+        # view exposing _PARTITIONTIME AS partition_time — uses partition pruning
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "dev_project_view"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock,
+              return_value={'partition_time': 'TIMESTAMP'}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._test_bigquery_connection').start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._validate_cloud_connection').start()
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 200)
+
+    def test_create_gcp_billing_view_without_partition_time(self):
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "dev_project_view"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 400)
+        self.assertIn("partition_time", resp['error']['reason'])
 
     def test_create_gcp_incorrect_table_name(self):
         ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
@@ -2470,6 +2705,10 @@ class TestCloudAccountApi(TestApiBase):
         }
         patch('tools.cloud_adapter.clouds.gcp_tenant.GcpTenant'
               '._test_bigquery_connection').start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._validate_standard_partition_time'
+              ).start()
         code, resp = self.create_cloud_account(self.org_id, body)
         self.assertEqual(code, 400)
         self.verify_error_code(resp, 'OE0455')

@@ -16,10 +16,10 @@ const biExportLastSuccessfulExport = () => ({
       <FormattedMessage
         id="valueAgo"
         values={{
-          value: getTimeDistance(cell.getValue())
+          value: getTimeDistance(cell.getValue()),
         }}
       />
-    )
+    ),
 });
 
 export default biExportLastSuccessfulExport;

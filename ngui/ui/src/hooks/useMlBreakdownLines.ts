@@ -5,7 +5,7 @@ const UNITLESS = "uniteless";
 
 export const BREAKDOWN_LINE_UNIT = Object.freeze({
   PERCENT: "percent",
-  MEBIBYTE: "mebibyte"
+  MEBIBYTE: "mebibyte",
 });
 
 export const useMlBreakdownLines = ({ breakdown, breakdownConfig, selectedBreakdowns }) => {
@@ -15,7 +15,7 @@ export const useMlBreakdownLines = ({ breakdown, breakdownConfig, selectedBreakd
       const data = Object.entries(breakdown)
         .map(([second, breakdownData]) => ({
           x: Number(second),
-          y: getPointValue(breakdownData)
+          y: getPointValue(breakdownData),
         }))
         .filter(({ y }) => y !== null);
 
@@ -24,7 +24,7 @@ export const useMlBreakdownLines = ({ breakdown, breakdownConfig, selectedBreakd
           return {
             maxValue: 100,
             minValue: 0,
-            absMaxValue: 100
+            absMaxValue: 100,
           };
         }
 
@@ -34,7 +34,7 @@ export const useMlBreakdownLines = ({ breakdown, breakdownConfig, selectedBreakd
         return {
           maxValue: findMaxNumber(yValues),
           minValue: findMinNumber(yValues),
-          absMaxValue: findMaxNumber(absYValues)
+          absMaxValue: findMaxNumber(absYValues),
         };
       };
 
@@ -45,7 +45,7 @@ export const useMlBreakdownLines = ({ breakdown, breakdownConfig, selectedBreakd
         formatValue,
         formatAxis,
         renderBreakdownName,
-        ...getMinMaxValues()
+        ...getMinMaxValues(),
       };
     });
 
@@ -95,7 +95,7 @@ export const useMlBreakdownLines = ({ breakdown, breakdownConfig, selectedBreakd
           normalize: (value) =>
             isZeroLine ? 0 : normalizeUtil(value, getMinMaxNormalizationValues(), getNormalizationRange()),
           denormalize: (value) =>
-            isZeroLine ? value : denormalizeUtil(value, getMinMaxNormalizationValues(), getNormalizationRange())
+            isZeroLine ? value : denormalizeUtil(value, getMinMaxNormalizationValues(), getNormalizationRange()),
         };
       };
 
@@ -107,13 +107,13 @@ export const useMlBreakdownLines = ({ breakdown, breakdownConfig, selectedBreakd
           x,
           y: normalize(y),
           formattedY: formatValue(y),
-          formattedLineName: renderBreakdownName()
+          formattedLineName: renderBreakdownName(),
         })),
         formatAxis: (value) => {
           const getAxisValue = () => round(denormalize(value), 2);
 
           return formatAxis(getAxisValue());
-        }
+        },
       };
     });
 

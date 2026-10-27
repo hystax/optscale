@@ -7,7 +7,7 @@ const mlDataLocation = ({ headerDataTestId = "lbl_data_location", accessorKey = 
       <FormattedMessage id="dataLocation" />
     </TextWithDataTestId>
   ),
-  accessorKey
+  accessorKey,
 });
 
 export default mlDataLocation;

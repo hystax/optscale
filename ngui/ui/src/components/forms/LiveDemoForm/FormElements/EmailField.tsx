@@ -16,7 +16,7 @@ const EmailField = () => {
       dataTestId="input_email"
       pattern={{
         value: emailRegex,
-        message: intl.formatMessage({ id: "invalidEmailAddress" })
+        message: intl.formatMessage({ id: "invalidEmailAddress" }),
       }}
     />
   );

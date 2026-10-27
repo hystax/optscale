@@ -19,8 +19,8 @@ const EnvironmentBookingsCalendarContainer = ({ resourceId, resourceType, resour
                 pool_id: poolId,
                 pool_name: poolName,
                 pool_purpose: poolType,
-                shareable_bookings: bookings
-              }
+                shareable_bookings: bookings,
+              },
             ]
       }
       eventProps={{ linkedTitle: false }}

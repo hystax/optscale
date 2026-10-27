@@ -8,8 +8,8 @@ class S3DuplicateFinderSettingsModal extends BaseSideModal {
     messageId: "settings",
     dataTestIds: {
       title: "lbl_settings",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_settings";

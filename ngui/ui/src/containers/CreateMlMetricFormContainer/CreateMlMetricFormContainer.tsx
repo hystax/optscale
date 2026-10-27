@@ -28,7 +28,7 @@ const CreateMlMetricFormContainer = () => {
       [FIELD_NAMES.KEY]: "",
       [FIELD_NAMES.TENDENCY]: "",
       [FIELD_NAMES.TARGET_VALUE]: 0,
-      [FIELD_NAMES.FUNCTION]: ""
+      [FIELD_NAMES.FUNCTION]: "",
     }),
     []
   );

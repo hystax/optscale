@@ -27,7 +27,7 @@ const filterBreakdownByIds = (breakdown, dataSourceIds) => {
   return Object.fromEntries(
     Object.entries(breakdown).map(([date, entries]) => [
       date,
-      entries.filter((entry) => dataSourceIds.includes(entry.cloud_account_id))
+      entries.filter((entry) => dataSourceIds.includes(entry.cloud_account_id)),
     ])
   );
 };
@@ -35,18 +35,18 @@ const filterBreakdownByIds = (breakdown, dataSourceIds) => {
 const getDataSourcesTypes = (usageBreakdown, expensesBreakdown) => [
   ...new Set(
     [...Object.values(usageBreakdown).flat(), ...Object.values(expensesBreakdown).flat()].map((b) => b.cloud_account_type)
-  )
+  ),
 ];
 
 const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={RECOMMENDATIONS} component={RouterLink}>
       <FormattedMessage id="recommendations" />
-    </Link>
+    </Link>,
   ],
   title: {
-    messageId: "riSpCoverageTitle"
-  }
+    messageId: "riSpCoverageTitle",
+  },
 };
 
 const RiSpCoverage = () => {
@@ -55,19 +55,19 @@ const RiSpCoverage = () => {
   const [selectedDataSourceIds, setSelectedDataSources] = useSyncQueryParamWithState({
     queryParamName: RI_SP_QUERY_PARAMETERS.DATA_SOURCE_ID,
     defaultValue: [],
-    parameterIsArray: true
+    parameterIsArray: true,
   });
 
   const [startDateTimestamp, endDateTimestamp] = useReactiveDefaultDateRange(DATE_RANGE_TYPE.EXPENSES);
 
   const [selectedStartDate, setSelectedStartDate] = useSyncQueryParamWithState({
     queryParamName: RI_SP_QUERY_PARAMETERS.START_DATE,
-    defaultValue: startDateTimestamp
+    defaultValue: startDateTimestamp,
   });
 
   const [selectedEndDate, setSelectedEndDate] = useSyncQueryParamWithState({
     queryParamName: RI_SP_QUERY_PARAMETERS.END_DATE,
-    defaultValue: endDateTimestamp
+    defaultValue: endDateTimestamp,
   });
 
   const onApply = ({ startDate, endDate }) => {
@@ -79,7 +79,7 @@ const RiSpCoverage = () => {
     () => ({
       startDate: selectedStartDate,
       endDate: selectedEndDate,
-      dataSourceIds: []
+      dataSourceIds: [],
     }),
     [selectedStartDate, selectedEndDate]
   );
@@ -126,7 +126,7 @@ const RiSpCoverage = () => {
               expensesBreakdown={filteredExpenses}
               isLoadingProps={{
                 isGetUsageBreakdownLoading: isLoading,
-                isGetExpensesBreakdownLoading: isLoading
+                isGetExpensesBreakdownLoading: isLoading,
               }}
             />
           </div>

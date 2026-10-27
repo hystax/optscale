@@ -12,15 +12,15 @@ const useStyles = makeStyles()((theme, color) => ({
     height: "100%",
     padding: 0,
     [theme.breakpoints.down("xl")]: {
-      minWidth: 100
+      minWidth: 100,
     },
     backgroundColor: lighten(color, ALPHA),
-    color
+    color,
   },
   button: {
     transition: "background-color 0.3s ease-in",
     cursor: "pointer",
-    "&:hover": { backgroundColor: lighten(color, ALPHA_HOVER) }
+    "&:hover": { backgroundColor: lighten(color, ALPHA_HOVER) },
   },
   content: {
     paddingTop: theme.spacing(SPACING_1),
@@ -29,9 +29,9 @@ const useStyles = makeStyles()((theme, color) => ({
     height: "100%",
     flexDirection: "column",
     "&:last-child": {
-      paddingBottom: theme.spacing(SPACING_1)
-    }
-  }
+      paddingBottom: theme.spacing(SPACING_1),
+    },
+  },
 }));
 
 export default useStyles;

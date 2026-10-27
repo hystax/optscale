@@ -2,7 +2,9 @@ import json
 
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.models import Organization
-from rest_api.rest_api_server.utils import run_task, ModelEncoder, check_bool_attribute
+from rest_api.rest_api_server.utils import (
+    run_task, ModelEncoder, check_bool_attribute, check_int_attribute,
+    SECONDS_IN_HOUR)
 from rest_api.rest_api_server.controllers.pool import PoolAsyncController
 from rest_api.rest_api_server.handlers.v2.base import BaseHandler
 from rest_api.rest_api_server.handlers.v1.base_async import (
@@ -12,6 +14,31 @@ from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
 from tools.optscale_exceptions.common_exc import (
     NotFoundException, WrongArgumentsException)
 from tools.optscale_exceptions.http_exc import OptHTTPError
+
+DATE_RANGE_MAX = SECONDS_IN_HOUR * 24 * 30 * 3  # 3 months
+
+
+def validate_dates(start_date, end_date, required=False):
+    if required:
+        for name, val in [('start_date', start_date), ('end_date', end_date)]:
+            if val is None:
+                raise OptHTTPError(400, Err.OE0216, [name])
+    else:
+        if start_date is None and end_date is None:
+            return
+        if start_date is None:
+            raise OptHTTPError(400, Err.OE0561, ['end_date', 'start_date'])
+        if end_date is None:
+            raise OptHTTPError(400, Err.OE0561, ['start_date', 'end_date'])
+    for name, val in [('start_date', start_date), ('end_date', end_date)]:
+        try:
+            check_int_attribute(name, val)
+        except WrongArgumentsException as ex:
+            raise OptHTTPError.from_opt_exception(400, ex) from ex
+    if end_date < start_date:
+        raise OptHTTPError(400, Err.OE0446, ['end_date', 'start_date'])
+    if end_date - start_date > DATE_RANGE_MAX:
+        raise OptHTTPError(400, Err.OE0574, ['3 months'])
 
 
 class PoolAsyncCollectionHandler(BaseAsyncCollectionHandler,
@@ -279,6 +306,16 @@ class PoolAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             description: display also children info
             required: false
             type: boolean
+        -   name: start_date
+            in: query
+            description: Start of the expense range
+            required: false
+            type: integer
+        -   name: end_date
+            in: query
+            description: End of the expense range
+            required: false
+            type: integer
         responses:
             200:
                 description: Pool data
@@ -314,10 +351,16 @@ class PoolAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             description: default owner name
                         cost:
                             type: integer
-                            description: "expenses for this month"
+                            description: expenses for the requested period
                         forecast:
                             type: integer
                             description: "expense forecast for current month"
+                        expense_start_date:
+                            type: integer
+                            description: start of the expense range
+                        expense_end_date:
+                            type: integer
+                            description: end of the expense range
                         children:
                             type: array
                             description: pool children (when children is true)
@@ -395,6 +438,10 @@ class PoolAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 description: |
                     Wrong arguments:
                     - OE0217: Invalid query parameter
+                    - OE0224: argument is out of range
+                    - OE0446: end_date should be greater than start_date
+                    - OE0561: start_date or end_date is not provided
+                    - OE0574: date range must not exceed 3 months
             401:
                 description: |
                     Unauthorized:
@@ -416,11 +463,18 @@ class PoolAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         item_dict = item.to_dict()
         show_details = self.get_arg('details', bool, False)
         show_children = self.get_arg('children', bool, False)
+
+        start_date = self.get_arg('start_date', int, None)
+        end_date = self.get_arg('end_date', int, None)
+        validate_dates(start_date, end_date)
+
         if show_details or show_children:
             task = await run_task(self.controller.get_details,
                                   item_dict, forecast=True,
                                   show_children=show_children,
-                                  show_details=show_details)
+                                  show_details=show_details,
+                                  start_date=start_date,
+                                  end_date=end_date)
             children, pool_limit_cost = task
             if show_children:
                 item_dict['children'] = children
@@ -434,6 +488,11 @@ class PoolAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             link = await run_task(self.controller.get_export_link, id)
             if link:
                 item_dict['expenses_export_link'] = link
+
+        if start_date is not None:
+            item_dict['expense_start_date'] = start_date
+            item_dict['expense_end_date'] = end_date
+
         self.write(json.dumps(item_dict, cls=ModelEncoder))
 
     async def patch(self, id, **kwargs):

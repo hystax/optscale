@@ -6,6 +6,10 @@ type SyncQueryParamWithStateProps<T, P extends boolean = false> = {
   possibleStates?: T[];
   defaultValue: P extends true ? T[] : T;
   parameterIsArray?: P;
+  searchParamsGetterOptions?: {
+    parseBooleans?: boolean;
+    parseNumbers?: boolean;
+  };
 };
 
 type ReturnType<T, P extends boolean = false> = [P extends true ? T[] : T, (value: P extends true ? T[] : T) => void];
@@ -17,10 +21,11 @@ export const useSyncQueryParamWithState = <T, P extends boolean = false>({
   queryParamName,
   possibleStates,
   defaultValue,
-  parameterIsArray = false as P
+  parameterIsArray = false as P,
+  searchParamsGetterOptions,
 }: SyncQueryParamWithStateProps<T, P>): ReturnType<T, P> => {
   const [query, setQuery] = useState(() => {
-    const params = getSearchParams();
+    const params = getSearchParams(searchParamsGetterOptions);
     const queryValue = params[queryParamName] as T;
 
     if (queryValue === undefined) {

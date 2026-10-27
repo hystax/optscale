@@ -5,7 +5,7 @@ import {
   useBillingSubscriptionPlansQuery,
   useBillingSubscriptionQuery,
   useOrganizationSummaryQuery,
-  BillingSubscriptionPlansQuery
+  BillingSubscriptionPlansQuery,
 } from "graphql/__generated__/hooks/restapi";
 import { useIsManageBillingSubscriptionAllowed } from "hooks/useIsManageBillingSubscriptionAllowed";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -28,55 +28,55 @@ const useData = () => {
   const {
     data: subscriptionPlansData,
     loading: plansLoading,
-    error: plansError
+    error: plansError,
   } = useBillingSubscriptionPlansQuery({
     variables: {
-      organizationId
-    }
+      organizationId,
+    },
   });
 
   const {
     data: subscriptionData,
     loading: subscriptionLoading,
-    error: subscriptionError
+    error: subscriptionError,
   } = useBillingSubscriptionQuery({
     variables: {
-      organizationId
+      organizationId,
     },
     pollInterval: 30 * MILLISECONDS_IN_SECOND,
     context: {
-      suppressAlertForErrorCodes: [ERROR_CODES.OE0002]
-    }
+      suppressAlertForErrorCodes: [ERROR_CODES.OE0002],
+    },
   });
   const {
     data: organizationSummaryData,
     loading: organizationSummaryLoading,
-    error: organizationSummaryError
+    error: organizationSummaryError,
   } = useOrganizationSummaryQuery({
     variables: {
       organizationId,
       params: {
-        entity: ["month_expenses", "cloud_accounts", "employees"]
-      }
-    }
+        entity: ["month_expenses", "cloud_accounts", "employees"],
+      },
+    },
   });
 
   return {
     loading: {
       plans: plansLoading,
       subscription: subscriptionLoading,
-      organizationSummary: organizationSummaryLoading
+      organizationSummary: organizationSummaryLoading,
     },
     error: {
       plans: plansError,
       subscription: subscriptionError,
-      organizationSummary: organizationSummaryError
+      organizationSummary: organizationSummaryError,
     },
     data: {
       billingSubscriptionPlans: subscriptionPlansData?.billingSubscriptionPlans,
       billingSubscription: subscriptionData?.billingSubscription,
-      organizationSummary: organizationSummaryData?.organizationSummary
-    }
+      organizationSummary: organizationSummaryData?.organizationSummary,
+    },
   };
 };
 
@@ -86,7 +86,7 @@ const BillingSubscription = () => {
   const {
     loading,
     error,
-    data: { billingSubscriptionPlans, billingSubscription, organizationSummary }
+    data: { billingSubscriptionPlans, billingSubscription, organizationSummary },
   } = useData();
 
   const isLoading = loading.plans || loading.subscription || loading.organizationSummary;
@@ -123,12 +123,12 @@ const BillingSubscription = () => {
               monthlyPlan={{
                 id: monthlyProPlan.id,
                 price: monthlyProPlan.price,
-                currency: monthlyProPlan.currency
+                currency: monthlyProPlan.currency,
               }}
               annualPlan={{
                 id: annualProPlan.id,
                 price: annualProPlan.price,
-                currency: annualProPlan.currency
+                currency: annualProPlan.currency,
               }}
             />
           )}

@@ -1,4 +1,6 @@
 import uuid
+import string
+import random
 from datetime import datetime
 from unittest.mock import patch
 from tools.optscale_time import utcnow_timestamp
@@ -115,6 +117,26 @@ class TestDiscoveryInfo(TestApiBase):
             self.assertEqual(res['last_error_at'], 1625086800)
             self.assertEqual(res['observe_time'], 1625086700)
             self.assertEqual(res['last_error'], 'Test Error Text')
+
+    def test_update_discovery_info_with_long_error_test(self):
+        _, res = self.client.discovery_info_list(self.cloud_acc_id)
+        some_time = utcnow_timestamp()
+        random_long_error_text = ''.join(random.choices(
+            string.ascii_letters, k=1024))
+        for di_info in res['discovery_info']:
+            code, res = self.client.discovery_info_update(
+                di_info['id'], {
+                    'last_discovery_at': some_time,
+                    'last_error_at': 1625086800,
+                    'last_error': random_long_error_text,
+                    'observe_time': 1625086700
+                }
+            )
+            self.assertEqual(code, 200)
+            self.assertEqual(res['last_discovery_at'], some_time)
+            self.assertEqual(res['last_error_at'], 1625086800)
+            self.assertEqual(res['observe_time'], 1625086700)
+            self.assertEqual(res['last_error'], random_long_error_text)
 
     def test_update_discovery_info_wrong_arg(self):
         _, res = self.client.discovery_info_list(self.cloud_acc_id)

@@ -19,7 +19,7 @@ const CodeEditor = forwardRef(
           fontSize: 14,
           fontFamily: theme.typography.mono.fontFamily,
           borderRadius: "4px",
-          ...style
+          ...style,
         }}
         readOnly={readOnly}
         data-color-mode="light"

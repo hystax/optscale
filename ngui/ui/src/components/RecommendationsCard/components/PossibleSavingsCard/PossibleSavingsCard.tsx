@@ -23,8 +23,8 @@ const PossibleSavingsCard = ({ possibleMonthlySavings = 0, thisMonthExpensesFore
   const { classes } = useStyles({
     progressBar: {
       color: getProgressBarColor(),
-      width: `${percent}%`
-    }
+      width: `${percent}%`,
+    },
   });
 
   const body = (

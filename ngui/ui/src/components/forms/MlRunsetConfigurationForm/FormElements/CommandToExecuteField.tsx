@@ -16,15 +16,15 @@ const useStyles = makeStyles()((theme) => ({
     top: 0,
     borderRadius: "4px",
     pointerEvents: "none",
-    border: `1px solid ${theme.palette.error.light}`
+    border: `1px solid ${theme.palette.error.light}`,
   },
   codeToExecuteFieldError: {
     "&:focus-within": {
       "+ div": {
-        borderWidth: "2px"
-      }
-    }
-  }
+        borderWidth: "2px",
+      },
+    },
+  },
 }));
 
 const FIELD_NAME = FIELD_NAMES.CODE_TO_EXECUTE;
@@ -36,7 +36,7 @@ const CommandToExecuteField = () => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   const isError = !!errors?.[FIELD_NAME];
@@ -48,11 +48,11 @@ const CommandToExecuteField = () => {
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         validate: {
-          notOnlyWhiteSpaces
-        }
+          notOnlyWhiteSpaces,
+        },
       }}
       render={({ field: { value, onChange, onBlur, ref } }) => (
         <>
@@ -65,7 +65,7 @@ const CommandToExecuteField = () => {
               onChange={onChange}
               onBlur={onBlur}
               style={{
-                minHeight: "85px"
+                minHeight: "85px",
               }}
               ref={ref}
             />

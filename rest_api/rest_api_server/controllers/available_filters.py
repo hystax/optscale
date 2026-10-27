@@ -166,7 +166,8 @@ class AvailableFiltersController(CleanExpenseController):
         query = super().generate_filters_pipeline(
             organization_id, start_date, end_date, params,
             data_filters)
-        query['$and'].append({'cluster_id': None})
+        for part in query['$or']:
+            part['$and'].append({'cluster_id': None})
         return query
 
     def get_filter_values(self, uniq_values_map, filters):
@@ -236,23 +237,57 @@ class AvailableFiltersController(CleanExpenseController):
                 'day': {'$trunc': {
                     '$divide': ['$first_seen', DAY_IN_SECONDS]}},
             },
-            'tags': {'$addToSet': '$tags.k'},
-            'meta': {'$addToSet': '$meta.k'},
+            'tags': {'$push': '$tagKeys'},
+            'meta': {'$push': '$metaKeys'},
             'cloud_resource_ids': {'$addToSet': '$cloud_resource_id'},
         })
         return self.resources_collection.aggregate([
             {'$match': match_query},
-            {'$addFields': {'tags': {'$objectToArray': "$tags"}}},
-            {'$unwind': {
-                'path': "$tags",
-                'preserveNullAndEmptyArrays': True
-            }},
-            {'$addFields': {'meta': {'$objectToArray': "$meta"}}},
-            {'$unwind': {
-                'path': "$meta",
-                'preserveNullAndEmptyArrays': True
-            }},
-            {'$group': group_stage}
+            {
+                '$addFields': {
+                    'tagKeys': {
+                        '$map': {
+                            'input': {
+                                '$objectToArray': {'$ifNull': ['$tags', {}]}
+                            },
+                            'as': "t",
+                            'in': "$$t.k"
+                        }
+                    },
+                    'metaKeys': {
+                        '$map': {
+                            'input': {
+                                '$objectToArray': {'$ifNull': ["$meta", {}]}
+                            },
+                            'as': "m",
+                            'in': "$$m.k"
+                        }
+                    }
+                }
+            },
+            {'$group': group_stage},
+            {
+                '$addFields': {
+                    'tags': {
+                        '$reduce': {
+                            'input': "$tags",
+                            'initialValue': [],
+                            'in': {'$setUnion': ["$$value", "$$this"]}
+                        }
+                    }
+                }
+            },
+            {
+                '$addFields': {
+                    'meta': {
+                        '$reduce': {
+                            'input': "$meta",
+                            'initialValue': [],
+                            'in': {'$setUnion': ["$$value", "$$this"]}
+                        }
+                    }
+                }
+            }
         ], allowDiskUse=True)
 
     def get(self, organization_id, **params):

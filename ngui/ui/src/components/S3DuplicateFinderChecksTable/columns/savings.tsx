@@ -20,9 +20,9 @@ const savings = () => ({
   id: "saving",
   cell: ({
     row: {
-      original: { stats, status }
-    }
-  }) => (status === STATUS.SUCCESS ? <Savings stats={stats} /> : CELL_EMPTY_VALUE)
+      original: { stats, status },
+    },
+  }) => (status === STATUS.SUCCESS ? <Savings stats={stats} /> : CELL_EMPTY_VALUE),
 });
 
 export default savings;

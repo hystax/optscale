@@ -10,12 +10,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={ML_RUNSET_TEMPLATES} component={RouterLink}>
       <FormattedMessage id="runsetTemplatesTitle" />
-    </Link>
+    </Link>,
   ],
   title: {
     messageId: "addRunsetTemplateTitle",
-    dataTestId: "lbl_add_runset_template"
-  }
+    dataTestId: "lbl_add_runset_template",
+  },
 };
 
 const MlRunsetTemplateCreate = () => (
@@ -24,7 +24,7 @@ const MlRunsetTemplateCreate = () => (
     <PageContentWrapper>
       <Box
         sx={{
-          width: { md: "50%" }
+          width: { md: "50%" },
         }}
       >
         <MlRunsetTemplateCreateFormContainer />

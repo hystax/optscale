@@ -31,7 +31,7 @@ const KeyInput = ({ index }: { index: number }) => {
 
           return isPropertyUnique || intl.formatMessage({ id: "thisFieldMustBeUnique" });
         },
-        notOnlyWhiteSpaces
+        notOnlyWhiteSpaces,
       }}
     />
   );
@@ -48,13 +48,13 @@ const TagsFieldArray = () => {
 
   const { fields, append, remove } = useFieldArray<FormValues>({
     control,
-    name: FIELD_NAME
+    name: FIELD_NAME,
   });
 
   const onAppend = () =>
     append({
       [KEY]: "",
-      [VALUE]: ""
+      [VALUE]: "",
     });
 
   return (
@@ -76,7 +76,7 @@ const TagsFieldArray = () => {
                   onClick={() => remove(index)}
                   tooltip={{
                     show: true,
-                    value: <FormattedMessage id="delete" />
+                    value: <FormattedMessage id="delete" />,
                   }}
                   dataTestId={`btn_delete_hyperparameter_${index}`}
                 />

@@ -4,7 +4,7 @@ const owner = () =>
   text({
     headerMessageId: "owner",
     headerDataTestId: "lbl_owner",
-    accessorKey: "owner_name"
+    accessorKey: "owner_name",
   });
 
 export default owner;

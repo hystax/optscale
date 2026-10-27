@@ -32,35 +32,35 @@ import users from "./usersMenuItem";
 export default [
   {
     id: MAIN_MENU_SECTION_IDS.HOME,
-    items: [home, recommendations, resources, pools, environments]
+    items: [home, recommendations, resources, pools, environments],
   },
   {
     id: MAIN_MENU_SECTION_IDS.FINOPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="finops" />,
     items: [expenses, expensesMap, finOpsPortal],
-    capability: OPTSCALE_CAPABILITY.FINOPS
+    capability: OPTSCALE_CAPABILITY.FINOPS,
   },
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="mlops" />,
     items: [mlTasks, mlModels, mlDatasets, mlArtifactsMenuItem, mlHypertuningMenuItem, mlMetricsMenuItem],
-    capability: OPTSCALE_CAPABILITY.MLOPS
+    capability: OPTSCALE_CAPABILITY.MLOPS,
   },
   {
     id: MAIN_MENU_SECTION_IDS.POLICIES,
     menuSectionTitle: <MainMenuSectionTitle messageId="policies" />,
     items: [anomalies, quotas, taggingPolicies, resourceLifecycle, powerSchedulesMenuItem],
-    capability: OPTSCALE_CAPABILITY.FINOPS
+    capability: OPTSCALE_CAPABILITY.FINOPS,
   },
   {
     id: MAIN_MENU_SECTION_IDS.SANDBOX,
     menuSectionTitle: <MainMenuSectionTitle messageId="sandbox" />,
     items: [k8sRightsizing, recommendationsArchive, cloudCostComparisonMenuItem],
-    capability: OPTSCALE_CAPABILITY.FINOPS
+    capability: OPTSCALE_CAPABILITY.FINOPS,
   },
   {
     id: MAIN_MENU_SECTION_IDS.SYSTEM,
     menuSectionTitle: <MainMenuSectionTitle messageId="system" />,
-    items: [users, dataSources, integrations, events, settings]
-  }
+    items: [users, dataSources, integrations, events, settings],
+  },
 ];

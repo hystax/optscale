@@ -31,8 +31,8 @@ const CreateEnvironmentProperties = ({ environmentId, existingProperties }) => {
               onCancel={() => removeContainer(containerId)}
               existingProperties={existingProperties}
             />
-          )
-        }
+          ),
+        },
       ];
     });
   };
@@ -52,7 +52,7 @@ const CreateEnvironmentProperties = ({ environmentId, existingProperties }) => {
           disabled={isRestricted}
           tooltip={{
             show: isRestricted,
-            value: restrictionReasonMessage
+            value: restrictionReasonMessage,
           }}
         />
       </FormControl>

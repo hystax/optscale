@@ -3,31 +3,31 @@ import { makeStyles } from "tss-react/mui";
 const useStyles = makeStyles()((theme) => ({
   buttonContainer: {
     display: "flex",
-    borderRadius: "50%"
+    borderRadius: "50%",
   },
   button: {
     height: 36,
     width: 36,
-    padding: 0
+    padding: 0,
   },
   buttonText: {
-    lineHeight: 1.6
+    lineHeight: 1.6,
   },
   outlined: {
-    border: `1px solid ${theme.palette.primary.main}`
+    border: `1px solid ${theme.palette.primary.main}`,
   },
   filled: {
     "&:hover": {
-      backgroundColor: theme.palette.secondary.main
+      backgroundColor: theme.palette.secondary.main,
     },
-    backgroundColor: theme.palette.secondary.main
+    backgroundColor: theme.palette.secondary.main,
   },
   highlighted: {
-    backgroundColor: theme.palette.action.hover
+    backgroundColor: theme.palette.action.hover,
   },
   contrast: {
-    color: theme.palette.secondary.contrastText
-  }
+    color: theme.palette.secondary.contrastText,
+  },
 }));
 
 export default useStyles;

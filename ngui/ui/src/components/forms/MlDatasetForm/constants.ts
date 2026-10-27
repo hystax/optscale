@@ -4,5 +4,5 @@ export const FIELD_NAMES = Object.freeze({
   DESCRIPTION: "description",
   LABELS: "labels",
   TIMESPAN_FROM: "timespan_from",
-  TIMESPAN_TO: "timespan_to"
+  TIMESPAN_TO: "timespan_to",
 });

@@ -14,7 +14,7 @@ export type ProFeaturesProps = {
 
 const features = [
   "billingSubscriptionFeatures.unlimitedMonthlyExpenses",
-  "billingSubscriptionFeatures.24HourSupportSevenDaysAWeek"
+  "billingSubscriptionFeatures.24HourSupportSevenDaysAWeek",
 ] as const;
 
 const ProSubscriptionFeatures = ({ limits }: ProFeaturesProps) => {

@@ -18,11 +18,11 @@ const EmailField = ({ readOnly = false }) => {
       autoComplete="username email"
       margin="normal"
       InputProps={{
-        readOnly
+        readOnly,
       }}
       pattern={{
         value: emailRegex,
-        message: intl.formatMessage({ id: "invalidEmailAddress" })
+        message: intl.formatMessage({ id: "invalidEmailAddress" }),
       }}
     />
   );

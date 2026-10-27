@@ -42,7 +42,7 @@ const useGoogleLogin = ({ onSuccess, onError, clientId }) => {
         },
         error_callback: (nonOAuthError) => {
           onErrorRef.current?.(nonOAuthError);
-        }
+        },
       });
 
       clientRef.current = client;

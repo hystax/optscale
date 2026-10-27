@@ -20,8 +20,8 @@ type SummaryProps = {
 
 const actionBarDefinition = {
   title: {
-    messageId: "dataSourcesTitle"
-  }
+    messageId: "dataSourcesTitle",
+  },
 };
 
 const Summary = ({ totalExpenses, totalForecast, lastMonthCost, isLoading = false }: SummaryProps) => {
@@ -33,69 +33,69 @@ const Summary = ({ totalExpenses, totalForecast, lastMonthCost, isLoading = fals
             type: SUMMARY_CARD_TYPES.EXTENDED,
             valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
             valueComponentProps: {
-              value: totalExpenses
+              value: totalExpenses,
             },
             captionMessageId: "totalExpensesMonthToDate",
             relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
             relativeValueComponentProps: {
               value: getPercentageChangeModule(totalExpenses, lastMonthCost) / 100,
-              format: "percentage"
+              format: "percentage",
             },
             relativeValueCaptionMessageId:
               totalExpenses > lastMonthCost ? "moreThanForPreviousMonth" : "lessThanForPreviousMonth",
             dataTestIds: {
-              cardTestId: "card_total_exp"
+              cardTestId: "card_total_exp",
             },
             color: totalExpenses > lastMonthCost ? "error" : "success",
-            isLoading
+            isLoading,
           },
           {
             key: "forecastForThisMonth",
             type: SUMMARY_CARD_TYPES.EXTENDED,
             valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
             valueComponentProps: {
-              value: totalForecast
+              value: totalForecast,
             },
             captionMessageId: "forecastForThisMonth",
             relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
             relativeValueComponentProps: {
               value: getPercentageChangeModule(totalForecast, lastMonthCost) / 100,
-              format: "percentage"
+              format: "percentage",
             },
             relativeValueCaptionMessageId:
               totalForecast > lastMonthCost ? "moreThanForPreviousMonth" : "lessThanForPreviousMonth",
             dataTestIds: {
-              cardTestId: "card_forecast"
+              cardTestId: "card_forecast",
             },
             color: totalForecast > lastMonthCost ? "error" : "success",
-            isLoading
-          }
+            isLoading,
+          },
         ]
       : [
           {
             key: "totalExpensesMonthToDate",
             valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
             valueComponentProps: {
-              value: totalExpenses
+              value: totalExpenses,
             },
             captionMessageId: "totalExpensesMonthToDate",
             dataTestIds: {
-              cardTestId: "card_total_exp"
+              cardTestId: "card_total_exp",
             },
-            isLoading
+            isLoading,
           },
           {
             key: "forecastForThisMonth",
             valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
             valueComponentProps: {
-              value: totalForecast
+              value: totalForecast,
             },
             captionMessageId: "forecastForThisMonth",
             dataTestIds: {
-              cardTestId: "card_forecast"
+              cardTestId: "card_forecast",
             },
-            isLoading
-          }
+            isLoading,
+          },
         ];
 
   return <SummaryGrid summaryData={getSummaryData()} />;
@@ -108,7 +108,7 @@ const AwsLinkedAccountsWarning = () => {
     <InlineSeverityAlert
       messageId="onlyAwsLinkedAccountsConnectedWarning"
       messageValues={{
-        hasPermissionsToConnectDataSources: isManageCloudCredentialsAllowed
+        hasPermissionsToConnectDataSources: isManageCloudCredentialsAllowed,
       }}
       severity="warning"
     />

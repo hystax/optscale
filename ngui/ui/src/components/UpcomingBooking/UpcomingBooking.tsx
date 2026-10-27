@@ -15,7 +15,7 @@ const getInfiniteBookingTimeMeasuresDefinition = (acquiredSince: number) =>
     remained: Infinity,
     bookedUntil: Infinity,
     // TODO: generalize getBookedSince in InfiniteBookingTimeMeasures and FiniteBookingTimeMeasures
-    bookedSince: format(secondsToMilliseconds(acquiredSince), EN_FULL_FORMAT)
+    bookedSince: format(secondsToMilliseconds(acquiredSince), EN_FULL_FORMAT),
   }) as const;
 
 const getFiniteBookingTimeMeasuresDefinition = (acquiredSince: number, releasedAt: number) => {
@@ -25,20 +25,20 @@ const getFiniteBookingTimeMeasuresDefinition = (acquiredSince: number, releasedA
   return {
     duration: intervalToDuration({
       start: acquiredSinceInMilliseconds,
-      end: releasedAtInMilliseconds
+      end: releasedAtInMilliseconds,
     }),
     remained: intervalToDuration({
       start: Date.now(),
-      end: releasedAtInMilliseconds
+      end: releasedAtInMilliseconds,
     }),
     bookedUntil: format(releasedAtInMilliseconds, EN_FULL_FORMAT),
-    bookedSince: format(acquiredSinceInMilliseconds, EN_FULL_FORMAT)
+    bookedSince: format(acquiredSinceInMilliseconds, EN_FULL_FORMAT),
   };
 };
 
 export const getBookingTimeMeasuresDefinition = ({
   releasedAt,
-  acquiredSince
+  acquiredSince,
 }: {
   releasedAt: number;
   acquiredSince: number;

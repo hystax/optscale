@@ -9,7 +9,7 @@ import {
   useOrganizationFeaturesQuery,
   useOrganizationPerspectivesQuery,
   useOrganizationsQuery,
-  useOrganizationThemeSettingsQuery
+  useOrganizationThemeSettingsQuery,
 } from "graphql/__generated__/hooks/restapi";
 import { useCurrentOrganization } from "hooks/useOrganizationInfo";
 import { useSignOut } from "hooks/useSignOut";
@@ -47,7 +47,7 @@ const CoreDataContainer = ({ render }: CoreDataContainerProps) => {
   const {
     loading: getOrganizationsLoading,
     error: getOrganizationsError,
-    data: getOrganizationsData
+    data: getOrganizationsData,
   } = useOrganizationsQuery({
     onCompleted: (data) => {
       const { organizationId } = getSearchParams() as { organizationId: string };
@@ -61,11 +61,11 @@ const CoreDataContainer = ({ render }: CoreDataContainerProps) => {
 
       if (organizations.find((org) => org.id === organizationId)) {
         updateScope({
-          newScopeId: organizationId
+          newScopeId: organizationId,
         });
         removeSearchParam("organizationId");
       }
-    }
+    },
   });
 
   const { organizationId, isDemo } = useCurrentOrganization(getOrganizationsData?.organizations);
@@ -76,64 +76,64 @@ const CoreDataContainer = ({ render }: CoreDataContainerProps) => {
     useOrganizationAllowedActionsQuery({
       variables: {
         requestParams: {
-          organization: organizationId
-        }
+          organization: organizationId,
+        },
       },
-      skip: skipRequest
+      skip: skipRequest,
     });
 
   const { loading: getCurrentEmployeeLoading, error: getCurrentEmployeeError } = useCurrentEmployeeQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    skip: skipRequest
+    skip: skipRequest,
   });
 
   const { loading: getDataSourcesLoading, error: getDataSourcesError } = useDataSourcesQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    skip: skipRequest
+    skip: skipRequest,
   });
 
   const { loading: getInvitationsLoading, error: getInvitationsError } = useInvitationsQuery({
-    skip: skipRequest
+    skip: skipRequest,
   });
 
   const { loading: getOrganizationFeaturesLoading, error: getOrganizationFeaturesError } = useOrganizationFeaturesQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    skip: skipRequest
+    skip: skipRequest,
   });
 
   const { loading: getOrganizationThemeSettingsLoading, error: getOrganizationThemeSettingsError } =
     useOrganizationThemeSettingsQuery({
       variables: {
-        organizationId
+        organizationId,
       },
-      skip: skipRequest
+      skip: skipRequest,
     });
 
   const { loading: getOrganizationPerspectivesLoading, error: getOrganizationPerspectivesError } =
     useOrganizationPerspectivesQuery({
       variables: {
-        organizationId
+        organizationId,
       },
-      skip: skipRequest
+      skip: skipRequest,
     });
 
   const isBillingIntegrationEnabled = getEnvironmentVariable("VITE_BILLING_INTEGRATION") === "enabled";
 
   const { loading: getSubscriptionLoading, error: getSubscriptionError } = useBillingSubscriptionQuery({
     variables: {
-      organizationId
+      organizationId,
     },
     pollInterval: 30 * MILLISECONDS_IN_MINUTE,
     skip: skipRequest || isDemo || !isBillingIntegrationEnabled,
     context: {
-      suppressAlertForErrorCodes: [ERROR_CODES.OE0002]
-    }
+      suppressAlertForErrorCodes: [ERROR_CODES.OE0002],
+    },
   });
 
   const error =
@@ -161,8 +161,8 @@ const CoreDataContainer = ({ render }: CoreDataContainerProps) => {
       getOrganizationFeaturesLoading,
       getOrganizationThemeSettingsLoading,
       getOrganizationPerspectivesLoading,
-      getSubscriptionLoading
-    }
+      getSubscriptionLoading,
+    },
   });
 };
 

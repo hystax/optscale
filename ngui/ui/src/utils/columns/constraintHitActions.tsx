@@ -15,8 +15,8 @@ const constraintHitActions = ({ navigate, constraint }) => ({
   cell: ({
     row: {
       original: { created_at: createdAt },
-      index
-    }
+      index,
+    },
   }) => (
     <IconButton
       dataTestId={`actions_column_link_${index}`}
@@ -27,10 +27,10 @@ const constraintHitActions = ({ navigate, constraint }) => ({
       }}
       tooltip={{
         show: true,
-        value: <FormattedMessage id="showResources" />
+        value: <FormattedMessage id="showResources" />,
       }}
     />
-  )
+  ),
 });
 
 export default constraintHitActions;

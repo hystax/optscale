@@ -1,0 +1,26 @@
+[project]
+name = "power-schedule"
+version = "0.1.0"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "kombu==5.3.4",
+    "pymongo==4.6.3",
+    "pytz==2023.3.post1",
+    "config-client",
+    "restapi-client",
+    "cloud-adapter",
+]
+
+[dependency-groups]
+dev = [
+    "freezegun==1.2.2",
+    "mongomock==4.1.2",
+    "pycodestyle==2.11.1",
+    "pylint==3.0.2",
+    "setuptools==80.9.0",
+]
+
+[tool.uv.sources]
+config-client = { path = "../../optscale_client/config_client", editable = true }
+restapi-client = { path = "../../optscale_client/rest_api_client", editable = true }
+cloud-adapter = { path = "../../tools/cloud_adapter", editable = true }

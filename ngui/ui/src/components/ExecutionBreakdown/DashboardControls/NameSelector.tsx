@@ -42,7 +42,7 @@ const NameSelector = ({ dashboards, currentEmployeeId, selected, onChange, saved
           ? {
               placement: "end",
               IconComponent: ShareOutlinedIcon,
-              tooltipTitle: <FormattedMessage id="shared" />
+              tooltipTitle: <FormattedMessage id="shared" />,
             }
           : undefined;
 
@@ -60,7 +60,7 @@ const NameSelector = ({ dashboards, currentEmployeeId, selected, onChange, saved
           ? {
               placement: "end",
               IconComponent: ShareOutlinedIcon,
-              tooltipTitle: <FormattedMessage id="shared" />
+              tooltipTitle: <FormattedMessage id="shared" />,
             }
           : undefined;
 

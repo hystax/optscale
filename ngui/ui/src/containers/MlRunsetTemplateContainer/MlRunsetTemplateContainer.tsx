@@ -12,7 +12,7 @@ const MlRunsetTemplateContainer = () => {
   const { useGetAll: useGetAllRunsets } = MlRunsetsService();
   const {
     isLoading: isGetRunsetsLoading,
-    data: { runsets, runsCount, totalCost, lastRunsetCost }
+    data: { runsets, runsCount, totalCost, lastRunsetCost },
   } = useGetAllRunsets(templateId);
 
   return (

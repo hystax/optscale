@@ -29,7 +29,7 @@ const MlTaskModelVersions = ({ modelVersions, isLoading }: MlTaskModelVersionsPr
         getName: (rowOriginal) => rowOriginal.model.name,
         getId: (rowOriginal) => rowOriginal.model.id,
         headerMessageId: "model",
-        headerDataTestId: "lbl_model"
+        headerDataTestId: "lbl_model",
       }),
       run({
         id: "run",
@@ -38,12 +38,12 @@ const MlTaskModelVersions = ({ modelVersions, isLoading }: MlTaskModelVersionsPr
         getRunId: ({ run: { id } }) => id,
         getTaskId: () => taskId,
         headerMessageId: "run",
-        headerDataTestId: "lbl_run"
+        headerDataTestId: "lbl_run",
       }),
       mlModelVersion({
         headerMessageId: "version",
         headerDataTestId: "lbl_version",
-        accessorKey: "version"
+        accessorKey: "version",
       }),
       {
         header: (
@@ -68,13 +68,13 @@ const MlTaskModelVersions = ({ modelVersions, isLoading }: MlTaskModelVersionsPr
               ))}
             </Box>
           );
-        }
+        },
       },
       mlModelPath({
         accessorKey: "path",
         headerMessageId: "path",
-        headerDataTestId: "lbl_path"
-      })
+        headerDataTestId: "lbl_path",
+      }),
     ],
     [taskId]
   );
@@ -89,7 +89,7 @@ const MlTaskModelVersions = ({ modelVersions, isLoading }: MlTaskModelVersionsPr
       queryParamPrefix="modelVersion"
       pageSize={50}
       localization={{
-        emptyMessageId: "noModelVersions"
+        emptyMessageId: "noModelVersions",
       }}
     />
   );

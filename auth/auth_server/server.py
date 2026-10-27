@@ -13,6 +13,7 @@ from auth.auth_server.constants import urls_v2
 from auth.auth_server.handlers.v1.base import DefaultHandler
 from auth.auth_server.handlers.v1.swagger import SwaggerStaticFileHandler
 from auth.auth_server.models.db_factory import DBType, DBFactory
+from tools.optscale_telemetry import OpenTelemetryConfig
 
 import optscale_client.config_client.client
 
@@ -88,6 +89,12 @@ def get_handlers(handler_kwargs):
             h_v2, "signin").SignInAsyncHandler, handler_kwargs),
         (urls_v2.verification_codes, get_handler_version(
             h_v2, "verification_codes").VerificationCodeAsyncHandler,
+         handler_kwargs),
+        (urls_v2.user_options_collection, get_handler_version(
+            h_v2, "user_options").UserOptionsAsyncCollectionHandler,
+         handler_kwargs),
+        (urls_v2.user_options, get_handler_version(
+            h_v2, "user_options").UserOptionsAsyncItemHandler,
          handler_kwargs)
     ]
 
@@ -103,6 +110,16 @@ def make_app(db_type, etcd_host, etcd_port, wait=False):
         config_cl.wait_configured()
     db = DBFactory(db_type, config_cl).db
     db.create_schema()
+
+    config = OpenTelemetryConfig(
+        service_name=os.getenv("OTEL_SERVICE_NAME", "auth"),
+        service_version=os.getenv("OTEL_SERVICE_VERSION", "local"),
+        otel_config=config_cl.read_branch("/opentelemetry"),
+        service_config=config_cl.read_branch("auth/opentelemetry"),
+        sqlalchemy_engine=db.engine,
+    )
+    config.setup_open_telemetry()
+
     handler_kwargs = {
         "engine": db.engine,
         "config": config_cl,

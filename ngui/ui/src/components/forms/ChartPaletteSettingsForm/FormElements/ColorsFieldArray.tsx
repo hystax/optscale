@@ -7,7 +7,7 @@ const ColorsFieldArray = ({ fieldName, options }) => {
 
   const { fields } = useFieldArray({
     control,
-    name: fieldName
+    name: fieldName,
   });
 
   return fields.map((field, index) => (
@@ -16,7 +16,7 @@ const ColorsFieldArray = ({ fieldName, options }) => {
       label={index + 1}
       name={`${fieldName}.${index}.color`}
       InputProps={{
-        endAdornment: <SquareIcon style={{ border: "1px dashed black", color: options[index] }} />
+        endAdornment: <SquareIcon style={{ border: "1px dashed black", color: options[index] }} />,
       }}
     />
   ));

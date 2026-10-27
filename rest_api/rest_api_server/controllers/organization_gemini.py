@@ -1,18 +1,28 @@
 import json
 import logging
+import uuid
 from typing import List
 
 import clickhouse_connect
+import tools.optscale_time as opttime
+from kombu import Connection as QConnection, Exchange
+from kombu.pools import producers
+from sqlalchemy import and_, exists, or_
 
 from rest_api.rest_api_server.controllers.base import (
     BaseController, ClickHouseMixin)
 from rest_api.rest_api_server.controllers.base_async import (
     BaseAsyncControllerWrapper)
-from rest_api.rest_api_server.models.models import OrganizationGemini
+from rest_api.rest_api_server.models.models import (
+    OrganizationGemini, GeminiData)
+from rest_api.rest_api_server.models.enums import GeminiStatuses
 from rest_api.rest_api_server.utils import (
     check_int_attribute, check_dict_attribute, check_list_attribute,
     check_float_attribute
 )
+from tools.optscale_exceptions.common_exc import (
+    NotFoundException, FailedDependency, ForbiddenException, ConflictException)
+from rest_api.rest_api_server.exceptions import Err
 
 
 LOG = logging.getLogger(__name__)
@@ -58,6 +68,14 @@ class GeminiDataController(BaseController, ClickHouseMixin):
     """
     Controller for /restapi/v2/geminis/{id}/data
     """
+    EXCHANGE_NAME = 'gemini-tasks'
+    ROUTING_KEY = 'gemini-data'
+    RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
+                    'interval_step': 1, 'interval_max': 3}
+
+    def _get_model_type(self):
+        return GeminiData
+
     @property
     def clickhouse_client(self):
         if not self._clickhouse_client:
@@ -68,56 +86,96 @@ class GeminiDataController(BaseController, ClickHouseMixin):
                 port=port, secure=secure)
         return self._clickhouse_client
 
-    def get(self, gemini_id: str, buckets: list) -> list:
-        unique_buckets = list(set(buckets))
-        unique_buckets_length = len(unique_buckets)
+    @staticmethod
+    def _generate_string_from_buckets(buckets: list[str]) -> str:
+        return ",".join(buckets)
 
-        # The endpoint is intended to download duplicated records
-        # for 1 (self duplicates) or 2 (cross duplicates) buckets
-        result = []
+    def publish_task(self, task_params):
+        queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
+            **self._config.read_branch('/rabbit')),
+            transport_options=self.RETRY_POLICY)
 
-        if unique_buckets_length == 1:
-            result = self.execute_clickhouse(
-                """SELECT tag, bucket, key, size
-                    FROM gemini
-                    WHERE id=%(gemini_id)s AND bucket=%(bucket)s
-                    AND tag IN (SELECT tag FROM gemini GROUP BY tag HAVING COUNT(tag) > 1)
-                """,
-                parameters={"gemini_id": gemini_id, "bucket": unique_buckets[0]},
+        task_exchange = Exchange(self.EXCHANGE_NAME, type='direct')
+        with producers[queue_conn].acquire(block=True) as producer:
+            producer.publish(
+                task_params,
+                serializer='json',
+                exchange=task_exchange,
+                declare=[task_exchange],
+                routing_key=self.ROUTING_KEY,
+                retry=True,
+                retry_policy=self.RETRY_POLICY,
             )
 
-            # Cannot use grouping in the query, we must return distinct rows at all times
-            # "Post-grouping" - filter out records with 1 tag occurance (no self duplicates)
-            tags = [row[0] for row in result]
-            result = [row for row in result if tags.count(row[0]) > 1]
+    def create(self, gemini_id: str, buckets: list) -> GeminiData:
+        org_gemini = self.session.query(OrganizationGemini).filter(
+            OrganizationGemini.id == gemini_id,
+            OrganizationGemini.deleted.is_(False)
+        ).one_or_none()
+        if not org_gemini:
+            raise NotFoundException(
+                Err.OE0002, [OrganizationGemini.__name__, gemini_id])
+        if org_gemini.status != GeminiStatuses.SUCCESS:
+            raise FailedDependency(Err.OE0572, [org_gemini.status.value])
+        now_ts = opttime.utcnow_timestamp()
+        unique_buckets = list(dict.fromkeys(buckets))
+        buckets_str = self._generate_string_from_buckets(unique_buckets)
+        existing_id = self.session.query(GeminiData.id).filter(
+            self.model_type.gemini_id == gemini_id,
+            self.model_type.deleted.is_(False),
+            or_(
+                self.model_type.valid_until > now_ts,
+                self.model_type.valid_until == 0,
+            ),
+            self.model_type.buckets == buckets_str,
+            self.model_type.status != GeminiStatuses.FAILED
+        ).scalar()
+        if existing_id:
+            raise ConflictException(
+                Err.OE0573, [self.model_type.__name__, existing_id])
+        try:
+            gemini_data_id = str(uuid.uuid4())
+            gemini_data = GeminiData(id=gemini_data_id, gemini_id=gemini_id,
+                                     buckets=buckets_str)
+            self.session.add(gemini_data)
+            self.session.commit()
+            self.publish_task({'gemini_data_id': gemini_data_id})
+        except Exception:
+            self.session.rollback()
+            raise
+        return gemini_data
 
-        if unique_buckets_length == 2:
-            result = self.execute_clickhouse(
-                """
-                    SELECT tag, bucket, key, size
-                    FROM gemini
-                    WHERE id=%(gemini_id)s AND bucket IN %(buckets)s AND tag in (
-                        SELECT tag
-                        FROM gemini
-                        WHERE id=%(gemini_id)s AND bucket=%(bucket_1)s
-
-                        INTERSECT
-
-                        SELECT tag
-                        FROM gemini
-                        WHERE id=%(gemini_id)s AND bucket=%(bucket_2)s
-                    )
-                """,
-                parameters={
-                    "gemini_id": gemini_id,
-                    "buckets": unique_buckets,
-                    "bucket_1": unique_buckets[0],
-                    "bucket_2": unique_buckets[1],
-                }
+    def list(self, gemini_id, only_active=False, **kwargs) -> List[GeminiData]:
+        query = self.session.query(self.model_type).filter(
+            self.model_type.gemini_id == gemini_id,
+            self.model_type.deleted_at.is_(False)
+        )
+        if only_active:
+            now_ts = opttime.utcnow_timestamp()
+            query = query.filter(
+                or_(
+                    self.model_type.valid_until > now_ts,
+                    self.model_type.valid_until == 0,
+                ),
+                self.model_type.status != GeminiStatuses.FAILED
             )
+        return query.all()
 
-        return [{"tag": r[0], "bucket": r[1],
-                 "key": r[2], "size": r[3]} for r in result]
+    def get(self, gemini_data_id, **kwargs) -> GeminiData:
+        gemini_data = super().get(gemini_data_id, **kwargs)
+        if not gemini_data:
+            raise NotFoundException(
+                Err.OE0002, [GeminiData.__name__, gemini_data_id])
+        return gemini_data
+
+    def get_download_url(self, gemini_data_id: str, **kwargs):
+        gemini_data = self.get(gemini_data_id, **kwargs)
+        if gemini_data.status != GeminiStatuses.SUCCESS:
+            raise FailedDependency(Err.OE0572, [gemini_data.status.value])
+        url = gemini_data.url
+        if not url or gemini_data.valid_until < opttime.utcnow_timestamp():
+            raise ForbiddenException(Err.OE0234, [])
+        return url
 
 
 class GeminiDataAsyncController(BaseAsyncControllerWrapper):

@@ -13,7 +13,7 @@ const MaxRamField = () => {
   const {
     formState: { isSubmitted },
     watch,
-    trigger
+    trigger,
   } = useFormContext();
 
   const intl = useIntl();
@@ -36,10 +36,10 @@ const MaxRamField = () => {
           <FormattedMessage
             id="digitalUnits"
             values={{
-              unit: IEC_UNITS.GIBIBYTE
+              unit: IEC_UNITS.GIBIBYTE,
             }}
           />
-        )
+        ),
       }}
       min={0}
       validate={{
@@ -51,9 +51,9 @@ const MaxRamField = () => {
                 { id: "fieldMoreThanOrEqualToField" },
                 {
                   fieldName1: intl.formatMessage({ id: "maxRam" }),
-                  fieldName2: intl.formatMessage({ id: "minRam" })
+                  fieldName2: intl.formatMessage({ id: "minRam" }),
                 }
-              )
+              ),
       }}
     />
   );

@@ -21,7 +21,7 @@ it("renders without crashing with array caption", () => {
       <CaptionedCell
         caption={[
           { caption: "caption", key: "key1" },
-          { node: <div>test</div>, key: "key2" }
+          { node: <div>test</div>, key: "key2" },
         ]}
       >
         main

@@ -15,7 +15,7 @@ const DatasetTimespan = ({ timespanFrom, timespanTo }) => {
   const fromLabel = intl.formatMessage({ id: "from" }).toLocaleLowerCase();
   const toLabel = intl
     .formatMessage({
-      id: "to"
+      id: "to",
     })
     .toLocaleLowerCase();
 
@@ -51,7 +51,7 @@ const RunDataset = ({ dataset }) => {
           display: "flex",
           alignItems: "center",
           gap: 0.5,
-          flexWrap: "wrap"
+          flexWrap: "wrap",
         }}
       >
         <FormattedMessage id="labels" />

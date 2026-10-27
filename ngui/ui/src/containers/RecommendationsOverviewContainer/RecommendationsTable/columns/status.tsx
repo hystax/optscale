@@ -18,7 +18,7 @@ const status = ({ headerDataTestId, accessorKey }) => ({
         messageId={{ success: "allGood", ok: "ok", warning: "requiringAttention", error: "critical" }[statusValue] || "unknown"}
       />
     );
-  }
+  },
 });
 
 export default status;

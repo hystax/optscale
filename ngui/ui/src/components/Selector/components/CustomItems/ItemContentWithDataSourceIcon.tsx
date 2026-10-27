@@ -22,7 +22,7 @@ const ItemContentWithDataSourceIcon = ({ dataSourceType, children }: ItemContent
   return (
     <ItemContent
       icon={{
-        IconComponent: icon
+        IconComponent: icon,
       }}
     >
       {children}

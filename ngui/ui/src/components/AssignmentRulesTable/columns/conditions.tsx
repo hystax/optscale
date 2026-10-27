@@ -8,7 +8,7 @@ const conditions = () => ({
     </TextWithDataTestId>
   ),
   accessorKey: "conditionsObject.conditionsString",
-  cell: ({ row: { original } }) => original.conditionsObject.conditionsRender
+  cell: ({ row: { original } }) => original.conditionsObject.conditionsRender,
 });
 
 export default conditions;

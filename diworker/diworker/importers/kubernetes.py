@@ -257,13 +257,18 @@ class KubernetesReportImporter(BaseReportImporter):
         self._nodes_provider = None
         self._currency = None
         self.period_start = None
-        if self.cloud_acc.get('last_import_at'):
-            last_import_at = self.get_last_import_date(self.cloud_acc_id)
-            if last_import_at:
-                self.period_start = last_import_at.replace(
-                    hour=0, minute=0, second=0, microsecond=0)
-        if self.period_start is None:
-            self.set_period_start()
+        if self.import_from is not None:
+            self.period_start = opttime.utcfromtimestamp(
+                self.import_from).replace(
+                hour=0, minute=0, second=0, microsecond=0)
+        else:
+            if self.cloud_acc.get('last_import_at'):
+                last_import_at = self.get_last_import_date(self.cloud_acc_id)
+                if last_import_at:
+                    self.period_start = last_import_at.replace(
+                        hour=0, minute=0, second=0, microsecond=0)
+            if self.period_start is None:
+                self.set_period_start()
 
     @property
     def cloud_adapter(self):
@@ -281,9 +286,6 @@ class KubernetesReportImporter(BaseReportImporter):
                 self.cloud_acc['organization_id'])
             self._currency = organization.get('currency', 'USD')
         return self._currency
-
-    def prepare(self):
-        pass
 
     @property
     def nodes_provider(self):
@@ -420,8 +422,8 @@ class KubernetesReportImporter(BaseReportImporter):
             return container_id.split('/pod')[-1]
 
     def load_raw_data(self):
-        now = opttime.utcnow()
-        dt = now + timedelta(days=1)
+        end = self.period_end
+        dt = end + timedelta(days=1)
         days = (dt - self.period_start).days
         LOG.info('Loading metrics for period %s - %s' % (
             self.period_start, dt))
@@ -438,7 +440,7 @@ class KubernetesReportImporter(BaseReportImporter):
         node_info = self.get_node_info(days, dt)
         self.nodes_provider.load_data(period=days, dt=dt)
         pod_service_map = self.cloud_adapter.get_pod_services(
-            int(now.timestamp()))
+            int(end.timestamp()))
         chunk = []
         for metric_name, query_cost_func_set in meter_map.items():
             query, cost_func = query_cost_func_set
@@ -467,14 +469,15 @@ class KubernetesReportImporter(BaseReportImporter):
                     start_date = opttime.utcfromtimestamp(
                         dt_timestamp) - timedelta(days=1)
                     end_date = opttime.utcfromtimestamp(dt_timestamp)
-                    if end_date > now:
-                        end_date = now
+                    if end_date > end:
+                        end_date = end
                     worked_hrs = (end_date - start_date
                                   ).total_seconds() / SECONDS_IN_HOUR
                     end_date = end_date - timedelta(seconds=1)
                     cost = cost_func(
                         node, value, total_metrics[dt_timestamp][node_name],
                         worked_hrs)
+                    namespace = expense.get('namespace')
                     expense.update({
                         'metric': metric_name,
                         'value': value,
@@ -486,7 +489,8 @@ class KubernetesReportImporter(BaseReportImporter):
                         'cost': cost,
                         'node_info': node_info[dt_timestamp][node_name],
                         'total_pods_value': total_metrics[dt_timestamp][node_name],
-                        'service': pod_service_map.get(pod_name)
+                        'service': pod_service_map.get(
+                            (namespace, pod_name))
                     })
                     chunk.append(expense)
         if chunk:
@@ -644,3 +648,11 @@ class KubernetesReportImporter(BaseReportImporter):
             nodes_data = {'nodes': nodes}
             self.rest_cl.node_create_bulk(self.cloud_acc_id, nodes_data)
             super().update_cloud_import_time(ts)
+
+    def get_state_to_serialize(self):
+        return {'nodes': self.nodes_provider.dump_nodes()}
+
+    def restore_serialized_state(self, state):
+        for node_dict in state.get('nodes', []):
+            node = Node(**node_dict)
+            self.nodes_provider._nodes[node.name] = node

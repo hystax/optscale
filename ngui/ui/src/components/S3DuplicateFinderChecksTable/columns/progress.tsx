@@ -49,8 +49,8 @@ const progress = () => ({
   defaultSort: "desc",
   cell: ({
     row: {
-      original: { id, status, created_at: createdAt, last_error: error, last_completed: lastCompleted, last_run: lastRun }
-    }
+      original: { id, status, created_at: createdAt, last_error: error, last_completed: lastCompleted, last_run: lastRun },
+    },
   }) => {
     const scheduleTime = format(secondsToMilliseconds(createdAt), EN_FULL_FORMAT);
 
@@ -59,7 +59,7 @@ const progress = () => ({
         <FormattedMessage
           id="scheduledAt"
           values={{
-            label: scheduleTime
+            label: scheduleTime,
           }}
         />
       );
@@ -74,16 +74,16 @@ const progress = () => ({
           <Link to={getS3DuplicateFinderCheck(id)} component={RouterLink}>
             {scheduleTime}
           </Link>
-        )
+        ),
       },
       [STATUS.RUNNING]: {
         icon: <PlayCircleIcon fontSize="small" color="primary" />,
-        label: scheduleTime
+        label: scheduleTime,
       },
       [STATUS.FAILED]: {
         icon: <CancelIcon fontSize="small" color="error" />,
-        label: scheduleTime
-      }
+        label: scheduleTime,
+      },
     }[status];
 
     return (
@@ -91,14 +91,14 @@ const progress = () => ({
         caption={[
           {
             node: caption,
-            key: `progress-caption`
-          }
+            key: `progress-caption`,
+          },
         ]}
       >
         <IconLabel icon={icon} label={label} />
       </CaptionedCell>
     );
-  }
+  },
 });
 
 export default progress;

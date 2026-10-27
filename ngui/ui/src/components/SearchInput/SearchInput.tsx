@@ -27,7 +27,7 @@ const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = 
   const {
     searchInput: searchInputDataTestId,
     searchButton: searchButtonDataTestId,
-    deleteSearchButton: deleteSearchButtonDataTestId
+    deleteSearchButton: deleteSearchButtonDataTestId,
   } = dataTestIds;
 
   const [currentText, setCurrentText] = useState(initialSearchText);
@@ -77,7 +77,7 @@ const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = 
             }}
           />
         ),
-        sx: { paddingLeft: 0 }
+        sx: { paddingLeft: 0 },
       }}
       ref={inputRef}
       margin="none"

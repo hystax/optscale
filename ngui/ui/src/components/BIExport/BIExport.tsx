@@ -21,7 +21,7 @@ const BIExport = ({ biExport, isLoading = false }) => {
     next_run: nextRun = 0,
     last_status_error: lastStatusError,
     meta,
-    files = []
+    files = [],
   } = biExport;
 
   const status = getBIExportStatus(biExport);
@@ -38,12 +38,12 @@ const BIExport = ({ biExport, isLoading = false }) => {
             </Link>,
             <Link key={2} to={BI_EXPORTS} component={RouterLink}>
               <FormattedMessage id="biExportTitle" />
-            </Link>
+            </Link>,
           ],
           title: {
             text: name,
             dataTestId: "lbl_bi_export",
-            isLoading
+            isLoading,
           },
           items: [
             {
@@ -53,9 +53,9 @@ const BIExport = ({ biExport, isLoading = false }) => {
               type: "button",
               link: getEditBIExportUrl(id),
               isLoading,
-              requiredActions: ["EDIT_PARTNER"]
-            }
-          ]
+              requiredActions: ["EDIT_PARTNER"],
+            },
+          ],
         }}
       />
       <PageContentWrapper>

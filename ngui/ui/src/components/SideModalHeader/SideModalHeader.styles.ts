@@ -4,24 +4,24 @@ const useStyles = makeStyles()((theme) => ({
   title: {
     flexGrow: 1,
     display: "flex",
-    alignContent: "center"
+    alignContent: "center",
   },
   headerPrimary: {
     color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: theme.palette.primary.main,
   },
   headerSuccess: {
     color: theme.palette.success.contrastText,
-    backgroundColor: theme.palette.success.main
+    backgroundColor: theme.palette.success.main,
   },
   headerInfo: {
     color: theme.palette.info.dark,
-    backgroundColor: theme.palette.info.light
+    backgroundColor: theme.palette.info.light,
   },
   headerError: {
     color: theme.palette.error.contrastText,
-    backgroundColor: theme.palette.error.main
-  }
+    backgroundColor: theme.palette.error.main,
+  },
 }));
 
 export default useStyles;

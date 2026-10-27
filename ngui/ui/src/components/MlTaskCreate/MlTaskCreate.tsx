@@ -10,12 +10,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={ML_TASKS} component={RouterLink}>
       <FormattedMessage id="tasks" />
-    </Link>
+    </Link>,
   ],
   title: {
     messageId: "addTaskTitle",
-    dataTestId: "lbl_add_task"
-  }
+    dataTestId: "lbl_add_task",
+  },
 };
 
 const MlTaskCreate = () => (
@@ -24,7 +24,7 @@ const MlTaskCreate = () => (
     <PageContentWrapper>
       <Box
         sx={{
-          width: { md: "50%" }
+          width: { md: "50%" },
         }}
       >
         <MlTaskCreateFormContainer />

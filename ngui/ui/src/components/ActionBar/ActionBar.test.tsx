@@ -14,9 +14,9 @@ const items = {
       messageId: "edit",
       link: "#",
       type: "button",
-      title: "title"
-    }
-  ]
+      title: "title",
+    },
+  ],
 };
 
 it("renders without crashing", () => {

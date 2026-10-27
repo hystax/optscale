@@ -6,8 +6,8 @@ class CreateOrganizationOptionModal extends BaseSideModal {
     messageId: "createOrganizationOptionTitle",
     dataTestIds: {
       title: "lbl_create",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_create";

@@ -8,7 +8,7 @@ import {
   AuthorizedKeyPrivateKey,
   AuthorizedKeyTitle,
   ServiceAccountId,
-  FIELD_NAMES
+  FIELD_NAMES,
 } from "components/NebiusConfigFormElements";
 import { readFileAsText } from "utils/files";
 
@@ -36,13 +36,13 @@ const NebiusCredentials = () => {
           display: "flex",
           flexWrap: "wrap-reverse",
           justifyContent: "center",
-          gap: 8
+          gap: 8,
         }}
       >
         <div
           style={{
             width: "70%",
-            flexGrow: 1
+            flexGrow: 1,
           }}
         >
           <ServiceAccountId />
@@ -51,7 +51,7 @@ const NebiusCredentials = () => {
         </div>
         <div
           style={{
-            flexGrow: 1
+            flexGrow: 1,
           }}
         >
           <Dropzone messageId="fillFromAuthorizedKeyJson" acceptedFiles={["application/json"]} onChange={handleFileChange} />

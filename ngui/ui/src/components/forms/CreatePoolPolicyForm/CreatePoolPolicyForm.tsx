@@ -20,7 +20,7 @@ const CreatePoolPolicyForm = ({
   onCancel,
   isGetLoading = false,
   isDataReady = false,
-  isSubmitLoading = false
+  isSubmitLoading = false,
 }) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
@@ -28,8 +28,8 @@ const CreatePoolPolicyForm = ({
     defaultValues: {
       [POOL_ID]: "",
       [POLICY_TYPE]: "",
-      [LIMIT]: ""
-    }
+      [LIMIT]: "",
+    },
   });
 
   const {
@@ -37,7 +37,7 @@ const CreatePoolPolicyForm = ({
     watch,
     setValue,
     formState: { isValidating },
-    trigger
+    trigger,
   } = methods;
 
   const policyType = watch(POLICY_TYPE);
@@ -100,7 +100,7 @@ const CreatePoolPolicyForm = ({
             onSubmit({
               poolId: poolIdValue,
               limit: Number(limitValue),
-              type: policyTypeValue
+              type: policyTypeValue,
             });
           })}
           noValidate
@@ -118,7 +118,7 @@ const CreatePoolPolicyForm = ({
                 disabled={isRestricted || isSubmitDisabled()}
                 tooltip={{
                   show: isRestricted,
-                  value: restrictionReasonMessage
+                  value: restrictionReasonMessage,
                 }}
               />
               <Button dataTestId="btn_cancel" messageId="cancel" onClick={onCancel} />

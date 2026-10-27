@@ -12,7 +12,7 @@ const ApiSuccessAlert = () => {
   const { apiStateData: latestSuccessHandledLabel } = useApiStateData(LATEST_SUCCESS_HANDLED_LABEL);
 
   const {
-    lastResult: { successHandlerType, response: { data: { success = {} } = {} } = {} }
+    lastResult: { successHandlerType, response: { data: { success = {} } = {} } = {} },
   } = useLastResult(latestSuccessHandledLabel);
 
   const { isLoading } = useApiState(latestSuccessHandledLabel);

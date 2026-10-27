@@ -22,7 +22,7 @@ const MAX_DURATION_CHECKBOX_FIELD_NAME = FIELD_NAMES.MAX_DURATION_CHECKBOX;
 const MAX_DURATION_VALUE_FIELD_NAME = FIELD_NAMES.MAX_DURATION_VALUE;
 
 const inputWidthStyle = {
-  flexGrow: 1
+  flexGrow: 1,
 };
 
 const blockStyle = { display: "flex", flexWrap: "wrap", alignItems: "flex-start" };
@@ -64,7 +64,7 @@ const MaxBudget = () => {
           max={isEnabled ? MAX_INT_32 : null}
           validate={isEnabled ? { positiveInteger: (value) => positiveInteger(value) } : undefined}
           InputProps={{
-            endAdornment: <InputAdornment position="end">{currencySymbol}</InputAdornment>
+            endAdornment: <InputAdornment position="end">{currencySymbol}</InputAdornment>,
           }}
         />
       </div>
@@ -87,7 +87,7 @@ const MaxDuration = () => {
   const {
     formState: { isSubmitted },
     watch,
-    trigger
+    trigger,
   } = useFormContext();
 
   const isEnabled = watch(MAX_DURATION_CHECKBOX_FIELD_NAME);
@@ -122,7 +122,7 @@ const MaxDuration = () => {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">{intl.formatMessage({ id: "min" }).toLocaleLowerCase()}</InputAdornment>
-            )
+            ),
           }}
         />
       </div>

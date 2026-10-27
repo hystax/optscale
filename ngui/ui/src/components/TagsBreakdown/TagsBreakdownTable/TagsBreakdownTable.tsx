@@ -26,8 +26,8 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
         accessorFn: ({ tag }) =>
           tag ??
           intl.formatMessage({
-            id: "(untagged)"
-          })
+            id: "(untagged)",
+          }),
       },
       {
         header: (
@@ -39,7 +39,7 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
             />
           </TextWithDataTestId>
         ),
-        accessorKey: "count"
+        accessorKey: "count",
       },
       {
         header: (
@@ -53,7 +53,7 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
         ),
         accessorKey: "cost",
         cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       {
         header: (
@@ -72,12 +72,12 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
                 icon: <BarChartOutlinedIcon />,
                 dataTestId: `btn_toggle_${index}`,
                 color: tag === selectedTag ? "secondary" : "primary",
-                action: () => onShowOnChartClick(tag)
-              }
+                action: () => onShowOnChartClick(tag),
+              },
             ]}
           />
-        )
-      }
+        ),
+      },
     ],
     [appliedRange.startSecondsTimestamp, appliedRange.endSecondsTimestamp, intl, selectedTag, onShowOnChartClick]
   );
@@ -91,7 +91,7 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
       columns={columns}
       localization={{ emptyMessageId: "noTags" }}
       dataTestIds={{
-        container: "tags_table"
+        container: "tags_table",
       }}
       queryParamPrefix="tags"
       pageSize={50}

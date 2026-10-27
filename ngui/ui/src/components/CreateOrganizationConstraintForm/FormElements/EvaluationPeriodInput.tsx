@@ -9,7 +9,7 @@ const FIELD_NAME = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.EVALUATION_PE
 const EvaluationPeriodInput = () => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -24,18 +24,18 @@ const EvaluationPeriodInput = () => {
       {...register(FIELD_NAME, {
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         validate: {
-          positiveIntegerOrZero
+          positiveIntegerOrZero,
         },
         max: {
           value: 180,
-          message: intl.formatMessage({ id: "lessOrEqual" }, { max: 180 })
-        }
+          message: intl.formatMessage({ id: "lessOrEqual" }, { max: 180 }),
+        },
       })}
       InputProps={{
-        endAdornment: intl.formatMessage({ id: "days" }).toLowerCase()
+        endAdornment: intl.formatMessage({ id: "days" }).toLowerCase(),
       }}
     />
   );

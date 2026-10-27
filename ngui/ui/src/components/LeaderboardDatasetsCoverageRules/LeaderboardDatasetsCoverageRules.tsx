@@ -47,7 +47,7 @@ const CoverageStatus = ({ covered, all }: CoverageStatusProps) => (
           id="value / value"
           values={{
             value1: covered,
-            value2: all
+            value2: all,
           }}
         />
       </Typography>
@@ -64,7 +64,7 @@ const NoDatasetsCoverageRulesMessage = ({ message = {} }: NoDatasetsCoverageRule
 const LeaderboardDatasetsCoverageRules = ({
   datasets,
   coverageRules,
-  noDatasetsCoverageRulesMessage
+  noDatasetsCoverageRulesMessage,
 }: LeaderboardDatasetsCoverageRulesProps) => {
   const hasDatasetsCovered = datasets.all > 0;
   const hasCoverageRules = !isEmptyArray(coverageRules);

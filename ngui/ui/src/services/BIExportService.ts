@@ -6,7 +6,7 @@ import {
   DELETE_BI_EXPORT,
   GET_BI_EXPORT,
   GET_ORGANIZATION_BI_EXPORT,
-  UPDATE_BI_EXPORT
+  UPDATE_BI_EXPORT,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -26,7 +26,7 @@ export const useGetAll = () => {
   }, [dispatch, shouldInvoke, organizationId]);
 
   const {
-    apiData: { organization_bis: organizationBIExports = [] }
+    apiData: { organization_bis: organizationBIExports = [] },
   } = useApiData(GET_ORGANIZATION_BI_EXPORT);
 
   return { isLoading, organizationBIExports };

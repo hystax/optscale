@@ -11,7 +11,7 @@ const UpgradeToEnterpriseButton = () => (
     href={CONTACT_US_URL}
     startIcon={<RocketLaunchOutlinedIcon />}
     sx={{
-      whiteSpace: "nowrap"
+      whiteSpace: "nowrap",
     }}
   />
 );

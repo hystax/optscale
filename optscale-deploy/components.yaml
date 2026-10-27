@@ -19,6 +19,7 @@ failed_imports_dataset_generator:
 filebeat:
 gemini_scheduler:
 gemini_worker:
+gemini_data_worker:
 grafana:
 grafana_nginx:
 herald:

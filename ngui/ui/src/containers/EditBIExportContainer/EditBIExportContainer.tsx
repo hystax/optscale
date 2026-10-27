@@ -22,7 +22,7 @@ const EditBIExportContainer = () => {
       biExport={biExport}
       isLoadingProps={{
         isSubmitLoading: isUpdateLoading,
-        isGetDataLoading: isGetBIExportLoading
+        isGetDataLoading: isGetBIExportLoading,
       }}
     />
   );

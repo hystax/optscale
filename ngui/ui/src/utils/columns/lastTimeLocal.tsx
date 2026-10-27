@@ -14,7 +14,7 @@ const lastTimeLocal = ({ headerDataTestId, messageId, accessorKey, style = {} })
     const value = cell.getValue();
 
     return value === 0 ? <FormattedMessage id="never" /> : format(secondsToMilliseconds(value), EN_FULL_FORMAT);
-  }
+  },
 });
 
 export default lastTimeLocal;

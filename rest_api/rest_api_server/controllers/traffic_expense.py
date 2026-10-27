@@ -46,7 +46,7 @@ class TrafficExpenseController(CleanExpenseController):
     @staticmethod
     def _get_coordinates(config):
         cloud_adapter = CloudAdapter.get_adapter(config)
-        res = cloud_adapter.get_regions_coordinates()
+        res = cloud_adapter.get_regions_coordinates(load=False)
         coordinates_result = {}
         for k, v in res.items():
             coordinates = {

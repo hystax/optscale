@@ -8,11 +8,6 @@ from decimal import Decimal
 from collections import defaultdict
 from datetime import datetime, timezone
 from gzip import BadGzipFile
-from diworker.diworker.utils import retry_backoff
-from tools.cloud_adapter.clouds.azure import (
-    AzureConsumptionException, ExpenseImportScheme, AzureAuthenticationError,
-    AzureResourceNotFoundError)
-
 from diworker.diworker.importers.base import CSVBaseReportImporter
 from diworker.diworker.importers.azure import AzureImporterBase
 
@@ -21,33 +16,6 @@ CHUNK_SIZE = 200
 
 
 class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
-
-    def _download_report_files(self, current_reports, last_import_modified_at):
-        for date, reports in current_reports.items():
-            for report in reports:
-                if last_import_modified_at < report['last_modified']:
-                    last_import_modified_at = report['last_modified']
-                target_path = self.get_new_report_path(date)
-                os.makedirs(os.path.join(self.reports_dir, date),
-                            exist_ok=True)
-                with open(target_path, 'wb') as f_report:
-                    self.cloud_adapter.download_report_file(report['name'],
-                                                            f_report)
-                self.report_files[date].append(target_path)
-        return last_import_modified_at
-
-    def get_current_reports(self, reports_groups, last_import_modified_at):
-        current_reports = defaultdict(list)
-        reports_count = 0
-        for date, reports in reports_groups.items():
-            for report in reports:
-                if report.get('last_modified', -1) > last_import_modified_at:
-                    # use all reports for month
-                    current_reports[date].extend(reports)
-                    reports_count += len(reports)
-                    break
-        LOG.info('Selected %s reports', reports_count)
-        return current_reports
 
     def unpack_report(self, report_file, date):
         dest_dir = self.get_new_report_path(date)
@@ -62,59 +30,42 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
         else:
             return report_file
 
+    def get_current_reports(self, reports_groups, previous_states):
+        current_reports = defaultdict(list)
+        for date, reports in reports_groups.items():
+            if any(self._etag_changed(r, previous_states) for r in reports):
+                LOG.info('Group selected (etag changed): %s', date)
+                current_reports[date].extend(reports)
+            else:
+                LOG.info('Group skipped (etag unchanged): %s', date)
+        total = sum(len(r) for r in current_reports.values())
+        total_checked = sum(len(r) for r in reports_groups.values())
+        LOG.info('Selected %d/%d files for import', total, total_checked)
+        return current_reports
+
     def unpack_report_files(self):
         for date, reports in self.report_files.items():
-            self.report_files[date] = [
-                self.unpack_report(r, date) for r in self.report_files[date]]
+            new_reports = []
+            for old_path in reports:
+                new_path = self.unpack_report(old_path, date)
+                if new_path != old_path and old_path in self.report_file_keys:
+                    self.report_file_keys[new_path] = self.report_file_keys.pop(
+                        old_path)
+                new_reports.append(new_path)
+            self.report_files[date] = new_reports
 
-    @retry_backoff(AzureConsumptionException,
-                   raise_errors=[
-                       AzureAuthenticationError, AzureResourceNotFoundError
-                   ], raise_codes=[403])
-    def load_raw_data(self):
-        import_scheme = self.cloud_adapter.expense_import_scheme
-        if import_scheme == ExpenseImportScheme.export.value:
-            LOG.info('Loading data from export files')
-            report_files = []
-            for r in self.report_files.values():
-                report_files.extend(r)
-            for report_path in report_files:
-                self.load_report(report_path)
-        else:
-            raise Exception(
-                f'Unsupported expense import scheme: {import_scheme}')
-        try:
-            self.generate_reservations_expenses(self.min_date_import_threshold)
-        except Exception as exc:
-            LOG.exception("Failed getting reservations info: %s", str(exc))
-        self.clear_rudiments()
-
-    def data_import(self):
-        import_scheme = self.cloud_adapter.expense_import_scheme
-        if (import_scheme == ExpenseImportScheme.export.value and
-                self.cloud_acc['last_import_at'] == 0 and
-                self.import_file is None):
-            # on the first import order report files by date from newest to
-            # oldest
-            self._import_reports_ordered_by_date({})
-        else:
-            LOG.info('Importing raw data')
-            self.load_raw_data()
-        LOG.info('Generating clean records')
-        self.generate_clean_records()
-
-    def load_report(self, report_path, *_args):
+    def load_report(self, report_path, *_args, report_key=None):
         LOG.info('loading report %s', report_path)
 
         try:
             skipped_accounts = self.load_parquet_report(
-                report_path)
+                report_path, report_key=report_key)
         except pyarrow.lib.ArrowInvalid as exc:
             LOG.warning(
                 f"Could not open source file as Parquet {report_path}: "
                 f"{str(exc)}. Will try to open it as CSV")
             skipped_accounts = self.load_csv_report(
-                report_path)
+                report_path, report_key=report_key)
 
         if len(skipped_accounts) > 0:
             LOG.warning('Import skipped for the following subscriptions: %s',
@@ -133,7 +84,7 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
             return [self._get_legacy_key(col) for col in columns]
         return {col: self._get_legacy_key(col) for col in columns}
 
-    def load_csv_report(self, report_path):
+    def load_csv_report(self, report_path, report_key=None):
         date_start = datetime.now(tz=timezone.utc)
         subscription_id = self.cloud_acc['account_id']
         skipped_accounts = set()
@@ -156,14 +107,16 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
                     usage_datetime = datetime.strptime(exp_date, '%Y-%m-%d')
                 else:
                     usage_datetime = datetime.strptime(row['date'], '%m/%d/%Y')
-                if usage_datetime.replace(
-                        tzinfo=timezone.utc) < self.min_date_import_threshold:
+                usage_datetime_utc = usage_datetime.replace(tzinfo=timezone.utc)
+                if usage_datetime_utc < self.min_date_import_threshold:
                     continue
                 record_number += 1
                 row['_rec_n'] = record_number
                 row['kind'] = 'export'
                 self._fill_custom_fields(row)
                 self._clean_tree(row)
+                if report_key is not None:
+                    row['report_key'] = report_key
                 chunk.append(row)
 
                 if len(chunk) == CHUNK_SIZE:
@@ -178,7 +131,7 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
                 self.update_raw_records(chunk)
         return skipped_accounts
 
-    def load_parquet_report(self, report_path):
+    def load_parquet_report(self, report_path, report_key=None):
         date_start = datetime.now(tz=timezone.utc)
         skipped_accounts = set()
         subscription_id = self.cloud_acc['account_id']
@@ -226,6 +179,8 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
             for expense in expenses:
                 expense['kind'] = 'export'
                 self._fill_custom_fields(expense)
+                if report_key is not None:
+                    expense['report_key'] = report_key
             if expenses:
                 self.update_raw_records(expenses)
                 now = datetime.now(tz=timezone.utc)
@@ -238,9 +193,16 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
         return super(AzureImporterBase, self).get_resource_ids(
             cloud_account_id, period_start)
 
+    def finalize_raw_import(self, report_key=None, is_last=True):
+        super().finalize_raw_import(report_key, is_last)
+        if is_last:
+            try:
+                self.generate_reservations_expenses(
+                    self.min_date_import_threshold)
+            except Exception as exc:
+                LOG.exception("Failed getting reservations info: %s", str(exc))
+
     def generate_clean_records(self, regeneration=False):
-        if not self.report_files:
-            return
         resource_ids = self.get_resource_ids(self.cloud_acc_id,
                                              self.min_date_import_threshold)
         self._generate_clean_records(resource_ids, self.cloud_acc_id,

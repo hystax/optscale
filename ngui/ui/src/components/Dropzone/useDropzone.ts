@@ -48,7 +48,7 @@ const useDropzone = ({ onChange }) => {
     openFileDialog,
     onDragOver,
     onDragLeave,
-    onDrop
+    onDrop,
   };
 };
 

@@ -21,7 +21,7 @@ import {
   DEFAULT_CHART_BORDER_WIDTH,
   FORMATTED_MONEY_TYPES,
   CHART_LEGEND_WIDTH,
-  CHART_LEGEND_LAYOUT_SETTINGS
+  CHART_LEGEND_LAYOUT_SETTINGS,
 } from "utils/constants";
 import useStyles from "./CanvasBarChart.styles";
 import CanvasBarChartPdf from "./CanvasBarChartPdf";
@@ -108,7 +108,7 @@ const findBarUnderCursor = (bars, cursorPosition) =>
         x: bar.x,
         y: bar.y,
         width: bar.width,
-        height: bar.height
+        height: bar.height,
       },
       cursorPosition
     )
@@ -147,7 +147,7 @@ const useClickableBarHover = ({ refs, margin, isClickable, selectedBar, wrapperD
 
       const cursorPosition = getRelativeCursorPosition(e, {
         left: margin.left,
-        top: margin.top
+        top: margin.top,
       });
 
       const bar = findBarUnderCursor(bars, cursorPosition);
@@ -189,7 +189,7 @@ const useClickableBarHover = ({ refs, margin, isClickable, selectedBar, wrapperD
     classes.hover,
     isClickable,
     selectedBar,
-    data
+    data,
   ]);
 };
 
@@ -229,7 +229,7 @@ const CanvasBarChart = ({
   thresholdMarker,
   withLegend,
   legendLabel,
-  maxValue: maxValueProperty
+  maxValue: maxValueProperty,
 }) => {
   const wrapperRef = useRef();
   const canvasRef = useRef();
@@ -241,13 +241,13 @@ const CanvasBarChart = ({
     refs: {
       wrapperRef,
       canvasRef,
-      barsRef
+      barsRef,
     },
     margin,
     isClickable: typeof onClick === "function",
     selectedBar,
     wrapperDimensions,
-    data
+    data,
   });
 
   const chartTheme = useChartTheme();
@@ -266,13 +266,13 @@ const CanvasBarChart = ({
     tickValues: valueTickValues, // ticks on Y axis for vertical layout and X axis for horizontal layout
     gridValues: valueGridValues,
     maxValue,
-    minValue
+    minValue,
   } = getBarTicks({
     size: layout === "vertical" ? innerWidth : innerHeight,
     ticksCount: TICK_COUNT,
     maxValue: getMaxValue(),
     minValue: minBandValue,
-    allocateAdditionalTickAboveMaxValue
+    allocateAdditionalTickAboveMaxValue,
   });
 
   const formatter = useMoneyFormatter();
@@ -281,7 +281,7 @@ const CanvasBarChart = ({
     ({
       [AXIS_FORMATS.MONEY]: (value) => formatter(FORMATTED_MONEY_TYPES.TINY_COMPACT, value, { format: currency }),
       [AXIS_FORMATS.RAW]: (value) => value,
-      [AXIS_FORMATS.PERCENTAGE]: (value) => `${value * 100}%`
+      [AXIS_FORMATS.PERCENTAGE]: (value) => `${value * 100}%`,
     })[format];
 
   const { axisLeft, axisRight, axisBottom, enableGridX, enableGridY, gridXValues, gridYValues } = useChartLayoutOptions({
@@ -300,7 +300,7 @@ const CanvasBarChart = ({
     axisLeft: axisLeftProperty,
     axisRight: axisRightProperty,
     minValue,
-    maxValue
+    maxValue,
   });
 
   const getBarSettings = (bar) => {
@@ -317,12 +317,12 @@ const CanvasBarChart = ({
     return {
       bar: {
         ...bar,
-        color: barColor
+        color: barColor,
       },
       borderColor: barBorderColor,
       borderWidth,
       labelColor: barLabelColor,
-      shouldRenderLabel: enableLabel
+      shouldRenderLabel: enableLabel,
     };
   };
 
@@ -334,7 +334,7 @@ const CanvasBarChart = ({
     chartTheme,
     drawBar,
     getBarSettings,
-    legendLabel
+    legendLabel,
   });
 
   return (
@@ -416,8 +416,8 @@ const CanvasBarChart = ({
             ? [
                 {
                   dataFrom: "keys",
-                  ...CHART_LEGEND_LAYOUT_SETTINGS
-                }
+                  ...CHART_LEGEND_LAYOUT_SETTINGS,
+                },
               ]
             : undefined
         }
@@ -443,17 +443,17 @@ const ResponsiveCanvasBarChart = ({
   const {
     margin = {
       ...DEFAULT_BAR_CHART_MARGIN,
-      right: withLegend ? CHART_LEGEND_WIDTH : DEFAULT_BAR_CHART_MARGIN.right
+      right: withLegend ? CHART_LEGEND_WIDTH : DEFAULT_BAR_CHART_MARGIN.right,
     },
     height = DEFAULT_BAR_CHART_HEIGHT,
     padding = DEFAULT_BAR_CHART_PADDING,
-    innerPadding = DEFAULT_BAR_CHART_INNER_PADDING
+    innerPadding = DEFAULT_BAR_CHART_INNER_PADDING,
   } = style;
 
   return (
     <div
       style={{
-        height: muiTheme.spacing(height)
+        height: muiTheme.spacing(height),
       }}
       ref={wrapperRef}
     >
@@ -481,7 +481,7 @@ const ResponsiveCanvasBarChart = ({
               dataTestId={dataTestId}
               wrapperDimensions={{
                 width: wrapperWidth,
-                height: wrapperHeight
+                height: wrapperHeight,
               }}
               data={data}
               margin={margin}

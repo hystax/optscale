@@ -19,18 +19,18 @@ const CreateBIExport = ({ onSubmit, onCancel, isLoadingProps }) => (
           </Link>,
           <Link key={2} to={BI_EXPORTS} component={RouterLink}>
             <FormattedMessage id="biExportTitle" />
-          </Link>
+          </Link>,
         ],
         title: {
           messageId: "createBIExportTitle",
-          dataTestId: "lbl_create_bi_export_title"
-        }
+          dataTestId: "lbl_create_bi_export_title",
+        },
       }}
     />
     <PageContentWrapper>
       <Box
         sx={{
-          width: { md: "50%" }
+          width: { md: "50%" },
         }}
       >
         <BIExportForm defaultValues={defaultValues} isLoadingProps={isLoadingProps} onSubmit={onSubmit} onCancel={onCancel} />

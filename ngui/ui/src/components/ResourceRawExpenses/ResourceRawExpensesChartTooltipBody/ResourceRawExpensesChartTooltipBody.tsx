@@ -35,7 +35,7 @@ const ResourceRawExpensesChartTooltipBody = ({ slice, stacked }) => {
                   <FormattedMessage
                     id="(value)"
                     values={{
-                      value: <ResourceUsageFormattedNumber usage={point.data.usage} unit={point.data.usageUnit} />
+                      value: <ResourceUsageFormattedNumber usage={point.data.usage} unit={point.data.usageUnit} />,
                     }}
                   />
                 </>

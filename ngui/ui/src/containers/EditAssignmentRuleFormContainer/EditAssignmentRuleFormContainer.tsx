@@ -22,7 +22,7 @@ import {
   TAG_VALUE_STARTS_WITH,
   RESOURCE_TYPE_IS,
   REGION_IS,
-  ASSIGNMENT_RULE_OPERATORS
+  ASSIGNMENT_RULE_OPERATORS,
 } from "utils/constants";
 
 const getConditions = (conditions = []) =>
@@ -34,7 +34,7 @@ const getConditions = (conditions = []) =>
       TAG_VALUE_FIELD_NAME,
       CLOUD_IS_FIELD_NAME,
       RESOURCE_TYPE_IS_FIELD_NAME,
-      REGION_IS_FIELD_NAME
+      REGION_IS_FIELD_NAME,
     } = FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
 
     if ([TAG_IS, TAG_VALUE_STARTS_WITH].includes(condition[TYPE])) {
@@ -42,32 +42,32 @@ const getConditions = (conditions = []) =>
       return {
         [TYPE]: condition[TYPE],
         [TAG_KEY_FIELD_NAME]: key,
-        [TAG_VALUE_FIELD_NAME]: value
+        [TAG_VALUE_FIELD_NAME]: value,
       };
     }
     if (condition[TYPE] === CLOUD_IS) {
       return {
         [TYPE]: condition[TYPE],
-        [CLOUD_IS_FIELD_NAME]: condition[META_INFO]
+        [CLOUD_IS_FIELD_NAME]: condition[META_INFO],
       };
     }
     if (condition[TYPE] === RESOURCE_TYPE_IS) {
       return {
         [TYPE]: condition[TYPE],
-        [RESOURCE_TYPE_IS_FIELD_NAME]: condition[META_INFO]
+        [RESOURCE_TYPE_IS_FIELD_NAME]: condition[META_INFO],
       };
     }
     if (condition[TYPE] === REGION_IS) {
       return {
         [TYPE]: condition[TYPE],
         [REGION_IS_FIELD_NAME]: {
-          regionName: condition[META_INFO]
-        }
+          regionName: condition[META_INFO],
+        },
       };
     }
     return {
       [TYPE]: condition[TYPE],
-      [META_INFO]: condition[META_INFO]
+      [META_INFO]: condition[META_INFO],
     };
   });
 
@@ -84,7 +84,7 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
     operator: ASSIGNMENT_RULE_OPERATORS.AND,
     conditions: [],
     poolId: "",
-    ownerId: ""
+    ownerId: "",
   });
 
   const redirect = () => {
@@ -98,12 +98,12 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
 
   // Get available pools
   const {
-    apiData: { pools = [] }
+    apiData: { pools = [] },
   } = useApiData(GET_AVAILABLE_POOLS);
 
   // Get owners
   const {
-    apiData: { poolOwners = [] }
+    apiData: { poolOwners = [] },
   } = useApiData(GET_POOL_OWNERS);
 
   const dataSources = useAllDataSources();
@@ -126,8 +126,8 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
               conditions = [],
               pool_id: assignmentRulePoolId = "",
               operator = ASSIGNMENT_RULE_OPERATORS.AND,
-              owner_id: ownerId = ""
-            } = {}
+              owner_id: ownerId = "",
+            } = {},
           } = getState()?.[RESTAPI]?.[GET_ASSIGNMENT_RULE] ?? {};
 
           return (
@@ -144,7 +144,7 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
                   conditions: getConditions(conditions),
                   // BE returns 'null' if pool/owner is missing
                   poolId: assignmentRulePoolId ?? "",
-                  ownerId: ownerId ?? ""
+                  ownerId: ownerId ?? "",
                 }));
               })
           );
@@ -166,19 +166,19 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
             </Link>,
             <Link key={2} to={ASSIGNMENT_RULES} component={RouterLink}>
               <FormattedMessage id="assignmentRules" />
-            </Link>
+            </Link>,
           ],
           title: {
             text: <FormattedMessage id="edit{}" values={{ value: assignmentRuleName }} />,
             dataTestId: "lbl_edit_rule",
-            isLoading: isFormDataLoading
-          }
+            isLoading: isFormDataLoading,
+          },
         }}
       />
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <AssignmentRuleForm
@@ -215,7 +215,7 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
               isConjunctionTypeLoading: isFormDataLoading,
               isPoolSelectorLoading: isFormDataLoading,
               isOwnerSelectorLoading: isFormDataLoading,
-              isSubmitButtonLoading: isFormDataLoading || isUpdateAssignmentRuleLoading
+              isSubmitButtonLoading: isFormDataLoading || isUpdateAssignmentRuleLoading,
             }}
           />
         </Box>

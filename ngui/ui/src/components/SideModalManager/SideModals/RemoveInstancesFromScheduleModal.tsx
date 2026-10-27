@@ -7,8 +7,8 @@ class RemoveInstancesFromScheduleModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_remove_instances_from_schedule_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_remove_instances_from_schedule_title";

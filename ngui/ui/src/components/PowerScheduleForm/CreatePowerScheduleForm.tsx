@@ -9,7 +9,7 @@ import {
   InitiationDateField,
   NameField,
   TimeZoneField,
-  TriggersFieldArray
+  TriggersFieldArray,
 } from "./FormElements";
 import { type FormValues } from "./types";
 
@@ -34,10 +34,10 @@ const CreatePowerScheduleForm = ({ onSubmit, onCancel, isLoadingProps = {} }: Cr
         {
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.TIME]: "",
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.MERIDIEM]: MERIDIEM_NAMES.AM,
-          [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.ACTION]: POWER_SCHEDULE_ACTIONS.POWER_ON
-        }
-      ]
-    }
+          [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.ACTION]: POWER_SCHEDULE_ACTIONS.POWER_ON,
+        },
+      ],
+    },
   });
 
   const { handleSubmit } = methods;
@@ -45,7 +45,7 @@ const CreatePowerScheduleForm = ({ onSubmit, onCancel, isLoadingProps = {} }: Cr
   return (
     <Box
       sx={{
-        width: { md: "50%" }
+        width: { md: "50%" },
       }}
     >
       <FormProvider {...methods}>

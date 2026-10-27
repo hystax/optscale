@@ -14,7 +14,7 @@ import {
   CLOUD_ACCOUNT_ID_FILTER,
   END_DATE_FILTER,
   RESOURCE_TYPE_FILTER,
-  START_DATE_FILTER
+  START_DATE_FILTER,
 } from "utils/constants";
 import { getXDaysAgoRange } from "utils/datetime";
 
@@ -40,14 +40,14 @@ const useGetInstances = (range, selectedDataSourceIds, appliedFilters) => {
         [ACTIVE_FILTER]: true,
         [RESOURCE_TYPE_FILTER]: INSTANCE_REGULAR,
         limit: INSTANCES_COUNT_LIMIT,
-        ...appliedFilters
+        ...appliedFilters,
       });
     }
   }, [getData, start, end, appliedFilters, selectedDataSourceIds]);
 
   return {
     instances: data.clean_expenses ?? [],
-    isLoading
+    isLoading,
   };
 };
 
@@ -58,7 +58,7 @@ const useGetAvailableFilter = (range: { start: number; end: number }) => {
   const params = useMemo(
     () => ({
       [START_DATE_FILTER]: start,
-      [END_DATE_FILTER]: end
+      [END_DATE_FILTER]: end,
     }),
     [end, start]
   );
@@ -66,7 +66,7 @@ const useGetAvailableFilter = (range: { start: number; end: number }) => {
 
   return {
     isLoading,
-    filters
+    filters,
   };
 };
 
@@ -78,7 +78,7 @@ const AddInstanceToScheduleContainer = ({ powerScheduleId, handleClose }: AddIns
   const range = getXDaysAgoRange(true, 1);
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValue()
+    defaultValues: getDefaultValue(),
   });
 
   const { handleSubmit, watch } = methods;
@@ -107,7 +107,7 @@ const AddInstanceToScheduleContainer = ({ powerScheduleId, handleClose }: AddIns
         isLoadingProps={{
           isSubmitLoading: isAttachLoading,
           isGetInstancesLoading,
-          isGetFilterValuesLoading
+          isGetFilterValuesLoading,
         }}
       />
     </FormProvider>

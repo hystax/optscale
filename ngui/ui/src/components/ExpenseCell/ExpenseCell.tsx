@@ -26,7 +26,7 @@ const SavingsMessage = ({ saving, clusterTypeId, resourceId }: SavingsMessagePro
     <FormattedMessage
       id="possibleMonthlySavingsWithValue"
       values={{
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={saving} />
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={saving} />,
       }}
     />
   );

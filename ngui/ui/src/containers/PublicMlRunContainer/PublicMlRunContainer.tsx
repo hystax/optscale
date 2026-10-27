@@ -19,7 +19,7 @@ const PublicMlRunContainer = () => {
 
   const params = useMemo(
     () => ({
-      arceeToken
+      arceeToken,
     }),
     [arceeToken]
   );
@@ -30,7 +30,7 @@ const PublicMlRunContainer = () => {
     <div
       style={{
         height: "100vh",
-        backgroundColor: theme.palette.background.paper
+        backgroundColor: theme.palette.background.paper,
       }}
     >
       <MlTaskRun

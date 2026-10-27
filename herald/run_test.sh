@@ -17,7 +17,7 @@ docker run -i --rm ${TEST_IMAGE} bash -c \
 echo "<<Alembic down revision tests"
 
 echo "Unit tests>>>"
-docker run -i --rm ${TEST_IMAGE} bash -c "uv --project herald run pytest"
+docker run -i --rm ${TEST_IMAGE} bash -c "uv --project herald run pytest herald/herald_server/tests herald/modules/tests/"
 echo "<<Unit tests"
 
 docker rmi ${TEST_IMAGE}

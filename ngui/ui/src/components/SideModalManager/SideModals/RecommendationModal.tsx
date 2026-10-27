@@ -8,8 +8,8 @@ class RecommendationModal extends BaseSideModal {
       messageId: this.payload.titleMessageId,
       dataTestIds: {
         title: "lbl_ml_sidemodal_title",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

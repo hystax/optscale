@@ -16,7 +16,7 @@ const RadioGroupField = ({
   required = false,
   error = false,
   helperText,
-  margin
+  margin,
 }) => {
   const { classes, cx } = useStyles();
 

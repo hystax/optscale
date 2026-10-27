@@ -7,7 +7,7 @@ dependencies = [
     "fastapi==0.116.0",
     "pydantic==2.4.2",
     "SQLAlchemy==2.0.41",
-    "asyncmy==0.2.10",
+    "asyncmy==0.2.11",
     "alembic==1.16.4",
     "tenacity==9.1.2",
     "mysql-connector-python==9.1.0",

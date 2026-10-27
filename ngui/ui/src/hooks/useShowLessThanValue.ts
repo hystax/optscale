@@ -5,7 +5,7 @@ const UPDATE_SHOW_LESS_THAN_VALUE = "UPDATE_SHOW_LESS_THAN_VALUE";
 
 const updateShowLessThanValue = (value) => ({
   type: UPDATE_SHOW_LESS_THAN_VALUE,
-  payload: value
+  payload: value,
 });
 
 export const SHOW_LESS_THAN_VALUE = "showLessThanValue";
@@ -31,6 +31,6 @@ export const useShowLessThanValue = () => {
 
   return {
     showLessThanValue,
-    onChange
+    onChange,
   };
 };

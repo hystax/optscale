@@ -9,14 +9,14 @@ export const getDefaultValues = (artifact: Partial<Artifact> = {}): FormValues =
   [FIELD_NAMES.TAGS_FIELD_ARRAY.FIELD_NAME]: artifact?.tags
     ? Object.entries(artifact?.tags).map(([key, value]) => ({
         [FIELD_NAMES.TAGS_FIELD_ARRAY.KEY]: key,
-        [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: value
+        [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: value,
       }))
     : [
         {
           [FIELD_NAMES.TAGS_FIELD_ARRAY.KEY]: "",
-          [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: ""
-        }
-      ]
+          [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: "",
+        },
+      ],
 });
 
 export const prepareFormSubmissionData = (formData: FormValues): FormSubmitValues => ({
@@ -27,5 +27,5 @@ export const prepareFormSubmissionData = (formData: FormValues): FormSubmitValue
     formData[FIELD_NAMES.TAGS_FIELD_ARRAY.FIELD_NAME].map(
       ({ [FIELD_NAMES.TAGS_FIELD_ARRAY.KEY]: key, [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: value }) => [key, value]
     )
-  )
+  ),
 });

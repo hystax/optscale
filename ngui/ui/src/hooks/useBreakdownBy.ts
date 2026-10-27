@@ -6,7 +6,7 @@ import { useReactiveSearchParams } from "./useReactiveSearchParams";
 
 const getBreakdownDefinition = (value: string, messageId: string) => ({
   value,
-  name: intl.formatMessage({ id: messageId })
+  name: intl.formatMessage({ id: messageId }),
 });
 
 const serviceNameBreakdown = getBreakdownDefinition(RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.SERVICE_NAME, "service");
@@ -36,7 +36,7 @@ export const breakdowns = Object.freeze([
   poolBreakdown,
   k8sNodeBreakdown,
   k8sNamespaceBreakdown,
-  k8sServiceBreakdown
+  k8sServiceBreakdown,
 ]);
 
 export const useBreakdownBy = ({ queryParamName }: { queryParamName: string }) => {
@@ -51,14 +51,14 @@ export const useBreakdownBy = ({ queryParamName }: { queryParamName: string }) =
   useEffect(() => {
     if (!searchParams[queryParamName]) {
       updateSearchParams({
-        [queryParamName]: serviceNameBreakdown.value
+        [queryParamName]: serviceNameBreakdown.value,
       });
     }
   }, [queryParamName, searchParams]);
 
   const onBreakdownByChange = (newBreakdownByValue: string) => {
     updateSearchParams({
-      [queryParamName]: newBreakdownByValue
+      [queryParamName]: newBreakdownByValue,
     });
   };
 

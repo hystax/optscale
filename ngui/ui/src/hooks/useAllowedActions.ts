@@ -8,13 +8,13 @@ import { useOrganizationAllowedActions } from "./coreData/useOrganizationAllowed
 
 const CHECK_PERMISSION_CONDITION = Object.freeze({
   OR: "or",
-  AND: "and"
+  AND: "and",
 });
 
 const getComparingFunction = (condition) =>
   ({
     [CHECK_PERMISSION_CONDITION.OR]: (requiredActions, allowedActions) => hasIntersection(requiredActions, allowedActions),
-    [CHECK_PERMISSION_CONDITION.AND]: (requiredActions, allowedActions) => isIdentical(requiredActions, allowedActions)
+    [CHECK_PERMISSION_CONDITION.AND]: (requiredActions, allowedActions) => isIdentical(requiredActions, allowedActions),
   })[condition];
 
 const isAllowed = (requiredActions, allowedActions, condition = CHECK_PERMISSION_CONDITION.OR) => {
@@ -48,7 +48,7 @@ const useScopedAllowedActions = (entityType, entityId) => {
   const id = entityType === SCOPE_TYPES.ORGANIZATION ? organizationId : entityId;
 
   const {
-    apiData: { allowedActions = {} }
+    apiData: { allowedActions = {} },
   } = useApiData(label);
 
   const organizationAllowedActions = useOrganizationAllowedActions();
@@ -62,11 +62,11 @@ const useScopedAllowedActions = (entityType, entityId) => {
 
 export const useAllAllowedActions = () => {
   const {
-    apiData: { allowedActions: poolAllowedAction = {} }
+    apiData: { allowedActions: poolAllowedAction = {} },
   } = useApiData(GET_POOL_ALLOWED_ACTIONS);
 
   const {
-    apiData: { allowedActions: resourceAllowedAction = {} }
+    apiData: { allowedActions: resourceAllowedAction = {} },
   } = useApiData(GET_RESOURCE_ALLOWED_ACTIONS);
 
   const organizationAllowedActions = useOrganizationAllowedActions();
@@ -74,7 +74,7 @@ export const useAllAllowedActions = () => {
   return {
     [SCOPE_TYPES.POOL]: poolAllowedAction,
     [SCOPE_TYPES.RESOURCE]: resourceAllowedAction,
-    [SCOPE_TYPES.ORGANIZATION]: organizationAllowedActions
+    [SCOPE_TYPES.ORGANIZATION]: organizationAllowedActions,
   };
 };
 
@@ -95,7 +95,7 @@ export const useIsAllowed = ({
   entityId,
   entityType = SCOPE_TYPES.ORGANIZATION,
   requiredActions = [],
-  condition
+  condition,
 }: UseIsAllowedParams) => {
   const scopedAllowedActions = useScopedAllowedActions(entityType, entityId);
 
@@ -134,7 +134,7 @@ export const useFilterByPermissions = ({ entitiesIds, entitiesType, permissions,
   const label = getLabel(entitiesType);
 
   const {
-    apiData: { allowedActions = {} }
+    apiData: { allowedActions = {} },
   } = useApiData(label);
 
   const organizationAllowedActions = useOrganizationAllowedActions();

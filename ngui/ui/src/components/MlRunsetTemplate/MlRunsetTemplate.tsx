@@ -19,7 +19,7 @@ const MlRunsetTemplate = ({
   runsets,
   runsCount = 0,
   totalCost = 0,
-  lastRunsetCost = 0
+  lastRunsetCost = 0,
 }) => {
   const refetch = useRefetchApis();
 
@@ -34,19 +34,19 @@ const MlRunsetTemplate = ({
     tasks = [],
     instance_types: instanceTypes = [],
     regions = [],
-    max_runner_num: maximumRunsetRunners
+    max_runner_num: maximumRunsetRunners,
   } = runsetTemplate;
 
   const actionBarDefinition = {
     breadcrumbs: [
       <Link key={1} to={ML_RUNSET_TEMPLATES} component={RouterLink}>
         <FormattedMessage id="runsetTemplatesTitle" />
-      </Link>
+      </Link>,
     ],
     title: {
       isLoading: isGetRunsetTemplateLoading,
       text: name,
-      dataTestId: "lbl_ml_runsets"
+      dataTestId: "lbl_ml_runsets",
     },
     items: [
       {
@@ -55,7 +55,7 @@ const MlRunsetTemplate = ({
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_RUNSET_TEMPLATE, GET_ML_RUNSETS])
+        action: () => refetch([GET_ML_RUNSET_TEMPLATE, GET_ML_RUNSETS]),
       },
       {
         key: "launch",
@@ -64,7 +64,7 @@ const MlRunsetTemplate = ({
         link: getMlRunsetConfigurationUrl(id),
         type: "button",
         isLoading: isGetRunsetTemplateLoading,
-        requiredActions: ["EDIT_PARTNER"]
+        requiredActions: ["EDIT_PARTNER"],
       },
       {
         key: "edit",
@@ -73,9 +73,9 @@ const MlRunsetTemplate = ({
         type: "button",
         link: getMlEditRunsetTemplateUrl(id),
         isLoading: isGetRunsetTemplateLoading,
-        requiredActions: ["EDIT_PARTNER"]
-      }
-    ]
+        requiredActions: ["EDIT_PARTNER"],
+      },
+    ],
   };
 
   return (

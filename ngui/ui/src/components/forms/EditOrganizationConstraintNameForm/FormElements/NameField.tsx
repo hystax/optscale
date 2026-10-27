@@ -11,7 +11,7 @@ const NameField = () => (
     required
     dataTestId={`input_${FIELD_NAME}`}
     sx={{
-      marginRight: (theme) => theme.spacing(1)
+      marginRight: (theme) => theme.spacing(1),
     }}
   />
 );

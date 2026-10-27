@@ -17,7 +17,7 @@ const PowerScheduleDetailsContainer = () => {
     <PowerScheduleDetails
       isLoadingProps={{
         isGetPowerScheduleLoading,
-        isUpdatePowerScheduleLoading
+        isUpdatePowerScheduleLoading,
       }}
       powerSchedule={powerSchedule}
       onActivate={onActivate}

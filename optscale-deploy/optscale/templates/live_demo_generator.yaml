@@ -75,6 +75,10 @@ spec:
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
+            - "uv"
+            - "--project"
+            - "docker_images/live_demo_generator"
+            - "run"
             - "python3"
             - "docker_images/live_demo_generator/scheduler.py"
             env:

@@ -7,8 +7,8 @@ class DeleteMlMetricModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "title_delete_metric",
-      closeButton: "close_btn"
-    }
+      closeButton: "close_btn",
+    },
   };
 
   dataTestId = "smodal_delete_metric";

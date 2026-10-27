@@ -7,8 +7,8 @@ class RenameMlRunChartModal extends BaseSideModal {
     color: "primary",
     dataTestIds: {
       title: "lbl_rename_ml_run_chart",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_rename_ml_run_chart";

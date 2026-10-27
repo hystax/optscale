@@ -7,7 +7,7 @@ const MlTasksFilters = ({ appliedFilters, filterValues, onChange: onChangeHandle
   const mlTasksFilters = new Filters({
     filters: ML_TASKS_FILTERS,
     filterValues,
-    appliedFilters
+    appliedFilters,
   });
 
   const onChange = ({ name, value }) => {
@@ -23,7 +23,7 @@ const MlTasksFilters = ({ appliedFilters, filterValues, onChange: onChangeHandle
       Object.entries(currentlyAppliedFilters).reduce(
         (newRequestParams, [filterName]) => ({
           ...newRequestParams,
-          [filterName]: undefined
+          [filterName]: undefined,
         }),
         {}
       )

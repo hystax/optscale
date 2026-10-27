@@ -20,7 +20,7 @@ const firstSeenOn = ({ headerDataTestId }: FirstSeenOnConfig = {}) => ({
     const value = cell.getValue();
 
     return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
-  }
+  },
 });
 
 export default firstSeenOn;

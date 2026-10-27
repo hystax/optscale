@@ -20,7 +20,7 @@ const SendVerificationCodeAgainContainer = () => {
         onSend(email, {
           [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: Object.values(OPTSCALE_CAPABILITY).includes(capability)
             ? capability
-            : undefined
+            : undefined,
         })
       }
       sendingVerificationCode={isLoading}

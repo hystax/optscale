@@ -7,8 +7,8 @@ class InactiveConsoleUsersModal extends BaseSideModal {
     messageId: "inactiveConsoleUsersTitle",
     dataTestIds: {
       title: "lbl_inactive_console_users_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_inactive_console_users";
@@ -17,7 +17,7 @@ class InactiveConsoleUsersModal extends BaseSideModal {
     return (
       <InformationWrapper>
         <DaysThreshold
-          messageId={"thresholds.inactiveConsoleUsers"}
+          messageId="thresholds.inactiveConsoleUsers"
           recommendationType={this.payload?.recommendationType}
           onSuccess={this.closeSideModal}
         />

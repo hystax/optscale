@@ -3,19 +3,19 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()((theme, options) => ({
   progressBarPaper: {
-    position: "relative"
+    position: "relative",
   },
   progressBar: {
     position: "absolute",
     height: "100%",
     backgroundColor: lighten(theme.palette[options.progressBar.color].main, 0.9),
-    width: options.progressBar.width
+    width: options.progressBar.width,
   },
   possibleSavingsTitle: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 }));
 
 export default useStyles;

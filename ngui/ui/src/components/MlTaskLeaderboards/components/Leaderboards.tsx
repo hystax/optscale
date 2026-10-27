@@ -36,7 +36,7 @@ const LeaderboardsListSection = ({
   onSelectedLeaderboardIdChange,
   onCreateLeaderboard,
   onUpdateLeaderboard,
-  onDeleteLeaderboard
+  onDeleteLeaderboard,
 }) => {
   const isManageLeaderboardAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
 
@@ -57,7 +57,7 @@ const LeaderboardsListSection = ({
         sx={{
           maxWidth: "450px",
           flexBasis: "280px",
-          flexGrow: 1
+          flexGrow: 1,
         }}
         renderOption={(props, option) => {
           const { name, primary_metric: { name: primaryMetricName, value: primaryMetricValue, unit: primaryMetricUnit } = {} } =
@@ -117,7 +117,7 @@ const Leaderboards = ({
   onCreateLeaderboard,
   onUpdateLeaderboard,
   onDeleteLeaderboard,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => (
   <Box>
     {isEmptyArray(leaderboards) ? (
@@ -143,7 +143,7 @@ const Leaderboards = ({
             leaderboardCandidates={leaderboardCandidates}
             isLoadingProps={{
               isGetLeaderboardLoading: isLoadingProps.isGetLeaderboardLoading,
-              isGetLeaderboardCandidatesLoading: isLoadingProps.isGetLeaderboardCandidatesLoading
+              isGetLeaderboardCandidatesLoading: isLoadingProps.isGetLeaderboardCandidatesLoading,
             }}
           />
         </div>

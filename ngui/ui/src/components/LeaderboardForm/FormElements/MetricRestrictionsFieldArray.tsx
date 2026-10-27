@@ -18,8 +18,8 @@ import { FormValues } from "../types";
 const {
   METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES: {
     NAME: FIELD_NAME,
-    ARRAY_FIELD_NAMES: { METRIC, METRIC_MIN, METRIC_MAX }
-  }
+    ARRAY_FIELD_NAMES: { METRIC, METRIC_MIN, METRIC_MAX },
+  },
 } = FIELD_NAMES;
 
 const MinInput = ({ index }) => {
@@ -27,7 +27,7 @@ const MinInput = ({ index }) => {
 
   const {
     formState: { isSubmitted },
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   return (
@@ -58,10 +58,10 @@ const MinInput = ({ index }) => {
                 { id: "fieldLessThanOrEqualToField" },
                 {
                   fieldName1: intl.formatMessage({ id: "min" }),
-                  fieldName2: intl.formatMessage({ id: "max" })
+                  fieldName2: intl.formatMessage({ id: "max" }),
                 }
               );
-        }
+        },
       }}
       dataTestId={`restriction_min_${index}`}
     />
@@ -73,7 +73,7 @@ const MaxInput = ({ index }) => {
 
   const {
     formState: { isSubmitted },
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   return (
@@ -104,10 +104,10 @@ const MaxInput = ({ index }) => {
                 { id: "fieldMoreThanOrEqualToField" },
                 {
                   fieldName1: intl.formatMessage({ id: "max" }),
-                  fieldName2: intl.formatMessage({ id: "min" })
+                  fieldName2: intl.formatMessage({ id: "min" }),
                 }
               );
-        }
+        },
       }}
       dataTestId={`restriction_max_${index}`}
     />
@@ -120,7 +120,7 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
   const {
     control,
     formState: { errors, isSubmitted },
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   const fieldName = `${FIELD_NAME}.${index}.${METRIC}`;
@@ -138,8 +138,8 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
             return selectedMetrics.filter((metricName) => metricName === value).length <= 1
               ? true
               : intl.formatMessage({ id: "entitiesMustBeUnique" }, { name: intl.formatMessage({ id: "metrics" }) });
-          }
-        }
+          },
+        },
       }}
       render={({ field: { onChange, ...rest } }) => (
         <Selector
@@ -175,14 +175,14 @@ const FieldArray = ({ metrics }) => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: FIELD_NAME
+    name: FIELD_NAME,
   });
 
   const onAppend = () =>
     append({
       [METRIC]: "",
       [METRIC_MIN]: "",
-      [METRIC_MAX]: ""
+      [METRIC_MAX]: "",
     });
 
   return (
@@ -210,7 +210,7 @@ const FieldArray = ({ metrics }) => {
                     onClick={() => remove(index)}
                     tooltip={{
                       show: true,
-                      value: <FormattedMessage id="delete" />
+                      value: <FormattedMessage id="delete" />,
                     }}
                     dataTestId={`btn_delete_restriction_${index}`}
                   />

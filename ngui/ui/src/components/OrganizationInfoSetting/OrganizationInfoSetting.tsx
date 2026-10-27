@@ -34,7 +34,7 @@ const OrganizationId = ({ id }: OrganizationIdProps) => (
         variant="inherit"
         text={id}
         sx={{
-          fontWeight: "inherit"
+          fontWeight: "inherit",
         }}
       >
         {id}
@@ -72,7 +72,7 @@ const OrganizationName = ({ name }: OrganizationNameProps) => {
           onClick={enableEditMode}
           tooltip={{
             show: true,
-            messageId: "edit"
+            messageId: "edit",
           }}
         />
       )}

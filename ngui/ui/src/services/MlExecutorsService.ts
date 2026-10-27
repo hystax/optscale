@@ -10,7 +10,7 @@ const useGet = ({
   taskIds,
   runIds,
   organizationId,
-  arceeToken
+  arceeToken,
 }: {
   taskIds?: string[];
   runIds?: string[];
@@ -20,14 +20,14 @@ const useGet = ({
   const dispatch = useDispatch();
 
   const {
-    apiData: { executors = [] }
+    apiData: { executors = [] },
   } = useApiData(GET_ML_EXECUTORS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_EXECUTORS, {
     organizationId,
     taskIds,
     runIds,
-    arceeToken
+    arceeToken,
   });
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const useGet = ({
         getMlExecutors(organizationId, {
           taskIds,
           runIds,
-          arceeToken
+          arceeToken,
         })
       );
     }
@@ -51,7 +51,7 @@ const useGetBreakdown = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { breakdown = {} }
+    apiData: { breakdown = {} },
   } = useApiData(GET_ML_EXECUTORS_BREAKDOWN);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_EXECUTORS_BREAKDOWN, organizationId);

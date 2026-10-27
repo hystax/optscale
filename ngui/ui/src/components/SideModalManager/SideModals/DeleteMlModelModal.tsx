@@ -7,8 +7,8 @@ class DeleteMlModelModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_delete_model",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_delete";

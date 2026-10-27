@@ -56,212 +56,212 @@ import {
   GET_ML_MODEL,
   SET_ML_ARTIFACT,
   GET_ML_ARTIFACT,
-  CREATE_ML_LEADERBOARD
+  CREATE_ML_LEADERBOARD,
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
   type: SET_ORGANIZATION_OPTION,
   payload: data,
-  label: GET_ORGANIZATION_OPTION
+  label: GET_ORGANIZATION_OPTION,
 });
 
 export const onSuccessUpdateInvitation = () => ({
   type: SET_INVITATION,
   payload: {},
-  label: GET_INVITATION
+  label: GET_INVITATION,
 });
 
 export const onSuccessDeletePool = (id) => () => ({
   type: DELETE_POOL,
   payload: { id },
-  label: GET_POOL
+  label: GET_POOL,
 });
 
 export const onSuccessCreatePoolPolicy = (data) => ({
   type: SET_POOL_POLICY,
   payload: data,
-  label: GET_POOL_POLICIES
+  label: GET_POOL_POLICIES,
 });
 
 export const onSuccessCreateResourceConstraint = (data) => ({
   type: SET_RESOURCE_CONSTRAINT,
   payload: data,
-  label: GET_RESOURCE
+  label: GET_RESOURCE,
 });
 
 export const onSuccessUpdateGlobalPoolPolicyLimit = (data) => ({
   type: UPDATE_GLOBAL_POOL_POLICY,
   payload: data,
-  label: GET_GLOBAL_POOL_POLICIES
+  label: GET_GLOBAL_POOL_POLICIES,
 });
 
 export const onSuccessUpdateGlobalResourceConstraintLimit = (data) => ({
   type: UPDATE_GLOBAL_RESOURCE_CONSTRAINT,
   payload: data,
-  label: GET_GLOBAL_RESOURCE_CONSTRAINTS
+  label: GET_GLOBAL_RESOURCE_CONSTRAINTS,
 });
 
 export const onSuccessUpdateGlobalPoolPolicyActivity = (data) => ({
   type: UPDATE_GLOBAL_POOL_POLICY,
   payload: data,
-  label: GET_GLOBAL_POOL_POLICIES
+  label: GET_GLOBAL_POOL_POLICIES,
 });
 
 export const onSuccessDeleteResourceConstraint = (id) => ({
   type: DELETE_RESOURCE_CONSTRAINT,
   payload: id,
-  label: GET_RESOURCE
+  label: GET_RESOURCE,
 });
 
 export const onSuccessGetOptimizationsOverview = (data) => ({
   type: SET_OPTIMIZATIONS_OVERVIEW,
   payload: data,
-  label: GET_OPTIMIZATIONS_OVERVIEW
+  label: GET_OPTIMIZATIONS_OVERVIEW,
 });
 
 export const onSuccessGetOptimizationDetails = (data) => ({
   type: SET_OPTIMIZATION_DETAILS,
   payload: data,
-  label: GET_OPTIMIZATION_DETAILS
+  label: GET_OPTIMIZATION_DETAILS,
 });
 
 export const onSuccessGetMLOptimizationDetails = (data) => ({
   type: SET_ML_OPTIMIZATION_DETAILS,
   payload: data,
-  label: GET_ML_OPTIMIZATION_DETAILS
+  label: GET_ML_OPTIMIZATION_DETAILS,
 });
 
 export const onSuccessUpdateOptimizations = (data) => ({
   type: SET_OPTIMIZATIONS,
   payload: {
     last_completed: data.last_completed,
-    next_run: data.next_run
+    next_run: data.next_run,
   },
-  label: GET_OPTIMIZATIONS
+  label: GET_OPTIMIZATIONS,
 });
 
 export const onSuccessCreateSshKey = (data) => ({
   type: CREATE_SSH_KEY,
   payload: data,
-  label: GET_SSH_KEYS
+  label: GET_SSH_KEYS,
 });
 
 export const onSuccessUpdateSshKey = (data) => ({
   type: UPDATE_SSH_KEY,
   payload: data,
-  label: GET_SSH_KEYS
+  label: GET_SSH_KEYS,
 });
 
 export const onSuccessCreateLiveDemo = (data) => ({
   type: SET_LIVE_DEMO,
   payload: data,
-  label: GET_LIVE_DEMO
+  label: GET_LIVE_DEMO,
 });
 
 export const onSuccessUpdateAssignmentRulePriority = (data) => ({
   type: SET_ASSIGNMENT_RULES,
   payload: data,
-  label: GET_ASSIGNMENT_RULES
+  label: GET_ASSIGNMENT_RULES,
 });
 
 export const onFinOpsChecklist = (data) => ({
   type: SET_FINOPS_CHECKLIST,
   payload: data,
-  label: GET_FINOPS_CHECKLIST
+  label: GET_FINOPS_CHECKLIST,
 });
 
 export const onSuccessExportLinkChange = (data) => ({
   type: UPDATE_POOL_EXPENSES_EXPORT,
   payload: data,
-  label: UPDATE_POOL_EXPENSES_EXPORT
+  label: UPDATE_POOL_EXPENSES_EXPORT,
 });
 
 export const onSuccessUpdateEnvironmentProperty = (data) => ({
   type: UPDATE_ENVIRONMENT_PROPERTY,
   payload: data,
-  label: GET_RESOURCE
+  label: GET_RESOURCE,
 });
 
 export const onSuccessUpdateEnvironmentSshRequirement = (data) => ({
   type: UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
   payload: data,
-  label: GET_RESOURCE
+  label: GET_RESOURCE,
 });
 
 export const onSuccessCreateWebhook = (data) => ({
   type: CREATE_WEBHOOK,
   payload: data,
-  label: GET_WEBHOOKS
+  label: GET_WEBHOOKS,
 });
 
 export const onSuccessUpdateWebhook = (data) => ({
   type: UPDATE_WEBHOOK,
   payload: data,
-  label: GET_WEBHOOKS
+  label: GET_WEBHOOKS,
 });
 
 export const onSuccessDeleteWebhook = (id) => () => ({
   type: DELETE_WEBHOOK,
   payload: id,
-  label: GET_WEBHOOKS
+  label: GET_WEBHOOKS,
 });
 
 export const onSuccessUpdateAnomaly = (data) => ({
   type: UPDATE_ORGANIZATION_CONSTRAINT,
   payload: data,
-  label: GET_ORGANIZATION_CONSTRAINT
+  label: GET_ORGANIZATION_CONSTRAINT,
 });
 
 export const onUpdateMlTask = (data) => ({
   type: SET_ML_TASK,
   payload: data,
-  label: GET_ML_TASK
+  label: GET_ML_TASK,
 });
 
 export const onUpdateMlArtifact = (data) => ({
   type: SET_ML_ARTIFACT,
   payload: data,
-  label: GET_ML_ARTIFACT
+  label: GET_ML_ARTIFACT,
 });
 
 export const onUpdateMlModel = (data) => ({
   type: SET_ML_MODEL,
   payload: data,
-  label: GET_ML_MODEL
+  label: GET_ML_MODEL,
 });
 
 export const onUpdateMlRunsetTemplate = (data) => ({
   type: SET_ML_RUNSET_TEMPLATE,
   payload: data,
-  label: GET_ML_RUNSET_TEMPLATE
+  label: GET_ML_RUNSET_TEMPLATE,
 });
 
 export const onUpdateBIExport = (data) => ({
   type: SET_BI_EXPORT,
   payload: data,
-  label: GET_BI_EXPORT
+  label: GET_BI_EXPORT,
 });
 
 export const onUpdateS3DuplicatesOrganizationSettings = (data) => ({
   type: UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   payload: data,
-  label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
+  label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
 });
 
 export const onUpdateMlLeaderboard = (data) => ({
   type: UPDATE_ML_LEADERBOARD,
   payload: data,
-  label: GET_ML_LEADERBOARD
+  label: GET_ML_LEADERBOARD,
 });
 
 export const onUpdatePowerSchedule = (data) => ({
   type: SET_POWER_SCHEDULE,
   payload: data,
-  label: GET_POWER_SCHEDULE
+  label: GET_POWER_SCHEDULE,
 });
 
 export const onSuccessCreateMlLeaderboard = (data) => ({
   type: CREATE_ML_LEADERBOARD,
   payload: data,
-  label: CREATE_ML_LEADERBOARD
+  label: CREATE_ML_LEADERBOARD,
 });

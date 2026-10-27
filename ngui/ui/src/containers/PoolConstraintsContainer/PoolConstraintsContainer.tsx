@@ -10,7 +10,7 @@ const PoolConstraintsContainer = ({ poolId }) => {
   const dispatch = useDispatch();
 
   const {
-    apiData: { poolPolicies = [] }
+    apiData: { poolPolicies = [] },
   } = useApiData(GET_POOL_POLICIES);
   const { isLoading, shouldInvoke } = useApiState(GET_POOL_POLICIES, { poolId });
 

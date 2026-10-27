@@ -7,12 +7,12 @@ const EnvironmentCostModelForm = ({
   defaultHourlyPrice,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: EnvironmentCostModelFormProps) => {
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      hourlyPrice: defaultHourlyPrice
-    })
+      hourlyPrice: defaultHourlyPrice,
+    }),
   });
 
   const { handleSubmit } = methods;

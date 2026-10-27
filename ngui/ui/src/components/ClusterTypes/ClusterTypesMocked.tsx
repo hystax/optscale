@@ -6,18 +6,18 @@ const ClusterTypesMocked = () => (
       {
         name: "Purpose",
         tag_key: "purpose",
-        priority: 1
+        priority: 1,
       },
       {
         name: "Created by",
         tag_key: "aws:createdby",
-        priority: 2
+        priority: 2,
       },
       {
         name: "Marketing",
         tag_key: "marketing",
-        priority: 3
-      }
+        priority: 3,
+      },
     ]}
   />
 );

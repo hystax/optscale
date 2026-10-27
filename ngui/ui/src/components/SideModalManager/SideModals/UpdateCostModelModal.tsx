@@ -7,8 +7,8 @@ class UpdateCostModelModal extends BaseSideModal {
     color: "primary",
     dataTestIds: {
       title: "lbl_update_cost_model",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_update_cost_model";

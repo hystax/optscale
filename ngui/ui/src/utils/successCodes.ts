@@ -9,24 +9,24 @@ import {
   UPDATE_OPTIMIZATION_OPTIONS,
   STOP_ML_RUNSET,
   ATTACH_INSTANCES_TO_SCHEDULE,
-  REMOVE_INSTANCES_FROM_SCHEDULE
+  REMOVE_INSTANCES_FROM_SCHEDULE,
 } from "api/restapi/actionTypes";
 import { ALERT_SEVERITY } from "./constants";
 
 const defaultSettings = Object.freeze({
-  code: "FE0000"
+  code: "FE0000",
 });
 
 const labelToSuccessSettingsMap = Object.freeze({
   [UPLOAD_CLOUD_REPORT]: {
-    code: "FE0001"
+    code: "FE0001",
   },
   [UPLOAD_CODE_REPORT]: {
-    code: "FE0001"
+    code: "FE0001",
   },
   [CREATE_INVITATIONS]: {
     code: "FE0003",
-    getMessageParams: (params) => [Object.keys(params.invites).length]
+    getMessageParams: (params) => [Object.keys(params.invites).length],
   },
   [MARK_RESOURCES_AS_ENVIRONMENTS]: {
     code: "FE0006",
@@ -35,24 +35,24 @@ const labelToSuccessSettingsMap = Object.freeze({
       const successfullyMarkedResourcedCount = response.data?.succeeded?.length ?? 0;
       const unsuccessfullyMarkedResourcedCount = response.data?.failed?.length ?? 0;
       return [successfullyMarkedResourcedCount, successfullyMarkedResourcedCount + unsuccessfullyMarkedResourcedCount];
-    }
+    },
   },
   [CREATE_ASSIGNMENT_RULE]: {
     code: "FE0007",
-    getMessageParams: ({ name }) => [name]
+    getMessageParams: ({ name }) => [name],
   },
   [DELETE_EMPLOYEE]: {
-    code: "FE0008"
+    code: "FE0008",
   },
   [UPDATE_ORGANIZATION_OPTION]: {
-    code: "FE0009"
+    code: "FE0009",
   },
   [UPDATE_OPTIMIZATION_OPTIONS]: {
     code: "FE0010",
-    getMessageParams: (_, __, payload) => [payload.settingType]
+    getMessageParams: (_, __, payload) => [payload.settingType],
   },
   [STOP_ML_RUNSET]: {
-    code: "FE0011"
+    code: "FE0011",
   },
   [ATTACH_INSTANCES_TO_SCHEDULE]: {
     code: "FE0012",
@@ -61,7 +61,7 @@ const labelToSuccessSettingsMap = Object.freeze({
       const successfullyAttachedResourcedCount = response.data?.succeeded?.length ?? 0;
       const unsuccessfullyAttachedResourcedCount = response.data?.failed?.length ?? 0;
       return [successfullyAttachedResourcedCount, successfullyAttachedResourcedCount + unsuccessfullyAttachedResourcedCount];
-    }
+    },
   },
   [REMOVE_INSTANCES_FROM_SCHEDULE]: {
     code: "FE0013",
@@ -70,8 +70,8 @@ const labelToSuccessSettingsMap = Object.freeze({
       const successfullyRemovedResourcedCount = response.data?.succeeded?.length ?? 0;
       const unsuccessfullyRemovedResourcedCount = response.data?.failed?.length ?? 0;
       return [successfullyRemovedResourcedCount, successfullyRemovedResourcedCount + unsuccessfullyRemovedResourcedCount];
-    }
-  }
+    },
+  },
 });
 
 export const getSuccessAlertSettingsByLabel = (label) => labelToSuccessSettingsMap[label] || defaultSettings;

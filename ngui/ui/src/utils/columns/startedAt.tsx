@@ -10,7 +10,7 @@ const startedAt = ({ headerMessageId, headerDataTestId, accessorKey, options = {
   ),
   accessorKey,
   cell: ({ cell }) => format(secondsToMilliseconds(cell.getValue()), EN_FULL_FORMAT),
-  ...options
+  ...options,
 });
 
 export default startedAt;

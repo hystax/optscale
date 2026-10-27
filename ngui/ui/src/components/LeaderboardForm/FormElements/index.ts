@@ -19,5 +19,5 @@ export {
   DatasetLabelsCoverageField,
   FormButtons,
   DatasetNavigator,
-  SelectedDatasets
+  SelectedDatasets,
 };

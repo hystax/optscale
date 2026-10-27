@@ -43,7 +43,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
                 <FormattedMessage
                   id="valueExpenses"
                   values={{
-                    value: name
+                    value: name,
                   }}
                 />
               }
@@ -75,7 +75,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
                 <FormattedMessage
                   id="valueForecast"
                   values={{
-                    value: name
+                    value: name,
                   }}
                 />
               }
@@ -100,7 +100,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
     <Box
       sx={{
         // Allocate space for marker labels
-        py: 3
+        py: 3,
       }}
     >
       <Box
@@ -115,7 +115,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
             value={limit}
             chartBorderWidth={CHART_BORDER_WIDTH}
             chartSegmentHeight={CHART_SEGMENT_HEIGHT}
-            valueMessageId={"limit"}
+            valueMessageId="limit"
             chartBase={chartBase}
           />
         ) : (

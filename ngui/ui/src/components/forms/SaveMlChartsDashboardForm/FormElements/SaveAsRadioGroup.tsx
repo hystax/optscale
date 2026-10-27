@@ -12,13 +12,13 @@ const SaveAsRadioGroup = ({ saveThisDisabled = false }) => (
         dataTestId: "radio_btn_save_this",
         disabled: saveThisDisabled,
         value: SAVE_AS_VALUES.SAVE_THIS,
-        label: <FormattedMessage id="saveThisDashboard" />
+        label: <FormattedMessage id="saveThisDashboard" />,
       },
       {
         dataTestId: "radio_btn_save_as_new",
         value: SAVE_AS_VALUES.SAVE_AS_NEW,
-        label: <FormattedMessage id="saveAsNewDashboard" />
-      }
+        label: <FormattedMessage id="saveAsNewDashboard" />,
+      },
     ]}
   />
 );

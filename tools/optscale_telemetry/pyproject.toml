@@ -1,0 +1,100 @@
+[project]
+name = "optscale-telemetry"
+version = "0.0.0"
+description = "OptScale OpenTelemetry"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "azure-monitor-opentelemetry-exporter==1.0.0b35",
+    "opentelemetry-api==1.33.*",
+    "opentelemetry-exporter-otlp-proto-grpc==1.33.*",
+    "opentelemetry-exporter-otlp-proto-http==1.33.*",
+    "opentelemetry-instrumentation-asyncio==0.54b0",
+    "opentelemetry-instrumentation-logging==0.54b0",
+    "opentelemetry-instrumentation-pymongo==0.54b0",
+    "opentelemetry-instrumentation-requests==0.54b0",
+    "opentelemetry-instrumentation-sqlalchemy==0.54b0",
+    "opentelemetry-instrumentation-threading==0.54b0",
+    "opentelemetry-instrumentation-tornado==0.54b0",
+    "opentelemetry-instrumentation-urllib3==0.54b0",
+    "opentelemetry-sdk==1.33.*",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["tools.optscale_telemetry*"]
+namespaces = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2,<9.0.0",
+    "pytest-asyncio>=1.2.0,<2.0.0",
+    "pytest-cov>=7.0.0,<8.0.0",
+    "pytest-mock>=3.15.1,<4.0.0",
+    "pytest-randomly>=4.0.1,<5.0.0",
+    "ruff>=0.15.6",
+    "tornado==6.5",
+    "pymongo==4.6.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+output-format = "full"
+cache-dir = ".cache/ruff"
+
+[tool.ruff.lint]
+preview = true
+explicit-preview-rules = true
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+    "PT",
+    "T10",
+    "RUF029",
+]
+ignore = [
+    "PT001",
+    "PT011",
+    "PT023",
+    "B008",
+    "B904",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+testpaths = "tests/"
+pythonpath = "."
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+addopts = "--cov=tools.optscale_telemetry --cov-report=term-missing --cov-report=html --cov-report=xml"
+cache_dir = ".cache/pytest"
+
+[tool.coverage.run]
+branch = true
+source = [
+    "tools.optscale_telemetry",
+]
+relative_files = true
+omit = [
+    "__main__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "pragma: no branch",
+    "NotImplementedError",
+]

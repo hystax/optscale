@@ -8,7 +8,7 @@ export const useRiSpExpensesSummary = (dataSourceIds) => {
   const { isLoading, expensesBreakdown } = useRiSpBreakdowns({
     startDate,
     endDate,
-    dataSourceIds
+    dataSourceIds,
   });
 
   const summary = Object.values(expensesBreakdown)
@@ -34,7 +34,7 @@ export const useRiSpExpensesSummary = (dataSourceIds) => {
       computeExpensesCoveredWithCommitments: percentXofY(
         summary.computeExpensesCoveredWithCommitments,
         summary.totalCostWithOffer
-      )
-    }
+      ),
+    },
   };
 };

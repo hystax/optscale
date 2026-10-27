@@ -19,7 +19,7 @@ const SubscriptionCard = ({ billingSubscription, organizationSummary }: Subscrip
     status,
     grace_period_start: gracePeriodStart,
     end_date: endDate,
-    cancel_at_period_end: cancelAtPeriodEnd
+    cancel_at_period_end: cancelAtPeriodEnd,
   } = billingSubscription;
 
   const {
@@ -29,7 +29,7 @@ const SubscriptionCard = ({ billingSubscription, organizationSummary }: Subscrip
     grace_period_days: gracePeriodDays,
     currency,
     qty_unit: quantityUnit,
-    customer_id: customerId
+    customer_id: customerId,
   } = plan;
 
   if (organizationId === customerId) {
@@ -47,7 +47,7 @@ const SubscriptionCard = ({ billingSubscription, organizationSummary }: Subscrip
   const getLimit = (limitName: "cloud_accounts") => ({
     current: organizationSummary?.entities?.[limitName] ?? 0,
     limit: (limits?.[limitName] ?? 1) as number,
-    quantity: quantityUnit === limitName ? quantity : 1
+    quantity: quantityUnit === limitName ? quantity : 1,
   });
 
   if (name === STRIPE_PLAN_NAME.PRO_MONTHLY || name === STRIPE_PLAN_NAME.PRO_YEARLY) {
@@ -60,7 +60,7 @@ const SubscriptionCard = ({ billingSubscription, organizationSummary }: Subscrip
         endDate={endDate}
         cancelAtPeriodEnd={cancelAtPeriodEnd}
         limits={{
-          dataSources: getLimit("cloud_accounts")
+          dataSources: getLimit("cloud_accounts"),
         }}
         quantity={quantity}
         price={price!}

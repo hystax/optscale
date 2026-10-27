@@ -10,7 +10,7 @@ export const useTaskBreakdownState = ({
   queryParamName,
   taskId,
   initialSelectedBreakdowns = [],
-  fallbackBreakdowns = []
+  fallbackBreakdowns = [],
 }) => {
   const dispatch = useDispatch();
 
@@ -60,7 +60,7 @@ export const useTaskBreakdownState = ({
 
   useEffect(() => {
     updateSearchParams({
-      [queryParamName]: selectedBreakdowns
+      [queryParamName]: selectedBreakdowns,
     });
   }, [queryParamName, selectedBreakdowns]);
 
@@ -87,6 +87,6 @@ export const useTaskBreakdownState = ({
     selectedBreakdowns,
     addBreakdown,
     removeBreakdown,
-    onSelectionChange
+    onSelectionChange,
   };
 };

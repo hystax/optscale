@@ -14,5 +14,5 @@ export const FIELD_NAMES = Object.freeze({
   MAX_BUDGET_VALUE: "maxBudgetValue",
   REACHED_GOALS_CHECKBOX: "reachedGoalsCheckbox",
   MAX_DURATION_CHECKBOX: "maxDurationCheckbox",
-  MAX_DURATION_VALUE: "maxDurationValue"
+  MAX_DURATION_VALUE: "maxDurationValue",
 });

@@ -18,7 +18,7 @@ const AcquireReleaseHooksDescription = () => (
     <FormattedMessage
       id="environmentHooksDescription"
       values={{
-        br: <br />
+        br: <br />,
       }}
     />
   </Typography>

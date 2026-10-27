@@ -7,7 +7,7 @@ const OptionField = ({ optionName, optionValue }) => (
     label={optionName}
     name={optionName}
     InputProps={{
-      endAdornment: <SquareIcon style={{ border: "1px dashed black", color: optionValue }} />
+      endAdornment: <SquareIcon style={{ border: "1px dashed black", color: optionValue }} />,
     }}
   />
 );

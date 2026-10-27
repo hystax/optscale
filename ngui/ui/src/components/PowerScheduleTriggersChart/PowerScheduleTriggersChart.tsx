@@ -15,7 +15,7 @@ import {
   EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
   formatTimeString,
   minutesFromStartOfDay,
-  parse
+  parse,
 } from "utils/datetime";
 import { ObjectValues } from "utils/types";
 
@@ -80,12 +80,12 @@ const prepareSegments = (triggers: TimePoint[]): PreparedData => {
     const rangeStart = formatTimeString({
       timeString: current.time,
       timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-      parsedTimeStringFormat: EN_TIME_FORMAT
+      parsedTimeStringFormat: EN_TIME_FORMAT,
     });
     const rangeEnd = formatTimeString({
       timeString: normalizedTriggers[index + 1].time,
       timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-      parsedTimeStringFormat: EN_TIME_FORMAT
+      parsedTimeStringFormat: EN_TIME_FORMAT,
     });
 
     return {
@@ -94,7 +94,7 @@ const prepareSegments = (triggers: TimePoint[]): PreparedData => {
       durationInMinutes: differenceInMinutes(
         parse(rangeEnd, EN_TIME_FORMAT, new Date()),
         parse(rangeStart, EN_TIME_FORMAT, new Date())
-      )
+      ),
     };
   });
 };
@@ -158,13 +158,13 @@ const Chart = ({ triggers = [] }: ChartProps) => {
   const formattedStartTime = formatTimeString({
     timeString: START_TIME,
     timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-    parsedTimeStringFormat: EN_TIME_FORMAT
+    parsedTimeStringFormat: EN_TIME_FORMAT,
   });
 
   const formattedEndTime = formatTimeString({
     timeString: END_TIME,
     timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-    parsedTimeStringFormat: EN_TIME_FORMAT
+    parsedTimeStringFormat: EN_TIME_FORMAT,
   });
 
   // Calculate which labels should be visible
@@ -200,7 +200,7 @@ const Chart = ({ triggers = [] }: ChartProps) => {
         width: "100%",
         pt: `${PADDING_TOP}px`,
         pb: `${PADDING_BOTTOM}px`,
-        height: `${FULL_HEIGHT}px`
+        height: `${FULL_HEIGHT}px`,
       }}
     >
       <Box position="relative">
@@ -212,7 +212,7 @@ const Chart = ({ triggers = [] }: ChartProps) => {
             top: "50%",
             transform: "translateY(-50%)",
             fontSize: "12px",
-            color: theme.palette.text.primary
+            color: theme.palette.text.primary,
           }}
         >
           {formattedStartTime}
@@ -225,7 +225,7 @@ const Chart = ({ triggers = [] }: ChartProps) => {
             top: "50%",
             transform: "translateY(-50%)",
             fontSize: "12px",
-            color: theme.palette.text.primary
+            color: theme.palette.text.primary,
           }}
         >
           {formattedEndTime}
@@ -236,7 +236,7 @@ const Chart = ({ triggers = [] }: ChartProps) => {
             mx: "60px",
             height: `${BAR_HEIGHT}px`,
             display: "flex",
-            position: "relative"
+            position: "relative",
           }}
         >
           {/* Power schedule segments */}
@@ -250,7 +250,7 @@ const Chart = ({ triggers = [] }: ChartProps) => {
                 sx={{
                   width: `${widthPercentage}%`,
                   height: "100%",
-                  bgcolor: isOn ? lighten(theme.palette.success.main, 0.8) : lighten(theme.palette.error.main, 0.8)
+                  bgcolor: isOn ? lighten(theme.palette.success.main, 0.8) : lighten(theme.palette.error.main, 0.8),
                 }}
               />
             );
@@ -263,7 +263,7 @@ const Chart = ({ triggers = [] }: ChartProps) => {
             const formattedTime = formatTimeString({
               timeString: trigger.time,
               timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-              parsedTimeStringFormat: EN_TIME_FORMAT
+              parsedTimeStringFormat: EN_TIME_FORMAT,
             });
 
             const isOn = trigger.action === POWER_SCHEDULE_ACTIONS.POWER_ON;
@@ -315,16 +315,16 @@ const Chart = ({ triggers = [] }: ChartProps) => {
                       transition: "all 0.2s",
                       marginTop: "2px",
                       padding: "0px 4px",
-                      opacity: visibleLabels[index] ? 1 : 0
+                      opacity: visibleLabels[index] ? 1 : 0,
                     },
                     "&:hover": {
                       backgroundColor: theme.palette.primary.main,
                       width: `${TIME_MARKER_WIDTH + 1}px`,
                       "&::after": {
                         color: theme.palette.text.primary,
-                        backgroundColor: theme.palette.action.hover
-                      }
-                    }
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                    },
                   }}
                 />
               </Tooltip>

@@ -2,7 +2,7 @@ import { FormattedMessage } from "react-intl";
 import {
   ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS,
   ENVIRONMENT_SOFTWARE_FIELD,
-  ENVIRONMENT_JIRA_TICKETS_FIELD
+  ENVIRONMENT_JIRA_TICKETS_FIELD,
 } from "utils/constants";
 import { ENVIRONMENTS_TOUR, PRODUCT_TOUR } from "./reducer";
 
@@ -11,7 +11,7 @@ export const ENVIRONMENTS_TOUR_IDS = {
   ADD_BUTTON: "environmentsAddButton",
   STATUS_CELL: "environmentsStatus",
   JIRA_CELL: "environmentsJiraTickets",
-  SOFT_CELL: "environmentsSoftware"
+  SOFT_CELL: "environmentsSoftware",
 };
 
 const ENVIRONMENTS_TOUR_STEPS = [
@@ -21,7 +21,7 @@ const ENVIRONMENTS_TOUR_STEPS = [
     content: (
       <FormattedMessage id="environmentsPageHeaderTourContent" values={{ strong: (chunks) => <strong>{chunks}</strong> }} />
     ),
-    dataTestId: "tour-environments-page-header"
+    dataTestId: "tour-environments-page-header",
   },
   {
     id: ENVIRONMENTS_TOUR_IDS.ADD_BUTTON,
@@ -30,19 +30,19 @@ const ENVIRONMENTS_TOUR_STEPS = [
       <FormattedMessage id="environmentsAddButtonTourContent" values={{ strong: (chunks) => <strong>{chunks}</strong> }} />
     ),
     dataTestId: "tour-environments-add-button",
-    missable: true
+    missable: true,
   },
   {
     id: ENVIRONMENTS_TOUR_IDS.STATUS_CELL,
     target: ENVIRONMENTS_TOUR_IDS.STATUS_CELL,
     content: <FormattedMessage id="environmentsStatusTourContent" />,
-    dataTestId: "tour-environments-status"
+    dataTestId: "tour-environments-status",
   },
   {
     id: ENVIRONMENTS_TOUR_IDS.JIRA_CELL,
     target: ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS[ENVIRONMENT_JIRA_TICKETS_FIELD],
     content: <FormattedMessage id="environmentsJiraTicketsTourContent" />,
-    dataTestId: "tour-environments-jira-tickets-tour-content"
+    dataTestId: "tour-environments-jira-tickets-tour-content",
   },
   {
     id: ENVIRONMENTS_TOUR_IDS.SOFT_CELL,
@@ -50,8 +50,8 @@ const ENVIRONMENTS_TOUR_STEPS = [
     content: (
       <FormattedMessage id="environmentsSoftwareTourContent" values={{ strong: (chunks) => <strong>{chunks}</strong> }} />
     ),
-    dataTestId: "tour-environments-software-tour-content"
-  }
+    dataTestId: "tour-environments-software-tour-content",
+  },
 ];
 
 export const PRODUCT_TOUR_IDS = {
@@ -62,7 +62,7 @@ export const PRODUCT_TOUR_IDS = {
   DATA_SOURCES: "dataSources",
   POOLS: "pools",
   USERS: "userManagement",
-  MENU_DRAWER: "menuDrawer"
+  MENU_DRAWER: "menuDrawer",
 };
 
 const PRODUCT_TOUR_STEPS = [
@@ -70,47 +70,47 @@ const PRODUCT_TOUR_STEPS = [
     id: PRODUCT_TOUR_IDS.HOME,
     content: <FormattedMessage id="homeProductTourContent" />,
     dataTestId: "p_tour_home",
-    target: PRODUCT_TOUR_IDS.HOME
+    target: PRODUCT_TOUR_IDS.HOME,
   },
   {
     id: PRODUCT_TOUR_IDS.ENVIRONMENTS,
     content: <FormattedMessage id="environmentsProductTourContent" />,
     dataTestId: "p_tour_environments",
-    target: PRODUCT_TOUR_IDS.ENVIRONMENTS
+    target: PRODUCT_TOUR_IDS.ENVIRONMENTS,
   },
   {
     id: PRODUCT_TOUR_IDS.RECOMMENDATIONS,
     content: <FormattedMessage id="recommendationsProductTourContent" />,
     dataTestId: "p_tour_recommendations",
-    target: PRODUCT_TOUR_IDS.RECOMMENDATIONS
+    target: PRODUCT_TOUR_IDS.RECOMMENDATIONS,
   },
   {
     id: PRODUCT_TOUR_IDS.RESOURCES,
     content: <FormattedMessage id="resourcesProductTourContent" />,
     dataTestId: "p_tour_resources",
-    target: PRODUCT_TOUR_IDS.RESOURCES
+    target: PRODUCT_TOUR_IDS.RESOURCES,
   },
   {
     id: PRODUCT_TOUR_IDS.DATA_SOURCES,
     content: <FormattedMessage id="dataSourcesProductTourContent" />,
     dataTestId: "p_tour_data_source",
-    target: PRODUCT_TOUR_IDS.DATA_SOURCES
+    target: PRODUCT_TOUR_IDS.DATA_SOURCES,
   },
   {
     id: PRODUCT_TOUR_IDS.POOLS,
     content: <FormattedMessage id="poolsProductTourContent" />,
     dataTestId: "p_tour_pools",
-    target: PRODUCT_TOUR_IDS.POOLS
+    target: PRODUCT_TOUR_IDS.POOLS,
   },
   {
     id: PRODUCT_TOUR_IDS.USERS,
     content: <FormattedMessage id="userManagementProductTourContent" />,
     dataTestId: "p_tour_user_management",
-    target: PRODUCT_TOUR_IDS.USERS
-  }
+    target: PRODUCT_TOUR_IDS.USERS,
+  },
 ];
 
 export const TOURS_DEFINITIONS = Object.freeze({
   [ENVIRONMENTS_TOUR]: ENVIRONMENTS_TOUR_STEPS,
-  [PRODUCT_TOUR]: PRODUCT_TOUR_STEPS
+  [PRODUCT_TOUR]: PRODUCT_TOUR_STEPS,
 });

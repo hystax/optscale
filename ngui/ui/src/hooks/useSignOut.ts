@@ -9,6 +9,6 @@ export const useSignOut = () => {
 
   return () =>
     signOut(dispatch, {
-      userEmail
+      userEmail,
     });
 };

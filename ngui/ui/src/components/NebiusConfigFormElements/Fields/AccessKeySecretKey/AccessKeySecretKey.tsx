@@ -14,16 +14,16 @@ const AccessKeySecretKey = () => (
         <QuestionMark
           messageId="nebiusSecretAccessKeyTooltip"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_secret_access_key"
         />
-      )
+      ),
     }}
     label={<FormattedMessage id="secretKey" />}
     autoComplete="off"
     sx={{
-      marginBottom: (theme) => theme.spacing(1)
+      marginBottom: (theme) => theme.spacing(1),
     }}
   />
 );

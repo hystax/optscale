@@ -1,4 +1,6 @@
-from datetime import datetime
+import csv
+import io
+from datetime import datetime, timezone
 import uuid
 from sqlalchemy import and_
 from unittest.mock import patch, ANY
@@ -15,7 +17,7 @@ from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
 from tools.optscale_time import utcnow_timestamp
 
 
-class TestPoolApi(TestApiBase):
+class PoolApiTestBase(TestApiBase):
 
     def setUp(self, version='v2'):
         super().setUp(version)
@@ -87,6 +89,9 @@ class TestPoolApi(TestApiBase):
                 '_last_seen_date': timestamp_to_day_start(last_seen)
             }}
         )
+
+
+class TestPoolApi(PoolApiTestBase):
 
     def test_get(self):
         code, pool = self.client.pool_get(self.org['pool_id'])
@@ -1434,3 +1439,381 @@ class TestPoolApi(TestApiBase):
         }
         self.assertEqual({'id': pools['id'], 'name': pools['name'],
                           'purpose': pools['purpose']}, root_pool_map)
+
+    def test_pool_get_date_range_validation(self):
+        pool_id = self.org['pool_id']
+
+        code, resp = self.client.pool_get(pool_id, start_date=1000000)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0561')
+
+        code, resp = self.client.pool_get(pool_id, end_date=1000000)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0561')
+
+        code, resp = self.client.pool_get(
+            pool_id, start_date=2000000, end_date=1000000)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0446')
+
+        code, resp = self.client.pool_get(
+            pool_id, start_date=-1, end_date=1000000)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0224')
+
+        code, resp = self.client.pool_get(
+            pool_id, start_date=0, end_date=7776001)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0574')
+
+    def test_pool_get_date_range_without_details(self):
+        pool_id = self.org['pool_id']
+        start_ts = 1000000
+        end_ts = 2000000
+
+        code, pool = self.client.pool_get(
+            pool_id, start_date=start_ts, end_date=end_ts)
+        self.assertEqual(code, 200)
+        self.assertEqual(pool['expense_start_date'], start_ts)
+        self.assertEqual(pool['expense_end_date'], end_ts)
+        self.assertNotIn('cost', pool)
+
+    def test_pool_get_date_range_with_details(self):
+        _, cloud_acc = self.create_cloud_account(
+            self.org_id,
+            {'name': 'test_acc', 'type': 'aws_cnr',
+             'config': {'access_key_id': 'key', 'secret_access_key': 'secret'}},
+            auth_user_id=self.auth_user_1)
+        resource = self._create_resource(
+            cloud_acc['id'], pool_id=self.org['pool_id'])
+
+        for date, cost in [
+            (datetime(2021, 1, 5), 100),
+            (datetime(2021, 1, 15), 50),
+            (datetime(2021, 1, 25), 30),
+        ]:
+            self.expenses.append({
+                'resource_id': resource['id'],
+                'cost': cost,
+                'date': date,
+                'cloud_account_id': cloud_acc['id'],
+                'sign': 1,
+            })
+
+        range_start = datetime(2021, 1, 10)
+        range_end = datetime(2021, 1, 31)
+        with freeze_time(datetime(2021, 2, 15)):
+            code, pool = self.client.pool_get(
+                self.org['pool_id'], details=True,
+                start_date=int(range_start.timestamp()),
+                end_date=int(range_end.timestamp()))
+
+        self.assertEqual(code, 200)
+        self.assertEqual(pool['cost'], 80)
+        self.assertEqual(pool['expense_start_date'], int(range_start.timestamp()))
+        self.assertEqual(pool['expense_end_date'], int(range_end.timestamp()))
+
+    def test_pool_get_date_range_hierarchy(self):
+        _, cloud_acc = self.create_cloud_account(
+            self.org_id,
+            {'name': 'test_acc', 'type': 'aws_cnr',
+             'config': {'access_key_id': 'key', 'secret_access_key': 'secret'}},
+            auth_user_id=self.auth_user_1)
+        _, child = self.client.pool_create(
+            self.org_id, {'name': 'child', 'parent_id': self.org['pool_id']})
+
+        for pool_id, expense_dates in [
+            (self.org['pool_id'], [(datetime(2021, 1, 15), 40)]),
+            (child['id'], [
+                (datetime(2021, 1, 5), 999),  # out of date range
+                (datetime(2021, 1, 15), 60)
+            ]),
+        ]:
+            resource = self._create_resource(
+                cloud_acc['id'], pool_id=pool_id,
+                employee_id=self.employee_1_1['id']
+            )
+            for date, cost in expense_dates:
+                self.expenses.append({
+                    'resource_id': resource['id'],
+                    'cost': cost,
+                    'date': date,
+                    'cloud_account_id': cloud_acc['id'],
+                    'sign': 1,
+                })
+
+        range_start = datetime(2021, 1, 10)
+        range_end = datetime(2021, 1, 31)
+        code, pool = self.client.pool_get(
+            self.org['pool_id'], details=True, children=True,
+            start_date=int(range_start.timestamp()),
+            end_date=int(range_end.timestamp()))
+
+        self.assertEqual(code, 200)
+        self.assertEqual(pool['cost'], 100)
+        child_data = next(c for c in pool['children'] if c['id'] == child['id'])
+        self.assertEqual(child_data['cost'], 60)
+
+        # all month
+        with freeze_time(range_end):
+            code, pool = self.client.pool_get(
+                self.org['pool_id'], details=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(pool['cost'], 1099)
+
+    def test_pool_get_date_range_forecast_current_month(self):
+        _, cloud_acc = self.create_cloud_account(
+            self.org_id,
+            {'name': 'test_acc', 'type': 'aws_cnr',
+             'config': {'access_key_id': 'key', 'secret_access_key': 'secret'}},
+            auth_user_id=self.auth_user_1)
+        resource = self._create_resource(
+            cloud_acc['id'], pool_id=self.org['pool_id'])
+
+        for date, cost in [
+            (datetime(2021, 1, 15), 50),
+            (datetime(2021, 2, 5), 200),
+        ]:
+            self.expenses.append({
+                'resource_id': resource['id'],
+                'cost': cost,
+                'date': date,
+                'cloud_account_id': cloud_acc['id'],
+                'sign': 1,
+            })
+
+        with freeze_time(datetime(2021, 2, 15)):
+            # current month
+            code, pool = self.client.pool_get(
+                self.org['pool_id'], details=True)
+            self.assertEqual(code, 200)
+            self.assertEqual(pool['cost'], 200)
+            self.assertEqual(pool['forecast'], 312.9)
+
+            # prev month
+            range_start = datetime(2021, 1, 1)
+            range_end = datetime(2021, 1, 31)
+            code, pool = self.client.pool_get(
+                self.org['pool_id'], details=True,
+                start_date=int(range_start.timestamp()),
+                end_date=int(range_end.timestamp()))
+            self.assertEqual(code, 200)
+            self.assertEqual(pool['cost'], 50)
+            self.assertEqual(pool['forecast'], 312.9)
+
+
+class TestPoolExpensesReportApi(PoolApiTestBase):
+    def setUp(self, version='v2'):
+        super().setUp(version)
+        _, self.cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_cloud_acc_dict,
+            auth_user_id=self.auth_user_1)
+        self.start_date = int(datetime(
+            2021, 1, 1, tzinfo=timezone.utc).timestamp())
+        self.end_date = int(datetime(
+            2021, 1, 31, tzinfo=timezone.utc).timestamp())
+
+    def _parse_csv(self, body):
+        reader = csv.DictReader(io.StringIO(body))
+        return list(reader)
+
+    def test_missing_param(self):
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, None, self.end_date, 'csv')
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0216')
+
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, self.start_date, None, 'csv')
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0216')
+
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, self.start_date, self.end_date, None)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0216')
+
+    def test_invalid_format(self):
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, self.start_date, self.end_date, 'pdf')
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0473')
+
+    def test_end_before_start(self):
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, self.end_date, self.start_date, 'csv')
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0446')
+
+    def test_unknown_org(self):
+        code, resp = self.client.pool_expenses_report_get(
+            str(uuid.uuid4()), self.start_date, self.end_date, 'csv')
+        self.assertEqual(code, 404)
+        self.verify_error_code(resp, 'OE0002')
+
+    def test_pool_expenses_report_date_range_validation(self):
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, 2000000, 1000000, 'csv')
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0446')
+
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, -1, 1000000, 'csv')
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0224')
+
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, 0, 7776001, 'csv')
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0574')
+
+    def test_csv_root_pool_always_included(self):
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, self.start_date, self.end_date, 'csv')
+        self.assertEqual(code, 200)
+        rows = self._parse_csv(resp)
+        pool_ids = [r['Pool ID'] for r in rows]
+        self.assertIn(self.org['pool_id'], pool_ids)
+
+    def test_xlsx_ok(self):
+        code, resp = self.client.pool_expenses_report_get(
+            self.org_id, self.start_date, self.end_date, 'xlsx')
+        self.assertEqual(code, 200)
+
+    def test_csv_level_hierarchy_costs(self):
+        root_id = self.org['pool_id']
+        _, marketing = self.client.pool_create(
+            self.org_id, {'name': 'Marketing', 'parent_id': root_id})
+        _, engineering = self.client.pool_create(
+            self.org_id, {'name': 'Engineering', 'parent_id': root_id})
+        _, dev = self.client.pool_create(
+            self.org_id, {'name': 'Dev', 'parent_id': engineering['id']})
+        _, qa = self.client.pool_create(
+            self.org_id, {'name': 'QA', 'parent_id': engineering['id']})
+        _, release = self.client.pool_create(
+            self.org_id, {'name': 'Release 3.4', 'parent_id': qa['id']})
+
+        for pool_id, cost in [
+            (root_id, 50.0),
+            (marketing['id'], 1200.0),
+            (engineering['id'], 500.0),
+            (dev['id'], 200.0),
+            (qa['id'], 300.0),
+            (release['id'], 100.0),
+        ]:
+            resource = self._create_resource(
+                self.cloud_acc['id'], employee_id=self.employee_1_1['id'],
+                pool_id=pool_id)
+            self.expenses.append({
+                'resource_id': resource['id'],
+                'cost': cost,
+                'date': datetime(2021, 1, 15),
+                'cloud_account_id': self.cloud_acc['id'],
+                'sign': 1,
+            })
+
+        with freeze_time(datetime(2021, 2, 1)):
+            code, body = self.client.pool_expenses_report_get(
+                self.org_id, self.start_date, self.end_date, 'csv')
+        self.assertEqual(code, 200)
+        rows = self._parse_csv(body)
+
+        headers = list(rows[0].keys())
+        self.assertIn('Level 4', headers)
+        self.assertNotIn('Level 5', headers)
+
+        by_id = {r['Pool ID']: r for r in rows}
+
+        def check(pool_id, expected_path, direct, subtree):
+            row = by_id[pool_id]
+            for i, name in enumerate(expected_path, start=1):
+                self.assertEqual(row['Level %d' % i], name)
+            for i in range(len(expected_path) + 1, 5):
+                self.assertEqual(row['Level %d' % i], '')
+            self.assertEqual(float(row['Direct expense']), direct)
+            self.assertEqual(float(row['Subtree expense']), subtree)
+
+        org_name = self.org['name']
+        check(root_id, [org_name], 50.0, 2350.0)
+        check(marketing['id'], [org_name, 'Marketing'], 1200.0, 1200.0)
+        check(engineering['id'], [org_name, 'Engineering'], 500.0, 1100.0)
+        check(dev['id'], [org_name, 'Engineering', 'Dev'], 200.0, 200.0)
+        check(qa['id'], [org_name, 'Engineering', 'QA'], 300.0, 400.0)
+        check(release['id'], [org_name, 'Engineering', 'QA', 'Release 3.4'],
+              100.0, 100.0)
+
+    def test_csv_dfs_ordering(self):
+        names = ['gamma', 'alpha', 'delta', 'beta']
+        children = {}
+        for name in names:
+            _, pool = self.client.pool_create(
+                self.org_id, {'name': name, 'parent_id': self.org['pool_id']})
+            children[name] = pool
+
+        expenses_by_pool = {
+            self.org['pool_id']: 100.0,
+            children['alpha']['id']: 40.0,
+            children['delta']['id']: 20.0,
+            children['gamma']['id']: 10.0,
+        }
+        for pool_id, cost in expenses_by_pool.items():
+            resource = self._create_resource(
+                self.cloud_acc['id'], employee_id=self.employee_1_1['id'],
+                pool_id=pool_id)
+            self.expenses.append({
+                'resource_id': resource['id'],
+                'cost': cost,
+                'date': datetime(2021, 1, 15),
+                'cloud_account_id': self.cloud_acc['id'],
+                'sign': 1,
+            })
+
+        with freeze_time(datetime(2021, 2, 1)):
+            code, resp = self.client.pool_expenses_report_get(
+                self.org_id, self.start_date, self.end_date, 'csv')
+        self.assertEqual(code, 200)
+        rows = self._parse_csv(resp)
+        ids = [r['Pool ID'] for r in rows]
+
+        root_idx = ids.index(self.org['pool_id'])
+        alpha_idx = ids.index(children['alpha']['id'])
+        beta_idx = ids.index(children['beta']['id'])
+        delta_idx = ids.index(children['delta']['id'])
+        gamma_idx = ids.index(children['gamma']['id'])
+
+        self.assertLess(root_idx, alpha_idx)
+        self.assertLess(alpha_idx, beta_idx)
+        self.assertLess(beta_idx, delta_idx)
+        self.assertLess(delta_idx, gamma_idx)
+
+        by_id = {r['Pool ID']: r for r in rows}
+        root_row = by_id[self.org['pool_id']]
+        self.assertEqual(float(root_row['Direct expense']), 100.0)
+        self.assertEqual(float(root_row['Subtree expense']), 170.0)
+
+        self.assertEqual(float(
+            by_id[children['alpha']['id']]['Direct expense']), 40.0)
+        self.assertEqual(
+            float(by_id[children['alpha']['id']]['Subtree expense']), 40.0)
+        self.assertEqual(
+            float(by_id[children['beta']['id']]['Direct expense']), 0.0)
+        self.assertEqual(
+            float(by_id[children['beta']['id']]['Subtree expense']), 0.0)
+        self.assertEqual(
+            float(by_id[children['delta']['id']]['Direct expense']), 20.0)
+        self.assertEqual(
+            float(by_id[children['gamma']['id']]['Direct expense']), 10.0)
+
+    def test_csv_injection_escaped(self):
+        inj = '=HYPERLINK("http://evil","x")'
+        _, inj_pool = self.client.pool_create(
+            self.org_id,
+            {'name': inj, 'parent_id': self.org['pool_id']})
+        with freeze_time(datetime(2021, 2, 1)):
+            code, body = self.client.pool_expenses_report_get(
+                self.org_id, self.start_date, self.end_date, 'csv')
+        self.assertEqual(code, 200)
+        rows = self._parse_csv(body)
+        pool_id_map = {r['Pool ID']: r for r in rows}
+        inj_row = pool_id_map[inj_pool['id']]
+        self.assertEqual(inj_row['Level 2'], f"'{inj}")

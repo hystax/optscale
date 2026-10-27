@@ -58,7 +58,7 @@ const ChartTooltip = ({ points: allPoints, isOrganizationWeekend, breakdownBy })
             <>
               <span
                 style={{
-                  marginRight: theme.spacing(0.5)
+                  marginRight: theme.spacing(0.5),
                 }}
               >
                 {pointData.y}
@@ -67,7 +67,7 @@ const ChartTooltip = ({ points: allPoints, isOrganizationWeekend, breakdownBy })
                 <span
                   style={{
                     color: theme.palette.success.main,
-                    marginRight: pointData.details.deletedDayBefore !== 0 ? theme.spacing(0.5) : 0
+                    marginRight: pointData.details.deletedDayBefore !== 0 ? theme.spacing(0.5) : 0,
                   }}
                 >
                   +{pointData.details.created}
@@ -96,7 +96,7 @@ const ResourceCountBreakdownLineChart = ({ data, colors, isLoading, style, break
       dataTestId={dataTestId}
       data={data}
       yScale={{
-        stacked: true
+        stacked: true,
       }}
       style={style}
       colors={({ id }) => colors[id]}
@@ -114,15 +114,15 @@ const ResourceCountBreakdownLineChart = ({ data, colors, isLoading, style, break
         return sliceByLimitWithEllipsis(label, 30);
       }}
       axisLeft={{
-        format: (value) => value
+        format: (value) => value,
       }}
       overlayLayers={
         showWeekends
           ? [
               {
                 key: "weekendHighlight",
-                renderCanvasContent: renderWeekendsHighlightLayer
-              }
+                renderCanvasContent: renderWeekendsHighlightLayer,
+              },
             ]
           : []
       }

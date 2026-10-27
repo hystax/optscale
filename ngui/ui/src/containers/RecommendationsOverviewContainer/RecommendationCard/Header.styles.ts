@@ -8,20 +8,20 @@ const useStyles = makeStyles()((theme) => ({
     marginBottom: theme.spacing(SPACING_2),
     justifyContent: "space-between",
     ":only-child": {
-      marginBottom: 0
-    }
+      marginBottom: 0,
+    },
   },
   titleText: {
-    display: "flex"
+    display: "flex",
   },
   value: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-end"
+    alignItems: "flex-end",
   },
   title: {
-    marginRight: theme.spacing(SPACING_2)
-  }
+    marginRight: theme.spacing(SPACING_2),
+  },
 }));
 
 export default useStyles;

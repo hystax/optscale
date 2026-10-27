@@ -10,6 +10,6 @@ export const useGetIsRecommendationsDownloadAvailable = (url) => {
   return {
     isLoading,
     isDownloadAvailable:
-      !isError && (isPaidOrganization || last30DaysOrganizationExpenses <= FREE_ACCOUNT_30_DAYS_EXPENSES_THRESHOLD)
+      !isError && (isPaidOrganization || last30DaysOrganizationExpenses <= FREE_ACCOUNT_30_DAYS_EXPENSES_THRESHOLD),
   };
 };

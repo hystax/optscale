@@ -10,7 +10,7 @@ const FIELD_NAME = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.MAX_VALUE;
 const MaxValueInput = () => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -25,15 +25,15 @@ const MaxValueInput = () => {
       {...register(FIELD_NAME, {
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         validate: {
-          positiveInteger
+          positiveInteger,
         },
         max: {
           value: MAX_INT_32,
-          message: intl.formatMessage({ id: "lessOrEqual" }, { max: MAX_INT_32 })
-        }
+          message: intl.formatMessage({ id: "lessOrEqual" }, { max: MAX_INT_32 }),
+        },
       })}
     />
   );

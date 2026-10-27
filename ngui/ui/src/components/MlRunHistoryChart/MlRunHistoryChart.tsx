@@ -28,17 +28,17 @@ const MlRunHistoryChart = ({ history, targetValue, tendency, width = 100, height
       }
       thresholdArea={{
         start: targetValue,
-        end: targetValue
+        end: targetValue,
       }}
       thresholdColors={
         tendency === GOALS_FILTER_TYPES.LESS_IS_BETTER
           ? {
               start: goalMetColor,
-              end: goalNotMetColor
+              end: goalNotMetColor,
             }
           : {
               start: goalNotMetColor,
-              end: goalMetColor
+              end: goalMetColor,
             }
       }
       debug={debug}

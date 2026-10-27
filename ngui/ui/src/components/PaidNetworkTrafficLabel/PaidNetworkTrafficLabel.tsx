@@ -8,7 +8,7 @@ const PaidNetworkTrafficLabel = ({ cost, usage }) => (
     id="value / value"
     values={{
       value1: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />,
-      value2: <FormattedDigitalUnit value={usage} baseUnit={SI_UNITS.GIGABYTE} />
+      value2: <FormattedDigitalUnit value={usage} baseUnit={SI_UNITS.GIGABYTE} />,
     }}
   />
 );

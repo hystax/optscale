@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import requests
+import threading
 import time
 import yandexcloud
 import yandex.cloud.mdb.mysql.v1.cluster_service_pb2 as mysql_cluster_service_pb2
@@ -85,6 +86,7 @@ BUCKET_ACCEPTED_GRANT_TYPES = ['GRANT_TYPE_ALL_AUTHENTICATED_USERS',
                                'GRANT_TYPE_ALL_USERS']
 DEFAULT_BUCKET_PREFIX = ''
 RETRYABLE_CODES = [grpc.StatusCode.UNAVAILABLE]
+_ENDPOINT_DISCOVERY_PATCH_LOCK = threading.Lock()
 
 # according to https://nebius.com/il/docs/compute/concepts/performance-levels
 PLATFORMS = {
@@ -246,6 +248,8 @@ class Nebius(S3CloudMixin):
         super().__init__(cloud_config, *args, **kwargs)
         self._sdk = None
         self._token = None
+        self._tracked_channels = []
+        self._channels_lock = threading.Lock()
 
     @property
     def endpoint(self):
@@ -263,6 +267,30 @@ class Nebius(S3CloudMixin):
     def key_id(self):
         return self.config.get('key_id')
 
+    def _track_channel(self, channel):
+        with self._channels_lock:
+            self._tracked_channels.append(channel)
+        return channel
+
+    def _wrap_endpoint_discovery(self, channels_obj):
+        # _get_endpoints() opens its own bootstrap grpc channel as
+        # a local variable and never stores it anywhere (not even in
+        # Channels._channels), so close() has no way to reach it
+        # afterwards
+        original_get_endpoints = channels_obj._get_endpoints
+
+        def _get_endpoints_and_track():
+            with _ENDPOINT_DISCOVERY_PATCH_LOCK:
+                original_secure_channel = grpc.secure_channel
+                grpc.secure_channel = lambda *a, **kw: self._track_channel(
+                    original_secure_channel(*a, **kw))
+                try:
+                    return original_get_endpoints()
+                finally:
+                    grpc.secure_channel = original_secure_channel
+
+        channels_obj._get_endpoints = _get_endpoints_and_track
+
     @property
     def sdk(self):
         if self._sdk is None:
@@ -276,7 +304,26 @@ class Nebius(S3CloudMixin):
             self._sdk = yandexcloud.SDK(interceptor=interceptor,
                                         service_account_key=sa_key,
                                         endpoint=self.endpoint)
+            channels_obj = getattr(self._sdk, '_channels', None)
+            if channels_obj is not None and hasattr(
+                    channels_obj, '_get_endpoints'):
+                self._wrap_endpoint_discovery(channels_obj)
         return self._sdk
+
+    def close(self):
+        # force closing grpc channels
+        if self._sdk is not None:
+            channels = getattr(getattr(self._sdk, '_channels', None),
+                               '_channels', None) or {}
+            with self._channels_lock:
+                tracked, self._tracked_channels = self._tracked_channels, []
+            for channel in list(channels.values()) + tracked:
+                try:
+                    channel.close()
+                except Exception as exc:
+                    LOG.warning('Failed to close Nebius gRPC channel: %s',
+                               str(exc))
+            self._sdk = None
 
     @property
     def cloud_account_id(self):
@@ -915,7 +962,7 @@ class Nebius(S3CloudMixin):
         return self._get_metrics(start_date, end_date, query, folder_id,
                                  downsampling)
 
-    def get_regions_coordinates(self):
+    def get_regions_coordinates(self, load=True):
         return self.config.get('regions_coordinates', {}) or REGIONS_COORDINATES
 
     def get_prices(self, currency='USD', filter=None, **kwargs):
@@ -939,9 +986,6 @@ class Nebius(S3CloudMixin):
         return [MessageToDict(x) for x in service_accounts]
 
     def set_currency(self, currency):
-        pass
-
-    def configure_last_import_modified_at(self):
         pass
 
     def start_instance(self, instance_id):

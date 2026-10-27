@@ -37,7 +37,7 @@ const MlRunsetTemplateEditContainer = () => {
       isLoading={{
         isGetRunsetTemplateLoading,
         isUpdateMlRunsetTemplateLoading,
-        isGetAllTasksLoading
+        isGetAllTasksLoading,
       }}
     />
   );

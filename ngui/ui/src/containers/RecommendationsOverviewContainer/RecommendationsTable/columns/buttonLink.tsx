@@ -16,8 +16,8 @@ const buttonLink = ({ headerDataTestId, accessorKey, onClick }) => ({
     const {
       cell,
       row: {
-        original: { recommendation }
-      }
+        original: { recommendation },
+      },
     } = cellData;
 
     return (
@@ -31,13 +31,13 @@ const buttonLink = ({ headerDataTestId, accessorKey, onClick }) => ({
               </Typography>
               <QuestionMark fontSize="small" tooltipText={recommendation.error} color="error" Icon={ErrorOutlineOutlinedIcon} />
             </Box>
-          )
+          ),
         }}
       >
         <Link
           component="button"
           style={{
-            textAlign: "left"
+            textAlign: "left",
           }}
           variant="body2"
           onClick={() => onClick(cellData)}
@@ -46,7 +46,7 @@ const buttonLink = ({ headerDataTestId, accessorKey, onClick }) => ({
         </Link>
       </CaptionedCell>
     );
-  }
+  },
 });
 
 export default buttonLink;

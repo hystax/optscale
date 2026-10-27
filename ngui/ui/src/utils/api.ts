@@ -64,7 +64,7 @@ export const signOut = (dispatch, payload = {}) => {
   const { userEmail } = payload;
 
   updateSearchParams({
-    [USER_EMAIL_QUERY_PARAMETER_NAME]: userEmail
+    [USER_EMAIL_QUERY_PARAMETER_NAME]: userEmail,
   });
 
   dispatch(reset());

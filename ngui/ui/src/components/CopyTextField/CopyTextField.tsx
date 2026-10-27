@@ -39,7 +39,7 @@ const CopyTextField = ({ textToDisplay, textToCopy = textToDisplay, className })
               </IconButton>
             </Tooltip>
           </CopyToClipboard>
-        )
+        ),
       }}
     />
   );

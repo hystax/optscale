@@ -13,16 +13,16 @@ const ExportedDaysField = ({ isLoading = false }) => {
     <NumberInput
       name={FIELD_NAME}
       label={intl.formatMessage({
-        id: "exportedDays"
+        id: "exportedDays",
       })}
       required
       InputProps={{
-        endAdornment: <QuestionMark messageId="exportedDaysDescription" dataTestId="qmark_exported_days" />
+        endAdornment: <QuestionMark messageId="exportedDaysDescription" dataTestId="qmark_exported_days" />,
       }}
       isLoading={isLoading}
       min={0}
       validate={{
-        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true)
+        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
       }}
     />
   );

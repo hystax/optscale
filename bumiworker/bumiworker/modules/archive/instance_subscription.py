@@ -27,12 +27,13 @@ class InstanceSubscription(ArchiveBase, InstanceSubscriptionRecommendation):
     def supported_cloud_types(self):
         return SUPPORTED_CLOUD_TYPES
 
-    def _has_discounts(self, raw_info):
+    @staticmethod
+    def _has_discounts(raw_info):
         if raw_info.get('cost') == 0:
             # savings plan applied
             return True
         for key in ['coupons_discount', 'resource_package_discount']:
-            if key in raw_info and float(raw_info[key]):
+            if key in raw_info and float(raw_info[key] or 0):
                 return True
 
     def _get(self, previous_options, optimizations, cloud_accounts_map,

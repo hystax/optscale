@@ -12,7 +12,7 @@ type ArchivedRecommendationDescriptionProps = {
 const ArchivedRecommendationDescription = ({
   reason,
   dataTestId,
-  isLoading = false
+  isLoading = false,
 }: ArchivedRecommendationDescriptionProps) => {
   if (isLoading) {
     return <Skeleton />;

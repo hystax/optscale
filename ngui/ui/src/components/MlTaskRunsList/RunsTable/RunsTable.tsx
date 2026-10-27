@@ -42,7 +42,7 @@ const RunsTable = ({ runs }) => {
           const search = filterValue.toLocaleLowerCase();
 
           const {
-            original: { runset: { name: runsetName = "" } = {} }
+            original: { runset: { name: runsetName = "" } = {} },
           } = row;
 
           return [runName, runsetName].some((str) => str.toLocaleLowerCase().includes(search));
@@ -67,8 +67,8 @@ const RunsTable = ({ runs }) => {
                             }
                           />
                         ),
-                        key: "template"
-                      }
+                        key: "template",
+                      },
                     ]
                   : null
               }
@@ -78,7 +78,7 @@ const RunsTable = ({ runs }) => {
               </Link>
             </CaptionedCell>
           );
-        }
+        },
       },
       {
         header: <MlRunStatusHeaderCell />,
@@ -86,19 +86,19 @@ const RunsTable = ({ runs }) => {
         cell: ({
           cell,
           row: {
-            original: { reason }
-          }
-        }) => <MlRunStatusCell status={cell.getValue()} reason={reason} />
+            original: { reason },
+          },
+        }) => <MlRunStatusCell status={cell.getValue()} reason={reason} />,
       },
       metrics({
         accessorKey: "reached_goals",
         onSortByMetricKeyChange: (newKey) => setSortByMetricKey(newKey),
         metricsKeyNameEntries,
-        sortByMetricKey
+        sortByMetricKey,
       }),
       dataset({
         id: "dataset",
-        accessorFn: (originalRow) => originalRow.dataset?.name
+        accessorFn: (originalRow) => originalRow.dataset?.name,
       }),
       hyperparameters(),
       ...(isFinOpsEnabled
@@ -111,8 +111,8 @@ const RunsTable = ({ runs }) => {
               ),
               accessorKey: "cost",
               accessorFn: ({ cost }) => formatMoney(FORMATTED_MONEY_TYPES.COMMON, cost),
-              cell: ({ cell }) => cell.getValue()
-            }
+              cell: ({ cell }) => cell.getValue(),
+            },
           ]
         : []),
       tags({
@@ -121,24 +121,24 @@ const RunsTable = ({ runs }) => {
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
-        getTags: (originalRow) => originalRow.tags
+        getTags: (originalRow) => originalRow.tags,
       }),
       startedAt({
         headerMessageId: "startedAt",
         headerDataTestId: "lbl_started_at",
         accessorKey: "start",
         options: {
-          enableGlobalFilter: false
-        }
+          enableGlobalFilter: false,
+        },
       }),
       duration({
         headerMessageId: "duration",
         headerDataTestId: "lbl_duration",
         accessorKey: "duration",
         options: {
-          enableGlobalFilter: false
-        }
-      })
+          enableGlobalFilter: false,
+        },
+      }),
     ];
   }, [formatMoney, isFinOpsEnabled, metricsKeyNameEntries, sortByMetricKey]);
 
@@ -153,11 +153,11 @@ const RunsTable = ({ runs }) => {
         borderLeft:
           !isEmptyObject(reachedGoals) && Object.values(reachedGoals).every(({ reached }) => reached)
             ? `4px solid ${theme.palette.success.main}`
-            : undefined
+            : undefined,
       })}
       pageSize={50}
       localization={{
-        emptyMessageId: "noRuns"
+        emptyMessageId: "noRuns",
       }}
     />
   );

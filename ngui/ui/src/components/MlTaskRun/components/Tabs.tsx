@@ -5,7 +5,7 @@ export const TABS = Object.freeze({
   OVERVIEW: "overview",
   ARTIFACTS: "artifacts",
   CHARTS: "charts",
-  EXECUTORS: "executors"
+  EXECUTORS: "executors",
 });
 
 const Tabs = ({ overviewTab, chartsTab, artifactsTab, executorsTab }) => {
@@ -15,23 +15,23 @@ const Tabs = ({ overviewTab, chartsTab, artifactsTab, executorsTab }) => {
     {
       title: TABS.OVERVIEW,
       dataTestId: "tab_overview",
-      node: overviewTab
+      node: overviewTab,
     },
     {
       title: TABS.CHARTS,
       dataTestId: "tab_charts",
-      node: chartsTab
+      node: chartsTab,
     },
     {
       title: TABS.ARTIFACTS,
       dataTestId: "tab_artifact",
-      node: artifactsTab
+      node: artifactsTab,
     },
     {
       title: TABS.EXECUTORS,
       dataTestId: "tab_executors",
-      node: executorsTab
-    }
+      node: executorsTab,
+    },
   ];
 
   return (
@@ -43,7 +43,7 @@ const Tabs = ({ overviewTab, chartsTab, artifactsTab, executorsTab }) => {
         activeTab,
         handleChange: (event, value) => {
           setActiveTab(value);
-        }
+        },
       }}
     />
   );

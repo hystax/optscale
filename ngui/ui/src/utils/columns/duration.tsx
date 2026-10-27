@@ -15,7 +15,7 @@ const duration = ({ headerMessageId, headerDataTestId, accessorKey, options = {}
 
     return durationInSeconds === 0 ? CELL_EMPTY_VALUE : <FormattedDuration durationInSeconds={durationInSeconds} />;
   },
-  ...options
+  ...options,
 });
 
 export default duration;

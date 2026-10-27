@@ -11,15 +11,15 @@ const useColorsRange = (thresholds) => {
 
   const getSuccessRange = (range) => ({
     range,
-    color: theme.palette.success.light
+    color: theme.palette.success.light,
   });
   const getWarningRange = (range) => ({
     range,
-    color: theme.palette.warning.light
+    color: theme.palette.warning.light,
   });
   const getErrorRange = (range) => ({
     range,
-    color: theme.palette.error.light
+    color: theme.palette.error.light,
   });
 
   const greenRange = [0, requiringAttention];

@@ -6,7 +6,7 @@ import {
   RECURRING_BUDGET_POLICY,
   QUOTA_POLICY,
   RESOURCE_COUNT_ANOMALY,
-  TAGGING_POLICY
+  TAGGING_POLICY,
 } from "utils/constants";
 import { getPercentageChangeModule } from "utils/math";
 
@@ -61,7 +61,7 @@ const getValue = (hitValue, constraintLimit, type) => {
           <FormattedMoney value={hitValue} />
         </>
       ),
-      [TAGGING_POLICY]: <FormattedNumber value={hitValue} maximumFractionDigits={MAXIMUM_FRACTION_DIGITS} />
+      [TAGGING_POLICY]: <FormattedNumber value={hitValue} maximumFractionDigits={MAXIMUM_FRACTION_DIGITS} />,
     }[type] ?? null
   );
 };

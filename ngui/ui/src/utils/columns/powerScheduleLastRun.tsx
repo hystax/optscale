@@ -15,7 +15,7 @@ const powerScheduleLastRun = ({
   accessorKey,
   headerDataTestId,
   headerMessageId,
-  cellDataAccessors: { lastRunError: lastRunErrorAccessor } = {}
+  cellDataAccessors: { lastRunError: lastRunErrorAccessor } = {},
 }) => ({
   id,
   accessorFn,
@@ -46,7 +46,7 @@ const powerScheduleLastRun = ({
                       </span>
                     </Tooltip>
                   </Typography>
-                )
+                ),
               }
             : undefined
         }
@@ -63,11 +63,11 @@ const powerScheduleLastRun = ({
         : formatIntervalTimeAgo({
             agoSecondsTimestamp: cellValue,
             precision: 1,
-            intlFormatter: intl
+            intlFormatter: intl,
           });
 
     return formattedCellValue.toLocaleLowerCase().includes(search);
-  }
+  },
 });
 
 export default powerScheduleLastRun;

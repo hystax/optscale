@@ -4,7 +4,7 @@ import QuestionMark from "components/QuestionMark";
 
 export const FIELD_NAMES = Object.freeze({
   ACCESS_KEY_ID: "awsAccessKeyId",
-  SECRET_ACCESS_KEY: "awsSecretAccessKey"
+  SECRET_ACCESS_KEY: "awsSecretAccessKey",
 });
 
 const AwsRootCredentials = () => (
@@ -18,11 +18,11 @@ const AwsRootCredentials = () => (
           <QuestionMark
             messageId="awsAccessKeyIdTooltip"
             messageValues={{
-              i: (chunks) => <i>{chunks}</i>
+              i: (chunks) => <i>{chunks}</i>,
             }}
             dataTestId="qmark_access_key"
           />
-        )
+        ),
       }}
       label={<FormattedMessage id="awsAccessKeyId" />}
       autoComplete="off"
@@ -37,11 +37,11 @@ const AwsRootCredentials = () => (
           <QuestionMark
             messageId="awsSecretAccessKeyTooltip"
             messageValues={{
-              i: (chunks) => <i>{chunks}</i>
+              i: (chunks) => <i>{chunks}</i>,
             }}
             dataTestId="qmark_secret_key"
           />
-        )
+        ),
       }}
       label={<FormattedMessage id="awsSecretAccessKey" />}
       autoComplete="off"

@@ -1,7 +1,7 @@
 export const BILLING_IMPORT_STATUS = Object.freeze({
   SUCCESS: "success",
   ERROR: "error",
-  UNKNOWN: "unknown"
+  UNKNOWN: "unknown",
 });
 
 export const getBillingImportStatus = ({ timestamp, attemptTimestamp, error }) => {

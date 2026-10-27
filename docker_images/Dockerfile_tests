@@ -1,7 +1,9 @@
 ARG BUILDTAG=build
 ARG IMAGE=
 FROM ${IMAGE}:${BUILDTAG}
+ARG PROJECT=
 LABEL org.opencontainers.image.authors="Hystax"
 
-COPY docker_images/test-requirements.txt docker_images/.pylintrc ./
-RUN pip install --no-cache-dir -r test-requirements.txt
+ENV PYTHONPATH=/usr/src/app
+COPY docker_images/.pylintrc ./
+RUN uv --project docker_images/${PROJECT} sync --locked

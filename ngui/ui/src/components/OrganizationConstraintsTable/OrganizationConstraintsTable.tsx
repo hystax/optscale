@@ -24,7 +24,7 @@ import {
   ANOMALY_TYPES,
   TAGGING_POLICY,
   EMPTY_UUID,
-  FORMATTED_MONEY_TYPES
+  FORMATTED_MONEY_TYPES,
 } from "utils/constants";
 import { EN_FULL_FORMAT, format, secondsToMilliseconds } from "utils/datetime";
 import { getResourcesLink } from "utils/organizationConstraints/getResourcesLink";
@@ -39,7 +39,7 @@ const buildDescription = ({ type, definition, formatter, rawString = false }) =>
         sentenceType: intl.formatMessage({ id: ANOMALY_TYPES[type] }).toLowerCase(),
         period,
         threshold,
-        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>),
       }
     );
   }
@@ -50,7 +50,7 @@ const buildDescription = ({ type, definition, formatter, rawString = false }) =>
       { id: "quotaPolicyDescription" },
       {
         value: maxValue,
-        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>),
       }
     );
   }
@@ -61,7 +61,7 @@ const buildDescription = ({ type, definition, formatter, rawString = false }) =>
       { id: "recurringBudgetPolicyDescription" },
       {
         budget: formatter(FORMATTED_MONEY_TYPES.COMMON, monthlyBudget),
-        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>),
       }
     );
   }
@@ -73,7 +73,7 @@ const buildDescription = ({ type, definition, formatter, rawString = false }) =>
       {
         budget: formatter(FORMATTED_MONEY_TYPES.COMMON, totalBudget),
         startDate: format(secondsToMilliseconds(startDate), EN_FULL_FORMAT),
-        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>),
       }
     );
   }
@@ -81,12 +81,12 @@ const buildDescription = ({ type, definition, formatter, rawString = false }) =>
   if (type === TAGGING_POLICY) {
     const {
       conditions: { tag: prohibitedTag, without_tag: requiredTag },
-      start_date: startDate
+      start_date: startDate,
     } = definition;
 
     const commonValues = {
       startDate: format(secondsToMilliseconds(startDate), EN_FULL_FORMAT),
-      strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+      strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>),
     };
 
     if (prohibitedTag === EMPTY_UUID) {
@@ -137,7 +137,7 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
                 displayedName: config.label,
                 displayedValue: config.renderPerspectiveItem(value, appliedFilters),
                 displayedNameString: config.labelString,
-                displayedValueString: config.renderPerspectiveItem(value, appliedFilters, { stringify: true })
+                displayedValueString: config.renderPerspectiveItem(value, appliedFilters, { stringify: true }),
               };
             });
           }
@@ -155,8 +155,8 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
                 displayedName: config.label,
                 displayedValue: config.renderPerspectiveItem({ from, to }),
                 displayedNameString: config.labelString,
-                displayedValueString: config.renderPerspectiveItem({ from, to })
-              }
+                displayedValueString: config.renderPerspectiveItem({ from, to }),
+              },
             ];
           }
 
@@ -170,8 +170,8 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
             type: constraint.type,
             definition: constraint.definition,
             formatter,
-            rawString: true
-          })
+            rawString: true,
+          }),
         };
       }),
     [constraints, formatter]
@@ -189,7 +189,7 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
         ),
         accessorKey: "descriptionForSearch",
         cell: ({ row: { original: { type, definition } = {} } }) => buildDescription({ type, definition, formatter }),
-        enableSorting: false
+        enableSorting: false,
       },
       {
         header: (
@@ -220,7 +220,7 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
               maxRows={5}
             />
           );
-        }
+        },
       },
       {
         header: (
@@ -240,11 +240,11 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
             }}
             tooltip={{
               show: true,
-              value: <FormattedMessage id="showResources" />
+              value: <FormattedMessage id="showResources" />,
             }}
           />
-        )
-      }
+        ),
+      },
     ],
     [formatter, navigate]
   );
@@ -265,10 +265,10 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
               variant: "contained",
               type: "button",
               link: addButtonLink,
-              dataTestId: "btn_add"
-            }
-          ]
-        }
+              dataTestId: "btn_add",
+            },
+          ],
+        },
       }}
       data={tableData}
       columns={columns}
@@ -276,7 +276,7 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
       dataTestIds={{
         searchInput: "input_search",
         searchButton: "btn_search",
-        deleteSearchButton: "btn_delete_search"
+        deleteSearchButton: "btn_delete_search",
       }}
       localization={{ emptyMessageId: "noPolicies" }}
       pageSize={50}

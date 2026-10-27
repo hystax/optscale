@@ -40,7 +40,7 @@ const useLineData = (breakdown = {}) => {
           id = BREAKDOWN_COUNT_KEY,
           name,
           purpose,
-          type
+          type,
         } = getResourceTypeBreakdownByDate(date, BREAKDOWN_COUNT_KEY);
 
         return {
@@ -53,11 +53,11 @@ const useLineData = (breakdown = {}) => {
             deletedDayBefore,
             name,
             purpose,
-            type
-          }
+            type,
+          },
         };
-      })
-    }
+      }),
+    },
   ];
 };
 
@@ -68,7 +68,7 @@ const TagsBreakdown = ({
   selectedTag,
   updateSelectedTag,
   isLoading = false,
-  isChartLoading = false
+  isChartLoading = false,
 }) => {
   const theme = useTheme();
 
@@ -77,7 +77,7 @@ const TagsBreakdown = ({
   const getChartHeader = (tag) => {
     const chartHeader = {
       null: <FormattedMessage id="untaggedResources" />,
-      undefined: <FormattedMessage id="allResources" />
+      undefined: <FormattedMessage id="allResources" />,
     };
     if (isChartLoading) {
       return <FormattedMessage id="loadingResourceData" />;

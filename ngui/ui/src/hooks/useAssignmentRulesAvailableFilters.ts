@@ -9,7 +9,7 @@ export const useAssignmentRulesAvailableFilters = () => {
 
     return {
       startDate: range.start,
-      endDate: range.end
+      endDate: range.end,
     };
   }, []);
 
@@ -21,6 +21,6 @@ export const useAssignmentRulesAvailableFilters = () => {
   return {
     isLoading,
     resourceTypes,
-    regions
+    regions,
   };
 };

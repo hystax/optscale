@@ -73,7 +73,7 @@ const TopResourcesView = ({ data }) => {
       resource_id: resourceId,
       shareable,
       cloud_account_id: cloudId,
-      cloud_account_name: cloudName
+      cloud_account_name: cloudName,
     } = original;
     return (
       <Tooltip
@@ -146,7 +146,7 @@ const TopResourcesExpensesCard = ({ cleanExpenses, isLoading = false }) => {
               icon={<ExitToAppOutlinedIcon />}
               tooltip={{
                 show: true,
-                messageId: "goToResources"
+                messageId: "goToResources",
               }}
               onClick={goToResources}
               isLoading={isLoading}
@@ -164,11 +164,11 @@ const TopResourcesExpensesCard = ({ cleanExpenses, isLoading = false }) => {
               }
               anchorOrigin={{
                 vertical: "bottom",
-                horizontal: "left"
+                horizontal: "left",
               }}
               transformOrigin={{
                 vertical: "top",
-                horizontal: "left"
+                horizontal: "left",
               }}
               menu={
                 <List sx={{ maxHeight: "300px" }}>
@@ -201,7 +201,7 @@ const TopResourcesExpensesCard = ({ cleanExpenses, isLoading = false }) => {
       dataTestIds={{
         wrapper: "block_top_resources",
         title: "lbl_top_resources",
-        titleCaption: "p_last_30_days"
+        titleCaption: "p_last_30_days",
       }}
       elevation={0}
     >

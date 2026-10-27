@@ -50,7 +50,7 @@ const Dashboard = () => {
     recommendationsCard: <RecommendationsCardContainer />,
     poolsRequiringAttentionCard: <PoolsRequiringAttentionCardContainer />,
     recentTasksCard: <RecentTasksCardContainer />,
-    recentModelsCard: <RecentModelsCardContainer />
+    recentModelsCard: <RecentModelsCardContainer />,
   };
 
   return (
@@ -65,7 +65,7 @@ const Dashboard = () => {
         dataTestIds={{
           title: "lbl_privacy_policy",
           paper: "window_privacy_policy",
-          button: "btn_proceed"
+          button: "btn_proceed",
         }}
         header={<FormattedMessage id="optScalePrivacyPolicy" />}
         message={
@@ -82,7 +82,7 @@ const Dashboard = () => {
               ul: (chunks) => <ul style={{ marginTop: 0 }}>{chunks}</ul>,
               li: (chunks) => <li>{chunks}</li>,
               strong: (chunks) => <strong>{chunks}</strong>,
-              br: <br />
+              br: <br />,
             }}
           />
         }

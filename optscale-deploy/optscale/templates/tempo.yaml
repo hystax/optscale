@@ -1,0 +1,112 @@
+{{- $config := .Values.tempo -}}
+{{- if .Values.tempo.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+  ports:
+    - name: tempo-query
+      port: {{ $config.service.externalQueryPort }}
+      targetPort: {{ $config.service.internalQueryPort }}
+      protocol: TCP
+    - name: otlp-grpc
+      port: {{ $config.service.externalGrpcPort }}
+      targetPort: {{ $config.service.internalGrpcPort }}
+      protocol: TCP
+    - name: otlp-http
+      port: {{ $config.service.externalHttpPort }}
+      targetPort: {{ $config.service.internalHttpPort }}
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_"}}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ $config.name }}
+          image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+          imagePullPolicy: {{ $config.image.pullPolicy }}
+          args:
+            - "-config.file=/etc/tempo/tempo.yaml"
+          ports:
+            - name: tempo-query
+              containerPort: {{ $config.service.internalQueryPort }}
+            - name: otlp-grpc
+              containerPort: {{ $config.service.internalGrpcPort }}
+            - name: otlp-http
+              containerPort: {{ $config.service.internalHttpPort }}
+          env:
+            - name: IMAGE_ID
+              value: "{{ $config.image.id }}"
+          volumeMounts:
+            - name: tempo-config
+              mountPath: /etc/tempo
+            - name: tempo-storage
+              mountPath: /var/tempo
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: tempo-storage
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo-config
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+data:
+  tempo.yaml: |
+    multitenancy_enabled: false
+    server:
+      http_listen_port: {{ $config.service.internalQueryPort }}
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: "0.0.0.0:{{ $config.service.internalGrpcPort }}"
+            http:
+              endpoint: "0.0.0.0:{{ $config.service.internalHttpPort }}"
+    ingester:
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+    storage:
+      trace:
+        backend: local
+        wal:
+          path: /var/tempo/wal
+        local:
+          path: /var/tempo/traces
+{{- end }}

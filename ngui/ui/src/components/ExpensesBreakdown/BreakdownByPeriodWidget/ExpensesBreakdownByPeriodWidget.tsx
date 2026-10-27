@@ -18,20 +18,20 @@ const breakdownLinearSelectorItems = [
     name: EXPENSES_SPLIT_PERIODS.DAILY,
     value: EXPENSES_SPLIT_PERIODS.DAILY,
     type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-    dataTestId: "breakdown_ls_item_daily"
+    dataTestId: "breakdown_ls_item_daily",
   },
   {
     name: EXPENSES_SPLIT_PERIODS.WEEKLY,
     value: EXPENSES_SPLIT_PERIODS.WEEKLY,
     type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-    dataTestId: "breakdown_ls_item_weekly"
+    dataTestId: "breakdown_ls_item_weekly",
   },
   {
     name: EXPENSES_SPLIT_PERIODS.MONTHLY,
     value: EXPENSES_SPLIT_PERIODS.MONTHLY,
     type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-    dataTestId: "breakdown_ls_item_monthly"
-  }
+    dataTestId: "breakdown_ls_item_monthly",
+  },
 ];
 
 // todo: unify with resources selector
@@ -64,7 +64,7 @@ const ExpensesBreakdownByPeriodWidget = ({ render }) => {
 
   useEffect(() => {
     updateSearchParams({
-      [PERIOD_TYPE_QUERY_PARAMETER_NAME]: periodType.value
+      [PERIOD_TYPE_QUERY_PARAMETER_NAME]: periodType.value,
     });
     dispatch(changePeriodType(periodType.value));
   }, [dispatch, periodType]);
@@ -88,9 +88,9 @@ const ExpensesBreakdownByPeriodWidget = ({ render }) => {
           text: {
             [EXPENSES_SPLIT_PERIODS.DAILY]: "dailyExpenses",
             [EXPENSES_SPLIT_PERIODS.WEEKLY]: "weeklyExpenses",
-            [EXPENSES_SPLIT_PERIODS.MONTHLY]: "monthlyExpenses"
+            [EXPENSES_SPLIT_PERIODS.MONTHLY]: "monthlyExpenses",
           }[periodType.value],
-          elementType: PDF_ELEMENTS.basics.H2
+          elementType: PDF_ELEMENTS.basics.H2,
         })}
       />
       {render(periodType.value)}

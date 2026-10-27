@@ -1,6 +1,18 @@
 packages:
-  - "ui"
-  - "server"
+  - ui
+  - server
+
+injectWorkspacePackages: true
+
 syncInjectedDepsAfterScripts:
   - build
-injectWorkspacePackages: true
+
+# 3 days in minutes
+# https://pnpm.io/settings#minimumreleaseage
+minimumReleaseAge: 4320
+
+# https://pnpm.io/settings#trustpolicy
+trustPolicy: no-downgrade
+
+# https://pnpm.io/settings#blockexoticsubdeps
+blockExoticSubdeps: true

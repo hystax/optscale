@@ -6,8 +6,8 @@ class SelectStageOrMilestoneModal extends BaseSideModal {
     messageId: "selectStageOrMilestone",
     dataTestIds: {
       title: "lbl_select_stage_or_milestone",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_select_stage_or_milestone";
@@ -19,7 +19,7 @@ class SelectStageOrMilestoneModal extends BaseSideModal {
       setSelectedSegment,
       secondsTimeRange,
       stages,
-      milestonesGroupedByTimeTuples
+      milestonesGroupedByTimeTuples,
     } = this.payload;
 
     return (

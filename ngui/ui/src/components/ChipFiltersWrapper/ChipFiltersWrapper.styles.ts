@@ -9,9 +9,9 @@ const useStyles = makeStyles()((theme) => {
       flexWrap: "wrap",
       margin: `-${gap} 0 0 -${gap}`,
       "& > *": {
-        margin: `${gap} 0 0 ${gap}`
-      }
-    }
+        margin: `${gap} 0 0 ${gap}`,
+      },
+    },
   };
 });
 

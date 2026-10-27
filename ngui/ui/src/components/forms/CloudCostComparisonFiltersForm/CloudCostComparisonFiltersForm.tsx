@@ -10,7 +10,7 @@ import {
   MinCpuField,
   MaxCpuField,
   MinRamField,
-  MaxRamField
+  MaxRamField,
 } from "./FormElements";
 import { CloudCostComparisonFiltersFormProps, FormValues } from "./types";
 import { getDefaultValues } from "./utils";
@@ -19,7 +19,7 @@ const CloudCostComparisonFiltersForm = ({ onSubmit, isLoading = false }: CloudCo
   const { currency } = useOrganizationInfo();
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues({ currency })
+    defaultValues: getDefaultValues({ currency }),
   });
 
   const { handleSubmit } = methods;

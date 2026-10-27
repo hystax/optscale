@@ -12,7 +12,7 @@ const VALUE_KEYS = Object.freeze({
   [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
   [THRESHOLD_INPUT_NAMES.DATA_SIZE_THRESHOLD]: "data_size_threshold",
   [THRESHOLD_INPUT_NAMES.TIER_1_REQUESTS_QUANTITY_THRESHOLD]: "tier_1_request_quantity_threshold",
-  [THRESHOLD_INPUT_NAMES.TIER_2_REQUESTS_QUANTITY_THRESHOLD]: "tier_2_request_quantity_threshold"
+  [THRESHOLD_INPUT_NAMES.TIER_2_REQUESTS_QUANTITY_THRESHOLD]: "tier_2_request_quantity_threshold",
 });
 
 const AbandonedS3BucketsForm = ({ recommendationType, onSuccess }) => {
@@ -27,7 +27,7 @@ const AbandonedS3BucketsForm = ({ recommendationType, onSuccess }) => {
     <FormProvider {...methods}>
       <form noValidate onSubmit={submitHandler}>
         <TextWithInlineInput
-          messageId={"thresholds.abandonedS3Buckets.intro"}
+          messageId="thresholds.abandonedS3Buckets.intro"
           isLoading={isGetDataLoading}
           lessOrEqualValidation={lessOrEqual(COMMON_YEAR_LENGTH)}
           name={THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD}
@@ -72,8 +72,8 @@ class AbandonedS3BucketsModal extends BaseSideModal {
     messageId: "abandonedS3Buckets",
     dataTestIds: {
       title: "lbl_abandoned_s3_buckets_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_abandoned_s3_buckets";

@@ -6,8 +6,8 @@ class ApplyResourcePerspectiveModal extends BaseSideModal {
     messageId: "perspectivesTitle",
     dataTestIds: {
       title: "lbl_perspectives",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_perspective";

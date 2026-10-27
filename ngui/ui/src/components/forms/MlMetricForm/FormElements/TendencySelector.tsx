@@ -22,12 +22,12 @@ const TendencySelector = ({ isLoading = false }) => {
       items={[
         {
           value: GOALS_FILTER_TYPES.LESS_IS_BETTER,
-          content: <ItemContent>{intl.formatMessage({ id: "lessIsBetter" })}</ItemContent>
+          content: <ItemContent>{intl.formatMessage({ id: "lessIsBetter" })}</ItemContent>,
         },
         {
           value: GOALS_FILTER_TYPES.MORE_IS_BETTER,
-          content: <ItemContent>{intl.formatMessage({ id: "moreIsBetter" })}</ItemContent>
-        }
+          content: <ItemContent>{intl.formatMessage({ id: "moreIsBetter" })}</ItemContent>,
+        },
       ]}
     />
   );

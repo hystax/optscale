@@ -12,7 +12,7 @@ const MaxCpuField = () => {
   const {
     formState: { isSubmitted },
     watch,
-    trigger
+    trigger,
   } = useFormContext();
 
   const intl = useIntl();
@@ -40,9 +40,9 @@ const MaxCpuField = () => {
                 { id: "fieldMoreThanOrEqualToField" },
                 {
                   fieldName1: intl.formatMessage({ id: "maxCpu" }),
-                  fieldName2: intl.formatMessage({ id: "minCpu" })
+                  fieldName2: intl.formatMessage({ id: "minCpu" }),
                 }
-              )
+              ),
       }}
     />
   );

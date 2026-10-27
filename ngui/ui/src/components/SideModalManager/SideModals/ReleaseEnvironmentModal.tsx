@@ -6,8 +6,8 @@ class ReleaseEnvironmentModal extends BaseSideModal {
     messageId: "releaseBookingTitle",
     dataTestIds: {
       title: "lbl_release_booking",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_release_booking";

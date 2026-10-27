@@ -48,11 +48,11 @@ const SpotInstanceFields = () => {
             <QuestionMark
               messageId="maxAttemptsTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_max_attempts"
             />
-          )
+          ),
         }}
       />
       <NumberInput
@@ -67,7 +67,7 @@ const SpotInstanceFields = () => {
                     return true;
                   }
                   return positiveInteger(value);
-                }
+                },
               }
             : undefined
         }

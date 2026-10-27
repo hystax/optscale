@@ -16,9 +16,9 @@ const DataSourceNodes = ({ cloudAccountId, costModel = {}, nodes, isLoading = fa
         action: () => openSideModal(UpdateCostModelModal, { cloudAccountId, costModel }),
         type: "button",
         requiredActions: ["MANAGE_CLOUD_CREDENTIALS"],
-        dataTestId: "btn_update_cost_model"
-      }
-    ]
+        dataTestId: "btn_update_cost_model",
+      },
+    ],
   };
 
   return (
@@ -27,7 +27,7 @@ const DataSourceNodes = ({ cloudAccountId, costModel = {}, nodes, isLoading = fa
       isLoading={isLoading}
       actionBar={{
         show: true,
-        definition: actionBarDefinition
+        definition: actionBarDefinition,
       }}
     />
   );

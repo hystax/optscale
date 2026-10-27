@@ -20,7 +20,8 @@ from rest_api.rest_api_server.controllers.base import (
 
 from tools.cloud_adapter.cloud import Cloud as CloudAdapter
 from tools.optscale_data.clickhouse import ExternalDataConverter
-from tools.optscale_time import utcfromtimestamp, utcnow
+from tools.optscale_data.expenses import ExpenseQuery
+from tools.optscale_time import utcfromtimestamp
 
 LOG = logging.getLogger(__name__)
 NOT_SET_NAME = '(not set)'
@@ -32,6 +33,16 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
     def __init__(self, config=None):
         super().__init__()
         self._config = config
+        self._query = None
+
+    @property
+    def query(self) -> ExpenseQuery:
+        if self._query is None:
+            self._query = ExpenseQuery(
+                execute_clickhouse=self.execute_clickhouse,
+                resources_collection=self.resources_collection,
+            )
+        return self._query
 
     def get_expenses_for_pools(self, start_date, end_date, pool_ids):
         return self.get_expenses(
@@ -68,12 +79,16 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
             'deleted_at': 0
         }, resource_fields)
 
-        external_resource_table = [{
-            '_id': x['_id'],
-            'cloud_account_id': x['cloud_account_id'],
-            'group_field': x.get(resource_field_mappings.get(
-                group_by, group_by))
-        } for x in resource_results if x.get('cloud_account_id')]
+        cloud_account_ids, external_resource_table = set(), []
+        for x in resource_results:
+            cloud_account_id = x.get('cloud_account_id')
+            if cloud_account_id:
+                cloud_account_ids.add(cloud_account_id)
+            external_resource_table.append({
+                '_id': x['_id'],
+                'group_field': x.get(resource_field_mappings.get(
+                    group_by, group_by))
+            })
         expenses_results = self.execute_clickhouse(
             query="""
                 SELECT
@@ -81,8 +96,8 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
                     SUM(cost * sign) AS total_cost
                 FROM expenses
                 JOIN resources ON expenses.resource_id = resources._id
-                    AND expenses.cloud_account_id = resources.cloud_account_id
-                WHERE date >= %(start_date)s
+                WHERE cloud_account_id IN %(cloud_account_ids)s
+                    AND date >= %(start_date)s
                     AND date <= %(end_date)s
                 GROUP BY date, group_field, cloud_account_id
                 HAVING SUM(sign) > 0
@@ -91,12 +106,12 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
             parameters={
                 'start_date': start_date,
                 'end_date': end_date,
+                'cloud_account_ids': list(cloud_account_ids),
             },
             external_data=ExternalDataConverter()([{
                 'name': 'resources',
                 'structure': [
                     ('_id', 'String'),
-                    ('cloud_account_id', 'String'),
                     ('group_field', 'Nullable(String)'),
                 ],
                 'data': external_resource_table
@@ -114,132 +129,15 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
 
     def get_cloud_expenses_with_resource_info(self, cloud_acc_list, start_date,
                                               end_date):
-        pipeline = [
-            {
-                '$match': {
-                    '$and': [
-                        {'cloud_account_id': {'$in': cloud_acc_list}},
-                        {'_first_seen_date': {'$lt': end_date}},
-                        {'_last_seen_date': {'$gte': start_date.replace(
-                            hour=0, minute=0, second=0, microsecond=0)}},
-                        {'first_seen': {'$lt': int(end_date.timestamp())}},
-                        {'last_seen': {'$gte': int(start_date.timestamp())}},
-                        {'deleted_at': 0}
-                    ]
-                }
-            },
-            {
-                '$group': {
-                    '_id': '$cloud_account_id',
-                    'count': {'$sum': 1}
-                }
-            }
-        ]
-        resource_counts = list(self.resources_collection.aggregate(pipeline))
-        query = """
-            SELECT cloud_account_id, SUM(cost * sign), count
-            FROM expenses
-            JOIN cloud_accounts
-                ON expenses.cloud_account_id = cloud_accounts._id
-            WHERE date >= %(start_date)s AND date < %(end_date)s
-            GROUP BY cloud_account_id, count
-        """
-        return self.execute_clickhouse(
-            query=query,
-            parameters={
-                'start_date': start_date,
-                'end_date': end_date
-            },
-            external_data=ExternalDataConverter()([{
-                'name': 'cloud_accounts',
-                'structure': [
-                    ('_id', 'String'),
-                    ('count', 'Int32')
-                ],
-                'data': resource_counts
-            }]),
+        return self.query.get_cloud_expenses_with_resource_info(
+            cloud_acc_list, start_date, end_date
         )
 
     def get_monthly_forecast(self, cost, month_cost, first_expense=None):
-        today = datetime.today()
-        month_start = today.replace(
-            day=1, hour=0, minute=0, second=0, microsecond=0)
-        last_month_start = (month_start - timedelta(days=1)).replace(day=1)
-        start_date = max(last_month_start, first_expense) if (
-            first_expense) else last_month_start
-        worked_days = (today - month_start).days
-        forecast_days = (today - start_date).days
-        daily_forecast = cost / forecast_days if forecast_days > 0 else cost
-        _, days_in_month = monthrange(today.year, today.month)
-        forecast = month_cost + daily_forecast * (days_in_month - worked_days)
-        return round(forecast, 2)
-
-    def _get_first_cloud_account_expense(self, cloud_account_ids, date,
-                                         field=None, values=None):
-        if (field and not values) or not cloud_account_ids:
-            return []
-        if field and re.search(r'[^_A-Za-z0-9]', field):
-            raise ValueError('Suspected SQL injection ')
-        query = f"""
-            SELECT {field if field else 'cloud_account_id'}, min(date)
-            FROM expenses
-            WHERE cloud_account_id
-                IN cloud_account_ids{' AND %s IN values' %
-                                     field if field else ''}
-                AND date >= %(date)s
-            GROUP BY cloud_account_id{', %s' % field if field else ''}
-        """
-        external_tables = [
-            {
-                'name': 'cloud_account_ids',
-                'structure': [('id', 'String')],
-                'data': [{'id': r_id} for r_id in cloud_account_ids]
-            }
-        ]
-        if values:
-            external_tables.append({
-                'name': 'values',
-                'structure': [('id', 'String')],
-                'data': [{'id': r_id} for r_id in values]
-            })
-        return self.execute_clickhouse(
-            query=query,
-            parameters={
-                'date': date
-            },
-            external_data=ExternalDataConverter()(external_tables)
-        )
+        return self.query.get_monthly_forecast(cost, month_cost, first_expense)
 
     def get_first_expenses_for_forecast(self, field, values):
-        prev_month_start = (utcnow().replace(day=1) - timedelta(
-            days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        if field in ['cloud_account_id']:
-            result = self._get_first_cloud_account_expense(
-                values, prev_month_start)
-        else:
-            # TODO: Not the optimal solution to get expenses dates.
-            #  We can get all the necessary dates at the time of receiving the
-            #  expenses for the previous month
-            resources = list(self.resources_collection.find(
-                {field: {'$in': values}, 'cloud_account_id': {'$ne': None}},
-                ['cloud_account_id', field]))
-            r_ids = list(map(lambda x: x['_id'], resources))
-            cloud_account_ids = set(
-                map(lambda x: x.get('cloud_account_id'), resources))
-            expenses = self._get_first_cloud_account_expense(
-                list(cloud_account_ids), prev_month_start, 'resource_id',
-                r_ids)
-            expenses_map = {e[0]: e[1] for e in expenses}
-            result = {}
-            for resource in resources:
-                value = resource.get(field)
-                date = expenses_map.get(resource['_id'])
-                if not date:
-                    continue
-                if value not in result or result[value] > date:
-                    result[value] = date
-            result = [(k, v) for k, v in result.items()]
-        return {r[0]: r[1] for r in result}
+        return self.query.get_first_expenses_for_forecast(field, values)
 
     def get_raw_expenses(self, start_date, end_date, filters):
         match_filters = [{'start_date': {'$lt': end_date}}]
@@ -1151,21 +1049,17 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
         for cloud_account_id in cloud_account_ids:
             # dict is unhashable so collect via dict
             if cloud_account_id == nil_uuid:
-                main_filters[True] = {'$and': [
-                    {'organization_id': organization_id},
-                    {'cloud_account_id': None}
-                ]}
+                main_filters[True] = {
+                    'organization_id': organization_id,
+                    'cloud_account_id': None
+                }
             else:
                 main_filters[False] = {
                     'cloud_account_id': {'$in': cloud_account_ids}
                 }
-
-        query = {
-            '$and': [
-                {'$or': list(main_filters.values())},
-                {'deleted_at': 0}
-            ]
-        }
+        filters: list[dict] = [
+            {'deleted_at': 0}
+        ]
         first_seen_lte = data_filters.get('first_seen_lte')
         if first_seen_lte is not None:
             end_date = min(end_date, first_seen_lte)
@@ -1192,12 +1086,11 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
             seen_filters['_last_seen_date'].update({
                 '$lte': timestamp_to_day_start(last_seen_lte)
             })
-        query['$and'].append(seen_filters)
-
+        filters.append(seen_filters)
         resource_type_condition = self.get_resource_type_condition(
             params.pop('resource_type', []))
         if resource_type_condition:
-            query['$and'].append({'$or': resource_type_condition})
+            filters.append({'$or': resource_type_condition})
 
         for filter_name in ['tag', 'without_tag']:
             tag_params = params.pop(filter_name, None)
@@ -1211,13 +1104,13 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
                     else:
                         tag_filter.append(
                             {'tags.%s' % v: {'$exists': filled_cond}})
-                query['$and'].append({'$or': tag_filter})
+                filters.append({'$or': tag_filter})
         meta_filters = params.pop('meta', None)
         if meta_filters:
             meta_vals = []
             for v in meta_filters:
                 meta_vals.append({f'meta.{v}': {'$exists': True}})
-            query['$and'].append({'$or': meta_vals})
+            filters.append({'$or': meta_vals})
 
         for regex_key, query_key in {
             'name_like': 'name',
@@ -1226,7 +1119,7 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
             regex_val = params.pop(regex_key, None)
             if regex_val:
                 query_val = self._transform_regex(regex_val)
-                query['$and'].append({
+                filters.append({
                     query_key: {'$regex': query_val, '$options': 'i'}
                 })
 
@@ -1234,7 +1127,7 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
             for n, filter_value in enumerate(filter_values):
                 if filter_value == nil_uuid:
                     filter_values[n] = None
-            query['$and'].append({filter_key: {'$in': filter_values}})
+            filters.append({filter_key: {'$in': filter_values}})
 
         for string_field in [
             'service_name', 'created_by_kind', 'created_by_name',
@@ -1242,7 +1135,7 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
         ]:
             name_set = data_filters.get(string_field)
             if name_set is not None:
-                query['$and'].append(
+                filters.append(
                     {string_field: {'$in': list(set(name_set))}})
 
         for bool_field in ['active', 'constraint_violated']:
@@ -1252,7 +1145,7 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
                 for value in bool_value:
                     value = {'$ne': True} if value is False else value
                     bool_cond['$or'].append({bool_field: value})
-                query['$and'].append(bool_cond)
+                filters.append(bool_cond)
 
         recommend_filter = data_filters.get('recommendations')
         if recommend_filter is not None:
@@ -1268,7 +1161,8 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
                         {'recommendations': None},
                         {'recommendations.run_timestamp': {'$lt': last_run}}
                     ]})
-            query['$and'].append(recommend_cond)
+            filters.append(recommend_cond)
+        query = {'$or': [{'$and': [v, *filters]} for v in main_filters.values()]}
         return query
 
     def get_resources_data(self, organization_id, query_filters, data_filters,
@@ -2092,7 +1986,7 @@ class RegionExpenseController(FilteredFormattedExpenseController,
             if cloud_type in scanned:
                 continue
             adapter = CloudAdapter.get_adapter(cloud_config)
-            regions = adapter.get_regions_coordinates()
+            regions = adapter.get_regions_coordinates(load=False)
             for region_id, info in regions.items():
                 res.update(self._generate_info_map_element(
                     region_id, info, cloud_type

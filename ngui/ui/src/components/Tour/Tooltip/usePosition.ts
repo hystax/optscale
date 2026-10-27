@@ -10,7 +10,7 @@ import { isEmptyObject } from "utils/objects";
 const getUpdateTooltipRectCoordinates = (tooltipRect, coordinates) => ({
   width: tooltipRect.width,
   height: tooltipRect.height,
-  ...coordinates
+  ...coordinates,
 });
 
 // this is gap between element and tooltip or tooltip and screen border

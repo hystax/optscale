@@ -10,9 +10,9 @@ const CloudAccountDetailsContainer = ({ cloudAccountId }: CloudAccountDetailsCon
     variables: {
       dataSourceId: cloudAccountId,
       requestParams: {
-        details: true
-      }
-    }
+        details: true,
+      },
+    },
   });
 
   return <CloudAccountDetails data={data?.dataSource} isLoading={loading} />;

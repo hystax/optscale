@@ -7,7 +7,7 @@ const EditModelVersionTagsForm = ({ tags, onSubmit, onCancel, isLoadingProps }: 
   const { isSubmitLoading = false } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues(tags)
+    defaultValues: getDefaultValues(tags),
   });
 
   const { handleSubmit } = methods;

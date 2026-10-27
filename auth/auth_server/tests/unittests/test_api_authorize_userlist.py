@@ -20,7 +20,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
         self.customer3_scope_id = 'c39e4f59-e2a0-4199-80b2-fa688b53598a'
         self.group3_scope_id = '4c6a6953-1c31-402d-b864-99790badd361'
         self.hierarchy = (
-            {'root': {'null': {'partner': {
+            {'partner': {
                 self.partner_scope_id:
                     {'customer': {
                         self.customer1_scope_id:
@@ -36,7 +36,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
                         self.customer3_scope_id:
                             {'group': [self.group3_scope_id]
                              }
-                    }}}}}})
+                    }}}})
         self.admin_user_password = 'password!'
         self.admin_user = self.create_root_user(
             password=self.admin_user_password)

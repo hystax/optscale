@@ -1,0 +1,23 @@
+[project]
+name = "optscale-types"
+version = "0.0.0"
+description = "OptScale Types"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "requests==2.32.4",
+    "sqlalchemy==1.3.24",
+    "optscale-exceptions",
+    "netaddr==0.7.19",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["tools.optscale_types*"]
+namespaces = true
+
+[tool.uv.sources]
+optscale-exceptions = { path = "../optscale_exceptions", editable = true }

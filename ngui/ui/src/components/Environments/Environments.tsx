@@ -52,7 +52,7 @@ const ButtonsGroupWithLabel = ({ labelId, buttons, activeButtonIndex, isMobile }
 
 const ENVIRONMENTS_VIEWS = Object.freeze({
   TABLE: "table",
-  CALENDAR: "calendar"
+  CALENDAR: "calendar",
 });
 
 const ENVIRONMENTS_VIEW_QUERY_PARAMETER = "view";
@@ -65,7 +65,7 @@ const Environments = ({
   onUpdateActivity,
   entityId,
   isLoadingProps = {},
-  startEnvironmentsTour
+  startEnvironmentsTour,
 }) => {
   const isMobile = useIsDownMediaQuery("sm");
   const isTourAvailableForCurrentBreakpoint = useIsTourAvailableForCurrentBreakpoint();
@@ -75,7 +75,7 @@ const Environments = ({
     title: {
       messageId: "environments",
       dataTestId: "lbl_environments",
-      dataProductTourId: ENVIRONMENTS_TOUR_IDS.HEADER
+      dataProductTourId: ENVIRONMENTS_TOUR_IDS.HEADER,
     },
     items: [
       {
@@ -84,18 +84,18 @@ const Environments = ({
         action: startEnvironmentsTour,
         tooltip: {
           show: true,
-          value: <FormattedMessage id="startTour" values={{ value: <FormattedMessage id="environments" /> }} />
+          value: <FormattedMessage id="startTour" values={{ value: <FormattedMessage id="environments" /> }} />,
         },
         show: isTourAvailableForCurrentBreakpoint,
-        type: "iconButton"
-      }
-    ]
+        type: "iconButton",
+      },
+    ],
   };
 
   const {
     [ENVIRONMENTS_STATUS_QUERY_PARAMETER]: filterByStatusQuery,
     [ENVIRONMENTS_ACCESS_QUERY_PARAMETER]: accessGrantedQuery,
-    [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: view
+    [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: view,
   } = getSearchParams();
 
   const [showAccessGranted, setShowAccessGranted] = useState(() => accessGrantedQuery ?? true);
@@ -114,7 +114,7 @@ const Environments = ({
     updateSearchParams({
       [ENVIRONMENTS_STATUS_QUERY_PARAMETER]: activeStatusFilter,
       [ENVIRONMENTS_ACCESS_QUERY_PARAMETER]: showAccessGranted,
-      [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: activeViewFilter
+      [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: activeViewFilter,
     });
   }, [activeStatusFilter, activeViewFilter, showAccessGranted]);
 
@@ -127,7 +127,7 @@ const Environments = ({
   const environmentsWithBookingPermissionIds = useFilterByPermissions({
     entitiesIds: environments.map(({ id }) => id),
     entitiesType: SCOPE_TYPES.RESOURCE,
-    permissions: ["BOOK_ENVIRONMENTS"]
+    permissions: ["BOOK_ENVIRONMENTS"],
   });
 
   const filteredEnvironments = useMemo(() => {
@@ -143,7 +143,7 @@ const Environments = ({
           ({
             [ENVIRONMENTS_STATUS_FILTERS.UNAVAILABLE]: !environment.active,
             [ENVIRONMENTS_STATUS_FILTERS.AVAILABLE]: environment.active && !getActiveBooking(environment, nowSecondsTimestamp),
-            [ENVIRONMENTS_STATUS_FILTERS.IN_USE]: environment.active && !!getActiveBooking(environment, nowSecondsTimestamp)
+            [ENVIRONMENTS_STATUS_FILTERS.IN_USE]: environment.active && !!getActiveBooking(environment, nowSecondsTimestamp),
           })[activeStatusFilter] ?? true
       )
       .filter((environment) => (showAccessGranted ? environmentsWithBookingPermissionIds.includes(environment.id) : true));
@@ -155,7 +155,7 @@ const Environments = ({
     id: filter,
     messageId: filter,
     action: () => setActiveViewFilter(filter),
-    dataTestId: `filter_${filter}_access`
+    dataTestId: `filter_${filter}_access`,
   }));
 
   const activeViewIndex = viewButtonsGroup.findIndex((button) => button.id === activeViewFilter);
@@ -242,7 +242,7 @@ const Environments = ({
           position="bottom"
           alertProps={{
             messageId: "environmentsDescription",
-            messageDataTestId: "p_environments_list"
+            messageDataTestId: "p_environments_list",
           }}
         />
       </PageContentWrapper>

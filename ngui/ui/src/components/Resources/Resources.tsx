@@ -24,7 +24,7 @@ import {
   DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME,
   getResourcesExpensesUrl,
   RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME,
-  RESOURCES_PERSPECTIVE_PARAMETER_NAME
+  RESOURCES_PERSPECTIVE_PARAMETER_NAME,
 } from "urls";
 import { CLEAN_EXPENSES_BREAKDOWN_TYPES, DATE_RANGE_TYPE } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
@@ -46,8 +46,8 @@ const SelectedPerspectiveTitle = ({ perspectiveName }) => {
     window.location.origin,
     getResourcesExpensesUrl({
       [RESOURCES_PERSPECTIVE_PARAMETER_NAME]: perspectiveName,
-      organizationId
-    })
+      organizationId,
+    }),
   ].join("");
 
   const isPerspectiveNameLong = perspectiveName.length > MAX_PERSPECTIVE_NAME_LENGTH;
@@ -66,7 +66,7 @@ const SelectedPerspectiveTitle = ({ perspectiveName }) => {
                   : perspectiveName}
               </span>
             </Tooltip>
-          )
+          ),
         }}
       />
     </CopyText>
@@ -86,7 +86,7 @@ const Resources = ({
   appliedFilters,
   onAppliedFiltersChange,
   isFilterValuesLoading = false,
-  onBreakdownChange
+  onBreakdownChange,
 }) => {
   const openSideModal = useOpenSideModal();
 
@@ -101,7 +101,7 @@ const Resources = ({
       ) : (
         intl.formatMessage({ id: "resources" })
       ),
-      dataTestId: "lbl_resources"
+      dataTestId: "lbl_resources",
     },
     items: [
       ...(isEmptyObject(perspectives)
@@ -116,10 +116,10 @@ const Resources = ({
                 openSideModal(ApplyResourcePerspectiveModal, {
                   perspectives,
                   appliedPerspectiveName: selectedPerspectiveName,
-                  onApply: onPerspectiveApply
+                  onApply: onPerspectiveApply,
                 });
-              }
-            }
+              },
+            },
           ]),
       {
         key: "savePerspectiveTitle",
@@ -136,20 +136,20 @@ const Resources = ({
                 breakdownBy: searchParams[DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME],
                 groupBy: {
                   groupBy: searchParams.groupBy,
-                  groupType: searchParams.groupType
-                }
+                  groupType: searchParams.groupType,
+                },
               };
             }
 
             if (activeBreakdown === CLEAN_EXPENSES_BREAKDOWN_TYPES.RESOURCE_COUNT) {
               return {
-                breakdownBy: searchParams[DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME]
+                breakdownBy: searchParams[DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME],
               };
             }
 
             if (activeBreakdown === CLEAN_EXPENSES_BREAKDOWN_TYPES.META) {
               return {
-                breakdownBy: searchParams[DAILY_META_BREAKDOWN_BY_PARAMETER_NAME]
+                breakdownBy: searchParams[DAILY_META_BREAKDOWN_BY_PARAMETER_NAME],
               };
             }
 
@@ -160,11 +160,11 @@ const Resources = ({
             breakdownBy: activeBreakdown,
             breakdownData: getBreakdownData(),
             filterValues,
-            appliedFilters
+            appliedFilters,
           });
         },
         requiredActions: ["EDIT_PARTNER"],
-        dataTestId: "btn_create_perspective"
+        dataTestId: "btn_create_perspective",
       },
       {
         key: "configureClusterTypes",
@@ -172,32 +172,32 @@ const Resources = ({
         messageId: "configureClusterTypes",
         type: "button",
         link: CLUSTER_TYPES,
-        dataTestId: "btn_configure_cluster_types"
-      }
-    ]
+        dataTestId: "btn_configure_cluster_types",
+      },
+    ],
   };
 
   const tabs = [
     {
       title: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
       dataTestId: "tab_expenses",
-      node: <CleanExpensesBreakdownContainer requestParams={requestParams} />
+      node: <CleanExpensesBreakdownContainer requestParams={requestParams} />,
     },
     {
       title: CLEAN_EXPENSES_BREAKDOWN_TYPES.RESOURCE_COUNT,
       dataTestId: "tab_counts",
-      node: <ResourceCountBreakdownContainer requestParams={requestParams} />
+      node: <ResourceCountBreakdownContainer requestParams={requestParams} />,
     },
     {
       title: CLEAN_EXPENSES_BREAKDOWN_TYPES.TAGS,
       dataTestId: "tab_tags",
-      node: <TagsBreakdownContainer requestParams={requestParams} />
+      node: <TagsBreakdownContainer requestParams={requestParams} />,
     },
     {
       title: CLEAN_EXPENSES_BREAKDOWN_TYPES.META,
       dataTestId: "tab_meta",
-      node: <MetaTab requestParams={requestParams} />
-    }
+      node: <MetaTab requestParams={requestParams} />,
+    },
   ];
 
   return (
@@ -234,7 +234,7 @@ const Resources = ({
                 },
                 queryTabName: RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME,
                 defaultTab: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
-                name: "resource-breakdowns"
+                name: "resource-breakdowns",
               }}
             />
           </Box>

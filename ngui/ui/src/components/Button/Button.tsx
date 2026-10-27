@@ -73,7 +73,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       value = "",
       messageId: tooltipMessageId = "",
       body,
-      placement = "bottom"
+      placement = "bottom",
     } = tooltip || {};
 
     const buttonClasses = cx(

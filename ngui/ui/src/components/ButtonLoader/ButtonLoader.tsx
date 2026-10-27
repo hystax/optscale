@@ -34,7 +34,7 @@ const ButtonLoader = ({
     primary: classes.primaryCircularProgressColor,
     success: classes.successCircularProgressColor,
     error: classes.errorCircularProgressColor,
-    info: classes.infoCircularProgressColor
+    info: classes.infoCircularProgressColor,
   };
 
   return (

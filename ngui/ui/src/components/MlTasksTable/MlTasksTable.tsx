@@ -24,7 +24,7 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
   const columns = useMemo(
     () => [
       mlTaskName({
-        enableHiding: false
+        enableHiding: false,
       }),
       {
         header: (
@@ -34,7 +34,7 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
         ),
         accessorKey: "key",
         enableHiding: false,
-        cell: ({ cell }) => cell.getValue()
+        cell: ({ cell }) => cell.getValue(),
       },
       {
         header: (
@@ -47,15 +47,15 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
         columnSelector: {
           accessor: "owner",
           messageId: "owner",
-          dataTestId: "btn_toggle_column_owner"
-        }
+          dataTestId: "btn_toggle_column_owner",
+        },
       },
       mlTaskLastRun({
         columnSelector: {
           accessor: "lastRun",
           messageId: "lastRun",
-          dataTestId: "btn_toggle_column_last_run"
-        }
+          dataTestId: "btn_toggle_column_last_run",
+        },
       }),
       duration({
         headerMessageId: "lastRunDuration",
@@ -65,9 +65,9 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
           columnSelector: {
             accessor: "lastRunDuration",
             messageId: "lastRunDuration",
-            dataTestId: "btn_toggle_column_last_run_durations"
-          }
-        }
+            dataTestId: "btn_toggle_column_last_run_durations",
+          },
+        },
       }),
       metrics({
         accessorKey: "last_run_reached_goals",
@@ -77,8 +77,8 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
         columnSelector: {
           accessor: "metrics",
           messageId: "metrics",
-          dataTestId: "btn_toggle_column_metrics"
-        }
+          dataTestId: "btn_toggle_column_metrics",
+        },
       }),
       ...(isFinOpsEnabled
         ? [
@@ -92,22 +92,22 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
               columnSelector: {
                 accessor: "expenses",
                 messageId: "expenses",
-                dataTestId: "btn_toggle_column_expenses"
+                dataTestId: "btn_toggle_column_expenses",
               },
               cell: ({
                 row: {
-                  original: { total_cost: total, last_30_days_cost: last30DaysCost, last_run_cost: lastRunCost }
-                }
+                  original: { total_cost: total, last_30_days_cost: last30DaysCost, last_run_cost: lastRunCost },
+                },
               }) => (
                 <>
                   <KeyValueLabel keyMessageId="lastRun" value={<FormattedMoney value={lastRunCost} />} />
                   <KeyValueLabel keyMessageId="total" value={<FormattedMoney value={total} />} />
                   <KeyValueLabel keyMessageId="last30Days" value={<FormattedMoney value={last30DaysCost} />} />
                 </>
-              )
-            }
+              ),
+            },
           ]
-        : [])
+        : []),
     ],
     [isFinOpsEnabled, metricsKeyNameEntries, sortByMetricKey]
   );
@@ -127,10 +127,10 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
           type: "button",
           dataTestId: "btn-create-task",
           link: ML_TASK_CREATE,
-          requiredActions: ["EDIT_PARTNER"]
-        }
-      ]
-    }
+          requiredActions: ["EDIT_PARTNER"],
+        },
+      ],
+    },
   };
 
   return (
@@ -146,7 +146,7 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
             actionBar={tableActionBarDefinition}
             withSearch
             localization={{
-              emptyMessageId: "noTasks"
+              emptyMessageId: "noTasks",
             }}
             columnsSelectorUID="mlTasksTable"
             pageSize={50}

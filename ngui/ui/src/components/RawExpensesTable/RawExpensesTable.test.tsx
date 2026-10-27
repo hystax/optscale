@@ -10,8 +10,8 @@ it("renders without crashing", () => {
     <TestProvider
       state={{
         [COLUMNS]: {
-          [RAW_EXPENSES]: []
-        }
+          [RAW_EXPENSES]: [],
+        },
       }}
     >
       <RawExpensesTable expenses={[]} />

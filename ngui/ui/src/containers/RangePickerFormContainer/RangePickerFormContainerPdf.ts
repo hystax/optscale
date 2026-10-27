@@ -19,8 +19,8 @@ class RangePickerFormContainerPdf extends PDFAble {
       {
         type: TYPES.text,
         value: wholeMsg,
-        fileNameData: { pdfId: this.props.pdfId, value: `${fromForFileName}_${toForFileName}` } // render for filename
-      }
+        fileNameData: { pdfId: this.props.pdfId, value: `${fromForFileName}_${toForFileName}` }, // render for filename
+      },
     ];
   };
 }

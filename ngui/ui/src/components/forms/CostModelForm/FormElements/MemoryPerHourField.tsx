@@ -18,12 +18,12 @@ const MemoryPerHourField = () => {
       label={<FormattedMessage id="memoryPerHour" />}
       required
       InputProps={{
-        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>
+        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
       }}
       min={0}
       validate={{
         positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumber" })),
-        fractionDigits: costModelValueMaxFractionDigitsValidation
+        fractionDigits: costModelValueMaxFractionDigitsValidation,
       }}
       dataTestId="input_memory"
     />

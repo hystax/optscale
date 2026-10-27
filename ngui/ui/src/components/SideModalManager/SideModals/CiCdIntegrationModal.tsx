@@ -6,8 +6,8 @@ class CiCdIntegrationModal extends BaseSideModal {
     messageId: "cicdIntegrationTitle",
     dataTestIds: {
       title: "lbl_assign",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_cicdintegration";

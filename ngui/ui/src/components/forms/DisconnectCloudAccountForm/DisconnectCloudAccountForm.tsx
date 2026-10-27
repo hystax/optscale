@@ -16,7 +16,7 @@ const DisconnectCloudAccountForm = ({
   onSubmit,
   onCancel,
   isLoading = false,
-  isLastDataSource = false
+  isLastDataSource = false,
 }: DisconnectCloudAccountFormProps) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
@@ -36,7 +36,7 @@ const DisconnectCloudAccountForm = ({
               <PageContentDescription
                 position="top"
                 alertProps={{
-                  messageId: "childDataSourceDisconnectionWarning"
+                  messageId: "childDataSourceDisconnectionWarning",
                 }}
               />
             )}
@@ -44,7 +44,7 @@ const DisconnectCloudAccountForm = ({
               <PageContentDescription
                 position="top"
                 alertProps={{
-                  messageId: "parentDataSourceDisconnectionWarning"
+                  messageId: "parentDataSourceDisconnectionWarning",
                 }}
               />
             ) : null}
@@ -52,12 +52,12 @@ const DisconnectCloudAccountForm = ({
         )}
         <DeleteEntity
           message={{
-            messageId: isLastDataSource ? undefined : disconnectQuestionId
+            messageId: isLastDataSource ? undefined : disconnectQuestionId,
           }}
           dataTestIds={{
             text: "p_disconnect",
             cancelButton: "btn_cancel",
-            deleteButton: "btn_disconnect_data_source"
+            deleteButton: "btn_disconnect_data_source",
           }}
           isLoading={isLoading}
           deleteButtonProps={{
@@ -65,8 +65,8 @@ const DisconnectCloudAccountForm = ({
             disabled: isRestricted,
             tooltip: {
               show: isRestricted,
-              value: restrictionReasonMessage
-            }
+              value: restrictionReasonMessage,
+            },
           }}
           onCancel={onCancel}
         >

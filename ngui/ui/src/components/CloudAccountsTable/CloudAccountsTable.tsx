@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 import { Typography } from "@mui/material";
@@ -18,9 +19,42 @@ import Tooltip from "components/Tooltip";
 import { intl } from "translations/react-intl-config";
 import { CLOUD_ACCOUNT_CONNECT } from "urls";
 import { getColorScale } from "utils/charts";
-import { FORMATTED_MONEY_TYPES } from "utils/constants";
+import { AWS_CNR, FORMATTED_MONEY_TYPES } from "utils/constants";
 import { BILLING_IMPORT_STATUS, getBillingImportStatus, summarizeChildrenDetails } from "utils/dataSources";
 import useStyles from "./CloudAccountsTable.styles";
+
+const LastImportedFromCaption = ({ cloudAccounts, lastImportSourceId, lastImportSourceAccountId, dataTestId }) => {
+  const rootDataSource = lastImportSourceId
+    ? cloudAccounts.find(({ id: cloudAccountId }) => cloudAccountId === lastImportSourceId)
+    : undefined;
+
+  const getValue = () => {
+    if (rootDataSource) {
+      return <CloudLabel id={rootDataSource.id} name={rootDataSource.name} type={rootDataSource.type} />;
+    }
+
+    if (lastImportSourceId || lastImportSourceAccountId) {
+      return (
+        <>
+          {lastImportSourceAccountId ?? lastImportSourceId} <FormattedMessage id="deletedLabel" />
+        </>
+      );
+    }
+
+    return <FormattedMessage id="unknown" />;
+  };
+
+  return (
+    <Typography
+      component="div"
+      variant="caption"
+      data-test-id={dataTestId}
+      sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}
+    >
+      <FormattedMessage id="lastFilledByRootAccount" />: {getValue()}
+    </Typography>
+  );
+};
 
 const NameCell = ({
   row: {
@@ -28,50 +62,73 @@ const NameCell = ({
       id,
       name,
       type,
+      config,
       details: { cost } = {},
       last_import_at: lastImportAt,
       last_import_attempt_at: lastImportAttemptAt,
       last_import_attempt_error: lastImportAttemptError,
-      children
+      last_import_source_id: lastImportSourceId,
+      last_import_source_account_id: lastImportSourceAccountId,
+      children,
+      isMasterAwsAccount,
     },
-    index
+    index,
   },
-  colorScale
+  colorScale,
+  cloudAccounts,
 }) => {
   const importStatus = getBillingImportStatus({
     timestamp: lastImportAt,
     attemptTimestamp: lastImportAttemptAt,
-    error: lastImportAttemptError
+    error: lastImportAttemptError,
   });
 
+  const isLinkedAwsAccount = type === AWS_CNR && config?.linked;
+
+  const captions = [
+    importStatus === BILLING_IMPORT_STATUS.ERROR && {
+      key: "import_failed",
+      node: (
+        <Typography component="div" variant="caption">
+          <Tooltip title={lastImportAttemptError}>
+            <span>
+              <IconLabel
+                icon={<ErrorOutlineOutlinedIcon fontSize="inherit" color="error" />}
+                label={<FormattedMessage id="billingImportFailed" />}
+              />
+            </span>
+          </Tooltip>
+        </Typography>
+      ),
+    },
+    isLinkedAwsAccount && {
+      key: "last_import_from",
+      node: (
+        <LastImportedFromCaption
+          cloudAccounts={cloudAccounts}
+          lastImportSourceId={lastImportSourceId}
+          lastImportSourceAccountId={lastImportSourceAccountId}
+          dataTestId={`caption_last_import_from_${index}`}
+        />
+      ),
+    },
+  ].filter(Boolean);
+
   return (
-    <CaptionedCell
-      caption={
-        importStatus === BILLING_IMPORT_STATUS.ERROR
-          ? {
-              key: "import_failed",
-              node: (
-                <Typography component="div" variant="caption">
-                  <Tooltip title={lastImportAttemptError}>
-                    <span>
-                      <IconLabel
-                        icon={<ErrorOutlineOutlinedIcon fontSize="inherit" color="error" />}
-                        label={<FormattedMessage id="billingImportFailed" />}
-                      />
-                    </span>
-                  </Tooltip>
-                </Typography>
-              )
-            }
-          : undefined
-      }
-    >
+    <CaptionedCell caption={captions.length ? captions : undefined}>
       <CloudLabel
         id={id}
         name={name}
         type={type}
         dataTestId={`link_cloud_${index}`}
         startAdornment={cost && !children ? <Circle color={colorScale(id)} mr={1} /> : null}
+        endAdornment={
+          isMasterAwsAccount ? (
+            <Tooltip title={<FormattedMessage id="awsRootAccountTooltip" />}>
+              <AccountTreeOutlinedIcon fontSize="small" color="action" sx={{ ml: 1 }} data-test-id={`icon_aws_root_${index}`} />
+            </Tooltip>
+          ) : null
+        }
       />
     </CaptionedCell>
   );
@@ -93,45 +150,50 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
         cell: (cellData) => (
           <div className={classes.nameCellWrapper}>
             <Expander row={cellData.row} />
-            <NameCell {...cellData} colorScale={colorScale} />
+            <NameCell {...cellData} colorScale={colorScale} cloudAccounts={cloudAccounts} />
           </div>
-        )
+        ),
       },
       {
         header: intl.formatMessage({ id: "type" }),
         accessorKey: "type",
-        cell: ({ cell }) => <CloudType type={cell.getValue()} />
+        cell: ({ cell }) => <CloudType type={cell.getValue()} />,
       },
       {
         header: intl.formatMessage({ id: "resourcesChargedThisMonth" }),
         id: "details.resources",
         accessorFn: (originalRow) => originalRow.details?.resources,
-        emptyValue: "0"
+        emptyValue: "0",
       },
       {
         header: intl.formatMessage({ id: "expensesUpToDateThisMonth" }),
         id: "details.cost",
         accessorFn: (originalRow) => originalRow.details?.cost,
         cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       {
         header: intl.formatMessage({ id: "expensesForecastThisMonth" }),
         id: "details.forecast",
         accessorFn: (originalRow) => originalRow.details?.forecast,
-        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
-      }
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
+      },
     ];
-  }, [theme.palette.chart, classes.nameCellWrapper]);
+  }, [theme.palette.chart, classes.nameCellWrapper, cloudAccounts]);
 
   const data = useMemo(
     () =>
       cloudAccounts
         .map((dataSource) => {
-          const { id } = dataSource;
+          const { id, type, config } = dataSource;
           const children = cloudAccounts.filter(({ parent_id: parentId }) => parentId === id);
           const childrenDetails = summarizeChildrenDetails(children);
-          return { ...dataSource, children, details: { ...dataSource.details, ...childrenDetails } };
+          return {
+            ...dataSource,
+            children,
+            isMasterAwsAccount: type === AWS_CNR && !config?.linked,
+            details: { ...dataSource.details, ...childrenDetails },
+          };
         })
         .filter(({ parent_id: parentId }) => !parentId),
     [cloudAccounts]
@@ -148,9 +210,9 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
         variant: "contained",
         type: "button",
         action: () => navigate(CLOUD_ACCOUNT_CONNECT),
-        requiredActions: ["MANAGE_CLOUD_CREDENTIALS"]
-      }
-    ]
+        requiredActions: ["MANAGE_CLOUD_CREDENTIALS"],
+      },
+    ],
   };
 
   return isLoading ? (
@@ -158,18 +220,18 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
   ) : (
     <Table
       dataTestIds={{
-        container: "table_accs"
+        container: "table_accs",
       }}
       data={data}
       columns={columns}
       localization={{
-        emptyMessageId: "noDataSources"
+        emptyMessageId: "noDataSources",
       }}
       pageSize={50}
       withExpanded
       actionBar={{
         show: true,
-        definition: actionBarDefinition
+        definition: actionBarDefinition,
       }}
     />
   );

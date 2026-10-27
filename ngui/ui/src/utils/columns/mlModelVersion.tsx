@@ -17,7 +17,7 @@ const mlModelVersion = ({ id, accessorKey, accessorFn, headerMessageId, headerDa
     const version = cell.getValue();
 
     return version ? <MlModelVersionLabel version={version} /> : CELL_EMPTY_VALUE;
-  }
+  },
 });
 
 export default mlModelVersion;

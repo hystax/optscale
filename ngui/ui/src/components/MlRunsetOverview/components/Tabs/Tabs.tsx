@@ -5,7 +5,7 @@ import Runs from "./Runs";
 
 const TABS = Object.freeze({
   RUNS: "runs",
-  RUNNERS: "executors"
+  RUNNERS: "executors",
 });
 
 const Tabs = ({ runs, isGetRunsetRunsLoading }) => {
@@ -15,13 +15,13 @@ const Tabs = ({ runs, isGetRunsetRunsLoading }) => {
     {
       title: TABS.RUNS,
       dataTestId: "tab_runs",
-      node: <Runs isLoading={isGetRunsetRunsLoading} runs={runs} />
+      node: <Runs isLoading={isGetRunsetRunsLoading} runs={runs} />,
     },
     {
       title: TABS.RUNNERS,
       dataTestId: "tab_executors",
-      node: <MlRunsetExecutorsContainer />
-    }
+      node: <MlRunsetExecutorsContainer />,
+    },
   ];
 
   return (
@@ -33,7 +33,7 @@ const Tabs = ({ runs, isGetRunsetRunsLoading }) => {
         activeTab,
         handleChange: (event, value) => {
           setActiveTab(value);
-        }
+        },
       }}
     />
   );

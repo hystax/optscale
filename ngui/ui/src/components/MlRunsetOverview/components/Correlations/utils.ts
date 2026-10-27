@@ -4,7 +4,7 @@ import { formatRunFullName } from "utils/ml";
 export const DIMENSION_GROUPS = Object.freeze({
   RUN_NAMES: "runNames",
   HYPERPARAMETERS: "hyperparameters",
-  GOALS: "goals"
+  GOALS: "goals",
 });
 
 export const HEIGHT = 350;
@@ -13,7 +13,7 @@ export const MARGIN = Object.freeze({
   TOP: 50,
   BOTTOM: 40,
   LEFT: 200,
-  RIGHT: 60
+  RIGHT: 60,
 });
 
 const CHART_AREA_HEIGH = HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
@@ -27,7 +27,7 @@ export const getChartRunsData = (runs) =>
     reachedGoals,
     hyperparameters,
     index,
-    color
+    color,
   }));
 
 const doTickLabelsIntersect = (labelACoordinates, labelBCoordinates) => {
@@ -57,7 +57,7 @@ export const getRunNamesDimensionTicks = ({ chartRunsData, selectedChartRunsData
       // tickvals and ticktext must be applied together
       tickvals: chartRunsData.map((d) => d.index),
       // Using "" ticktext values in order to hide ticks from the chart
-      ticktext: chartRunsData.map(() => "")
+      ticktext: chartRunsData.map(() => ""),
     };
   }
 
@@ -104,7 +104,7 @@ export const getRunNamesDimensionTicks = ({ chartRunsData, selectedChartRunsData
        * So there is little hack to show a string consisting (i+1) spaces
        */
       return Array(i + 1).join(" ");
-    })
+    }),
   };
 };
 
@@ -116,7 +116,7 @@ export const getSelectedRuns = (data, runsCorrelationsTraceDimensions, hyperpara
         const range = constraintrange ?? [];
         return {
           dimensionName,
-          range: isArrayOfArrays(range) ? range : [range]
+          range: isArrayOfArrays(range) ? range : [range],
         };
       });
 

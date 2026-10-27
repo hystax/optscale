@@ -11,7 +11,7 @@ import { mapCleanExpensesFilterParamsToApiParams } from "./CleanExpensesService"
 const dataMocked = {
   total_cost: 125.22803930100001,
   total_count: 7,
-  total_saving: 76.59
+  total_saving: 76.59,
 };
 
 export const useGet = ({ params = {} } = {}) => {
@@ -22,7 +22,7 @@ export const useGet = ({ params = {} } = {}) => {
 
   const { isLoading, shouldInvoke, isError } = useApiState(GET_EXPENSES_SUMMARY, {
     organizationId,
-    ...mapCleanExpensesFilterParamsToApiParams(params)
+    ...mapCleanExpensesFilterParamsToApiParams(params),
   });
 
   useEffect(() => {

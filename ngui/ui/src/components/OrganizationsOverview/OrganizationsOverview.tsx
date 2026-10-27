@@ -12,7 +12,7 @@ import { getSearchParams, updateSearchParams } from "utils/network";
 const actionBarDefinition = {
   title: {
     messageId: "organizationsOverview",
-    dataTestId: "lbl_orgs_overview"
+    dataTestId: "lbl_orgs_overview",
   },
   items: [
     {
@@ -20,9 +20,9 @@ const actionBarDefinition = {
       messageId: "goToDashboard",
       type: "button",
       link: HOME,
-      dataTestId: "btn_add"
-    }
-  ]
+      dataTestId: "btn_add",
+    },
+  ],
 };
 
 const OrganizationsOverview = ({ data, isLoading = false }) => {
@@ -64,7 +64,7 @@ const OrganizationsOverview = ({ data, isLoading = false }) => {
           limit: rootPool.limit,
           exceededPools,
           exceededForecasts,
-          exceededOrganizationIds
+          exceededOrganizationIds,
         };
       }),
     [data]
@@ -80,7 +80,7 @@ const OrganizationsOverview = ({ data, isLoading = false }) => {
         ),
         [ORGANIZATIONS_OVERVIEW_FILTERS.ALL_FINE]: updatedData.filter(
           (organization) => !organization.exceededOrganizationIds.has(organization.id)
-        )
+        ),
       })[filter] || updatedData;
 
     setTableData(filteredData(activeFilter));
@@ -91,20 +91,20 @@ const OrganizationsOverview = ({ data, isLoading = false }) => {
       id: ORGANIZATIONS_OVERVIEW_FILTERS.ALL,
       messageId: ORGANIZATIONS_OVERVIEW_FILTERS.ALL,
       action: () => setActiveFilter(ORGANIZATIONS_OVERVIEW_FILTERS.ALL),
-      dataTestId: "filter_all"
+      dataTestId: "filter_all",
     },
     {
       id: ORGANIZATIONS_OVERVIEW_FILTERS.REQUIRING_ATTENTION,
       messageId: ORGANIZATIONS_OVERVIEW_FILTERS.REQUIRING_ATTENTION,
       action: () => setActiveFilter(ORGANIZATIONS_OVERVIEW_FILTERS.REQUIRING_ATTENTION),
-      dataTestId: "filter_requiring_attention"
+      dataTestId: "filter_requiring_attention",
     },
     {
       id: ORGANIZATIONS_OVERVIEW_FILTERS.ALL_FINE,
       messageId: ORGANIZATIONS_OVERVIEW_FILTERS.ALL_FINE,
       action: () => setActiveFilter(ORGANIZATIONS_OVERVIEW_FILTERS.ALL_FINE),
-      dataTestId: "filter_all_fine"
-    }
+      dataTestId: "filter_all_fine",
+    },
   ];
 
   return (

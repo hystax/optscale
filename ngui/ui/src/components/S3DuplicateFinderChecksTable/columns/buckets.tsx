@@ -14,7 +14,7 @@ const buckets = () => ({
     const { buckets: bucketsList } = original.filters;
 
     return <ExpandableList items={bucketsList} render={({ name }) => <div key={name}>{name}</div>} maxRows={2} />;
-  }
+  },
 });
 
 export default buckets;

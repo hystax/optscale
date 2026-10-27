@@ -11,7 +11,7 @@ const OtherReasonField = () => {
     <TextInput
       name={FIELD_NAME}
       label={intl.formatMessage({
-        id: "answer"
+        id: "answer",
       })}
       placeholder={intl.formatMessage(
         { id: "maxLength" },

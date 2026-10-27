@@ -4,7 +4,7 @@ import {
   createOrganizationConstraint,
   getOrganizationConstraints,
   deleteOrganizationConstraint,
-  updateOrganizationConstraint
+  updateOrganizationConstraint,
 } from "api";
 import { getOrganizationConstraint } from "api/restapi";
 import {
@@ -12,7 +12,7 @@ import {
   CREATE_ORGANIZATION_CONSTRAINT,
   GET_ORGANIZATION_CONSTRAINTS,
   GET_ORGANIZATION_CONSTRAINT,
-  UPDATE_ORGANIZATION_CONSTRAINT
+  UPDATE_ORGANIZATION_CONSTRAINT,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -25,7 +25,7 @@ export const useGetAll = (types) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
   const {
-    apiData: { organization_constraints: constraints = [] }
+    apiData: { organization_constraints: constraints = [] },
   } = useApiData(GET_ORGANIZATION_CONSTRAINTS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ORGANIZATION_CONSTRAINTS, { type: types, organizationId });
@@ -93,7 +93,7 @@ const useDelete = () => {
             }
           });
       });
-    }
+    },
   };
 };
 
@@ -114,7 +114,7 @@ const useUpdate = () => {
             }
           });
       });
-    }
+    },
   };
 };
 

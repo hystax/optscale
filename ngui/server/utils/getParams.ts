@@ -2,7 +2,7 @@ export const getParams = <T>(requestParams: T) =>
   new URLSearchParams(
     Object.entries(requestParams)
       .filter(
-        ([_, value]) =>
+        ([, value]) =>
           // TODO: investigate if we can handle only either undefined or null values
           value !== undefined && value !== null
       )

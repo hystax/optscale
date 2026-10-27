@@ -11,14 +11,14 @@ const poolOwner = ({ headerDataTestId, id }) => ({
   ),
   id,
   style: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
   cell: ({ row: { original } }) =>
     original.owner || original.pool ? (
       <CaptionedCell caption={original.owner?.name}>
         {original.pool.id && <PoolLabel id={original.pool.id} name={original.pool.name} type={original.pool.purpose} />}
       </CaptionedCell>
-    ) : null
+    ) : null,
 });
 
 export default poolOwner;

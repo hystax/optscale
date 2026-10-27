@@ -115,8 +115,8 @@ spec:
               number: {{ .Values.subspector.service.externalPort }}
         path: /subspector
         pathType: Prefix
-{{- if .Values.public_ip }}
-  host: {{ .Values.public_ip }}
+{{- if (and (.Values.public_ip) (.Values.ssl.cert_manager.enabled)) }}
+    host: {{ .Values.public_ip }}
 {{- end }}
   tls:
   - secretName: {{ .Values.ssl.certificate_name }}

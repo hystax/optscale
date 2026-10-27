@@ -8,7 +8,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
     key_id: authorizedKeyId,
     access_key_id: accessKeyId,
     bucket_name: reportBucketName,
-    bucket_prefix: reportPathPrefix
+    bucket_prefix: reportPathPrefix,
   } = config;
 
   return (
@@ -18,7 +18,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
         value={createdAt}
         dataTestIds={{
           key: `p_connected_id`,
-          value: `p_connected_value`
+          value: `p_connected_value`,
         }}
       />
       <KeyValueLabel
@@ -31,7 +31,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
         value={cloudName}
         dataTestIds={{
           key: `p_key_cloud_name`,
-          value: `p_value_cloud_name`
+          value: `p_value_cloud_name`,
         }}
       />
       <KeyValueLabel
@@ -39,7 +39,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
         value={serviceAccountId}
         dataTestIds={{
           key: `p_key_service_account_id`,
-          value: `p_value_service_account_id`
+          value: `p_value_service_account_id`,
         }}
       />
       <KeyValueLabel
@@ -47,7 +47,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
         value={authorizedKeyId}
         dataTestIds={{
           key: `p_key_authorized_key_id`,
-          value: `p_value_authorized_key_id`
+          value: `p_value_authorized_key_id`,
         }}
       />
       <KeyValueLabel
@@ -55,7 +55,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
         value={accessKeyId}
         dataTestIds={{
           key: `p_key_authorized_key_id`,
-          value: `p_value_authorized_key_id`
+          value: `p_value_authorized_key_id`,
         }}
       />
       <KeyValueLabel
@@ -63,7 +63,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
         value={reportBucketName}
         dataTestIds={{
           key: `p_key_bucket_name`,
-          value: `p_value_bucket_name`
+          value: `p_value_bucket_name`,
         }}
       />
       <KeyValueLabel
@@ -71,7 +71,7 @@ const NebiusProperties = ({ accountId, config, createdAt }: NebiusPropertiesProp
         value={reportPathPrefix}
         dataTestIds={{
           key: `p_key_bucket_prefix`,
-          value: `p_value_bucket_prefix`
+          value: `p_value_bucket_prefix`,
         }}
       />
     </>

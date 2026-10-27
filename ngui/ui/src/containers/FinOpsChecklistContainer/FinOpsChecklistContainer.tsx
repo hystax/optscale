@@ -17,7 +17,7 @@ const FinOpsChecklistContainer = () => {
   const { isLoading: isUpdateLoading } = useApiState(UPDATE_FINOPS_CHECKLIST);
 
   const {
-    apiData: { value: apiValue = "{}" }
+    apiData: { value: apiValue = "{}" },
   } = useApiData(GET_FINOPS_CHECKLIST);
 
   const { items: apiItems = [] } = JSON.parse(apiValue);

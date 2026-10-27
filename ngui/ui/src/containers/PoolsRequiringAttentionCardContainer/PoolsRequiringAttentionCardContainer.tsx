@@ -21,7 +21,7 @@ const getRequiringAttentionPools = ({
   cost: rootCost = 0,
   forecast: rootForecast = 0,
   limit: rootLimit = 0,
-  children = []
+  children = [],
 }: Pool) => {
   const withExceededLimit: Pool[] = [];
   const withForecastedOverspend: Pool[] = [];
@@ -33,7 +33,7 @@ const getRequiringAttentionPools = ({
     purpose: rootPurpose,
     cost: rootCost,
     forecast: rootForecast,
-    limit: rootLimit
+    limit: rootLimit,
   };
 
   [...children, rootPool].forEach(({ id, name, purpose, limit = 0, cost = 0, forecast = 0 }) => {
@@ -43,7 +43,7 @@ const getRequiringAttentionPools = ({
       purpose,
       cost,
       forecast,
-      limit
+      limit,
     };
 
     // Pools can technically go into both categories simultaneously, but the goal is to focus on

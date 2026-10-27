@@ -5,7 +5,7 @@ const Title = ({ icon, label }) => (
     sx={{
       display: "flex",
       alignItems: "center",
-      columnGap: (theme) => theme.spacing(1)
+      columnGap: (theme) => theme.spacing(1),
     }}
   >
     {icon}

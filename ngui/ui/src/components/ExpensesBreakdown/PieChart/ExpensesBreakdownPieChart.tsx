@@ -9,7 +9,7 @@ const ExpensesBreakdownPieChart = ({
   filterBy,
   getCustomDetails,
   getShouldApplyHoverStyles,
-  onClick
+  onClick,
 }) => {
   const theme = useTheme();
 
@@ -18,14 +18,14 @@ const ExpensesBreakdownPieChart = ({
     onClick,
     customDetails: getCustomDetails,
     shouldApplyHoverStyles: getShouldApplyHoverStyles,
-    colors: theme.palette.chart
+    colors: theme.palette.chart,
   });
 
   const renderTooltipBody = (sectionData) => {
     const {
       value,
       label,
-      data: { details }
+      data: { details },
     } = sectionData;
     return <KeyValueChartTooltipBody value={value} text={addEntityIconToTooltipKey(label, details, filterBy)} />;
   };

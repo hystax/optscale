@@ -22,6 +22,6 @@ export const getDefaultValues = ({ currency }: { currency: string }): FormValues
     [FIELD_NAMES.MIN_CPU]: queryParams[FIELD_NAMES.MIN_CPU] ?? MIN_CPU,
     [FIELD_NAMES.MAX_CPU]: queryParams[FIELD_NAMES.MAX_CPU] ?? MAX_CPU,
     [FIELD_NAMES.MIN_RAM]: queryParams[FIELD_NAMES.MIN_RAM] ?? MIN_RAM,
-    [FIELD_NAMES.MAX_RAM]: queryParams[FIELD_NAMES.MAX_RAM] ?? MAX_RAM
+    [FIELD_NAMES.MAX_RAM]: queryParams[FIELD_NAMES.MAX_RAM] ?? MAX_RAM,
   };
 };

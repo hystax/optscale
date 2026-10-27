@@ -11,7 +11,7 @@ const BillingReportBucketDescription = () => (
       <FormattedMessage
         id="createNebiusDescription.billingReportBucketPath"
         values={{
-          i: (chunks) => <i>{chunks}</i>
+          i: (chunks) => <i>{chunks}</i>,
         }}
       />
     </Typography>
@@ -23,7 +23,7 @@ const BillingReportBucketDescription = () => (
             <Link data-test-id="link_get_folder_report" href={NEBIUS_GET_FOLDER_REPORT} target="_blank" rel="noopener">
               {chunks}
             </Link>
-          )
+          ),
         }}
       />
     </Typography>

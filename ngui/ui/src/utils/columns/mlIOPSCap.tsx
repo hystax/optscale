@@ -10,7 +10,7 @@ const mlIOPSCap = ({ headerDataTestId = "lbl_IOPS_cap", ioAccessor = "io", rwAcc
   ),
   id: "IOPSCap",
   style: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
   cell: ({ row: { original } }) => {
     const inOut = original[ioAccessor];
@@ -25,14 +25,14 @@ const mlIOPSCap = ({ headerDataTestId = "lbl_IOPS_cap", ioAccessor = "io", rwAcc
             <FormattedMessage
               id="valuePerSec"
               values={{
-                value: <FormattedDigitalUnit value={readWrite} />
+                value: <FormattedDigitalUnit value={readWrite} />,
               }}
             />
-          )
+          ),
         }}
       />
     );
-  }
+  },
 });
 
 export default mlIOPSCap;

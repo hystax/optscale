@@ -33,7 +33,7 @@ const Component = ({ bucket, onClose }) => {
               id="value / value"
               values={{
                 value1: bucket.objects_with_duplicates,
-                value2: bucket.total_objects
+                value2: bucket.total_objects,
               }}
             />
           }
@@ -42,7 +42,7 @@ const Component = ({ bucket, onClose }) => {
         <QuestionMark
           messageId="totalObjectsWithDuplicatesDescription"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_total_objects_with_duplicates_description`"
         />
@@ -56,12 +56,12 @@ const Component = ({ bucket, onClose }) => {
                 values={{
                   value1: formatDigitalUnit({
                     value: bucket.objects_with_duplicates_size,
-                    baseUnit: SI_UNITS.BYTE
+                    baseUnit: SI_UNITS.BYTE,
                   }),
                   value2: formatDigitalUnit({
                     value: bucket.size,
-                    baseUnit: SI_UNITS.BYTE
-                  })
+                    baseUnit: SI_UNITS.BYTE,
+                  }),
                 }}
               />
             </>
@@ -71,7 +71,7 @@ const Component = ({ bucket, onClose }) => {
         <QuestionMark
           messageId="totalDuplicatesSizeDescription"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_total_duplicates_size_description"
         />
@@ -92,8 +92,8 @@ class BucketDuplicatesModal extends BaseSideModal {
     messageId: "bucketDuplicatesTitle",
     dataTestIds: {
       title: "lbl_bucket_duplicates",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_bucket_duplicates";

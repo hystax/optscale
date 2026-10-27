@@ -22,7 +22,7 @@ class TestAssignment(TestAuthBase):
         self.partner2_scope_id = '843f42c4-76b5-467f-b5e3-f7370b1235d6'
         self.customer2_1_scope_id = '70e552f4-032f-4989-bdbb-50a9d66920a2'
         self.hierarchy = (
-            {'root': {'null': {'partner': {
+            {'partner': {
                 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d':
                     {'customer': {
                         '19a00828-fbff-4318-8291-4b6c14a8066d':
@@ -37,7 +37,7 @@ class TestAssignment(TestAuthBase):
                     {'customer': {
                         '70e552f4-032f-4989-bdbb-50a9d66920a2':
                             {'group': ['18559e53-fde8-4d73-81ef-57146bb0dde9']}
-                    }}}}}})
+                    }}}})
         admin_user = self.create_root_user()
         session = self.db_session
         self.type_partner = Type(id_=10, name='partner',

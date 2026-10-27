@@ -5,6 +5,6 @@ export const getDefaultValues = ({ filters, breakdownBy, breakdownData }) => ({
   [FIELD_NAMES.PAYLOAD]: {
     filters,
     breakdownBy,
-    breakdownData
-  }
+    breakdownData,
+  },
 });

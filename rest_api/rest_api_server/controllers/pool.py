@@ -1,4 +1,5 @@
 import datetime
+import enum
 import logging
 import tools.optscale_time as opttime
 from collections import defaultdict
@@ -24,7 +25,8 @@ from rest_api.rest_api_server.controllers.organization_constraint import Organiz
 from rest_api.rest_api_server.utils import (
     check_int_attribute, raise_does_not_exist_exception,
     raise_invalid_argument_exception, check_bool_attribute,
-    BASE_POOL_EXPENSES_EXPORT_LINK_FORMAT as BASE_LINK_FORMAT)
+    BASE_POOL_EXPENSES_EXPORT_LINK_FORMAT as BASE_LINK_FORMAT,
+    timestamp_to_day_start)
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, ForbiddenException, NotFoundException,
     ConflictException, FailedDependency)
@@ -371,7 +373,11 @@ class PoolController(BaseController, MongoMixin):
         return sub_pools
 
     def get_details(self, pool_dict, forecast=False, show_children=False,
-                    show_details=False):
+                    show_details=False, start_date=None, end_date=None):
+        if start_date is not None:
+            start_date = timestamp_to_day_start(start_date)
+        if end_date is not None:
+            end_date = timestamp_to_day_start(end_date)
         root_pool_id = pool_dict['id']
         children = self.get_sub_pools(root_pool_id, show_details)
         pool_list = [pool_dict] + children
@@ -381,7 +387,8 @@ class PoolController(BaseController, MongoMixin):
             pool_list = [pool_dict]
         if show_details:
             pool_limit_costs = self.get_pool_hierarchy_costs(
-                root_pool_id, forecast)
+                root_pool_id, forecast, start_date=start_date,
+                end_date=end_date)
             for pool in pool_list:
                 pool['cost'] = pool_limit_costs[pool['id']]['cost']
                 pool['forecast'] = pool_limit_costs[pool['id']]['forecast']
@@ -454,7 +461,8 @@ class PoolController(BaseController, MongoMixin):
         return self.get_savings(organization_id, 'pool_id',
                                 pool_ids, 'pool_id')
 
-    def get_pool_hierarchy_costs(self, root_pool_id, forecast=True):
+    def get_pool_hierarchy_costs(self, root_pool_id, forecast=True,
+                                 start_date=None, end_date=None):
         pool_objects = BaseHierarchicalController(
             self.session, self._config, self.token
         ).get_item_hierarchy('id', root_pool_id, 'parent_id', Pool,
@@ -467,7 +475,8 @@ class PoolController(BaseController, MongoMixin):
                                              if b.parent_id == pool.id]
 
         month_expenses = self.get_pool_expenses(
-            list(pool_map.keys()), forecast=forecast)
+            list(pool_map.keys()), forecast=forecast,
+            period_day=start_date, end_date=end_date)
 
         def calculate_costs(pool_id):
             self_cost = month_expenses.get(pool_id, {}).get('cost', 0)
@@ -476,6 +485,7 @@ class PoolController(BaseController, MongoMixin):
                 pool_id]['children'])
             children_cost = sum(x[0] for x in children_costs)
             children_forecast = sum(x[1] for x in children_costs)
+            pool_map[pool_id]['direct_cost'] = self_cost
             pool_map[pool_id]['cost'] = self_cost + children_cost
             pool_map[pool_id]['forecast'] = self_forecast + children_forecast
             return pool_map[pool_id]['cost'], pool_map[pool_id]['forecast']
@@ -497,11 +507,13 @@ class PoolController(BaseController, MongoMixin):
             day=1)
         if forecast:
             start_date = min(last_month_start, period_day)
+            fetch_end = today
         else:
             start_date = period_day
+            fetch_end = end_date
 
         expenses = expense_ctrl.get_expenses_for_pools(
-            start_date, end_date, pool_ids)
+            start_date, fetch_end, pool_ids)
 
         first_expenses = {}
         result = {}
@@ -511,7 +523,7 @@ class PoolController(BaseController, MongoMixin):
             if not result.get(pool_id):
                 result[pool_id] = {'cost': 0, 'month_cost': 0,
                                    'forecast_cost': 0}
-            if date >= period_day:
+            if date >= period_day and date <= end_date:
                 result[pool_id]['cost'] += expense['cost']
             if date >= last_month_start:
                 result[pool_id]['forecast_cost'] += expense['cost']
@@ -821,6 +833,71 @@ class PoolController(BaseController, MongoMixin):
             for e in prev_month_expenses.values():
                 overview['last_month_cost'] += e.get('cost', 0)
         return overview
+
+    def get_pool_expenses_report(self, organization_id, start_date, end_date):
+        org = self.get_org_by_id(organization_id)
+        if not org:
+            raise NotFoundException(
+                Err.OE0002, [Organization.__name__, organization_id])
+        currency = org.currency
+        root_pool_id = org.pool_id
+        if not root_pool_id:
+            return []
+
+        start_dt = timestamp_to_day_start(start_date)
+        end_dt = timestamp_to_day_start(end_date)
+
+        pool_map = self.get_pool_hierarchy_costs(
+            root_pool_id, forecast=False,
+            start_date=start_dt, end_date=end_dt)
+
+        for pd in pool_map.values():
+            purpose = pd.get('purpose')
+            pd['purpose'] = (purpose.value
+                             if isinstance(purpose, enum.Enum)
+                             else (purpose or ''))
+            pd['children'] = sorted(pd['children'],
+                                    key=lambda c: pool_map[c]['name'])
+
+        rows = []
+
+        def dfs(pool_id, ancestors):
+            pool = pool_map[pool_id]
+            rows.append({
+                'pool_id': pool_id,
+                'pool': pool,
+                'path': ancestors + [pool['name']],
+                'direct_expense': round(pool.get('direct_cost', 0), 2),
+                'subtree_expense': round(pool['cost'], 2),
+            })
+            for child_id in pool['children']:
+                dfs(child_id, ancestors + [pool['name']])
+
+        dfs(root_pool_id, [])
+
+        max_depth = max(len(r['path']) for r in rows) if rows else 0
+        period_start = start_dt.strftime('%Y-%m-%d')
+        period_end = end_dt.strftime('%Y-%m-%d')
+
+        report_rows = []
+        for r in rows:
+            row = {
+                'Period start': period_start,
+                'Period end': period_end,
+                'Currency': currency,
+                'Pool ID': r['pool_id'],
+                'Pool purpose': r['pool']['purpose'],
+                'Default owner': r['pool'].get('default_owner_name') or '',
+            }
+            for i in range(max_depth):
+                row['Level %d' % (i + 1)] = (
+                    r['path'][i] if i < len(r['path']) else '')
+            row.update({
+                'Direct expense': r['direct_expense'],
+                'Subtree expense': r['subtree_expense']
+            })
+            report_rows.append(row)
+        return report_rows
 
 
 class PoolAsyncController(BaseAsyncControllerWrapper):

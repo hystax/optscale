@@ -6,6 +6,7 @@ import logging
 from rest_api.rest_api_server.controllers.base import BaseController
 from rest_api.rest_api_server.controllers.base_async import (
     BaseAsyncControllerWrapper)
+from rest_api.rest_api_server.controllers.cloud_account import CloudAccountController
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, FailedDependency)
 from rest_api.rest_api_server.exceptions import Err
@@ -194,7 +195,7 @@ class PolicyGeneratorController(BaseController):
             account_id = self._get_aws_account_id(**service_creds)
         except Exception as exc:
             LOG.info("error getting account id: %s", str(exc))
-            raise FailedDependency(Err.OE0570, [exc])
+            raise FailedDependency(Err.OE0570, [str(exc)])
         return account_id
 
     def generate_role_policy_linked_account(self):
@@ -205,16 +206,25 @@ class PolicyGeneratorController(BaseController):
             json.dumps(self.aws_policy_role_template) % (
                 bucket_name, bucket_name))
 
-    def generate_aws_trust_rel_template(self, account_id):
-        return json.loads(
+    def generate_aws_trust_rel_template(self, account_id, external_id=None):
+        policy = json.loads(
             json.dumps(self.aws_trust_rel_template) % account_id)
+        if external_id is not None:
+            policy['Statement'][0]['Condition'] = {
+                'StringEquals': {'sts:ExternalId': external_id}
+            }
+        return policy
 
-    def generate_policies(self, cloud_type, bucket_name=None, linked=False):
+    def generate_policies(self, cloud_type, bucket_name=None, linked=False,
+                          external_id=None):
         if cloud_type not in self.supported_clouds:
             raise WrongArgumentsException(Err.OE0436, [cloud_type])
+        if external_id is not None:
+            CloudAccountController.validate_assume_role_external_id(external_id)
         account_id = self.get_aws_account_id()
         result = {
-            "trust_policy": self.generate_aws_trust_rel_template(account_id),
+            "trust_policy": self.generate_aws_trust_rel_template(
+                account_id, external_id),
         }
         if not linked:
             result.update({

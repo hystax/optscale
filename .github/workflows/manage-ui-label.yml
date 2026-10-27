@@ -1,10 +1,11 @@
 name: Manage PR "ui" label
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
 
 permissions:
+  contents: read # Recommended for actions/checkout
   pull-requests: write
   issues: write
 
@@ -12,24 +13,50 @@ jobs:
   manage-ui-label:
     runs-on: ubuntu-latest
     steps:
-      - name: Filter changes
-        uses: dorny/paths-filter@v3
+      - name: Detect ngui paths via Pulls API
         id: filter
+        uses: actions/github-script@v8
         with:
-          filters: |
-            ngui:
-              - 'ngui/**'
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+
+            const inNgui = (name) => typeof name === 'string' && name.startsWith('ngui/');
+
+            const ngui = files.some(
+              (file) => inNgui(file.filename) || inNgui(file.previous_filename),
+            );
+
+            core.setOutput('ngui', ngui ? 'true' : 'false');
 
       - name: Add "ui" label if ngui files changed
         if: steps.filter.outputs.ngui == 'true'
-        uses: actions-ecosystem/action-add-labels@v1
+        uses: actions/github-script@v8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: ui
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['ui'],
+            });
 
       - name: Remove "ui" label if no ngui files changed
         if: steps.filter.outputs.ngui != 'true'
-        uses: actions-ecosystem/action-remove-labels@v1
+        uses: actions/github-script@v8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: ui
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: 'ui',
+              });
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }

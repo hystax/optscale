@@ -9,7 +9,7 @@ import {
   performDateTimeFunction,
   secondsToMilliseconds,
   startOfDay,
-  subDays
+  subDays,
 } from "utils/datetime";
 import { getSearchParams, updateSearchParams } from "utils/network";
 
@@ -18,13 +18,13 @@ const allRange = (isUtc) => ({
   isUtc,
   getInterval: () => ({
     startDate: secondsToMilliseconds(getMinPickerDateSec(isUtc)),
-    endDate: getMaxPickerDateMsec(isUtc)
+    endDate: getMaxPickerDateMsec(isUtc),
   }),
   getName: () => <FormattedMessage id="all" />,
   getSearchParams: () => ({
     period: "all",
     startDate: undefined,
-    endDate: undefined
+    endDate: undefined,
   }),
   isDefaultByQueryParams: () => {
     const queryParams = getSearchParams();
@@ -34,9 +34,9 @@ const allRange = (isUtc) => ({
     return {
       name: this.getName(),
       interval: this.getInterval(),
-      searchParams: this.getSearchParams()
+      searchParams: this.getSearchParams(),
     };
-  }
+  },
 });
 
 const oneDayRange = (isUtc) => ({
@@ -44,13 +44,13 @@ const oneDayRange = (isUtc) => ({
   isUtc,
   getInterval: () => ({
     startDate: performDateTimeFunction(startOfDay, isUtc, +new Date()),
-    endDate: performDateTimeFunction(endOfDay, isUtc, +new Date())
+    endDate: performDateTimeFunction(endOfDay, isUtc, +new Date()),
   }),
   getName: () => <FormattedMessage id="xDays" values={{ x: 1 }} />,
   getSearchParams: () => ({
     period: "1day",
     startDate: undefined,
-    endDate: undefined
+    endDate: undefined,
   }),
   isDefaultByQueryParams: () => {
     const queryParams = getSearchParams();
@@ -60,9 +60,9 @@ const oneDayRange = (isUtc) => ({
     return {
       name: this.getName(),
       interval: this.getInterval(),
-      searchParams: this.getSearchParams()
+      searchParams: this.getSearchParams(),
     };
-  }
+  },
 });
 
 const oneWeekRange = (isUtc) => ({
@@ -73,14 +73,14 @@ const oneWeekRange = (isUtc) => ({
 
     return {
       startDate: performDateTimeFunction(subDays, isUtc, startOfToday, 6),
-      endDate: performDateTimeFunction(endOfDay, isUtc, +new Date())
+      endDate: performDateTimeFunction(endOfDay, isUtc, +new Date()),
     };
   },
   getName: () => <FormattedMessage id="xWeeks" values={{ x: 1 }} />,
   getSearchParams: () => ({
     period: "1week",
     startDate: undefined,
-    endDate: undefined
+    endDate: undefined,
   }),
   isDefaultByQueryParams: () => {
     const queryParams = getSearchParams();
@@ -90,9 +90,9 @@ const oneWeekRange = (isUtc) => ({
     return {
       name: this.getName(),
       interval: this.getInterval(),
-      searchParams: this.getSearchParams()
+      searchParams: this.getSearchParams(),
     };
-  }
+  },
 });
 
 const twoWeeksRange = (isUtc) => ({
@@ -103,14 +103,14 @@ const twoWeeksRange = (isUtc) => ({
 
     return {
       startDate: performDateTimeFunction(subDays, isUtc, startOfToday, 13),
-      endDate: performDateTimeFunction(endOfDay, isUtc, +new Date())
+      endDate: performDateTimeFunction(endOfDay, isUtc, +new Date()),
     };
   },
   getName: () => <FormattedMessage id="xWeeks" values={{ x: 2 }} />,
   getSearchParams: () => ({
     period: "2weeks",
     startDate: undefined,
-    endDate: undefined
+    endDate: undefined,
   }),
   isDefaultByQueryParams: () => {
     const queryParams = getSearchParams();
@@ -120,9 +120,9 @@ const twoWeeksRange = (isUtc) => ({
     return {
       name: this.getName(),
       interval: this.getInterval(),
-      searchParams: this.getSearchParams()
+      searchParams: this.getSearchParams(),
     };
-  }
+  },
 });
 
 const oneMonthRange = (isUtc) => ({
@@ -133,14 +133,14 @@ const oneMonthRange = (isUtc) => ({
 
     return {
       startDate: performDateTimeFunction(subDays, isUtc, startOfToday, 29),
-      endDate: performDateTimeFunction(endOfDay, isUtc, +new Date())
+      endDate: performDateTimeFunction(endOfDay, isUtc, +new Date()),
     };
   },
   getName: () => <FormattedMessage id="xMonth" values={{ x: 1 }} />,
   getSearchParams: () => ({
     period: "1month",
     startDate: undefined,
-    endDate: undefined
+    endDate: undefined,
   }),
   isDefaultByQueryParams: () => {
     const queryParams = getSearchParams();
@@ -150,9 +150,9 @@ const oneMonthRange = (isUtc) => ({
     return {
       name: this.getName(),
       interval: this.getInterval(),
-      searchParams: this.getSearchParams()
+      searchParams: this.getSearchParams(),
     };
-  }
+  },
 });
 
 const customRange = (isUtc) => ({
@@ -167,12 +167,12 @@ const customRange = (isUtc) => ({
   },
   getInterval: (millisecondsStartDate, millisecondsEndDate) => ({
     startDate: millisecondsStartDate,
-    endDate: millisecondsEndDate
+    endDate: millisecondsEndDate,
   }),
   getSearchParams: (millisecondsStartDate, millisecondsEndDate) => ({
     startDate: millisecondsToSeconds(millisecondsStartDate),
     endDate: millisecondsToSeconds(millisecondsEndDate),
-    period: undefined
+    period: undefined,
   }),
   isDefaultByQueryParams: () => {
     const queryParams = getSearchParams();
@@ -189,7 +189,7 @@ const customRange = (isUtc) => ({
       return {
         name: this.getName(millisecondsStartDate, millisecondsEndDate),
         interval: this.getInterval(millisecondsStartDate, millisecondsEndDate),
-        searchParams: this.getSearchParams(millisecondsStartDate, millisecondsEndDate)
+        searchParams: this.getSearchParams(millisecondsStartDate, millisecondsEndDate),
       };
     }
 
@@ -199,9 +199,9 @@ const customRange = (isUtc) => ({
     return {
       name: this.getName(startDate, endDate),
       interval: this.getInterval(startDate, endDate),
-      searchParams: this.getSearchParams(startDate, endDate)
+      searchParams: this.getSearchParams(startDate, endDate),
     };
-  }
+  },
 });
 
 const useDateRanges = (ranges) => {
@@ -225,7 +225,7 @@ const useDateRanges = (ranges) => {
       setSelectedRange({
         name,
         interval,
-        searchParams
+        searchParams,
       });
     },
     ranges: ranges.map(({ type, isUtc, getInterval, getName, getSearchParams }) => ({
@@ -233,8 +233,8 @@ const useDateRanges = (ranges) => {
       isUtc,
       getInterval,
       getName,
-      getSearchParams
-    }))
+      getSearchParams,
+    })),
   };
 };
 

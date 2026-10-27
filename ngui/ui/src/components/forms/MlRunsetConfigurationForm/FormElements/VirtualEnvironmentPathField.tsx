@@ -18,11 +18,11 @@ const VirtualEnvironmentPathField = ({ isLoading = false }) =>
           <QuestionMark
             messageId="runsetVirtualEnvironmentPathDescription"
             messageValues={{
-              i: (chunks) => <i>{chunks}</i>
+              i: (chunks) => <i>{chunks}</i>,
             }}
             dataTestId="qmark_runset_virtual_environment_path"
           />
-        )
+        ),
       }}
     />
   );

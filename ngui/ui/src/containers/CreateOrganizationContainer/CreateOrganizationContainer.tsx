@@ -11,7 +11,7 @@ const CreateOrganizationContainer = ({ onSuccess, closeSideModal }: CreateOrgani
   const [createOrganization, { loading: createOrganizationLoading }] = useCreateOrganizationMutation();
 
   const [getOrganizations, { loading: isOrganizationsLoading }] = useOrganizationsLazyQuery({
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
   const isLoading = createOrganizationLoading || isOrganizationsLoading;
@@ -19,12 +19,12 @@ const CreateOrganizationContainer = ({ onSuccess, closeSideModal }: CreateOrgani
   const onSubmit = async (formData: FormValues) => {
     const {
       data: {
-        createOrganization: { id: organizationId }
-      }
+        createOrganization: { id: organizationId },
+      },
     } = await createOrganization({
       variables: {
-        organizationName: formData.name
-      }
+        organizationName: formData.name,
+      },
     });
 
     await getOrganizations();

@@ -150,9 +150,11 @@ class Client(Client_v1):
             url = '%s/%s' % (url, id)
         return url
 
-    def pool_get(self, pool_id, details=False, children=False):
+    def pool_get(self, pool_id, details=False, children=False,
+                 start_date=None, end_date=None):
         url = self.pool_url(pool_id) + self.query_url(
-            details=details, children=children)
+            details=details, children=children,
+            start_date=start_date, end_date=end_date)
         return self.get(url)
 
     def pool_update(self, pool_id, params):
@@ -232,13 +234,17 @@ class Client(Client_v1):
         return 'schedule_imports'
 
     def schedule_import(self, period=None, cloud_account_id=None, organization_id=None,
-                        cloud_account_type=None, priority=None):
+                        cloud_account_type=None, priority=None,
+                        import_from=None, import_to=None, reimport=False):
         body = {
             'period': period,
             'cloud_account_id': cloud_account_id,
             'organization_id': organization_id,
             'cloud_account_type': cloud_account_type,
-            'priority': priority
+            'priority': priority,
+            'import_from': import_from,
+            'import_to': import_to,
+            'reimport': reimport
         }
         return self.post(self.schedule_import_url(), body)
 
@@ -995,6 +1001,17 @@ class Client(Client_v1):
         return self.delete(self.pool_expenses_export_url(pool_id))
 
     @staticmethod
+    def pool_expenses_report_url(organization_id):
+        url = Client.organization_url(organization_id) + "/pool_expenses_report"
+        return url
+
+    def pool_expenses_report_get(self, organization_id, start_date, end_date,
+                                 exp_format):
+        url = self.pool_expenses_report_url(organization_id) + self.query_url(
+            start_date=start_date, end_date=end_date, format=exp_format)
+        return self.get(url)
+
+    @staticmethod
     def node_bulk_url(cloud_account_id):
         url = 'cloud_accounts/%s/nodes/bulk' % cloud_account_id
         return url
@@ -1722,10 +1739,6 @@ class Client(Client_v1):
         url = '%s/%s' % (Client.organization_url(organization_id), url)
         return url
 
-    @staticmethod
-    def geminis_data_url(id_):
-        return 'geminis/%s/data' % id_
-
     def gemini_list(self, organization_id=None, params=None):
         url = self.geminis_url(organization_id=organization_id)
         return self.get(url, body=params)
@@ -1737,11 +1750,34 @@ class Client(Client_v1):
     def gemini_get(self, id_):
         return self.get(self.geminis_url(id_=id_))
 
-    def gemini_data_get(self, id_, params=None):
-        url = self.geminis_data_url(id_=id_)
-        if params:
-            url += self.query_url(**params)
-        return self.get(url)
+    @staticmethod
+    def geminis_data_url(id_=None, gemini_id=None):
+        url = 'geminis_data'
+        if id_ is not None:
+            url = '%s/%s' % (url, id_)
+        if gemini_id is not None:
+            url = '%s/%s' % (Client.geminis_url(id_=gemini_id), url)
+        return url
+
+    def geminis_data_create(self, gemini_id, params):
+        return self.post(self.geminis_data_url(gemini_id=gemini_id), params)
+
+    def geminis_data_list(self, gemini_id, only_active=False):
+        return self.get(self.geminis_data_url(
+            gemini_id=gemini_id) + self.query_url(only_active=only_active))
+
+    def geminis_data_get(self, id_):
+        return self.get(self.geminis_data_url(id_=id_))
+
+    def geminis_data_update(self, id_, params):
+        return self.patch(self.geminis_data_url(id_=id_), params)
+
+    @staticmethod
+    def geminis_data_download_url(id_):
+        return f'{Client.geminis_data_url(id_=id_)}/download'
+
+    def geminis_data_download(self, id_):
+        return self.get(self.geminis_data_download_url(id_=id_))
 
     def gemini_update(self, id_, params):
         return self.patch(self.geminis_url(id_=id_), params)
@@ -1884,9 +1920,11 @@ class Client(Client_v1):
 
         return url
 
-    def cloud_policy_get(self, org_id, cloud_type, bucket_name=None, linked=False):
+    def cloud_policy_get(self, org_id, cloud_type, bucket_name=None,
+                         linked=False, external_id=None):
         return self.get(self.cloud_policy_url(org_id)+self.query_url(
-            cloud_type=cloud_type, bucket_name=bucket_name, linked=linked))
+            cloud_type=cloud_type, bucket_name=bucket_name, linked=linked,
+            external_id=external_id))
 
     @staticmethod
     def organization_summary_url(organization_id):

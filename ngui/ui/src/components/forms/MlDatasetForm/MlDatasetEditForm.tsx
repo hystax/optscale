@@ -10,7 +10,7 @@ const MlDatasetEditForm = ({ dataset, onSubmit, onCancel, isLoadingProps = {} }:
   const defaultValues = useMemo(() => getDefaultValues(dataset), [dataset]);
 
   const methods = useForm<FormValues>({
-    defaultValues
+    defaultValues,
   });
 
   const { handleSubmit, reset } = methods;
@@ -18,7 +18,7 @@ const MlDatasetEditForm = ({ dataset, onSubmit, onCancel, isLoadingProps = {} }:
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...defaultValues
+      ...defaultValues,
     }));
   }, [defaultValues, reset]);
 

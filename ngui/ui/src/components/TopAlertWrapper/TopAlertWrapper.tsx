@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { Box } from "@mui/material";
+import { Box, Link } from "@mui/material";
 import { render as renderGithubButton } from "github-buttons";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useDispatch } from "react-redux";
@@ -7,8 +7,8 @@ import { useAllDataSources } from "hooks/coreData/useAllDataSources";
 import { useGetToken } from "hooks/useGetToken";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { useRootData } from "hooks/useRootData";
-import { GITHUB_HYSTAX_OPTSCALE_REPO } from "urls";
-import { AZURE_TENANT, ENVIRONMENT } from "utils/constants";
+import { GITHUB_HYSTAX_OPTSCALE_REPO, OPTSCALE_AI } from "urls";
+import { AZURE_TENANT, ENVIRONMENT, GCP_TENANT } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { updateOrganizationTopAlert as updateOrganizationTopAlertActionCreator } from "./actionCreators";
 import { ALERT_TYPES, IS_EXISTING_USER } from "./constants";
@@ -16,7 +16,10 @@ import { useAllAlertsSelector } from "./selectors";
 import TopAlert from "./TopAlert";
 import type { AlertType, StoredAlert, TopAlertWrapperProps } from "./types";
 
-const getEligibleDataSources = (dataSources) => dataSources.filter(({ type }) => ![ENVIRONMENT, AZURE_TENANT].includes(type));
+const DATA_SOURCE_TYPES_EXCLUDED_FROM_PROCESSING_ALERT = [ENVIRONMENT, AZURE_TENANT, GCP_TENANT];
+
+const getEligibleDataSources = (dataSources) =>
+  dataSources.filter(({ type }) => !DATA_SOURCE_TYPES_EXCLUDED_FROM_PROCESSING_ALERT.includes(type));
 
 const GitHubInlineButton = ({ children, ariaLabelMessageId, href, dataIcon }) => {
   const intl = useIntl();
@@ -100,7 +103,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
         onTrigger: () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.INACTIVE_ORGANIZATION, triggered: true });
         },
-        dataTestId: "top_alert_inactive_organization"
+        dataTestId: "top_alert_inactive_organization",
       },
       {
         id: ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING,
@@ -113,7 +116,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
         onTrigger: () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING, triggered: true });
         },
-        dataTestId: "top_alert_data_processing"
+        dataTestId: "top_alert_data_processing",
       },
       {
         id: ALERT_TYPES.DATA_SOURCES_PROCEEDED,
@@ -128,16 +131,18 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING, closed: false, triggered: false });
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_PROCEEDED, closed: false, triggered: false });
         },
-        dataTestId: "top_alert_data_proceeded"
+        dataTestId: "top_alert_data_proceeded",
       },
       {
         id: ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT,
+        // Temporarily disabled — replaced by OPTSCALE_AI_PROMO_ANNOUNCEMENT below.
+        // To restore, revert condition back to: !isExistingUser && (!userId || organizationId)
         // isExistingUser — true only if user was logged in/visited optscale before. Set in migrations.
         // organizationId — wont be presented on initial load (so storedAlerts will be empty, so even if banner was closed, we would not know that,
         //                  so we need to wait for organizationId. But if user is not logged in — there also wont be organizationId, so we use next flag)
         // userId — presented after login
         // this check means "condition: not logged in new user (!isExistingUser && !userId) OR new user and we know organization id (!isExistingUser && organizationId)"
-        condition: !isExistingUser && (!userId || organizationId),
+        condition: false,
         getContent: () => (
           <Box sx={{ textAlign: "center" }}>
             <FormattedMessage
@@ -151,7 +156,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
                   >
                     {chunks}
                   </GitHubInlineButton>
-                )
+                ),
               }}
             />
           </Box>
@@ -161,8 +166,46 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
         onClose: () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT, closed: true });
         },
-        dataTestId: "top_alert_open_source_announcement"
-      }
+        dataTestId: "top_alert_open_source_announcement",
+      },
+      {
+        id: ALERT_TYPES.OPTSCALE_AI_PROMO_ANNOUNCEMENT,
+        // isExistingUser — true only if user was logged in/visited optscale before. Set in migrations.
+        // organizationId — wont be presented on initial load (so storedAlerts will be empty, so even if banner was closed, we would not know that,
+        //                  so we need to wait for organizationId. But if user is not logged in — there also wont be organizationId, so we use next flag)
+        // userId — presented after login
+        // this check means "condition: not logged in new user (!isExistingUser && !userId) OR new user and we know organization id (!isExistingUser && organizationId)"
+        condition: !isExistingUser && (!userId || organizationId),
+        getContent: () => (
+          <Box sx={{ textAlign: "center" }}>
+            <FormattedMessage
+              id="optScaleAiPromoAnnouncement"
+              values={{
+                strong: (chunks) => <strong>{chunks}</strong>,
+                br: () => <br />,
+                link: (chunks) => (
+                  <Link
+                    href={OPTSCALE_AI}
+                    target="_blank"
+                    rel="noopener"
+                    color="inherit"
+                    underline="always"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              }}
+            />
+          </Box>
+        ),
+        type: "promo",
+        triggered: isTriggered(ALERT_TYPES.OPTSCALE_AI_PROMO_ANNOUNCEMENT),
+        onClose: () => {
+          updateOrganizationTopAlert({ id: ALERT_TYPES.OPTSCALE_AI_PROMO_ANNOUNCEMENT, closed: true });
+        },
+        dataTestId: "top_alert_optscale_ai_promo_announcement",
+      },
     ];
   }, [
     storedAlerts,
@@ -171,7 +214,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
     hasDataSourceInProcessing,
     isExistingUser,
     userId,
-    updateOrganizationTopAlert
+    updateOrganizationTopAlert,
   ]);
 
   const currentAlert = useMemo(

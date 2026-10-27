@@ -22,18 +22,18 @@ class ServiceType extends Filter {
     additionalProperties: false,
     properties: {
       name: {
-        type: "string"
+        type: "string",
       },
       cloud_type: {
         type: "string",
-        enum: CLOUD_ACCOUNT_TYPES_LIST
-      }
-    }
+        enum: CLOUD_ACCOUNT_TYPES_LIST,
+      },
+    },
   };
 
   // TODO: Use ajv TS integration to create schema based on types def
   static appliedFilterSchema = {
-    type: "string"
+    type: "string",
   };
 
   static _getValue(filterItem) {
@@ -53,10 +53,10 @@ class ServiceType extends Filter {
       value: appliedFilter,
       displayedValue: this.constructor.getDisplayedValueRenderer(filterItem, () => ({
         iconProps: {
-          dataTestId: `${this.constructor.filterName}_filter_logo`
-        }
+          dataTestId: `${this.constructor.filterName}_filter_logo`,
+        },
       })),
-      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem),
     };
   }
 
@@ -64,7 +64,7 @@ class ServiceType extends Filter {
     return sortObjects({
       array: items,
       field: "name",
-      type: "asc"
+      type: "asc",
     });
   }
 }

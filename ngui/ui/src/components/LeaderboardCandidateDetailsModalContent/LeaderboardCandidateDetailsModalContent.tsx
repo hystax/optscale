@@ -8,7 +8,7 @@ const LeaderboardCandidateDetailsModalContent = ({ taskId, candidateDetails, lea
     hyperparams: hyperparameters = {},
     metrics: groupSecondaryMetrics = {},
     primary_metric: groupPrimaryMetric = {},
-    coverage
+    coverage,
   } = candidateDetails;
 
   return (
@@ -19,7 +19,7 @@ const LeaderboardCandidateDetailsModalContent = ({ taskId, candidateDetails, lea
           hyperparameters={hyperparameters}
           metrics={Object.fromEntries([
             ...Object.values(groupPrimaryMetric).map(({ name, value, unit }) => [name, { value, unit }]),
-            ...Object.values(groupSecondaryMetrics).map(({ name, value, unit }) => [name, { value, unit }])
+            ...Object.values(groupSecondaryMetrics).map(({ name, value, unit }) => [name, { value, unit }]),
           ])}
           coverage={coverage}
         />

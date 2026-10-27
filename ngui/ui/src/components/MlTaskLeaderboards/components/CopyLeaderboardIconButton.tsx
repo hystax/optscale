@@ -11,7 +11,7 @@ const CopyLeaderboardIconButton = ({ task, leaderboardTemplate, leaderboard, onS
       icon={<FileCopyOutlinedIcon fontSize="small" />}
       tooltip={{
         show: true,
-        messageId: "clone"
+        messageId: "clone",
       }}
       onClick={() => openSideModal(CloneLeaderboardModal, { task, leaderboardTemplate, leaderboard, onSuccess })}
     />

@@ -1,40 +1,50 @@
+import base64
 import enum
+import hashlib
 import io
 import json
 import logging
 import os
 import re
-import base64
+import unicodedata
 import uuid
-import hashlib
-import cryptocode
-from urllib.parse import urlencode
 from concurrent.futures import ThreadPoolExecutor
-from cryptography.fernet import Fernet
 from datetime import datetime
 from decimal import Decimal
+from functools import cache
 from string import ascii_letters, digits
+from urllib.parse import urlencode
 
+import cryptocode
 import json_excel_converter.xlsx.formats as ExcelFormats
 import netaddr
 from bson import ObjectId
-from optscale_client.config_client.client import Client as ConfigClient
+from cryptography.fernet import Fernet, InvalidToken
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from json_excel_converter import Converter as ExcelConverter
-from json_excel_converter.xlsx import (Writer as ExcelWriter,
-                                       DEFAULT_COLUMN_WIDTH)
+from json_excel_converter.options import Options as ExcelOptions
+from json_excel_converter.xlsx import Writer as ExcelWriter, DEFAULT_COLUMN_WIDTH
+from opentelemetry import trace
+from pymongo.errors import BulkWriteError
 from requests import HTTPError
+from retrying import retry
 from sqlalchemy.exc import InternalError, DatabaseError
 
-from tools.optscale_exceptions.common_exc import (
-    WrongArgumentsException, NotFoundException, ConflictException,
-    FailedDependency, ForbiddenException, TimeoutException, UnauthorizedException)
-from tools.optscale_exceptions.http_exc import OptHTTPError
-from pymongo.errors import BulkWriteError
-from tools.cloud_adapter.exceptions import CloudAdapterBaseException
-from tools.optscale_time import utcfromtimestamp, utcnow
+from optscale_client.config_client.client import Client as ConfigClient
 from rest_api.rest_api_server.exceptions import Err
-from retrying import retry
-import unicodedata
+from tools.cloud_adapter.exceptions import CloudAdapterBaseException
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException,
+    NotFoundException,
+    ConflictException,
+    FailedDependency,
+    ForbiddenException,
+    TimeoutException,
+    UnauthorizedException,
+)
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_time import utcfromtimestamp, utcnow
 
 MAX_32_INT = 2 ** 31 - 1
 MAX_64_INT = 2 ** 63 - 1
@@ -44,6 +54,8 @@ tp_executor_context = ThreadPoolExecutor(30)
 LOG = logging.getLogger(__name__)
 GB = 1024 * 1024 * 1024
 SECONDS_IN_HOUR = 60 * 60
+FERNET_CONFIG_PREFIX = 'v2:'
+_FERNET_CONFIG_KDF_INFO = b'optscale-config-fernet-v1'
 
 
 def singleton(class_):
@@ -473,9 +485,10 @@ def retry_mongo_upsert(method, *args, **kwargs):
     return method(*args, **kwargs)
 
 
-def object_to_xlsx(obj):
+def object_to_xlsx(obj, fields=None):
+    options = ExcelOptions(fields=fields) if fields else ExcelOptions()
     with io.BytesIO() as f:
-        conv = ExcelConverter()
+        conv = ExcelConverter(options=options)
         conv.convert(obj, ExcelWriter(
             file=f,
             header_formats=(
@@ -521,15 +534,44 @@ def _get_encryption_salt():
     return Config().client.encryption_salt()
 
 
+@cache
+def _get_config_fernet():
+    """Derive the Fernet key once per process from the etcd master secret.
+
+    The etcd value is high-entropy random bytes, so HKDF is the correct
+    primitive: it provides domain separation via ``info`` without the
+    work-factor overhead of a password-based KDF.
+    """
+    master = _get_encryption_salt()
+    if isinstance(master, str):
+        master = master.encode('utf-8')
+    derived = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=_FERNET_CONFIG_KDF_INFO,
+    ).derive(master)
+    return Fernet(base64.urlsafe_b64encode(derived))
+
+
 def encode_config(config_dict):
-    s = _get_encryption_salt()
-    return cryptocode.encrypt(
-        json.dumps(config_dict), s)
+    payload = json.dumps(config_dict).encode('utf-8')
+    token = _get_config_fernet().encrypt(payload).decode('utf-8')
+    return FERNET_CONFIG_PREFIX + token
 
 
 def decode_config(encoded_str):
-    s = _get_encryption_salt()
-    return json.loads(cryptocode.decrypt(encoded_str, s))
+    if encoded_str is None:
+        return None
+    if encoded_str.startswith(FERNET_CONFIG_PREFIX):
+        token = encoded_str[len(FERNET_CONFIG_PREFIX):].encode('utf-8')
+        try:
+            data = _get_config_fernet().decrypt(token)
+        except InvalidToken as exc:
+            raise ValueError('invalid Fernet config token') from exc
+        return json.loads(data.decode('utf-8'))
+    # Legacy cryptocode
+    return json.loads(cryptocode.decrypt(encoded_str, _get_encryption_salt()))
 
 
 def get_bi_encryption_key():
@@ -601,3 +643,13 @@ def handle_http_exc(func):
 def timestamp_to_day_start(timestamp) -> datetime:
     return utcfromtimestamp(timestamp).replace(
         hour=0, minute=0, second=0, microsecond=0)
+
+
+def is_match_domain(domain_exp, email_str):
+    if domain_exp.startswith('@'):
+        domain_regex = f'{re.escape(domain_exp)}$'
+    elif domain_exp.startswith('/'):
+        domain_regex = domain_exp[1:]
+    else:
+        domain_regex = f'@{re.escape(domain_exp)}$'
+    return re.search(domain_regex, email_str, re.IGNORECASE)

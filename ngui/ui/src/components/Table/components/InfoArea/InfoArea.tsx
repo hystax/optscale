@@ -29,7 +29,7 @@ const DisplayedLabel = ({ rowsCount, totalNumber, pagination, dataTestIds }) => 
       dataTestIds={{
         typography: dataTestIds.displayed,
         key: dataTestIds.displayedKey,
-        value: dataTestIds.displayedValue
+        value: dataTestIds.displayedValue,
       }}
     />
   );
@@ -44,7 +44,7 @@ const InfoArea = ({
   counters,
   withSearch,
   withSelection,
-  withPagination
+  withPagination,
 }) => {
   const { show: showCounters = true, hideTotal = false, hideDisplayed = false, hideSelected = false } = counters;
 
@@ -88,7 +88,7 @@ const InfoArea = ({
                 dataTestIds={{
                   typography: dataTestIds.selected,
                   key: dataTestIds.selectedKey,
-                  value: dataTestIds.selectedValue
+                  value: dataTestIds.selectedValue,
                 }}
               />
             ) : null}

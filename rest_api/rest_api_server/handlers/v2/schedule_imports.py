@@ -19,8 +19,9 @@ class ScheduleImportsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         """
         ---
         description: |
-            Schedule data import for cloud account
-            Required permission: CLUSTER SECRET
+            Schedule data import for cloud account.
+            Required permission: CLUSTER_SECRET, or MANAGE_CLOUD_CREDENTIALS
+            when cloud_account_id is specified.
         tags: [report_imports]
         summary: Schedule data import
         parameters:
@@ -40,22 +41,33 @@ class ScheduleImportsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         type: string
                         description: >
                             organization id for import
-                            organization id
                     cloud_account_type:
                         type: string
                         description: >
                             specify cloud_account_type for import
-                            cloud_account_type
                     cloud_account_id:
                         type: string
                         description: >
                             specify cloud_account_id for import
-                            cloud_account_id
                     priority:
                         type: integer
                         description: >
                             specify priority for import task
-                            priority
+                    import_from:
+                        type: integer
+                        description: >
+                            Unix timestamp; import data starting from this
+                            date. Only valid with cloud_account_id.
+                    import_to:
+                        type: integer
+                        description: >
+                            Unix timestamp; import data up to this date.
+                            Only valid with cloud_account_id.
+                    reimport:
+                        type: boolean
+                        description: >
+                            bypass ETag check and re-download all files in the
+                            selected range. Only valid with cloud_account_id.
         responses:
             200:
                 description: Success (returns modified object)
@@ -65,12 +77,15 @@ class ScheduleImportsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     - OE0212: Unexpected parameters
                     - OE0223: Should be integer
                     - OE0224: Wrong integer value
+                    - OE0226: Should be boolean
                     - OE0528: Cannot use organization_id with cloud_account_id
                     - OE0529: Cannot use cloud_account_type without organization_id
                     - OE0530: Priority should be 1...9
                     - OE0531: Period should be used exclusively
                     - OE0532: Period, organization_id or cloud_account_id is required
                     - OE0533: Invalid cloud account type
+                    - OE0446: import_to should be greater than import_from
+                    - OE0561: Cannot use import_from/import_to/reimport without cloud_account_id
             401:
                 description: |
                     Unauthorized:
@@ -81,10 +96,18 @@ class ScheduleImportsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     - OE0234: Forbidden
         security:
         - secret: []
+        - token: []
         """
-        self.check_cluster_secret()
         data = self._request_body()
         data.update(url_params)
+        cloud_account_id = data.get('cloud_account_id')
+        if cloud_account_id:
+            if not self.check_cluster_secret(raises=False):
+                await self.check_permissions(
+                    'MANAGE_CLOUD_CREDENTIALS', 'cloud_account',
+                    cloud_account_id)
+        else:
+            self.check_cluster_secret()
         self._validate_params(**data)
         res = await run_task(self.controller.schedule, **data)
         self.set_status(201)

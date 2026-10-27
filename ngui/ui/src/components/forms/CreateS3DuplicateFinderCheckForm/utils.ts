@@ -4,5 +4,5 @@ import { FormValues } from "./types";
 export const getDefaultValues = (): FormValues => ({
   [FIELD_NAMES.DATA_SOURCES]: [],
   [FIELD_NAMES.BUCKETS]: {},
-  [FIELD_NAMES.SIZE]: "0"
+  [FIELD_NAMES.SIZE]: "0",
 });

@@ -11,7 +11,7 @@ const Layout = ({
   removeBreakdown,
   runs,
   getRunNameByNumber,
-  colors
+  colors,
 }) => (
   <Stack>
     <div>

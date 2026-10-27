@@ -47,7 +47,7 @@ const EnvironmentProperty = ({ environmentId, propertyName, propertyValue, exist
               disabled={isRestricted}
               tooltip={{
                 show: true,
-                value: isRestricted ? restrictionReasonMessage : "edit"
+                value: isRestricted ? restrictionReasonMessage : "edit",
               }}
             />
             <IconButton

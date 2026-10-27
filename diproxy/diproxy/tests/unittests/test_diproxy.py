@@ -4,7 +4,7 @@ import uuid
 
 from requests.exceptions import HTTPError
 from tornado.httpclient import HTTPRequest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from tornado.httputil import HTTPHeaders
 
@@ -68,6 +68,17 @@ class TestDiproxy(tornado.testing.AsyncHTTPTestCase):
         p_get_ca.side_effect = HTTPError()
         response = self._send_write_request(headers=headers)
         self.assertEqual(response.code, 422)
+
+    @patch('diproxy.diproxy.main.RestApiClient.cloud_account_get')
+    def test_non_existing_ca_not_requeried_while_cached(self, p_get_ca):
+        # a misconfigured/placeholder cloud_account_id retried in a tight
+        # loop must not keep hammering restapi - the 404 should be cached
+        headers = {'Cloud-Account-Id': 'gke-collector'}
+        p_get_ca.side_effect = HTTPError(response=Mock(status_code=404))
+        for _ in range(5):
+            response = self._send_write_request(headers=headers)
+            self.assertEqual(response.code, 422)
+        p_get_ca.assert_called_once()
 
     @patch('diproxy.diproxy.main.RestApiClient.cloud_account_get')
     def test_unsupported_ca(self,  p_get_ca):

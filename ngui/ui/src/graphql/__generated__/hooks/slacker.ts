@@ -84,6 +84,13 @@ export function useGetInstallationPathLazyQuery(
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<GetInstallationPathQuery, GetInstallationPathQueryVariables>(GetInstallationPathDocument, options);
 }
+// @ts-ignore
+export function useGetInstallationPathSuspenseQuery(
+  baseOptions?: Apollo.SuspenseQueryHookOptions<GetInstallationPathQuery, GetInstallationPathQueryVariables>
+): Apollo.UseSuspenseQueryResult<GetInstallationPathQuery, GetInstallationPathQueryVariables>;
+export function useGetInstallationPathSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInstallationPathQuery, GetInstallationPathQueryVariables>
+): Apollo.UseSuspenseQueryResult<GetInstallationPathQuery | undefined, GetInstallationPathQueryVariables>;
 export function useGetInstallationPathSuspenseQuery(
   baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInstallationPathQuery, GetInstallationPathQueryVariables>
 ) {

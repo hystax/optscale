@@ -17,7 +17,7 @@ const TotalsTable = ({ startDate, endDate, totals, metaName }: TotalsTableProps)
       Object.entries(totals).map(([key, datum]) => ({
         name: key,
         count: datum.count,
-        cost: datum.cost
+        cost: datum.cost,
       })),
     [totals]
   );
@@ -42,8 +42,8 @@ const TotalsTable = ({ startDate, endDate, totals, metaName }: TotalsTableProps)
         },
         style: {
           maxWidth: "500px",
-          overflowWrap: "anywhere"
-        }
+          overflowWrap: "anywhere",
+        },
       },
       {
         header: (
@@ -56,7 +56,7 @@ const TotalsTable = ({ startDate, endDate, totals, metaName }: TotalsTableProps)
           </TextWithDataTestId>
         ),
         accessorKey: "count",
-        cell: ({ cell }) => <FormattedNumber value={cell.getValue()} />
+        cell: ({ cell }) => <FormattedNumber value={cell.getValue()} />,
       },
       {
         header: (
@@ -66,8 +66,8 @@ const TotalsTable = ({ startDate, endDate, totals, metaName }: TotalsTableProps)
         ),
         accessorKey: "cost",
         cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
-        defaultSort: "desc"
-      }
+        defaultSort: "desc",
+      },
     ],
     [startDate, endDate, metaName, intl]
   );

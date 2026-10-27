@@ -32,37 +32,37 @@ const ResourceLimitHits = ({ limitHits, isLoading }) => {
       {
         header: <TextWithDataTestId messageId="type" dataTestId="lbl_type" />,
         accessorKey: "type",
-        cell: ({ cell }) => <FormattedMessage id={CONSTRAINTS_TYPES[cell.getValue()]} />
+        cell: ({ cell }) => <FormattedMessage id={CONSTRAINTS_TYPES[cell.getValue()]} />,
       },
       {
         header: <TextWithDataTestId messageId="scope" dataTestId="lbl_scope" />,
         id: "scope",
         cell: ({ row: { original } }) =>
-          original.pool_id ? <FormattedMessage id="poolPolicy" /> : <FormattedMessage id="resourceSpecific" />
+          original.pool_id ? <FormattedMessage id="poolPolicy" /> : <FormattedMessage id="resourceSpecific" />,
       },
       {
         header: <TextWithDataTestId messageId="event" dataTestId="lbl_event" />,
         id: "event",
-        cell: ({ row: { original } }) => <ResourceLimitHitEvent state={original.state} />
+        cell: ({ row: { original } }) => <ResourceLimitHitEvent state={original.state} />,
       },
       {
         header: <TextWithDataTestId messageId="limit" dataTestId="lbl_limit" />,
         accessorKey: "constraint_limit",
-        cell: ({ row: { original } }) => <ConstraintLimitMessage limit={original.constraint_limit} type={original.type} />
+        cell: ({ row: { original } }) => <ConstraintLimitMessage limit={original.constraint_limit} type={original.type} />,
       },
       {
         header: <TextWithDataTestId messageId="value" dataTestId="lbl_value" />,
         id: "hit_value",
         cell: ({ row: { original } }) => (
           <ConstraintHitMessage limit={getResourceLimitHitValue(original)} type={original.type} />
-        )
+        ),
       },
       {
         header: <TextWithDataTestId messageId="time" dataTestId="lbl_time" />,
         accessorKey: "time",
         defaultSort: "desc",
-        cell: ({ cell }) => format(secondsToMilliseconds(cell.getValue()), EN_FULL_FORMAT)
-      }
+        cell: ({ cell }) => format(secondsToMilliseconds(cell.getValue()), EN_FULL_FORMAT),
+      },
     ];
   }, []);
 
@@ -79,12 +79,12 @@ const ResourceLimitHits = ({ limitHits, isLoading }) => {
         </span>
         <Table
           dataTestIds={{
-            container: "table_constraints"
+            container: "table_constraints",
           }}
           data={data}
           columns={columns}
           localization={{
-            emptyMessageId: "noConstraintViolations"
+            emptyMessageId: "noConstraintViolations",
           }}
           pageSize={50}
           queryParamPrefix="constraints"

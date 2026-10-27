@@ -43,7 +43,7 @@ const apiMiddleware =
       successHandlerPayload,
       headersOverride: headers,
       affectedRequests,
-      allowMultipleRequests
+      allowMultipleRequests,
     } = action.payload;
 
     if (!label) return undefined;
@@ -79,8 +79,8 @@ const apiMiddleware =
         affectedRequests,
         // ?foo[]=bar1&foo[]=bar2 -> ?foo=bar1&foo=bar2
         paramsSerializer: {
-          serialize: queryString.stringify
-        }
+          serialize: queryString.stringify,
+        },
       })
       .then((response) => {
         if (typeof onSuccess === "function") {
@@ -101,7 +101,7 @@ const apiMiddleware =
               typeof getMessageParams === "function" ? getMessageParams(params, response, successHandlerPayload) : [],
             alertSeverity:
               typeof getSeverity === "function" ? getSeverity(params, response, successHandlerPayload) : ALERT_SEVERITY.SUCCESS,
-            code: successCode
+            code: successCode,
           })
         );
       })
@@ -115,7 +115,7 @@ const apiMiddleware =
           // TODO - investigate error codes handling instead of using Protector/Error page wrappers everywhere
           if (error.response.status === 401) {
             signOut(dispatch, {
-              userEmail
+              userEmail,
             });
           }
         } else if (error.request) {

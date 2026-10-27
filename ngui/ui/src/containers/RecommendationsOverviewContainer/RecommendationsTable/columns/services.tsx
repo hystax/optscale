@@ -27,7 +27,7 @@ const services = ({ headerDataTestId, accessorKey }) => ({
   ),
   accessorKey,
   enableSorting: false,
-  cell: Cell
+  cell: Cell,
 });
 
 export default services;

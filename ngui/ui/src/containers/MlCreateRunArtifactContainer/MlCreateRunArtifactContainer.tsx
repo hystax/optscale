@@ -40,12 +40,12 @@ const MlCreateRunArtifactContainer = () => {
       <Link key={4} to={taskRunUrl} component={RouterLink}>
         {formatRunFullName(runNumber, runName)}
       </Link>,
-      <FormattedMessage key={4} id="artifacts" />
+      <FormattedMessage key={4} id="artifacts" />,
     ],
     title: {
       isLoading: isGetRunLoading,
-      messageId: "addArtifactTitle"
-    }
+      messageId: "addArtifactTitle",
+    },
   };
 
   const redirect = () => navigate(taskRunUrl);
@@ -56,14 +56,14 @@ const MlCreateRunArtifactContainer = () => {
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <MlCreateArtifactForm
             onSubmit={(formData) => onCreate({ ...formData, runId }).then(redirect)}
             onCancel={redirect}
             isLoadingProps={{
-              isCreateArtifactLoading
+              isCreateArtifactLoading,
             }}
           />
         </Box>

@@ -9,7 +9,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider
       state={{
-        api: { [LATEST_SUCCESS_HANDLED_LABEL]: "" }
+        api: { [LATEST_SUCCESS_HANDLED_LABEL]: "" },
       }}
     >
       <ApiSuccessAlert />

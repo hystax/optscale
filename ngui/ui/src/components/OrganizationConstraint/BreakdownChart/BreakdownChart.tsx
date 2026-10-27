@@ -16,7 +16,7 @@ const ResourceCountBreakdownContainer = ({ constraint }) => {
   const { organizationId } = useOrganizationInfo();
 
   const [{ value: breakdownByValue }, onBreakdownByChange] = useBreakdownBy({
-    queryParamName: DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME
+    queryParamName: DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME,
   });
 
   const resourceCountBreakdownRequestParams = useMemo(() => {
@@ -30,7 +30,7 @@ const ResourceCountBreakdownContainer = ({ constraint }) => {
       start_date: dateRange.startDate,
       end_date: dateRange.endDate,
       breakdown_by: breakdownByValue,
-      ...mapFiltersToApiParams(constraint.filters)
+      ...mapFiltersToApiParams(constraint.filters),
     };
   }, [breakdownByValue, constraint]);
 
@@ -38,8 +38,8 @@ const ResourceCountBreakdownContainer = ({ constraint }) => {
     skip: isEmptyObject(constraint),
     variables: {
       organizationId,
-      params: resourceCountBreakdownRequestParams
-    }
+      params: resourceCountBreakdownRequestParams,
+    },
   });
 
   return (
@@ -56,7 +56,7 @@ const ExpensesDailyBreakdownByContainer = ({ constraint }) => {
   const { organizationId } = useOrganizationInfo();
 
   const [{ value: breakdownByValue }, onBreakdownByChange] = useBreakdownBy({
-    queryParamName: DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME
+    queryParamName: DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME,
   });
 
   const expensesDailyBreakdownRequestParams = useMemo(() => {
@@ -70,7 +70,7 @@ const ExpensesDailyBreakdownByContainer = ({ constraint }) => {
       start_date: dateRange.startDate,
       end_date: dateRange.endDate,
       breakdown_by: breakdownByValue,
-      ...mapFiltersToApiParams(constraint.filters)
+      ...mapFiltersToApiParams(constraint.filters),
     };
   }, [breakdownByValue, constraint]);
 
@@ -78,8 +78,8 @@ const ExpensesDailyBreakdownByContainer = ({ constraint }) => {
     skip: isEmptyObject(constraint),
     variables: {
       organizationId,
-      params: expensesDailyBreakdownRequestParams
-    }
+      params: expensesDailyBreakdownRequestParams,
+    },
   });
 
   const breakdown = useMemo(() => reformatBreakdown(expensesDailyBreakdown?.breakdown ?? {}), [expensesDailyBreakdown]);
@@ -97,7 +97,7 @@ const ExpensesDailyBreakdownByContainer = ({ constraint }) => {
 
 const BreakdownChart = ({ constraint, isGetConstraintLoading }) => {
   if (isGetConstraintLoading) {
-    return <Skeleton variant="rectangular" height={"320px"} />;
+    return <Skeleton variant="rectangular" height="320px" />;
   }
 
   if (constraint.type === RESOURCE_COUNT_ANOMALY) {

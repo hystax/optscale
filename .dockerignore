@@ -1,6 +1,7 @@
 .git
 .idea
 .vscode
+.venv
 
 **/.env.sample
 **/.storybook

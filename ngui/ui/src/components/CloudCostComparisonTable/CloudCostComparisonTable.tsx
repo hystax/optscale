@@ -63,7 +63,7 @@ const CloudCostComparisonTable = ({ relevantSizes, errors }) => {
       !cloudProvider || cloudProvider.includes(cloudType)
         ? flavorsColumn({
             cloudType,
-            error: errors[cloudType]
+            error: errors[cloudType],
           })
         : undefined;
 
@@ -74,7 +74,7 @@ const CloudCostComparisonTable = ({ relevantSizes, errors }) => {
       getSizesColumn(AZURE_CNR),
       getSizesColumn(GCP_CNR),
       getSizesColumn(ALIBABA_CNR),
-      isNebiusConnectionEnabled ? getSizesColumn(NEBIUS) : undefined
+      isNebiusConnectionEnabled ? getSizesColumn(NEBIUS) : undefined,
     ].filter(Boolean);
   }, [cloudProvider, errors, isNebiusConnectionEnabled]);
 
@@ -91,10 +91,10 @@ const CloudCostComparisonTable = ({ relevantSizes, errors }) => {
               cloud_type: cloudType,
               cpu,
               ram,
-              id: `${size.name}-${size.location}-${size.instance_family}-${size.cost}-${size.currency}`
-            }))
+              id: `${size.name}-${size.location}-${size.instance_family}-${size.cost}-${size.currency}`,
+            })),
           ])
-        )
+        ),
       })),
     [relevantSizes]
   );
@@ -113,15 +113,15 @@ const CloudCostComparisonTable = ({ relevantSizes, errors }) => {
             {
               key: "btn-compare",
               type: "custom",
-              node: <CompareButton />
+              node: <CompareButton />,
             },
             {
               key: "btn-clear-selection",
               type: "custom",
-              node: <ClearSelectionButton />
-            }
-          ]
-        }
+              node: <ClearSelectionButton />,
+            },
+          ],
+        },
       }}
       columns={columns}
       data={tableData}

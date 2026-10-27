@@ -11,7 +11,7 @@ const PayloadField = () => {
   const {
     register,
     unregister,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -23,8 +23,8 @@ const PayloadField = () => {
           const [isValid] = validatePerspectiveSchema(data);
 
           return isValid ? true : intl.formatMessage({ id: "incorrectDataFormat" });
-        }
-      }
+        },
+      },
     });
 
     return () => unregister(FIELD_NAME);

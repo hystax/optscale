@@ -25,7 +25,7 @@ const FormButtons = ({ submitButtonMessageId, onCancel, isLoading = false }: For
           disabled={isRestricted}
           tooltip={{
             show: isRestricted,
-            value: restrictionReasonMessage
+            value: restrictionReasonMessage,
           }}
           isLoading={isLoading}
         />

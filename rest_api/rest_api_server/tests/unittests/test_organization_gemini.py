@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import patch
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
 
@@ -230,3 +231,207 @@ class TestOrganizationGemini(TestApiBase):
         code, data = self.client.gemini_get(gemini["id"])
         self.assertEqual(code, 404)
         self.assertEqual(data["error"]["error_code"], "OE0002")
+
+    def test_gemini_data_invalid(self):
+        code, data = self.client.geminis_data_get(str(uuid.uuid4()))
+        self.assertEqual(code, 404)
+        self.verify_error_code(data, 'OE0002')
+
+        for status in ['CREATED', 'QUEUED', 'RUNNING', 'FAILED']:
+            body = {"status": status}
+            code, gemini = self.client.gemini_update(self.gemini_1["id"], body)
+            self.assertEqual(code, 200)
+            self.assertEqual(gemini["status"], status)
+
+            code, data = self.client.geminis_data_create(
+                self.gemini_1["id"], {'buckets': ['bucket1', 'bucket2']})
+            self.assertEqual(code, 424)
+            self.verify_error_code(data, 'OE0572')
+
+    def test_gemini_data_create_params(self):
+        body = {"status": 'SUCCESS'}
+        code, gemini = self.client.gemini_update(self.gemini_1["id"], body)
+        self.assertEqual(code, 200)
+
+        code, data = self.client.geminis_data_create(
+            self.gemini_1["id"], {'buckets': []})
+        self.assertEqual(code, 400)
+        self.verify_error_code(data, 'OE0216')
+
+        code, data = self.client.geminis_data_create(
+            self.gemini_1["id"], {'buckets': ['b1', 'b2', 'b3']})
+        self.assertEqual(code, 400)
+        self.verify_error_code(data, 'OE0224')
+
+        code, data = self.client.geminis_data_create(
+            self.gemini_1["id"], {'buckets': ['b1', 'b2'], 'invalid': 'value'})
+        self.assertEqual(code, 400)
+        self.verify_error_code(data, 'OE0212')
+
+        code, data = self.client.geminis_data_create(
+            self.gemini_1["id"], {'buckets': [1]})
+        self.assertEqual(code, 400)
+        self.verify_error_code(data, 'OE0214')
+
+    def test_gemini_data(self):
+        body = {"status": 'SUCCESS'}
+        code, gemini = self.client.gemini_update(self.gemini_1["id"], body)
+        self.assertEqual(code, 200)
+
+        publish_task_mock = patch(
+            'rest_api.rest_api_server.controllers.organization_gemini.'
+            'GeminiDataController.publish_task').start()
+        code, data_1 = self.client.geminis_data_create(
+            self.gemini_1["id"], params={'buckets': ['bucket1', 'bucket2']})
+        self.assertEqual(code, 201)
+        publish_task_mock.assert_called_once_with({
+            'gemini_data_id': data_1['id'],
+        })
+        self.assertEqual(data_1['status'], 'QUEUED')
+        self.assertEqual(data_1['url'], None)
+        self.assertEqual(data_1['valid_until'], 0)
+
+        code, resp = self.client.geminis_data_create(
+            self.gemini_1["id"], params={'buckets': ['bucket1', 'bucket2']})
+        self.assertEqual(code, 409)
+        self.assertEqual(resp['error']['params'][0], 'GeminiData')
+        self.assertEqual(resp['error']['params'][1], data_1['id'])
+
+        code, data_2 = self.client.geminis_data_create(
+            self.gemini_1["id"], params={'buckets': ['bucket1']})
+        self.assertEqual(code, 201)
+
+        code, resp = self.client.geminis_data_list(self.gemini_1["id"])
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['geminis_data']), 2)
+
+        code, _ = self.client.geminis_data_update(data_1['id'], {
+            'valid_until': 123,
+            'url': '123',
+            'status': 'SUCCESS'
+        })
+        self.assertEqual(code, 200)
+        code, resp = self.client.geminis_data_list(self.gemini_1["id"],
+                                                   only_active=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['geminis_data']), 1)
+        self.assertEqual(resp['geminis_data'][0]['id'], data_2['id'])
+
+        code, _ = self.client.geminis_data_update(data_2['id'], {
+            'status': 'FAILED'
+        })
+        self.assertEqual(code, 200)
+        code, resp = self.client.geminis_data_list(self.gemini_1["id"],
+                                                   only_active=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['geminis_data']), 0)
+
+    def test_update_gemini_data_invalied(self):
+        body = {"status": 'SUCCESS'}
+        code, gemini = self.client.gemini_update(self.gemini_1["id"], body)
+        self.assertEqual(code, 200)
+
+        patch(
+            'rest_api.rest_api_server.controllers.organization_gemini.'
+            'GeminiDataController.publish_task').start()
+        code, gd = self.client.geminis_data_create(
+            self.gemini_1["id"], params={'buckets': ['bucket1', 'bucket2']})
+        self.assertEqual(code, 201)
+
+        code, resp = self.client.geminis_data_update(str(uuid.uuid4()), {})
+        self.assertEqual(code, 404)
+        self.verify_error_code(resp, 'OE0002')
+
+        valid_body = {
+            'url': 'some_url',
+            'status': 'SUCCESS',
+            'valid_until': 123
+        }
+
+        body = valid_body.copy()
+        body['status'] = 'invalid'
+        code, resp = self.client.geminis_data_update(gd['id'], body)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0287')
+
+        body = valid_body.copy()
+        body['new'] = 'invalid'
+        code, resp = self.client.geminis_data_update(gd['id'], body)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+        body = valid_body.copy()
+        body['buckets'] = 'invalid'
+        code, resp = self.client.geminis_data_update(gd['id'], body)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0211')
+
+        body = valid_body.copy()
+        body['url'] = 123
+        code, resp = self.client.geminis_data_update(gd['id'], body)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0214')
+
+        body = valid_body.copy()
+        body['valid_until'] = '123'
+        code, resp = self.client.geminis_data_update(gd['id'], body)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0223')
+
+        body = valid_body.copy()
+        body['url'] = ''.join('x' for _ in range(256))
+        code, resp = self.client.geminis_data_update(gd['id'], body)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0215')
+
+    def test_update_gemini_data(self):
+        body = {"status": 'SUCCESS'}
+        code, gemini = self.client.gemini_update(self.gemini_1["id"], body)
+        self.assertEqual(code, 200)
+
+        patch(
+            'rest_api.rest_api_server.controllers.organization_gemini.'
+            'GeminiDataController.publish_task').start()
+        code, gd = self.client.geminis_data_create(
+            self.gemini_1["id"], {'buckets': ['bucket1', 'bucket2']})
+        self.assertEqual(code, 201)
+
+        code, resp = self.client.geminis_data_update(gd['id'], {})
+        self.assertEqual(code, 200)
+        self.assertEqual(gd, resp)
+
+        body = {
+            'url': 'some_url',
+            'status': 'SUCCESS',
+            'valid_until': 123
+        }
+        code, resp = self.client.geminis_data_update(gd['id'], body)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['status'], body['status'])
+        self.assertEqual(resp['url'], body['url'])
+        self.assertEqual(resp['valid_until'], body['valid_until'])
+
+    def test_download_invalid(self):
+        body = {"status": 'SUCCESS'}
+        code, gemini = self.client.gemini_update(self.gemini_1["id"], body)
+        self.assertEqual(code, 200)
+
+        patch(
+            'rest_api.rest_api_server.controllers.organization_gemini.'
+            'GeminiDataController.publish_task').start()
+        code, gd = self.client.geminis_data_create(
+            self.gemini_1["id"], {'buckets': ['bucket1', 'bucket2']})
+        self.assertEqual(code, 201)
+
+        code, resp = self.client.geminis_data_download(gd['id'])
+        self.assertEqual(code, 424)
+        self.verify_error_code(resp, 'OE0572')
+
+        code, _ = self.client.geminis_data_update(gd['id'], {
+            'valid_until': 123,
+            'url': '123',
+            'status': 'SUCCESS'
+        })
+        self.assertEqual(code, 200)
+        code, resp = self.client.geminis_data_download(gd['id'])
+        self.assertEqual(code, 403)

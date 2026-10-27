@@ -17,12 +17,12 @@ import {
   INTER_REGION_LON,
   INTER_REGION_NAME,
   EXTERNAL_LAT,
-  EXTERNAL_LON
+  EXTERNAL_LON,
 } from "utils/maps";
 
 export const TABLE_SELECTION_STATE = Object.freeze({
   NOTHING_SELECTED: "NOTHING_SELECTED",
-  SELECTION_ACTIVE: "SELECTION_ACTIVE"
+  SELECTION_ACTIVE: "SELECTION_ACTIVE",
 });
 
 const getTableData = (expenses, uniqueDestinations) =>
@@ -32,7 +32,7 @@ const getTableData = (expenses, uniqueDestinations) =>
       const row = filteredExpenses.reduce(
         (resultObject, expense) => ({
           ...resultObject,
-          [expense.to.name]: expense
+          [expense.to.name]: expense,
         }),
         {}
       );
@@ -91,14 +91,14 @@ const getMarkers = (expenses, uniqueDestinations, destinationsMap) => {
           mapped_from: destinationsMap[e.from.name],
           mapped_to: destinationsMap[e.to.name],
           cost: e.cost,
-          usage: e.usage
+          usage: e.usage,
         })),
         name: destinationsMap[uniqueDestination],
         originalName: uniqueDestination,
         expenses: filteredExpenses,
         totalExpenses: filteredExpenses.reduce((result, e) => result + e.cost, 0),
-        totalUsage: filteredExpenses.reduce((result, e) => result + e.usage, 0)
-      }
+        totalUsage: filteredExpenses.reduce((result, e) => result + e.usage, 0),
+      },
     ];
   }, []);
 
@@ -112,16 +112,16 @@ const getMarkers = (expenses, uniqueDestinations, destinationsMap) => {
             expenses: [...(acc[OTHER_NAME]?.expenses || []), ...curr.expenses],
             summary: [...(acc[OTHER_NAME]?.summary || []), ...curr.summary],
             totalExpenses: (acc[OTHER_NAME]?.totalExpenses || 0) + curr.totalExpenses,
-            totalUsage: (acc[OTHER_NAME]?.totalUsage || 0) + curr.totalUsage
-          }
+            totalUsage: (acc[OTHER_NAME]?.totalUsage || 0) + curr.totalUsage,
+          },
         };
       }
 
       return {
         ...acc,
         [curr.id]: {
-          ...curr
-        }
+          ...curr,
+        },
       };
     }, {})
   );
@@ -143,16 +143,16 @@ const getMarkers = (expenses, uniqueDestinations, destinationsMap) => {
               cost: (acc[flowName]?.cost || 0) + curr.cost,
               usage: (acc[flowName]?.usage || 0) + curr.usage,
               to: {
-                name: OTHER_NAME
-              }
-            }
+                name: OTHER_NAME,
+              },
+            },
           };
         }
         return {
           ...acc,
           [flowName]: {
-            ...curr
-          }
+            ...curr,
+          },
         };
       }, {})
   );
@@ -163,7 +163,7 @@ const getMarkers = (expenses, uniqueDestinations, destinationsMap) => {
     otherLocations: locations.filter((location) => location.latitude === OTHER_LAT && location.longitude === OTHER_LON),
     interRegion: locations.find((location) => location.name === INTER_REGION_NAME),
     interContinental: locations.find((location) => location.name === INTER_CONTINENTAL_NAME),
-    externalLocation: locations.find((location) => location.name === EXTERNAL_NAME)
+    externalLocation: locations.find((location) => location.name === EXTERNAL_NAME),
   };
 };
 
@@ -173,7 +173,7 @@ const getColumns = ({
   onRowHeaderClick,
   onCellClick,
   selectedColumns,
-  tableData
+  tableData,
 }) => {
   let columns = uniqueToDestinations.map((field) => ({
     header: (
@@ -186,24 +186,24 @@ const getColumns = ({
     accessorKey: `${field}`,
     enableSorting: false,
     style: {
-      whiteSpace: "nowrap"
+      whiteSpace: "nowrap",
     },
     cell: ({ cell }) => {
       const expense = cell.getValue();
 
       return (
         <Link component="button" onClick={() => onCellClick(expense)} color="inherit">
-          <Typography variant="caption" component="div" align={"left"}>
+          <Typography variant="caption" component="div" align="left">
             <strong>
               <FormattedMoney value={expense.cost} type={FORMATTED_MONEY_TYPES.COMPACT} disableTooltip />{" "}
             </strong>
           </Typography>
-          <Typography variant="caption" component="div" align={"left"}>
+          <Typography variant="caption" component="div" align="left">
             <FormattedDigitalUnit value={expense.usage} baseUnit={SI_UNITS.GIGABYTE} />
           </Typography>
         </Link>
       );
-    }
+    },
   }));
 
   if (tableData.length === 1) {
@@ -224,26 +224,26 @@ const getColumns = ({
       accessorKey: "col_name",
       enableSorting: false,
       style: {
-        whiteSpace: "nowrap"
+        whiteSpace: "nowrap",
       },
       cell: ({ row: { original } }) => (
         <Link component="button" onClick={() => onRowHeaderClick(original.col_name)} color="inherit">
-          <Typography variant="subtitle2" component="div" align={"left"}>
+          <Typography variant="subtitle2" component="div" align="left">
             <strong>{original.col_name}</strong>
           </Typography>
-          <Typography variant="caption" component="div" align={"left"}>
+          <Typography variant="caption" component="div" align="left">
             <FormattedMessage
               id="totalExpensesWithTotalExpensesAndCost"
               values={{
                 totalExpenses: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={original.total_expenses} />,
-                totalUsage: <FormattedDigitalUnit value={original.total_usage} baseUnit={SI_UNITS.GIGABYTE} />
+                totalUsage: <FormattedDigitalUnit value={original.total_usage} baseUnit={SI_UNITS.GIGABYTE} />,
               }}
             />
           </Typography>
         </Link>
-      )
+      ),
     },
-    ...columns
+    ...columns,
   ];
 };
 
@@ -255,12 +255,12 @@ const useTableSelectionState = (selectedRows, selectedColumns) => {
       state: TABLE_SELECTION_STATE.NOTHING_SELECTED,
       labels: {
         from: undefined,
-        to: undefined
+        to: undefined,
       },
       data: {
         from: undefined,
-        to: undefined
-      }
+        to: undefined,
+      },
     };
   }
 
@@ -269,12 +269,12 @@ const useTableSelectionState = (selectedRows, selectedColumns) => {
       state: TABLE_SELECTION_STATE.SELECTION_ACTIVE,
       labels: {
         from: selectedRows.length > 1 ? intl.formatMessage({ id: "somewhere" }).toLowerCase() : selectedRows[0],
-        to: intl.formatMessage({ id: "somewhere" }).toLowerCase()
+        to: intl.formatMessage({ id: "somewhere" }).toLowerCase(),
       },
       data: {
         from: selectedRows,
-        to: undefined
-      }
+        to: undefined,
+      },
     };
   }
 
@@ -283,12 +283,12 @@ const useTableSelectionState = (selectedRows, selectedColumns) => {
       state: TABLE_SELECTION_STATE.SELECTION_ACTIVE,
       labels: {
         from: intl.formatMessage({ id: "somewhere" }).toLowerCase(),
-        to: selectedColumns.length > 1 ? intl.formatMessage({ id: "otherClouds" }) : selectedColumns[0]
+        to: selectedColumns.length > 1 ? intl.formatMessage({ id: "otherClouds" }) : selectedColumns[0],
       },
       data: {
         from: undefined,
-        to: selectedColumns
-      }
+        to: selectedColumns,
+      },
     };
   }
 
@@ -296,12 +296,12 @@ const useTableSelectionState = (selectedRows, selectedColumns) => {
     state: TABLE_SELECTION_STATE.SELECTION_ACTIVE,
     labels: {
       from: selectedRows.length > 1 ? intl.formatMessage({ id: "somewhere" }).toLowerCase() : selectedRows[0],
-      to: selectedColumns.length > 1 ? intl.formatMessage({ id: "otherClouds" }) : selectedColumns[0]
+      to: selectedColumns.length > 1 ? intl.formatMessage({ id: "otherClouds" }) : selectedColumns[0],
     },
     data: {
       from: selectedRows,
-      to: selectedColumns
-    }
+      to: selectedColumns,
+    },
   };
 };
 
@@ -339,8 +339,8 @@ export const useTrafficExpenses = (expenses) => {
     () => [
       ...new Set([
         ...selectedCloudTrafficExpenses.map((expense) => expense.from.name),
-        ...selectedCloudTrafficExpenses.map((expense) => expense.to.name)
-      ])
+        ...selectedCloudTrafficExpenses.map((expense) => expense.to.name),
+      ]),
     ],
     [selectedCloudTrafficExpenses]
   );
@@ -380,7 +380,7 @@ export const useTrafficExpenses = (expenses) => {
     return Object.fromEntries(
       expenses.flatMap((expense) => [
         [expense.from.name, getDestinationMap(expense.from)],
-        [expense.to.name, getDestinationMap(expense.to)]
+        [expense.to.name, getDestinationMap(expense.to)],
       ])
     );
   }, [expenses]);
@@ -395,37 +395,37 @@ export const useTrafficExpenses = (expenses) => {
       if (object.totals.outgoingCount) {
         setTableSelectionState({
           rows: [object.name],
-          columns: []
+          columns: [],
         });
       } else {
         setTableSelectionState({
           rows: [],
-          columns: [object.name]
+          columns: [object.name],
         });
       }
     }
     if (object.type === EXPENSES_MAP_OBJECT_TYPES.OTHER_MARKER) {
       setTableSelectionState({
         rows: [],
-        columns: otherLocationNames
+        columns: otherLocationNames,
       });
     }
     if (object.type === EXPENSES_MAP_OBJECT_TYPES.INTER_REGION_MARKER) {
       setTableSelectionState({
         rows: [],
-        columns: [INTER_REGION_NAME]
+        columns: [INTER_REGION_NAME],
       });
     }
     if (object.type === EXPENSES_MAP_OBJECT_TYPES.INTER_CONTINENTAL_MARKER) {
       setTableSelectionState({
         rows: [],
-        columns: [INTER_CONTINENTAL_NAME]
+        columns: [INTER_CONTINENTAL_NAME],
       });
     }
     if (object.type === EXPENSES_MAP_OBJECT_TYPES.EXTERNAL_MARKER) {
       setTableSelectionState({
         rows: [],
-        columns: [EXTERNAL_NAME]
+        columns: [EXTERNAL_NAME],
       });
     }
     if (object.type === EXPENSES_MAP_OBJECT_TYPES.FLOW) {
@@ -436,7 +436,7 @@ export const useTrafficExpenses = (expenses) => {
 
       setTableSelectionState({
         rows: [object.origin.name],
-        columns: columns
+        columns: columns,
       });
     }
   };
@@ -450,21 +450,21 @@ export const useTrafficExpenses = (expenses) => {
     const onColumnHeaderClick = (name) => {
       setTableSelectionState({
         rows: [],
-        columns: [name]
+        columns: [name],
       });
     };
 
     const onRowHeaderClick = (name) => {
       setTableSelectionState({
         rows: [name],
-        columns: []
+        columns: [],
       });
     };
 
     const onCellClick = (expense) => {
       setTableSelectionState({
         rows: [expense.from.name],
-        columns: [expense.to.name]
+        columns: [expense.to.name],
       });
     };
 
@@ -474,7 +474,7 @@ export const useTrafficExpenses = (expenses) => {
   const onFilterClear = useCallback(() => {
     setTableSelectionState({
       rows: [],
-      columns: []
+      columns: [],
     });
   }, []);
 
@@ -488,6 +488,6 @@ export const useTrafficExpenses = (expenses) => {
     tableData,
     columns,
     tableSelectionState,
-    onFilterClear
+    onFilterClear,
   };
 };

@@ -17,7 +17,11 @@ const JiraIssueListItem = ({ issueName, link }) => (
 const ToggleListItem = ({ onClick, label }) => {
   const { classes } = useStyles();
 
-  return <li className={classes.toggleListItem}>{<DashedTypography onClick={onClick}>{label}</DashedTypography>}</li>;
+  return (
+    <li className={classes.toggleListItem}>
+      <DashedTypography onClick={onClick}>{label}</DashedTypography>
+    </li>
+  );
 };
 
 const JiraIssuesListItems = ({ issues }) =>

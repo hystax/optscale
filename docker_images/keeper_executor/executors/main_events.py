@@ -24,6 +24,7 @@ class MainEventExecutor(BaseEventExecutor):
             'cloud_account_deleted': Events.N0068,
             'report_import_completed': Events.N0069,
             'report_import_failed': Events.N0070,
+            'report_import_throttled': Events.N0163,
             'assignment_request_accepted': Events.N0071,
             'assignment_request_declined': Events.N0072,
             'root_assigned_resource': Events.N0076,

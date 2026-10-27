@@ -46,19 +46,19 @@ class AuthHierarchyController(object):
     def auth_hierarchy(self, type=None, scope_id=None):
         if not type:
             raise WrongArgumentsException(Err.OE0216, ['type'])
-        if not scope_id and type != 'root':
+        if not scope_id:
             raise WrongArgumentsException(Err.OE0216, ['scope_id'])
-        if type != 'root':
-            self._check_resource(type, scope_id)
+        self._check_resource(type, scope_id)
 
         result = dict()
         sql = self.session.query(Organization.id, Pool.id).outerjoin(
             Pool, and_(
                 Pool.organization_id == Organization.id,
                 Pool.deleted.is_(False))
-        ).filter(Organization.deleted.is_(False))
-        if type != 'root':
-            sql = sql.filter(self.model_map.get(type).id == scope_id)
+        ).filter(
+            Organization.deleted.is_(False),
+            self.model_map.get(type).id == scope_id
+        )
         queryset = sql.order_by(Organization.id, Pool.id).all()
         if result.get('organization') is None:
             result['organization'] = dict()
@@ -71,7 +71,6 @@ class AuthHierarchyController(object):
             if pool_id is not None:
                 result['organization'][organization_id]['pool'].append(pool_id)
         result_scope = {
-            'root': lambda t: dict(root=dict(null=result)),
             'organization': lambda t: dict(organization=copy.deepcopy(result[t])),
             'pool': lambda t: dict(
                 pool=copy.deepcopy(result['organization'][queryset[0][0]][t]))

@@ -7,14 +7,14 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1),
     display: "flex",
     alignItems: "flex-start",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   codeBlock: {
     margin: 0,
     width: "100%",
     height: "100%",
-    overflow: "auto"
-  }
+    overflow: "auto",
+  },
 }));
 
 export default useStyles;

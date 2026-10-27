@@ -152,7 +152,7 @@ class AlibabaReportImporter(BaseReportImporter):
 
     def load_raw_data(self):
         chunk = []
-        now = opttime.utcnow()
+        now = self.period_end
         current_day = self.period_start.replace(
             hour=0, minute=0, second=0, microsecond=0)
         while current_day <= now:
@@ -195,7 +195,6 @@ class AlibabaReportImporter(BaseReportImporter):
             current_day += timedelta(days=1)
         self._flush_raw_chunk(chunk)
         self.generate_rdd_records(self.cloud_acc_id)
-        self.clear_rudiments()
 
     def _get_discount_fields(self):
         return [
@@ -217,7 +216,7 @@ class AlibabaReportImporter(BaseReportImporter):
             'InstanceSpec',
             'InstanceConfig'
         ] + self.get_cost_related_fields()
-        optscale_fields = ['cost', 'report_identity']
+        optscale_fields = ['cost']
         if optscale_f_incl:
             return cloud_fields + optscale_fields
         else:
@@ -347,7 +346,7 @@ class AlibabaReportImporter(BaseReportImporter):
     def get_full_months_in_period(self):
         full_month_dates = []
         start = self.period_start
-        end = opttime.utcnow()
+        end = self.period_end
         month_start = datetime(
             year=start.year, month=start.month, day=1,
             hour=0, minute=0, second=0)

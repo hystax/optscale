@@ -12,7 +12,7 @@ const MlModels = () => {
   const actionBarDefinition = {
     title: {
       text: <FormattedMessage id="models" />,
-      dataTestId: "lbl_models"
+      dataTestId: "lbl_models",
     },
     items: [
       {
@@ -21,9 +21,9 @@ const MlModels = () => {
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_MODELS])
-      }
-    ]
+        action: () => refetch([GET_ML_MODELS]),
+      },
+    ],
   };
 
   return (

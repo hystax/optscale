@@ -12,15 +12,15 @@ const TopResourcesExpensesCardContainer = () => {
     return {
       limit: 6,
       startDate,
-      endDate
+      endDate,
     };
   }, []);
 
   const {
     isLoading,
-    data: { clean_expenses: cleanExpenses = [] }
+    data: { clean_expenses: cleanExpenses = [] },
   } = useGet({
-    params
+    params,
   });
 
   return <TopResourcesExpensesCard isLoading={isLoading} cleanExpenses={cleanExpenses} />;

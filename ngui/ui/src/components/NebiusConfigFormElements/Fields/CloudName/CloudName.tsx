@@ -15,11 +15,11 @@ const CloudName = ({ disabled = false }) => (
         <QuestionMark
           messageId="nebiusCloudNameTooltip"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_cloud_name"
         />
-      )
+      ),
     }}
     label={<FormattedMessage id="cloudName" />}
     autoComplete="off"

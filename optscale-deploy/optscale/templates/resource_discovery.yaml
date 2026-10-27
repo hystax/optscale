@@ -75,6 +75,10 @@ spec:
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
+            - "uv"
+            - "--project"
+            - "docker_images/resource_discovery"
+            - "run"
             - "python3"
             - "docker_images/resource_discovery/scheduler.py"
             env:

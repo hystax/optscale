@@ -12,7 +12,7 @@ const FIELD_NAME = FIELD_NAMES.LABELS;
 const LabelsField = ({ labels = [], isLoading = false }) => {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   return (

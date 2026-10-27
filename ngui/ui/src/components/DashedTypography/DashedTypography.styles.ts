@@ -11,17 +11,17 @@ const useStyles = makeStyles()(() => ({
       bottom: -1,
       left: 0,
       width: "100%",
-      borderBottom: "1px dashed"
-    }
+      borderBottom: "1px dashed",
+    },
   },
   cursorPointer: {
     "&:hover": {
-      cursor: "pointer"
-    }
+      cursor: "pointer",
+    },
   },
   right: {
-    marginRight: "0.2rem"
-  }
+    marginRight: "0.2rem",
+  },
 }));
 
 export default useStyles;

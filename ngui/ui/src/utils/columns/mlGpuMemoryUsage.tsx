@@ -8,7 +8,7 @@ const mlGpuMemoryUsage = ({ headerDataTestId = "lbl_gpu_memory_usage", accessorK
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />
+  cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />,
 });
 
 export default mlGpuMemoryUsage;

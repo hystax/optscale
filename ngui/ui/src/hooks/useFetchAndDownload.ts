@@ -50,7 +50,7 @@ export const useFetchAndDownload = () => {
       .then(async (res) => ({
         filename: getFilenameFromHeader(res.headers.get("Content-Disposition")) ?? fallbackFilename,
         blob: await res.blob(),
-        type: type || res.headers.get("Content-Type") || "plain/text"
+        type: type || res.headers.get("Content-Type") || "plain/text",
       }))
       .then((res) => {
         download(res.blob, res.filename, res.type);

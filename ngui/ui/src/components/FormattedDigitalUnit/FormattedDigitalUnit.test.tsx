@@ -16,7 +16,7 @@ it("Common format IEC byte unit without crashing", () => {
     { value: 0.5, expected: "0.5 B" },
     { value: 1023, expected: "1,023 B" },
     { value: 1024, expected: "1 KiB" },
-    { value: 312312312, expected: "297.844 MiB" }
+    { value: 312312312, expected: "297.844 MiB" },
   ];
 
   testCases.forEach(({ value, expected }) => {
@@ -37,7 +37,7 @@ it("Common format SI byte unit without crashing", () => {
     { value: 0.5, expected: "0.5 B" },
     { value: 1023, expected: "1.023 KB" },
     { value: 1024, expected: "1.024 KB" },
-    { value: 312312312, expected: "312.312 MB" }
+    { value: 312312312, expected: "312.312 MB" },
   ];
 
   testCases.forEach(({ value, expected }) => {

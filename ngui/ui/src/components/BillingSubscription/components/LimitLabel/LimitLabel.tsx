@@ -29,7 +29,7 @@ const LimitLabel = ({ value, entityName, limit, quantity = 1, formatValue, forma
               id="value / value"
               values={{
                 value1: typeof formatValue === "function" ? formatValue(value) : value,
-                value2: typeof formatLimit === "function" ? formatLimit(totalLimit) : totalLimit
+                value2: typeof formatLimit === "function" ? formatLimit(totalLimit) : totalLimit,
               }}
             />
             &nbsp;{entityName}

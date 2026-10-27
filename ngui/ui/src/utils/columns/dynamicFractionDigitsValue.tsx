@@ -9,7 +9,7 @@ const dynamicFractionDigitsValue = ({ headerDataTestId, titleMessageId, accessor
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: ({ cell }) => <DynamicFractionDigitsValue value={cell.getValue()} />
+  cell: ({ cell }) => <DynamicFractionDigitsValue value={cell.getValue()} />,
 });
 
 export default dynamicFractionDigitsValue;

@@ -15,8 +15,8 @@ const TableContent = ({ data }: TableContentProps) => {
           key={key}
           sx={{
             "& > div": {
-              height: "100%"
-            }
+              height: "100%",
+            },
           }}
         >
           {value}

@@ -26,7 +26,7 @@ const Retry = ({ retry }: RetryProps) => {
           <FormattedMessage
             id="failedLiveDemoMessageTryAgain"
             values={{
-              email: <MailTo email={EMAIL_SUPPORT} text={EMAIL_SUPPORT} dataTestId="p_failed_live_demo_email" />
+              email: <MailTo email={EMAIL_SUPPORT} text={EMAIL_SUPPORT} dataTestId="p_failed_live_demo_email" />,
             }}
           />
         </Typography>

@@ -7,7 +7,7 @@ import {
   APPLY_FILTER_BY_CATEGORY_QUERY_PARAMETER_NAME,
   DAILY_META_BREAKDOWN_BY_PARAMETER_NAME,
   DAILY_META_BREAKDOWN_TYPE_PARAMETER_NAME,
-  WITH_LEGEND_QUERY_PARAMETER_NAME
+  WITH_LEGEND_QUERY_PARAMETER_NAME,
 } from "urls";
 import { isEmptyArray } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
@@ -24,25 +24,25 @@ const MetaTab = ({ dateRange, requestParams, metaNames = [] }: MetaProps) => {
   const [breakdownBy, setBreakdownBy] = useSyncQueryParamWithState({
     queryParamName: DAILY_META_BREAKDOWN_BY_PARAMETER_NAME,
     defaultValue: metaNames[0] ?? "",
-    possibleStates: metaNames
+    possibleStates: metaNames,
   });
 
   const [breakdownType, setBreakdownType] = useSyncQueryParamWithState({
     queryParamName: DAILY_META_BREAKDOWN_TYPE_PARAMETER_NAME,
     defaultValue: BREAKDOWN_TYPE.EXPENSES,
-    possibleStates: Object.values(BREAKDOWN_TYPE)
+    possibleStates: Object.values(BREAKDOWN_TYPE),
   });
 
   const [withLegend, setWithLegend] = useSyncQueryParamWithState({
     queryParamName: WITH_LEGEND_QUERY_PARAMETER_NAME,
     possibleStates: [true, false],
-    defaultValue: true
+    defaultValue: true,
   });
 
   const [applyFilterByCategory, setApplyFilterByCategory] = useSyncQueryParamWithState({
     queryParamName: APPLY_FILTER_BY_CATEGORY_QUERY_PARAMETER_NAME,
     possibleStates: [true, false],
-    defaultValue: false
+    defaultValue: false,
   });
 
   const filters = mapAvailableFilterKeys(requestParams);
@@ -55,10 +55,10 @@ const MetaTab = ({ dateRange, requestParams, metaNames = [] }: MetaProps) => {
         meta: applyFilterByCategory ? Array.from(new Set([breakdownBy, ...filters.meta])) : filters.meta,
         start_date: dateRange.startDate,
         end_date: dateRange.endDate,
-        breakdown_by: breakdownBy
-      }
+        breakdown_by: breakdownBy,
+      },
     },
-    skip: isEmptyArray(metaNames)
+    skip: isEmptyArray(metaNames),
   });
 
   const field =
@@ -113,7 +113,7 @@ const AvailableMetaFilters = ({ requestParams }: AvailableMetaFiltersProps) => {
 
   const dateRange = {
     startDate: Number(startDateString),
-    endDate: Number(endDateString)
+    endDate: Number(endDateString),
   };
 
   const { data: availableFiltersData, loading: isAvailableFiltersLoading } = useAvailableFiltersQuery({
@@ -122,9 +122,9 @@ const AvailableMetaFilters = ({ requestParams }: AvailableMetaFiltersProps) => {
       params: {
         ...mapAvailableFilterKeys(restRequestParams),
         start_date: dateRange.startDate,
-        end_date: dateRange.endDate
-      }
-    }
+        end_date: dateRange.endDate,
+      },
+    },
   });
 
   const metaNames =

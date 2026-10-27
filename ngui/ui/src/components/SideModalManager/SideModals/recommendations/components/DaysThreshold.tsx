@@ -7,7 +7,7 @@ import SaveButton from "./SaveButton";
 import TextWithInlineInput from "./TextWithInlineInput";
 
 const VALUE_KEYS = Object.freeze({
-  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold"
+  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
 });
 
 const DaysThreshold = ({ recommendationType, onSuccess, messageId }) => {

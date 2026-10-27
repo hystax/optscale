@@ -6,6 +6,6 @@ export const getResourcesLink = (constraint) => {
 
   return getLink({
     dateRange,
-    constraint
+    constraint,
   });
 };

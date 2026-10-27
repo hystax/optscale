@@ -20,10 +20,10 @@ const MaximumRunsetBudgetField = ({ isLoading = false }) => {
       required
       min={0}
       validate={{
-        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true)
+        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
       }}
       InputProps={{
-        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>
+        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
       }}
       isLoading={isLoading}
     />

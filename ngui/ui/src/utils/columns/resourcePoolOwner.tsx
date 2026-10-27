@@ -10,7 +10,7 @@ const resourcePoolOwner = ({
   accessorFn,
   columnSelector,
   getOwner,
-  getPool
+  getPool,
 }) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -22,7 +22,7 @@ const resourcePoolOwner = ({
   accessorFn,
   columnSelector,
   style: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
   cell: ({ row: { original, id: rowId } }) => {
     const owner = getOwner(original);
@@ -48,7 +48,7 @@ const resourcePoolOwner = ({
     }
 
     return poolLabel;
-  }
+  },
 });
 
 export default resourcePoolOwner;

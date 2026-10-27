@@ -3,10 +3,10 @@ import { makeStyles } from "tss-react/mui";
 const useStyles = makeStyles()((theme) => ({
   rightLabelPosition: {
     display: "flex",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
   },
   container: {
-    display: "inline-block"
+    display: "inline-block",
   },
   buttonsWrapper: {
     display: "flex",
@@ -15,13 +15,13 @@ const useStyles = makeStyles()((theme) => ({
     "& > *": {
       marginRight: theme.spacing(1),
       "&:last-child": {
-        marginRight: 0
-      }
-    }
+        marginRight: 0,
+      },
+    },
   },
   fullWidth: {
-    width: "100%"
-  }
+    width: "100%",
+  },
 }));
 
 export default useStyles;

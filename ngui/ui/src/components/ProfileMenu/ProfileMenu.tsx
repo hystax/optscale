@@ -59,8 +59,8 @@ const ProfileMenu = ({ name, email, isLoading = false }: ProfileMenuProps) => {
         signOut();
       },
       dataTestId: "btn_signout",
-      key: "signOutKey"
-    }
+      key: "signOutKey",
+    },
   ];
 
   return (

@@ -42,7 +42,7 @@ const Cards = ({
   onRecommendationClick,
   isDownloadAvailable,
   isGetIsDownloadAvailableLoading,
-  selectedDataSourceIds
+  selectedDataSourceIds,
 }: CardsProps) => {
   const orderedRecommendations = useOrderedRecommendations(recommendations);
 
@@ -50,7 +50,7 @@ const Cards = ({
     return [
       <RecommendationCard isLoading key={1} />,
       <RecommendationCard isLoading key={2} />,
-      <RecommendationCard isLoading key={3} />
+      <RecommendationCard isLoading key={3} />,
     ];
   }
 

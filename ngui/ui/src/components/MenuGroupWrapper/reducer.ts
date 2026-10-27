@@ -8,7 +8,7 @@ export const MAIN_MENU_SECTION_IDS = Object.freeze({
   ML_OPS: "mlops",
   POLICIES: "policies",
   SANDBOX: "sandbox",
-  SYSTEM: "system"
+  SYSTEM: "system",
 });
 
 const reducer = (state = [MAIN_MENU_SECTION_IDS.SANDBOX], action) => {

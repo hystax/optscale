@@ -16,18 +16,18 @@ const useStyles = makeStyles()((theme) => ({
     display: "flex",
     flexWrap: "wrap",
     width: "fit-content",
-    gap: theme.spacing(SPACING_2)
+    gap: theme.spacing(SPACING_2),
   },
   tile: {
-    borderColor: theme.palette.secondary.main
+    borderColor: theme.palette.secondary.main,
   },
   inactiveTile: {
     filter: "grayscale(1)",
     "&:hover": {
       borderColor: theme.palette.info.main,
-      filter: "grayscale(0)"
-    }
-  }
+      filter: "grayscale(0)",
+    },
+  },
 }));
 
 const StorageTypeSelectorField = ({ isEdit = false, isLoading = false }) => {
@@ -44,13 +44,13 @@ const StorageTypeSelectorField = ({ isEdit = false, isLoading = false }) => {
           {
             id: BI_EXPORT_STORAGE_TYPE.AWS_RAW_EXPORT,
             type: AWS_CNR,
-            messageId: "amazonS3"
+            messageId: "amazonS3",
           },
           {
             id: BI_EXPORT_STORAGE_TYPE.AZURE_RAW_EXPORT,
             type: AZURE_CNR,
-            messageId: "azureBlobStorage"
-          }
+            messageId: "azureBlobStorage",
+          },
         ].filter((item) => {
           if (isEdit) {
             return item.id === value;

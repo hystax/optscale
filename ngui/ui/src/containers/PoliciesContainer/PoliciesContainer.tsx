@@ -11,8 +11,8 @@ import { QUOTAS_AND_BUDGETS_TYPES } from "utils/constants";
 const actionBarDefinition = {
   title: {
     messageId: "quotasAndBudgetsTitle",
-    dataTestId: "lbl_constraints_quotas_and_budgets"
-  }
+    dataTestId: "lbl_constraints_quotas_and_budgets",
+  },
 };
 
 const PoliciesContainer = () => {

@@ -17,6 +17,7 @@ rest_api/.clickhouse
 **/.pytest_cache/
 **/.ruff_cache/
 # Build files
+**/build
 **/dist
 **/*egg-info/
 **/*.tar.gz
@@ -25,6 +26,9 @@ rest_api/.clickhouse
 jira_ui/*/.env
 jira_ui/*/node_modules
 jira_ui/*/build/
+
+# Compose env
+optscale-deploy/compose/.env
 
 # Vagrant
 optscale-deploy/.vagrant/

@@ -11,15 +11,17 @@ const poolAndOwner = ({ headerDataTestId }) => ({
   ),
   id: "pool/owner",
   style: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
   cell: ({
-    row: { original: { pool: { id: poolId, name: poolName, purpose: poolPurpose } = {}, owner: { name: ownerName } = {} } } = {}
+    row: {
+      original: { pool: { id: poolId, name: poolName, purpose: poolPurpose } = {}, owner: { name: ownerName } = {} },
+    } = {},
   }) => (
     <CaptionedCell caption={ownerName}>
       <PoolLabel id={poolId} name={poolName} type={poolPurpose} />
     </CaptionedCell>
-  )
+  ),
 });
 
 export default poolAndOwner;

@@ -6,7 +6,7 @@ const useStyles = makeStyles()((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
   },
   dropzone: {
     minHeight: "200px",
@@ -14,14 +14,14 @@ const useStyles = makeStyles()((theme) => ({
     width: "100%",
     border: `1px ${theme.palette.primary.main} dashed`,
     cursor: "pointer",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   error: {
-    borderColor: theme.palette.error.main
+    borderColor: theme.palette.error.main,
   },
   highlight: {
-    backgroundColor: alpha(theme.palette.primary.main, 0.04)
-  }
+    backgroundColor: alpha(theme.palette.primary.main, 0.04),
+  },
 }));
 
 export default useStyles;

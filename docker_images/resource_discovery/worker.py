@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import os
+import resource
+import threading
 import time
 import traceback
+from etcd import EtcdKeyError
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Event, Thread
@@ -18,6 +21,7 @@ from tools.cloud_adapter.exceptions import InvalidResourceTypeException
 from tools.cloud_adapter.model import (
     ResourceTypes, RES_MODEL_MAP, InstanceResource, RdsInstanceResource
 )
+from tools.cloud_adapter.clouds.gcp import GcpInstance
 from tools.optscale_time import utcnow, utcnow_timestamp
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.insider_client.client import Client as InsiderClient
@@ -25,6 +29,7 @@ from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 
 BYTES_IN_MB = 1024 * 1024
+BYTES_IN_GB = BYTES_IN_MB * 1024
 CHUNK_SIZE = 200
 EXCHANGE_NAME = 'resource-discovery'
 QUEUE_NAME = 'discovery'
@@ -35,11 +40,27 @@ LOG = get_logger(__name__)
 DEFAULT_DISCOVER_SIZE = 10000
 
 
+def get_current_rss_mb():
+    """Current resident set size in MB, read from /proc"""
+    try:
+        with open('/proc/self/status') as f:
+            for line in f:
+                if line.startswith('VmRSS:'):
+                    return int(line.split()[1]) / 1024
+    except (OSError, ValueError, IndexError):
+        return None
+    return None
+
+
 class ResourcesSaver:
 
-    MODEL_MAP_INVERTED = {v: k for k, v in RES_MODEL_MAP.items()}
+    MODEL_MAP_INVERTED = {
+        GcpInstance: ResourceTypes.instance.name,
+        **{v: k for k, v in RES_MODEL_MAP.items()}
+    }
 
-    def __init__(self, rest_cl, insider_cl, limit, timeout, pause_timeout):
+    def __init__(self, rest_cl, insider_cl, limit, timeout, pause_timeout,
+                 product_tracking_id):
         queue_len = int(limit / CHUNK_SIZE) if CHUNK_SIZE else 0
         self.queue = queue.Queue(queue_len)
         self.insider_cl = insider_cl
@@ -47,6 +68,7 @@ class ResourcesSaver:
         self.timeout = timeout
         self.pause_timeout = pause_timeout
         self.recording_available = Event()
+        self.product_tracking_id = product_tracking_id
         self.empty = Event()
         self._proc = None
         self.start()
@@ -140,27 +162,39 @@ class ResourcesSaver:
         flavor_archs = {}
         resource_type = None
         for resource in resources:
-            if type(resource) not in [InstanceResource, RdsInstanceResource]:
+            if type(resource) not in [InstanceResource, RdsInstanceResource, GcpInstance]:
                 break
             flavor_name = resource.flavor
-            if resource.cloud_type == 'azure_cnr':
-                flavor = flavors.get(flavor_name)
-                if not flavor:
+            if resource.cloud_type in ['azure_cnr', 'aws_cnr', 'gcp_cnr']:
+                if flavor_name in flavors:
+                    flavor = flavors[flavor_name]
+                else:
+                    flavor = None
                     if not resource_type:
                         resource_type = getattr(
                             ResourceTypes, self.MODEL_MAP_INVERTED[
                                 type(resource)]).name
-                    _, flavor = self.insider_cl.find_flavor(
-                        resource.cloud_type, resource_type, resource.region,
-                        {'source_flavor_id': flavor_name}, 'current',
-                        cloud_account_id=resource.cloud_account_id)
-                if flavor:
+                    try:
+                        _, flavor = self.insider_cl.find_flavor(
+                            resource.cloud_type, resource_type, resource.region,
+                            {'source_flavor_id': flavor_name}, 'current',
+                            cloud_account_id=resource.cloud_account_id)
+                    except Exception as exc:
+                        LOG.warning('Unable to find flavor %s for '
+                                    'cloud account %s: %s', flavor_name,
+                                    resource.cloud_account_id, str(exc))
+                    # Not found flavors are cached too, to not call insider
+                    # several times
                     flavors[flavor_name] = flavor
+                if flavor:
                     resource.cpu_count = flavor['cpu']
-                    resource.ram = flavor['ram'] * BYTES_IN_MB
-            if not resource.architecture and resource.cloud_type in [
-                'aws_cnr', 'azure_cnr', 'alibaba_cnr'
-            ]:
+                    multiplier = BYTES_IN_MB
+                    if resource.cloud_type == 'gcp_cnr':
+                        multiplier = BYTES_IN_GB
+                    resource.ram = flavor['ram'] * multiplier
+            if (hasattr(resource, 'architecture') and
+                    not resource.architecture and resource.cloud_type in [
+                        'aws_cnr', 'azure_cnr', 'alibaba_cnr']):
                 flavor_arch = flavor_archs.get(flavor_name)
                 if not flavor_arch:
                     _, arch_info = self.insider_cl.get_architecture(
@@ -189,9 +223,9 @@ class ResourcesSaver:
             _, response = self.rest_cl.cloud_resource_create_bulk(
                 cloud_acc_id, {'resources': payload},
                 behavior='update_existing', return_resources=True)
-        for resource in resources:
+        for res in resources:
             try:
-                resource.post_discover()
+                res.post_discover(tracking_id=self.product_tracking_id)
             except Exception as exc:
                 LOG.error('Post discover actions failed: %s', str(exc))
 
@@ -205,8 +239,20 @@ class DiscoveryWorker(ConsumerMixin):
         self._rest_cl = None
         self._res_saving = None
         self.running = True
+        self._product_tracking_id = None
         self.thread = Thread(target=self.heartbeat)
         self.thread.start()
+
+    @property
+    def product_tracking_id(self):
+        if not self._product_tracking_id:
+            try:
+                self._product_tracking_id = self.config_cl.product_tracking_id()
+            except EtcdKeyError:
+                self._product_tracking_id = None
+            if not self._product_tracking_id:
+                raise Exception('product_tracking_id is not set')
+        return self._product_tracking_id
 
     def __del__(self):
         if self._res_saving:
@@ -237,7 +283,8 @@ class DiscoveryWorker(ConsumerMixin):
                 rest_cl=self.rest_cl,
                 limit=self.discover_size,
                 timeout=self.timeout,
-                pause_timeout=self.writing_timeout
+                pause_timeout=self.writing_timeout,
+                product_tracking_id=self.product_tracking_id
             )
         return self._res_saving
 
@@ -283,23 +330,28 @@ class DiscoveryWorker(ConsumerMixin):
     def discover(self, config, resource_type):
         res = []
         if not config:
-            return res
+            return res, None
         adapter = CloudAdapter.get_adapter(config)
         max_parallel_requests = self.max_parallel_requests(config)
-        with ThreadPoolExecutor(
-                max_workers=max_parallel_requests) as executor:
-            try:
-                discover_calls = adapter.get_discovery_calls(resource_type)
-            except InvalidResourceTypeException:
-                LOG.exception('Discovery calls for resource type %s are '
-                              'not found', resource_type)
-                return res
-            futures = []
-            for call in discover_calls:
-                futures.append(executor.submit(call[0], *call[1]))
-            for f in futures:
-                res.append(f.result())
-        return res
+        try:
+            with ThreadPoolExecutor(
+                    max_workers=max_parallel_requests) as executor:
+                try:
+                    discover_calls = adapter.get_discovery_calls(
+                        resource_type)
+                except InvalidResourceTypeException:
+                    LOG.exception('Discovery calls for resource type %s are '
+                                  'not found', resource_type)
+                    return res, adapter
+                futures = []
+                for call in discover_calls:
+                    futures.append(executor.submit(call[0], *call[1]))
+                for f in futures:
+                    res.append(f.result())
+        except Exception:
+            adapter.close()
+            raise
+        return res, adapter
 
     @staticmethod
     def extract_from_generator(generator):
@@ -333,41 +385,45 @@ class DiscoveryWorker(ConsumerMixin):
                      'skipped due to disabled organization.', cloud_acc_id,
                      resource_type)
             return
-        gen_list = self.discover(config, resource_type)
         discovered_resources = set()
         resources_count = 0
-        max_parallel_requests = self.max_parallel_requests(config)
         errors = set()
-        for i in range(0, len(gen_list), max_parallel_requests):
-            gen_list_chunk = gen_list[i:i + max_parallel_requests]
-            while gen_list_chunk:
-                futures = []
-                with ThreadPoolExecutor(
-                        max_workers=max_parallel_requests) as executor:
-                    for gen in gen_list_chunk:
-                        futures.append(
-                            executor.submit(self.extract_from_generator, gen))
-                for f in futures:
-                    res, gen = f.result()
-                    if isinstance(res, Exception):
-                        if self.is_404(res):
-                            LOG.debug("Got 404 exception: %s, skipping it",
-                                      str(res))
-                            continue
-                        LOG.error("Exception: %s %s", str(res),
-                                  traceback.print_tb(res.__traceback__))
-                        gen_list_chunk.remove(gen)
-                        errors.add(str(res))
-                    elif res:
-                        res.cloud_account_id = cloud_acc_id
-                        res.cloud_type = config['type']
-                        discovered_resources.add(res)
-                    else:
-                        gen_list_chunk.remove(gen)
-                    if len(discovered_resources) >= CHUNK_SIZE:
-                        resources_count += len(discovered_resources)
-                        self.res_saving.send(discovered_resources)
-                        discovered_resources.clear()
+        adapter = None
+        try:
+            max_parallel_requests = self.max_parallel_requests(config)
+            gen_list, adapter = self.discover(config, resource_type)
+            with ThreadPoolExecutor(
+                    max_workers=max_parallel_requests) as executor:
+                for i in range(0, len(gen_list), max_parallel_requests):
+                    gen_list_chunk = gen_list[i:i + max_parallel_requests]
+                    while gen_list_chunk:
+                        futures = [
+                            executor.submit(self.extract_from_generator, gen)
+                            for gen in gen_list_chunk]
+                        for f in futures:
+                            res, gen = f.result()
+                            if isinstance(res, Exception):
+                                if self.is_404(res):
+                                    LOG.debug("Got 404 exception: %s, skipping it",
+                                              str(res))
+                                    continue
+                                LOG.error("Exception: %s %s", str(res),
+                                          traceback.print_tb(res.__traceback__))
+                                gen_list_chunk.remove(gen)
+                                errors.add(str(res))
+                            elif res:
+                                res.cloud_account_id = cloud_acc_id
+                                res.cloud_type = config['type']
+                                discovered_resources.add(res)
+                            else:
+                                gen_list_chunk.remove(gen)
+                            if len(discovered_resources) >= CHUNK_SIZE:
+                                resources_count += len(discovered_resources)
+                                self.res_saving.send(discovered_resources)
+                                discovered_resources = set()
+        finally:
+            if adapter is not None:
+                adapter.close()
         if len(discovered_resources):
             resources_count += len(discovered_resources)
             self.res_saving.send(discovered_resources)
@@ -401,7 +457,7 @@ class DiscoveryWorker(ConsumerMixin):
             self._update_discovery_info(
                 cloud_acc_id, resource_type,
                 last_error_at=utcnow_timestamp(),
-                last_error=str(ex)[:255])
+                last_error=str(ex)[:1024])
             raise
 
     def _update_discovery_info(self, cloud_acc_id, resource_type, **kwargs):
@@ -416,6 +472,24 @@ class DiscoveryWorker(ConsumerMixin):
             self.discover_resources(body)
         except Exception as exc:
             LOG.exception('Resource discovery failed: %s', str(exc))
+        finally:
+            body = body if isinstance(body, dict) else {}
+            # ru_maxrss is the process' peak resident set size so far (KB on
+            # Linux) - monotonically non-decreasing, so logging it after
+            # every task lets us correlate RSS growth with a specific
+            # cloud_account_id/resource_type task and with thread count.
+            # current_rss_mb (from /proc) is the actual usage right now,
+            # for comparison - unlike ru_maxrss it can go down.
+            max_rss_mb = resource.getrusage(
+                resource.RUSAGE_SELF).ru_maxrss / 1024
+            current_rss_mb = get_current_rss_mb()
+            LOG.info(
+                'RSS after task cloud_account_id=%s resource_type=%s: '
+                'peak=%.1f MB, current=%s MB, active threads=%s',
+                body.get('cloud_account_id'), body.get('resource_type'),
+                max_rss_mb,
+                f'{current_rss_mb:.1f}' if current_rss_mb is not None else 'n/a',
+                threading.active_count())
         message.ack()
 
     def heartbeat(self):

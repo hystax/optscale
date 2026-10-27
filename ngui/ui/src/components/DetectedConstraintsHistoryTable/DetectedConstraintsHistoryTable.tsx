@@ -20,7 +20,7 @@ const DetectedConstraintsHistoryTable = ({ limitHits, constraint }) => {
       violatedAt(),
       ...statusChartColumn,
       constraintHitValue({ type: constraint.type }),
-      constraintHitActions({ navigate, constraint })
+      constraintHitActions({ navigate, constraint }),
     ];
   }, [navigate, constraint]);
 
@@ -29,7 +29,7 @@ const DetectedConstraintsHistoryTable = ({ limitHits, constraint }) => {
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noDetectedAnomalies"
+        emptyMessageId: "noDetectedAnomalies",
       }}
       pageSize={50}
     />

@@ -99,6 +99,7 @@ from tools.cloud_adapter.model import (
 from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
 BILLING_REGION_ID = 'ap-southeast-1'
+CHUNK_SIZE = 100
 DEFAULT_CONNECT_TIMEOUT = 20
 DEFAULT_READ_TIMEOUT = 60
 SECONDS_IN_DAY = 60 * 60 * 24
@@ -532,26 +533,17 @@ class Alibaba(CloudBase):
                 raise ValueError('Unexpected response format: {}'.format(
                     response))
 
-    def _discover_region_rds_instances(self, region_details):
-        request = DescribeDBInstancesRequest.DescribeDBInstancesRequest()
-        request.set_PageSize(100)
-        instances = handle_discovery_client_exc(
-            self._send_paged_request,
-            request, paged_item='DBInstance',
-            region_id=region_details['RegionId'])
-        if instances:
-            instances = list(instances)
+    def _yield_rds_batch(self, instances, region_details, tag_map,
+                         vpc_id_to_name):
         instance_ids = [x['DBInstanceId'] for x in instances]
-        tag_map = self._get_rds_tags(region_details['RegionId'])
         details_map = {x['DBInstanceId']: x for x in self._get_rds_details(
             instance_ids, region_details['RegionId'])}
-        vpc_id_to_name = self._discover_region_vpcs(region_details)
         for item in instances:
             link = self._CLOUD_CONSOLE_LINKS[RdsInstanceResource].format(
                 id=item['DBInstanceId'], region_id=region_details['RegionId'])
-            details = details_map[item['DBInstanceId']]
             vpc_id = item.get('VpcId')
-            resource = RdsInstanceResource(
+            details = details_map[item['DBInstanceId']]
+            yield RdsInstanceResource(
                 cloud_account_id=self.cloud_account_id,
                 organization_id=self.organization_id,
                 cloud_console_link=link,
@@ -574,23 +566,70 @@ class Alibaba(CloudBase):
                 vpc_id=vpc_id,
                 vpc_name=vpc_id_to_name.get(vpc_id)
             )
-            yield resource
 
-    def _discover_ip_addresses(self, region_details):
-        eip_address_request = DescribeEipAddressesRequest.DescribeEipAddressesRequest()
-        eip_address_request.set_PageSize(100)
-        ip_addresses = handle_discovery_client_exc(
+    def _discover_region_rds_instances(self, region_details):
+        request = DescribeDBInstancesRequest.DescribeDBInstancesRequest()
+        request.set_PageSize(CHUNK_SIZE)
+        instances_gen = handle_discovery_client_exc(
             self._send_paged_request,
-            eip_address_request, paged_item='EipAddress',
+            request, paged_item='DBInstance',
             region_id=region_details['RegionId'])
-        instance_map = {
-            'EcsInstance': {
-                'request': DescribeInstancesRequest.DescribeInstancesRequest(),
-                'status': 'Status',
-                'type': 'Instance',
-                'instances': []
-            }
-        }
+        chunk = []
+        tag_map = None
+        vpc_id_to_name = None
+        for item in instances_gen:
+            chunk.append(item)
+            if len(chunk) < CHUNK_SIZE:
+                continue
+            if tag_map is None:
+                tag_map = self._get_rds_tags(region_details['RegionId'])
+                vpc_id_to_name = self._discover_region_vpcs(region_details)
+            yield from self._yield_rds_batch(
+                chunk, region_details, tag_map, vpc_id_to_name)
+            chunk = []
+        if chunk:
+            if tag_map is None:
+                tag_map = self._get_rds_tags(region_details['RegionId'])
+                vpc_id_to_name = self._discover_region_vpcs(region_details)
+            yield from self._yield_rds_batch(
+                chunk, region_details, tag_map, vpc_id_to_name)
+
+    def _yield_ip_address_batch(self, ip_addresses, region_details,
+                               instance_map):
+        needed_ids_by_type = {}
+        for ip_address in ip_addresses:
+            instance_id = ip_address.get('InstanceId')
+            instance_type = ip_address.get('InstanceType')
+            available = ip_address['Status'] == 'Available'
+            if (instance_id and available is False
+                    and instance_type in instance_map):
+                needed_ids_by_type.setdefault(instance_type, set()).add(
+                    instance_id)
+
+        status_by_type = {}
+        for instance_type, ids in needed_ids_by_type.items():
+            paged_type = instance_map[instance_type]['type']
+            status_field = instance_map[instance_type]['status']
+            instance_request = instance_map[instance_type]['request']
+            id_field = paged_type + 'Id'
+            statuses = {}
+            ids = list(ids)
+            for i in range(0, len(ids), CHUNK_SIZE):
+                instance_request.set_PageSize(CHUNK_SIZE)
+                instance_request.set_InstanceIds(
+                    json.dumps(ids[i:i + CHUNK_SIZE]))
+                try:
+                    for item in self._send_paged_request(
+                            instance_request, paged_item=paged_type,
+                            region_id=region_details['RegionId']):
+                        statuses[item[id_field]] = item[status_field]
+                except ClientException as exc:
+                    LOG.warning(
+                        "Error getting %s statuses for region %s: %s",
+                        paged_type, region_details['RegionId'], exc.message)
+                    break
+            status_by_type[instance_type] = statuses
+
         for ip_address in ip_addresses:
             ip_address_id = ip_address['AllocationId']
             link = self._CLOUD_CONSOLE_LINKS[IpAddressResource].format(
@@ -599,22 +638,11 @@ class Alibaba(CloudBase):
             instance_type = ip_address.get('InstanceType')
             available = ip_address['Status'] == 'Available'
             # check instances if ip is not available and instance is not rds
-            if instance_id and available is False and instance_type in list(instance_map.keys()):
-                instance_type_map = instance_map.get(instance_type, {})
-                instance_request = instance_type_map.get('request')
-                instance_request.set_PageSize(100)
-                paged_type = instance_type_map.get('type')
-                instances = instance_type_map.get('instances')
-                if not instances:
-                    instances = list(self._send_paged_request(
-                        instance_request, paged_item=paged_type,
-                        region_id=region_details['RegionId']))
-                    instance_type_map['instances'] = instances
-                ip_current_instance = next((instance for instance in instances
-                                            if instance[paged_type + 'Id'] == instance_id), None)
-                status_field = instance_type_map.get('status')
-                if ip_current_instance:
-                    available = ip_current_instance[status_field] == 'Stopped'
+            if instance_id and available is False:
+                status = status_by_type.get(instance_type, {}).get(
+                    instance_id)
+                if status is not None:
+                    available = status == 'Stopped'
             resource = IpAddressResource(
                 cloud_account_id=self.cloud_account_id,
                 organization_id=self.organization_id,
@@ -626,6 +654,32 @@ class Alibaba(CloudBase):
                 available=available
             )
             yield resource
+
+    def _discover_ip_addresses(self, region_details):
+        eip_address_request = DescribeEipAddressesRequest.DescribeEipAddressesRequest()
+        eip_address_request.set_PageSize(CHUNK_SIZE)
+        eip_gen = handle_discovery_client_exc(
+            self._send_paged_request,
+            eip_address_request, paged_item='EipAddress',
+            region_id=region_details['RegionId'])
+        instance_map = {
+            'EcsInstance': {
+                'request': DescribeInstancesRequest.DescribeInstancesRequest(),
+                'status': 'Status',
+                'type': 'Instance',
+            }
+        }
+        chunk = []
+        for ip_address in eip_gen:
+            chunk.append(ip_address)
+            if len(chunk) < CHUNK_SIZE:
+                continue
+            yield from self._yield_ip_address_batch(
+                chunk, region_details, instance_map)
+            chunk = []
+        if chunk:
+            yield from self._yield_ip_address_batch(
+                chunk, region_details, instance_map)
 
     def _discover_region_images(self, region_details, by_owner=True,
                                 filter_by=None):
@@ -678,10 +732,10 @@ class Alibaba(CloudBase):
         for lb in response:
             lb_id = lb['LoadBalancerId']
             if attr_request:
-                attr_request = attr_request()
-                attr_request.set_LoadBalancerId(lb_id)
+                req = attr_request()
+                req.set_LoadBalancerId(lb_id)
                 attrs = handle_discovery_client_exc(
-                    self._send_request, attr_request,
+                    self._send_request, req,
                     region_id=region_details['RegionId'])
                 security_groups = attrs.get('SecurityGroupIds', [])
             if 'Tags' in lb and isinstance(lb['Tags'], dict):
@@ -956,9 +1010,11 @@ class Alibaba(CloudBase):
                 'longitude': 150.7915495, 'latitude': -33.8481643},
         }
 
-    def get_regions_coordinates(self):
+    def get_regions_coordinates(self, load=True):
         coordinates_map = self._get_coordinates_map()
         coordinates_map.update(self._get_outdated_regions())
+        if not load:
+            return coordinates_map
         try:
             for region_details in self._list_region_details():
                 region_id = region_details['RegionId']
@@ -1353,9 +1409,6 @@ class Alibaba(CloudBase):
             return service_rdd_map
         except KeyError:
             raise ValueError('Unexpected response format: {}'.format(response))
-
-    def configure_last_import_modified_at(self):
-        pass
 
     def set_currency(self, currency):
         self._currency = currency

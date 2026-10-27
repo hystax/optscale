@@ -19,7 +19,7 @@ const PoolFormLimitInput = ({
   unallocatedLimit,
   isLoading = false,
   isRootPool = false,
-  isReadOnly = false
+  isReadOnly = false,
 }: PoolFormLimitInputProps) => {
   const { currencySymbol } = useOrganizationInfo();
 
@@ -34,7 +34,7 @@ const PoolFormLimitInput = ({
       isLoading={isLoading}
       InputProps={{
         startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
-        readOnly: isReadOnly
+        readOnly: isReadOnly,
       }}
       dataTestId="input_limit"
       min={0}
@@ -46,7 +46,7 @@ const PoolFormLimitInput = ({
           intl.formatMessage(
             { id: "maximumPossibleLimitWithoutExtendingParent" },
             { unallocatedLimit: moneyFormatter(FORMATTED_MONEY_TYPES.COMMON, unallocatedLimit) }
-          )
+          ),
       }}
     />
   );

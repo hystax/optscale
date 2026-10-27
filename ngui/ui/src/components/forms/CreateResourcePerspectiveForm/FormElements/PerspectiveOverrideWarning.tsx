@@ -17,8 +17,8 @@ const PerspectiveOverrideWarning = ({ perspectiveNames }: PerspectiveOverrideWar
         messageId: "perspectiveOverrideWarning",
         messageValues: {
           perspectiveName,
-          strong: (chunks) => <strong>{chunks}</strong>
-        }
+          strong: (chunks) => <strong>{chunks}</strong>,
+        },
       }}
     />
   ) : null;

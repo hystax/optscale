@@ -15,7 +15,7 @@ let alsoRenderIntoFileName = {}; // pairs of (pdfId, "%patternName%"")
 const TYPES = {
   text: "text",
   simpleSummaryCard: "simple summary card",
-  image: "image"
+  image: "image",
 };
 
 // renders "heap" — just object with id-render props
@@ -34,7 +34,7 @@ const portraitSettings = {
   pageMarginLR: 20,
   summaryGridColumns: 3,
   spacingV: 5,
-  spacingH: 5
+  spacingH: 5,
 };
 
 const landscapeSettings = {
@@ -42,7 +42,7 @@ const landscapeSettings = {
   pageMarginLR: 20,
   summaryGridColumns: 4,
   spacingV: 10,
-  spacingH: 5
+  spacingH: 5,
 };
 
 let currentSettings = portraitSettings;
@@ -159,7 +159,7 @@ const createSummaryCard = (doc, value, parameters) => {
     head: [["", ""]],
     body: [
       ["", parameters.header],
-      ["", value]
+      ["", value],
     ],
     showHead: false,
     startY: cursorY,
@@ -187,7 +187,7 @@ const createSummaryCard = (doc, value, parameters) => {
     styles: {
       lineWidth: 0,
       overflow: "linebreak",
-      font: "Ubuntu"
+      font: "Ubuntu",
     },
 
     columnStyles: {
@@ -195,12 +195,12 @@ const createSummaryCard = (doc, value, parameters) => {
         fillColor: parameters.color,
         textColor: 255,
         cellWidth: 5,
-        valign: "bottom"
+        valign: "bottom",
       },
       1: {
-        valign: "middle"
-      }
-    }
+        valign: "middle",
+      },
+    },
   });
 
   currentColumn += 1;
@@ -272,7 +272,7 @@ const TYPES_RENDERS = {
   [PDF_ELEMENTS.markup.footer]: createFooter,
   [PDF_ELEMENTS.basics.H1]: createH1,
   [PDF_ELEMENTS.basics.H2]: createH2,
-  [PDF_ELEMENTS.basics.fileName]: createFileName
+  [PDF_ELEMENTS.basics.fileName]: createFileName,
 };
 
 const loadFont = (doc, { font, vfsName, name, style }) =>
@@ -328,7 +328,7 @@ const createPdf = async (elements) => {
     font: UbuntuFilePath,
     vfsName: "Ubuntu-Regular.ttf",
     name: "Ubuntu",
-    style: "normal"
+    style: "normal",
   });
 
   // elements to doc one by one

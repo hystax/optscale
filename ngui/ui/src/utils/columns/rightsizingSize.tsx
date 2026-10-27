@@ -9,7 +9,7 @@ const rightsizingSize = ({ headerDataTestId, messageId = "size", accessorKey = "
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: ({ row: { original } }) => <RightsizingFlavorCell flavorName={original.flavor} flavorCpu={original.cpu} />
+  cell: ({ row: { original } }) => <RightsizingFlavorCell flavorName={original.flavor} flavorCpu={original.cpu} />,
 });
 
 export default rightsizingSize;

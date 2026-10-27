@@ -7,8 +7,8 @@ const S3DuplicateFinderSettingsFormContainer = ({ closeSideModal }) => {
   const {
     isLoading: isGetDataLoading,
     settings: {
-      thresholds: { requiringAttention, critical }
-    }
+      thresholds: { requiringAttention, critical },
+    },
   } = useS3DuplicatesSettings();
 
   const { useUpdateS3DuplicatedOrganizationSettings } = OrganizationOptionsService();
@@ -19,8 +19,8 @@ const S3DuplicateFinderSettingsFormContainer = ({ closeSideModal }) => {
     onUpdate({
       thresholds: {
         requiring_attention: Number(formData.requiringAttention),
-        critical: Number(formData.critical)
-      }
+        critical: Number(formData.critical),
+      },
     }).then(closeSideModal);
   };
 
@@ -32,7 +32,7 @@ const S3DuplicateFinderSettingsFormContainer = ({ closeSideModal }) => {
       onSubmit={onSubmit}
       isLoadingProps={{
         isGetDataLoading,
-        isSubmitLoading: isUpdateLoading
+        isSubmitLoading: isUpdateLoading,
       }}
     />
   );

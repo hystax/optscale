@@ -16,7 +16,7 @@ const { FIELD_NAME, PROPERTY_NAME, PROPERTY_VALUE } = FIELD_NAMES.PROPERTIES_FIE
 
 const emptyProperty = {
   [PROPERTY_NAME]: "",
-  [PROPERTY_VALUE]: ""
+  [PROPERTY_VALUE]: "",
 };
 
 const PropertiesField = () => {
@@ -26,7 +26,7 @@ const PropertiesField = () => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: FIELD_NAME
+    name: FIELD_NAME,
   });
 
   return (
@@ -40,7 +40,7 @@ const PropertiesField = () => {
             <div
               key={item.id}
               style={{
-                marginBottom: index === fields.length - 1 ? 0 : "0.5rem"
+                marginBottom: index === fields.length - 1 ? 0 : "0.5rem",
               }}
             >
               <PropertyLayout
@@ -58,7 +58,7 @@ const PropertiesField = () => {
                         const isPropertyUnique = propertiesWithSameName.length === 1;
 
                         return isPropertyUnique || intl.formatMessage({ id: "propertyNamesMustBeUnique" });
-                      }
+                      },
                     }}
                     dataTestId={`property_name_${index}`}
                   />
@@ -82,7 +82,7 @@ const PropertiesField = () => {
                     onClick={() => remove(index)}
                     tooltip={{
                       show: true,
-                      value: <FormattedMessage id="delete" />
+                      value: <FormattedMessage id="delete" />,
                     }}
                     dataTestId={`btn_delete_property_${index}`}
                   />

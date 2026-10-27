@@ -2,35 +2,35 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()((theme) => ({
   icon: {
-    verticalAlign: "middle"
+    verticalAlign: "middle",
   },
   info: {
-    color: theme.palette.info.main
+    color: theme.palette.info.main,
   },
   primary: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
   },
   warning: {
-    color: theme.palette.warning.main
+    color: theme.palette.warning.main,
   },
   error: {
-    color: theme.palette.error.main
+    color: theme.palette.error.main,
   },
   success: {
-    color: theme.palette.success.main
+    color: theme.palette.success.main,
   },
   white: {
-    color: theme.palette.common.white
+    color: theme.palette.common.white,
   },
   inherit: {
-    color: "inherit"
+    color: "inherit",
   },
   right: {
-    marginRight: "0.2rem"
+    marginRight: "0.2rem",
   },
   left: {
-    marginLeft: "0.2rem"
-  }
+    marginLeft: "0.2rem",
+  },
 }));
 
 export default useStyles;

@@ -25,7 +25,7 @@ import {
   getChartRunsData,
   getParametersDimensions,
   getRunNamesDimensionTicks,
-  getSelectedRuns
+  getSelectedRuns,
 } from "./utils";
 
 // https://github.com/plotly/react-plotly.js#customizing-the-plotlyjs-bundle
@@ -58,8 +58,8 @@ const getHyperparametersValueToTickValueMap = (chartRunsData) => {
         name,
         {
           valueToTick,
-          tickToValue
-        }
+          tickToValue,
+        },
       ];
     })
   );
@@ -70,7 +70,7 @@ const Chart = ({
   setSelectedRunNumbers,
   dimensionsState,
   setDimensionsState,
-  hyperparametersValueToTickValueMap
+  hyperparametersValueToTickValueMap,
 }) => {
   const wrapperRef = useRef(null);
   const theme = useTheme();
@@ -99,7 +99,7 @@ const Chart = ({
           const updateRunNamesDimensionTicks = () => {
             const { tickvals, ticktext } = getRunNamesDimensionTicks({
               chartRunsData,
-              selectedChartRunsData: selectedRuns
+              selectedChartRunsData: selectedRuns,
             });
 
             const [runsDimension, ...restDimensions] = dimensions;
@@ -107,7 +107,7 @@ const Chart = ({
             const updatedRunsDimension = {
               ...runsDimension,
               tickvals,
-              ticktext
+              ticktext,
             };
 
             return [updatedRunsDimension, ...restDimensions];
@@ -139,35 +139,35 @@ const Chart = ({
                 chartRunsData.length === 1
                   ? [
                       [0, chartRunsData[0].color],
-                      [1, chartRunsData[0].color]
+                      [1, chartRunsData[0].color],
                     ]
                   : chartRunsData.map(({ index, color }) => [
                       chartRunsData.length === 1 ? 0 : index / (chartRunsData.length - 1),
-                      color
-                    ])
-            }
-          }
+                      color,
+                    ]),
+            },
+          },
         ]}
         layout={{
           margin: {
             l: MARGIN.LEFT,
             t: MARGIN.TOP,
             b: MARGIN.BOTTOM,
-            r: MARGIN.RIGHT
+            r: MARGIN.RIGHT,
           },
           font: {
             color: theme.palette.text.primary,
             family: theme.typography.fontFamily,
-            size: FONT_SIZE
+            size: FONT_SIZE,
           },
           width,
-          height
+          height,
         }}
         frames={[]}
         config={{
           displayModeBar: true,
           displaylogo: false,
-          modeBarButtonsToRemove: ["toImage"]
+          modeBarButtonsToRemove: ["toImage"],
         }}
         className={
           /**
@@ -211,7 +211,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
   const initializeRunNamesDimension = () => {
     const { tickvals, ticktext } = getRunNamesDimensionTicks({
       chartRunsData,
-      selectedChartRunsData: chartRunsData
+      selectedChartRunsData: chartRunsData,
     });
 
     return {
@@ -220,7 +220,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
       dimensionGroup: DIMENSION_GROUPS.RUN_NAMES,
       tickvals,
       ticktext,
-      values: chartRunsData.map((d) => d.index)
+      values: chartRunsData.map((d) => d.index),
     };
   };
 
@@ -243,7 +243,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
       dimensionGroup: DIMENSION_GROUPS.HYPERPARAMETERS,
       tickvals,
       ticktext,
-      values
+      values,
     };
   };
 
@@ -255,7 +255,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
       const { value = 0 } = run.reachedGoals?.[goalKey] ?? {};
 
       return value;
-    })
+    }),
   });
 
   /**
@@ -331,7 +331,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
             onClick={clearFilters}
             startIcon={<DeleteOutlinedIcon />}
             sx={{
-              ml: 1
+              ml: 1,
             }}
           />
         )}

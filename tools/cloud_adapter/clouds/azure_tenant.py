@@ -8,6 +8,7 @@ class AzureTenant(Azure):
         CloudParameter(name='secret', type=str, required=True, protected=True),
         CloudParameter(name='client_id', type=str, required=True),
         CloudParameter(name='tenant', type=str, required=True),
+        CloudParameter(name='base_url', type=str, required=False),
 
         # Additional credentials for CSP partners
         CloudParameter(name='partner_tenant', type=str, required=False),

@@ -17,7 +17,7 @@ const CreatePoolForm = ({ parentId, onSuccess, unallocatedLimit }: CreatePoolFor
   const { poolOwners, isDataReady: isPoolOwnersDataReady } = useGetPoolOwners(parentId);
 
   const methods = useForm<CreatePoolFormValues>({
-    defaultValues: getCreateFormDefaultValues()
+    defaultValues: getCreateFormDefaultValues(),
   });
 
   const { handleSubmit } = methods;
@@ -44,7 +44,7 @@ const CreatePoolForm = ({ parentId, onSuccess, unallocatedLimit }: CreatePoolFor
               disabled={isRestricted}
               tooltip={{
                 show: isRestricted,
-                value: restrictionReasonMessage
+                value: restrictionReasonMessage,
               }}
             />
           </Box>

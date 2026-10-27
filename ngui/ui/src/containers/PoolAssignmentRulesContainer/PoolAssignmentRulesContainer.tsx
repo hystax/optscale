@@ -21,8 +21,8 @@ const PoolAssignmentRulesContainer = ({ poolId }) => {
               <Link to={ASSIGNMENT_RULES} component={RouterLink}>
                 {chunks}
               </Link>
-            )
-          }
+            ),
+          },
         }}
       />
     </>

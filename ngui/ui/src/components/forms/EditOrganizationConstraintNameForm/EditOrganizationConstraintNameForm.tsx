@@ -12,12 +12,12 @@ const EditOrganizationConstraintNameForm = ({
   defaultName,
   onCancel,
   onSubmit,
-  isLoading = false
+  isLoading = false,
 }: EditOrganizationConstraintNameFormProps) => {
   const methods = useForm<FormValues>({
     defaultValues: {
-      [FIELD_NAMES.NAME]: defaultName
-    }
+      [FIELD_NAMES.NAME]: defaultName,
+    },
   });
 
   const { handleSubmit } = methods;
@@ -30,8 +30,8 @@ const EditOrganizationConstraintNameForm = ({
             display: "flex",
             width: {
               xs: "inherit",
-              md: "50%"
-            }
+              md: "50%",
+            },
           }}
         >
           <NameField />

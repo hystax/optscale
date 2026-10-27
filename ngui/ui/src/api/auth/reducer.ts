@@ -16,8 +16,8 @@ const reducer = (state = {}, action) => {
           userId,
           userEmail,
           token,
-          ...caveats
-        }
+          ...caveats,
+        },
       };
     }
     case SET_USER:
@@ -25,8 +25,8 @@ const reducer = (state = {}, action) => {
         ...state,
         [action.label]: {
           name: action.payload.display_name,
-          email: action.payload.email
-        }
+          email: action.payload.email,
+        },
       };
     case SET_ALLOWED_ACTIONS: {
       return {
@@ -34,9 +34,9 @@ const reducer = (state = {}, action) => {
         [action.label]: {
           allowedActions: {
             ...state[action.label]?.allowedActions,
-            ...action.payload.allowed_actions
-          }
-        }
+            ...action.payload.allowed_actions,
+          },
+        },
       };
     }
     default:

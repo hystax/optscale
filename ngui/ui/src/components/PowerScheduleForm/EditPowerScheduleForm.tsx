@@ -8,7 +8,7 @@ import {
   formatTimeString,
   moveDateToUTC,
   parse,
-  secondsToMilliseconds
+  secondsToMilliseconds,
 } from "utils/datetime";
 import { FIELD_NAMES } from "./constants";
 import {
@@ -17,7 +17,7 @@ import {
   InitiationDateField,
   NameField,
   TimeZoneField,
-  TriggersFieldArray
+  TriggersFieldArray,
 } from "./FormElements";
 import { Meridiem, type FormValues } from "./types";
 
@@ -52,22 +52,22 @@ const getDefaultFormValues = (powerSchedule: EditPowerScheduleFormProps["powerSc
         const [time, meridiem] = formatTimeString({
           timeString: trigger.time,
           timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-          parsedTimeStringFormat: EN_TIME_FORMAT
+          parsedTimeStringFormat: EN_TIME_FORMAT,
         }).split(" ");
 
         return {
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.TIME]: time,
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.MERIDIEM]: meridiem as Meridiem,
-          [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.ACTION]: trigger.action
+          [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.ACTION]: trigger.action,
         };
-      }) ?? []
+      }) ?? [],
 });
 
 const EditPowerScheduleForm = ({ powerSchedule, onSubmit, onCancel, isLoadingProps = {} }: EditPowerScheduleFormProps) => {
   const { isSubmitLoading = false, isGetDataLoading = false } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultFormValues(powerSchedule)
+    defaultValues: getDefaultFormValues(powerSchedule),
   });
 
   const { handleSubmit, reset } = methods;
@@ -75,14 +75,14 @@ const EditPowerScheduleForm = ({ powerSchedule, onSubmit, onCancel, isLoadingPro
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...getDefaultFormValues(powerSchedule)
+      ...getDefaultFormValues(powerSchedule),
     }));
   }, [powerSchedule, reset]);
 
   return (
     <Box
       sx={{
-        width: { md: "50%" }
+        width: { md: "50%" },
       }}
     >
       <FormProvider {...methods}>

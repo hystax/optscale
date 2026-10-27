@@ -10,7 +10,7 @@ docker build -t ${TEST_IMAGE} --build-arg BUILDTAG=${BUILD_TAG} \
 
 echo "Unit tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "python3 -m unittest discover ./docker_images/power_schedule/tests"
+    bash -c "uv --project docker_images/power_schedule run python3 -m unittest discover ./docker_images/power_schedule/tests"
 echo "<<<Unit tests"
 
 docker rmi ${TEST_IMAGE}

@@ -2,7 +2,7 @@ import RiSpService from "services/RiSpService";
 
 const BREAKDOWN_TYPES = Object.freeze({
   USAGE: "usage",
-  COST: "cost"
+  COST: "cost",
 });
 
 type BreakdownType = (typeof BREAKDOWN_TYPES)[keyof typeof BREAKDOWN_TYPES];
@@ -35,24 +35,24 @@ const getBreakdown = ({ riBreakdown, spBreakdown, breakdownType }: { breakdownTy
           ...(breakdownType === BREAKDOWN_TYPES.USAGE && {
             total_usage_hrs: spCloudAccountBreakdown?.total_usage_hrs ?? 0,
             ri_usage_hrs: riCloudAccountBreakdown?.ri_usage_hrs ?? 0,
-            sp_usage_hrs: spCloudAccountBreakdown?.sp_usage_hrs ?? 0
+            sp_usage_hrs: spCloudAccountBreakdown?.sp_usage_hrs ?? 0,
           }),
           ...(breakdownType === BREAKDOWN_TYPES.COST && {
             ri: {
               cost_with_offer: riCloudAccountBreakdown?.ri_cost_with_offer ?? 0,
-              cost_without_offer: riCloudAccountBreakdown?.ri_cost_without_offer ?? 0
+              cost_without_offer: riCloudAccountBreakdown?.ri_cost_without_offer ?? 0,
             },
             sp: {
               cost_with_offer: spCloudAccountBreakdown?.sp_cost_with_offer ?? 0,
-              cost_without_offer: spCloudAccountBreakdown?.sp_cost_without_offer ?? 0
+              cost_without_offer: spCloudAccountBreakdown?.sp_cost_without_offer ?? 0,
             },
             total: {
               cost_with_offer: spCloudAccountBreakdown?.cost_with_offer ?? 0,
-              cost_without_offer: spCloudAccountBreakdown?.cost_without_offer ?? 0
-            }
-          })
+              cost_without_offer: spCloudAccountBreakdown?.cost_without_offer ?? 0,
+            },
+          }),
         };
-      })
+      }),
     ])
   );
 };
@@ -60,7 +60,7 @@ const getBreakdown = ({ riBreakdown, spBreakdown, breakdownType }: { breakdownTy
 export const useRiSpBreakdowns = ({
   startDate,
   endDate,
-  dataSourceIds
+  dataSourceIds,
 }: {
   startDate: number;
   endDate: number;
@@ -80,18 +80,18 @@ export const useRiSpBreakdowns = ({
   const usageBreakdown = getBreakdown({
     riBreakdown: rightSizingInstancesBreakdown,
     spBreakdown: savingPlansBreakdown,
-    breakdownType: BREAKDOWN_TYPES.USAGE
+    breakdownType: BREAKDOWN_TYPES.USAGE,
   });
 
   const expensesBreakdown = getBreakdown({
     riBreakdown: rightSizingInstancesBreakdown,
     spBreakdown: savingPlansBreakdown,
-    breakdownType: BREAKDOWN_TYPES.COST
+    breakdownType: BREAKDOWN_TYPES.COST,
   });
 
   return {
     isLoading: isGetReservedInstancesBreakdown || isGetSavingPlansBreakdown,
     expensesBreakdown,
-    usageBreakdown
+    usageBreakdown,
   };
 };

@@ -7,7 +7,7 @@ import {
   AWS_RDS,
   AZURE_COMPUTE,
   GCP_COMPUTE_ENGINE,
-  NEBIUS_SERVICE
+  NEBIUS_SERVICE,
 } from "hooks/useRecommendationServices";
 import { resource, resourceLocation, poolAndOwner, possibleShutdownPeriods, savings } from "utils/columns";
 import { ALIBABA_CNR, AWS_CNR, AZURE_CNR, FORMATTED_MONEY_TYPES, GCP_CNR, NEBIUS } from "utils/constants";
@@ -18,7 +18,7 @@ const columns = [
   resourceLocation({ headerDataTestId: "lbl_is_location" }),
   poolAndOwner({ headerDataTestId: "lbl_is_pool_owner" }),
   possibleShutdownPeriods({ headerDataTestId: "lbl_is_pool_owner" }),
-  savings({ headerDataTestId: "lbl_is_possible_monthly_savings", defaultSort: "desc" })
+  savings({ headerDataTestId: "lbl_is_possible_monthly_savings", defaultSort: "desc" }),
 ];
 
 class InstancesForShutdown extends BaseRecommendation {
@@ -34,7 +34,7 @@ class InstancesForShutdown extends BaseRecommendation {
     const {
       cpu_percent_threshold: cpuPercentThreshold,
       network_bps_threshold: networkBpsThreshold,
-      days_threshold: daysThreshold
+      days_threshold: daysThreshold,
     } = this.options;
 
     return { cpuPercentThreshold, networkBpsThreshold, daysThreshold };
@@ -60,12 +60,12 @@ class InstancesForShutdown extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

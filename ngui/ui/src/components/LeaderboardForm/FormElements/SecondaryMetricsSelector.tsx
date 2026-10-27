@@ -14,7 +14,7 @@ const SecondaryMetricsSelector = ({ metrics = [], isLoading = false }) => {
   const {
     control,
     formState: { errors },
-    watch
+    watch,
   } = useFormContext<FormValues>();
 
   const primaryMetric = watch(FIELD_NAMES.PRIMARY_METRIC_FIELD_NAME);
@@ -38,7 +38,7 @@ const SecondaryMetricsSelector = ({ metrics = [], isLoading = false }) => {
             isOptionEqualToValue={(option, value) => option.id === value.id}
             options={(primaryMetric ? metrics.filter((metric) => metric.id !== primaryMetric.id) : metrics).map((metric) => ({
               name: metric.name,
-              id: metric.id
+              id: metric.id,
             }))}
             getOptionLabel={(option) => option.name}
             renderTags={(autocompleteValue, getTagProps) =>
@@ -60,7 +60,7 @@ const SecondaryMetricsSelector = ({ metrics = [], isLoading = false }) => {
                       <QuestionMark messageId="secondaryMetricsHint" dataTestId="qmark_secondary_metrics" />
                       {params.InputProps.endAdornment}
                     </>
-                  )
+                  ),
                 }}
               />
             )}

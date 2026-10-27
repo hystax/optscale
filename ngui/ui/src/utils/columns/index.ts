@@ -149,5 +149,5 @@ export {
   datasetTimespan,
   markdown,
   slicedText,
-  localTime
+  localTime,
 };

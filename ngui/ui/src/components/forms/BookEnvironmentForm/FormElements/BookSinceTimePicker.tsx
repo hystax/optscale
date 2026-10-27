@@ -23,7 +23,7 @@ const BookSinceTimePicker = ({ validate }) => {
       }}
       fullWidth
       quickValues={{
-        values: ["now", "3h", "1d", "3d"]
+        values: ["now", "3h", "1d", "3d"],
       }}
       intervalMinutes={INTERVAL_ENVIRONMENT}
       withTimePicker

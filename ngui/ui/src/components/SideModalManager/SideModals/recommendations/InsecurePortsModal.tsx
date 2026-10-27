@@ -7,7 +7,7 @@ import SaveButton from "./components/SaveButton";
 import { useCommonSettingsData, useFormWithValuesFromOptions } from "./hooks";
 
 const VALUE_KEYS = Object.freeze({
-  insecurePorts: "insecure_ports"
+  insecurePorts: "insecure_ports",
 });
 
 const InsecurePortsForm = ({ recommendationType, onSuccess }) => {
@@ -51,8 +51,8 @@ class InsecurePortsModal extends BaseSideModal {
     messageId: "insecurePorts",
     dataTestIds: {
       title: "lbl_insecure_ports_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_insecure_ports";

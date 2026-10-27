@@ -18,9 +18,9 @@ const EditOrganizationCurrencyFormContainer = ({ onCancel, onSuccess }: EditOrga
       variables: {
         organizationId,
         params: {
-          currency: formData.currency
-        }
-      }
+          currency: formData.currency,
+        },
+      },
     }).then(onSuccess);
   };
 

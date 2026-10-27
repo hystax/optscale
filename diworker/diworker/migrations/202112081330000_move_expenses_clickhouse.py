@@ -51,10 +51,10 @@ class Migration(BaseMigration):
             _, resp = rest_client.cloud_account_list(organization_id)
             cloud_account_ids = list(map(
                 lambda x: x['id'], resp['cloud_accounts']))
-            expenses = expenses_collection.find(
-                {'cloud_account_id': {'$in': cloud_account_ids}}
-            )
-            total_expenses = expenses.count_documents()
+            expenses_filter = {'cloud_account_id': {'$in': cloud_account_ids}}
+            total_expenses = expenses_collection.count_documents(
+                expenses_filter)
+            expenses = expenses_collection.find(expenses_filter)
             bulk = []
             total_migrated = 0
             LOG.info('Migrating expenses for org %s (%s/%s)...' % (

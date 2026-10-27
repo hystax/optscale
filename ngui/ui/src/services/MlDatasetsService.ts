@@ -7,7 +7,7 @@ import {
   GET_ML_DATASET,
   UPDATE_ML_DATASET,
   DELETE_ML_DATASET,
-  GET_ML_DATASET_LABELS
+  GET_ML_DATASET_LABELS,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -38,7 +38,7 @@ const useGetAll = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { datasets = [] }
+    apiData: { datasets = [] },
   } = useApiData(GET_ML_DATASETS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_DATASETS, organizationId);
@@ -121,7 +121,7 @@ const useGetLabels = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { labels = [] }
+    apiData: { labels = [] },
   } = useApiData(GET_ML_DATASET_LABELS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_DATASET_LABELS, organizationId);
@@ -142,7 +142,7 @@ function MlDatasetsService() {
     useCreate,
     useUpdate,
     useDelete,
-    useGetLabels
+    useGetLabels,
   };
 }
 

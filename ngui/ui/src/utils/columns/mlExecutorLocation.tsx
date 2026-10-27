@@ -33,9 +33,9 @@ const mlExecutorLocation = ({ headerDataTestId = "lbl_location", headerMessageId
   id: "location",
   cell: ({
     row: {
-      original: { discovered, resource }
-    }
-  }) => <Cell discovered={discovered} resource={resource} disableLink={disableLink} />
+      original: { discovered, resource },
+    },
+  }) => <Cell discovered={discovered} resource={resource} disableLink={disableLink} />,
 });
 
 export default mlExecutorLocation;

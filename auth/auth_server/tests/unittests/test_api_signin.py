@@ -18,14 +18,14 @@ class TestSignIn(TestAuthBase):
         self.customer1_scope_id = '19a00828-fbff-4318-8291-4b6c14a8066d'
         self.group11_scope_id = 'be7b4d5e-33b6-40aa-bc6a-00c7d822606f'
         self.hierarchy = (
-            {'root': {'null': {'partner': {
+            {'partner': {
                 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d':
                     {'customer': {
                         '19a00828-fbff-4318-8291-4b6c14a8066d':
                             {'group': ['be7b4d5e-33b6-40aa-bc6a-00c7d822606f']
                              },
                     }},
-            }}}}
+            }}
         )
         admin_user = self.create_root_user()
         session = self.db_session

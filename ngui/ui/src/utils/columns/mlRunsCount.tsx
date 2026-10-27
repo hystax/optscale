@@ -7,7 +7,7 @@ const mlRunsCount = ({ headerDataTestId = "lbl_runs_count", accessorKey = "runs_
       <FormattedMessage id="runsCount" />
     </TextWithDataTestId>
   ),
-  accessorKey
+  accessorKey,
 });
 
 export default mlRunsCount;

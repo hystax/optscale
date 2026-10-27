@@ -8,23 +8,23 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_osch_resource"
+    headerDataTestId: "lbl_osch_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_osch_location"
+    headerDataTestId: "lbl_osch_location",
   }),
   firstSeenOn({
-    headerDataTestId: "lbl_osch_first_seen"
+    headerDataTestId: "lbl_osch_first_seen",
   }),
   lastSeenUsed({
     headerDataTestId: "lbl_osch_last_used",
-    headerHelperMessageId: "snapshotObsoleteLastUsedHelp"
+    headerHelperMessageId: "snapshotObsoleteLastUsedHelp",
   }),
   detectedAt({ headerDataTestId: "lbl_osch_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_osch_possible_savings_per_month",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class ObsoleteSnapshotChains extends BaseRecommendation {
@@ -63,12 +63,12 @@ class ObsoleteSnapshotChains extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

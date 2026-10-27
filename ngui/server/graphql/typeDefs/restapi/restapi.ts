@@ -59,6 +59,7 @@ export default gql`
     access_key_id: String
     assume_role_account_id: String
     assume_role_name: String
+    assume_role_external_id: String
     linked: Boolean
     use_edp_discount: Boolean
     cur_version: Int
@@ -67,6 +68,8 @@ export default gql`
     config_scheme: String
     region_name: String
     report_name: String
+    included_regions: [String!]
+    excluded_regions: [String!]
   }
 
   type AwsDataSource implements DataSourceInterface {
@@ -82,6 +85,8 @@ export default gql`
     last_getting_metrics_at: Int!
     last_getting_metric_attempt_at: Int!
     last_getting_metric_attempt_error: String
+    last_import_source_id: String
+    last_import_source_account_id: String
     details: DataSourceDetails
     config: AwsConfig
   }
@@ -341,17 +346,22 @@ export default gql`
     config_scheme: String
     report_name: String
     region_name: String
+    included_regions: [String!]
+    excluded_regions: [String!]
   }
 
   input AwsLinkedConfigInput {
     access_key_id: String!
     secret_access_key: String!
     linked: Boolean!
+    included_regions: [String!]
+    excluded_regions: [String!]
   }
 
   input AwsAssumedRoleConfigInput {
     assume_role_account_id: String!
     assume_role_name: String!
+    assume_role_external_id: String
     bucket_name: String
     bucket_prefix: String
     region_name: String
@@ -359,6 +369,8 @@ export default gql`
     cur_version: Int
     config_scheme: String
     report_name: String
+    included_regions: [String!]
+    excluded_regions: [String!]
     linked: Boolean
   }
 
@@ -451,7 +463,6 @@ export default gql`
   input UpdateDataSourceInput {
     name: String
     lastImportAt: Int
-    lastImportModifiedAt: Int
     awsRootConfig: AwsRootConfigInput
     awsLinkedConfig: AwsLinkedConfigInput
     awsAssumedRoleConfig: AwsAssumedRoleConfigInput
@@ -654,6 +665,7 @@ export default gql`
   input CloudPoliciesParams {
     bucket_name: String!
     cloud_type: String!
+    external_id: String
   }
 
   input AvailableFiltersParams {
@@ -767,6 +779,28 @@ export default gql`
     entity: [OrganizationSummaryEntity!]!
   }
 
+  enum GeminiDataPreparationStatus {
+    QUEUED
+    RUNNING
+    FAILED
+    SUCCESS
+  }
+
+  type GeminiDataPreparation {
+    id: ID!
+    gemini_id: ID!
+    buckets: String!
+    status: GeminiDataPreparationStatus!
+    url: String
+    valid_until: Int
+    created_at: Int
+    deleted_at: Int
+  }
+
+  type ScheduleGeminiDataPreparation {
+    id: ID!
+  }
+
   type Query {
     organizations: [Organization!]!
     currentEmployee(organizationId: ID!): Employee
@@ -789,11 +823,13 @@ export default gql`
     billingSubscriptionPlans(organizationId: ID!): [BillingSubscriptionPlan!]!
     billingSubscription(organizationId: ID!): BillingSubscription!
     organizationSummary(organizationId: ID!, params: OrganizationSummaryParams): OrganizationSummary!
+    geminiDataPreparation(id: ID!): GeminiDataPreparation!
   }
 
   type Mutation {
     createDataSource(organizationId: ID!, params: CreateDataSourceInput!): DataSourceInterface
     updateDataSource(dataSourceId: ID!, params: UpdateDataSourceInput!): DataSourceInterface
+    scheduleDataSourceReimport(dataSourceId: ID!, importFrom: Int!): Boolean
     updateEmployeeEmails(employeeId: ID!, params: UpdateEmployeeEmailsInput!): [EmployeeEmail]
     updateEmployeeEmail(employeeId: ID!, params: UpdateEmployeeEmailInput!): EmployeeEmail
     deleteDataSource(dataSourceId: ID!): String
@@ -805,5 +841,6 @@ export default gql`
     updateOrganizationPerspectives(organizationId: ID!, value: JSONObject!): JSONObject
     createStripeCheckoutSession(organizationId: ID!, params: CreateStripeCheckoutSessionInput!): StripeSession
     createStripeBillingPortalSession(organizationId: ID!): StripeSession
+    scheduleGeminiDataPreparation(geminiId: ID!, buckets: [String!]!): ScheduleGeminiDataPreparation
   }
 `;

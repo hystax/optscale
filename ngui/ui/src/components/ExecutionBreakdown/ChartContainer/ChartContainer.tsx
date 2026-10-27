@@ -11,7 +11,7 @@ import ChartDataSelector from "../ChartDataSelector";
 
 const CHART_X_MARGINS = {
   mr: { xs: 0, md: `${CHART_MARGIN_STYLES.right}px` },
-  ml: { xs: 0, md: `${CHART_MARGIN_STYLES.left}px` }
+  ml: { xs: 0, md: `${CHART_MARGIN_STYLES.left}px` },
 };
 
 const BREAKDOWN_BY_QUERY_PARAMETER = "breakdownBy";
@@ -33,12 +33,12 @@ const ChartContainer = ({
   selectedBreakdowns,
   onSelectedBreakdownsChange,
   name,
-  showMilestones
+  showMilestones,
 }) => {
   const breakdownLines = useMlBreakdownLines({
     breakdown,
     breakdownConfig,
-    selectedBreakdowns
+    selectedBreakdowns,
   });
 
   return (
@@ -49,7 +49,7 @@ const ChartContainer = ({
           display: "flex",
           flexDirection: "row",
           justifyContent: "flex-start",
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
         <SubTitle>{name}</SubTitle>

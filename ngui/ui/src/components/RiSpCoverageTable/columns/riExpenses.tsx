@@ -21,10 +21,10 @@ const riExpenses = ({ totalRiCostWithOffer, totalTotalCostWithOffer }) => ({
   cell: ({
     cell,
     row: {
-      original: { total_cost_with_offer: totalExpenses }
-    }
+      original: { total_cost_with_offer: totalExpenses },
+    },
   }) => <CellValue expenses={cell.getValue()} totalExpenses={totalExpenses} />,
-  footer: () => <CellValue expenses={totalRiCostWithOffer} totalExpenses={totalTotalCostWithOffer} />
+  footer: () => <CellValue expenses={totalRiCostWithOffer} totalExpenses={totalTotalCostWithOffer} />,
 });
 
 export default riExpenses;

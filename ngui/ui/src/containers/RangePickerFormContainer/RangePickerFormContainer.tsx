@@ -13,7 +13,7 @@ const RangePickerFormContainer = ({
   definedRanges,
   pdfId,
   minDate,
-  maxDate
+  maxDate,
 }) => {
   const dispatch = useDispatch();
   const { isInitialMount, setIsInitialMount } = useInitialMount();
@@ -36,7 +36,7 @@ const RangePickerFormContainer = ({
         onApply={(startDateTimestamp, endDateTimestamp) => {
           onApply({
             startDate: startDateTimestamp,
-            endDate: endDateTimestamp
+            endDate: endDateTimestamp,
           });
           setSelectedStartDate(startDateTimestamp);
           setSelectedEndDate(endDateTimestamp);

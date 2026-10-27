@@ -16,30 +16,14 @@ class TestAuthHierarchyApi(TestApiBase):
         _, self.o2 = self.client.organization_create({'name': 'Organization2'})
 
     def test_root_hierarchy(self):
-        code, hierarchy = self.client.auth_hierarchy_get('root', None)
-        self.assertEqual(code, 200)
-        self.assertEqual(len(hierarchy['root']['null']['organization']), 2)
-        self.assertEqual(len(
-            list(filter(lambda x: x in [self.o1['id'], self.o2['id']],
-                        hierarchy['root']['null']['organization'].keys()))), 2)
-        self.assertEqual(
-            hierarchy['root']['null']['organization'][self.o2['id']]['pool'],
-            [self.o2['pool_id']])
-        self.assertEqual(len(
-            hierarchy['root']['null']['organization'][self.o1['id']]['pool']
-        ), 3)
-        self.assertEqual(len(list(filter(
-            lambda x: x in [self.o1['pool_id'], self.b11['id'], self.b12['id']],
-            hierarchy['root']['null']['organization'][self.o1['id']]['pool']))), 3)
+        code, hierarchy = self.client.auth_hierarchy_get('root', self.o1['id'])
+        self.assertEqual(code, 400)
 
     def test_root_hierarchy_deleted_organization(self):
         self.delete_organization(self.o1['id'])
-        code, hierarchy = self.client.auth_hierarchy_get('root', None)
-        self.assertEqual(code, 200)
-        self.assertEqual(len(hierarchy['root']['null']['organization']), 1)
-        self.assertEqual(
-            hierarchy['root']['null']['organization'][self.o2['id']]['pool'],
-            [self.o2['pool_id']])
+        code, hierarchy = self.client.auth_hierarchy_get(
+            'organization', self.o1['id'])
+        self.assertEqual(code, 404)
 
     def test_organization_hierarchy(self):
         code, hierarchy = self.client.auth_hierarchy_get(

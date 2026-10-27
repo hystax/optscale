@@ -5,7 +5,7 @@ const useStyles = makeStyles()((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     position: "fixed",
     boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.5)",
-    transition: "all 0.1s ease-out"
+    transition: "all 0.1s ease-out",
   },
   invisibleBackgroundEventsCapturer: {
     zIndex: theme.zIndex.drawer + 1,
@@ -13,8 +13,8 @@ const useStyles = makeStyles()((theme) => ({
     top: 0,
     left: 0,
     width: "100vw",
-    height: "100vh"
-  }
+    height: "100vh",
+  },
 }));
 
 export default useStyles;

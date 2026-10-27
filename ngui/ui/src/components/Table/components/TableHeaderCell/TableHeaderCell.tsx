@@ -35,7 +35,7 @@ const TableHeaderCell = ({ headerContext, stickyStyles = {}, getHeaderCellClassN
       return typeof headerContext.column.columnDef.header === "function"
         ? headerContext.column.columnDef.header({
             ...headerContext.getContext(),
-            renderSortLabel
+            renderSortLabel,
           })
         : renderSortLabel(headerContext.column.columnDef.header);
     }
@@ -50,7 +50,7 @@ const TableHeaderCell = ({ headerContext, stickyStyles = {}, getHeaderCellClassN
       style={{
         ...stickyStyles,
         ...cellStyle,
-        ...headerCellStyle
+        ...headerCellStyle,
       }}
       colSpan={headerContext.colSpan}
       rowSpan={headerContext.rowSpan}

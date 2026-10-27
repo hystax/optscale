@@ -11,23 +11,23 @@ const ExpensesBreakdownSummaryCards = ({ total = 0, previousTotal = 0, isLoading
       key: "totalExpensesForSelectedPeriod",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: total
+        value: total,
       },
       color: getPoolColorStatus(percent),
       isLoading,
       captionMessageId: "totalExpensesForSelectedPeriod",
-      pdfId: pdfIds.totalExpensesForSelectedPeriod
+      pdfId: pdfIds.totalExpensesForSelectedPeriod,
     },
     {
       key: "totalExpensesForPreviousPeriod",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: previousTotal
+        value: previousTotal,
       },
       isLoading,
       captionMessageId: "totalExpensesForPreviousPeriod",
-      pdfId: pdfIds.totalExpensesForPreviousPeriod
-    }
+      pdfId: pdfIds.totalExpensesForPreviousPeriod,
+    },
   ];
   return <SummaryGrid summaryData={summaryData} />;
 };

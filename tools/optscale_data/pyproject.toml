@@ -1,0 +1,17 @@
+[project]
+name = "optscale-data"
+version = "0.0.0"
+description = "OptScale Data Utils"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "clickhouse-connect==0.8.15",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["tools.optscale_data*"]
+namespaces = true

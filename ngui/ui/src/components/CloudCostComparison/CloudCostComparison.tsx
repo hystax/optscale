@@ -10,8 +10,8 @@ import { SPACING_1 } from "utils/layouts";
 const actionBarDefinition = {
   title: {
     messageId: "cloudCostComparisonTitle",
-    dataTestId: "lbl_cloud_cost_comparison"
-  }
+    dataTestId: "lbl_cloud_cost_comparison",
+  },
 };
 
 const CloudCostComparison = ({ relevantSizes, onFiltersApply, errors, isLoading = false }) => {
@@ -44,7 +44,7 @@ const CloudCostComparison = ({ relevantSizes, onFiltersApply, errors, isLoading 
           position="top"
           alertProps={{
             messageId: "cloudCostComparisonDescription",
-            messageValues: { br: <br /> }
+            messageValues: { br: <br /> },
           }}
         />
         <Stack spacing={SPACING_1}>

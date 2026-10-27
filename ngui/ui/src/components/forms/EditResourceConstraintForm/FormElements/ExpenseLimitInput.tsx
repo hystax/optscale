@@ -17,11 +17,11 @@ const ExpenseLimitInput = ({ name, defaultValue, dataTestId }) => {
       required
       defaultValue={defaultValue}
       InputProps={{
-        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>
+        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
       }}
       min={0}
       validate={{
-        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true)
+        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
       }}
     />
   );

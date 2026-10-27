@@ -22,21 +22,21 @@ class DataSourceFilter extends Filter {
     additionalProperties: false,
     properties: {
       id: {
-        type: "string"
+        type: "string",
       },
       name: {
-        type: "string"
+        type: "string",
       },
       type: {
         type: "string",
-        enum: CLOUD_ACCOUNT_TYPES_LIST
-      }
-    }
+        enum: CLOUD_ACCOUNT_TYPES_LIST,
+      },
+    },
   };
 
   // TODO: Use ajv TS integration to create schema based on types def
   static appliedFilterSchema = {
-    type: "string"
+    type: "string",
   };
 
   static _getValue(filterItem) {
@@ -59,10 +59,10 @@ class DataSourceFilter extends Filter {
         disableLink: false,
         dataTestId: `${this.constructor.filterName}_filter_link`,
         iconProps: {
-          dataTestId: `${this.constructor.filterName}_filter_logo`
-        }
+          dataTestId: `${this.constructor.filterName}_filter_logo`,
+        },
       })),
-      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem),
     };
   }
 
@@ -70,7 +70,7 @@ class DataSourceFilter extends Filter {
     return sortObjects({
       array: items,
       field: "name",
-      type: "asc"
+      type: "asc",
     });
   }
 }

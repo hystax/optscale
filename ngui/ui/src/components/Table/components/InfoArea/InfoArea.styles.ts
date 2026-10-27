@@ -10,10 +10,10 @@ const useStyles = makeStyles()((theme) => ({
     marginBottom: theme.spacing(1),
     "& > *": {
       "&:not(:last-child)": {
-        marginRight: theme.spacing(1)
-      }
-    }
-  }
+        marginRight: theme.spacing(1),
+      },
+    },
+  },
 }));
 
 export default useStyles;

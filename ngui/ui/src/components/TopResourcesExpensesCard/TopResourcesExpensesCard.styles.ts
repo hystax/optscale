@@ -7,17 +7,17 @@ const useStyles = makeStyles()((theme) => ({
   item: {
     position: "relative", // for bar positioning
     padding: "5px",
-    ":not(:last-child)": { marginBottom: theme.spacing(SPACING_2) }
+    ":not(:last-child)": { marginBottom: theme.spacing(SPACING_2) },
   },
   itemContent: {
     position: "relative", // to set item content above bar (which is absolute)
-    flexGrow: 1
+    flexGrow: 1,
   },
   flexRow: {
     display: "flex",
     flexDirection: "row",
     width: "100%",
-    alignItems: "center"
+    alignItems: "center",
   },
   bar: {
     position: "absolute",
@@ -25,8 +25,8 @@ const useStyles = makeStyles()((theme) => ({
     left: 0,
     height: "100%",
     backgroundColor: lighten(theme.palette.lightBlue.main, ALPHA),
-    borderRadius: "4px"
-  }
+    borderRadius: "4px",
+  },
 }));
 
 export default useStyles;

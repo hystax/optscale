@@ -29,13 +29,13 @@ const getDurationFormatter =
             INTERVAL_DURATION_VALUE_TYPES.DAYS,
             INTERVAL_DURATION_VALUE_TYPES.HOURS,
             INTERVAL_DURATION_VALUE_TYPES.MINUTES,
-            INTERVAL_DURATION_VALUE_TYPES.SECONDS
+            INTERVAL_DURATION_VALUE_TYPES.SECONDS,
           ],
           duration: intervalToDuration({
             start: 0,
-            end: value * 1000
+            end: value * 1000,
           }),
-          compact
+          compact,
         });
 
 const METRIC_BREAKDOWN_NAME = Object.freeze({
@@ -44,7 +44,7 @@ const METRIC_BREAKDOWN_NAME = Object.freeze({
   TASK_CPU: "task_cpu",
   CPU_UPTIME: "cpu_uptime",
   DATA_READ: "data_read",
-  DATA_WRITTEN: "data_written"
+  DATA_WRITTEN: "data_written",
 });
 
 const Breakdown = ({ runs }) => {
@@ -56,7 +56,7 @@ const Breakdown = ({ runs }) => {
   const formatInterval = useFormatIntervalDuration();
   const formatDuration = getDurationFormatter({
     formatInterval,
-    formatMessage: intl.formatMessage
+    formatMessage: intl.formatMessage,
   });
   const formatMoney = useMoneyFormatter();
 
@@ -70,15 +70,15 @@ const Breakdown = ({ runs }) => {
       formatValue: (value) => formatDuration(value),
       formatAxis: (value) =>
         formatDuration(value, {
-          compact: true
-        })
+          compact: true,
+        }),
     },
     {
       name: METRIC_BREAKDOWN_NAME.EXPENSES,
       renderBreakdownName: () => <FormattedMessage id="expenses" />,
       getPointValue: (run) => run.cost ?? null,
       formatValue: (value) => <FormattedMoney value={value} />,
-      formatAxis: (value) => formatMoney(FORMATTED_MONEY_TYPES.COMPACT, value)
+      formatAxis: (value) => formatMoney(FORMATTED_MONEY_TYPES.COMPACT, value),
     },
     {
       name: METRIC_BREAKDOWN_NAME.TASK_CPU,
@@ -88,8 +88,8 @@ const Breakdown = ({ runs }) => {
       formatValue: (value) => formatDuration(value),
       formatAxis: (value) =>
         formatDuration(value, {
-          compact: true
-        })
+          compact: true,
+        }),
     },
     {
       name: METRIC_BREAKDOWN_NAME.CPU_UPTIME,
@@ -99,8 +99,8 @@ const Breakdown = ({ runs }) => {
       formatValue: (value) => formatDuration(value),
       formatAxis: (value) =>
         formatDuration(value, {
-          compact: true
-        })
+          compact: true,
+        }),
     },
     {
       name: METRIC_BREAKDOWN_NAME.DATA_READ,
@@ -112,8 +112,8 @@ const Breakdown = ({ runs }) => {
         formatDigitalUnit({
           value,
           baseUnit: IEC_UNITS.MEBIBYTE,
-          maximumFractionDigits: 2
-        })
+          maximumFractionDigits: 2,
+        }),
     },
     {
       name: METRIC_BREAKDOWN_NAME.DATA_WRITTEN,
@@ -125,9 +125,9 @@ const Breakdown = ({ runs }) => {
         formatDigitalUnit({
           value,
           baseUnit: IEC_UNITS.MEBIBYTE,
-          maximumFractionDigits: 2
-        })
-    }
+          maximumFractionDigits: 2,
+        }),
+    },
   ];
 
   const getMetricsBreakdownConfig = () => {
@@ -139,8 +139,8 @@ const Breakdown = ({ runs }) => {
             key,
             {
               name,
-              unit
-            }
+              unit,
+            },
           ])
         )
     );
@@ -164,8 +164,8 @@ const Breakdown = ({ runs }) => {
         formatDynamicFractionDigitsValue({
           value,
           maximumFractionDigits: 2,
-          notation: "compact"
-        })
+          notation: "compact",
+        }),
     }));
   };
 
@@ -192,7 +192,7 @@ const Breakdown = ({ runs }) => {
     breakdownNames,
     initialSelectedBreakdowns: metricsBreakdownNames,
     fallbackBreakdowns: [METRIC_BREAKDOWN_NAME.DURATION, METRIC_BREAKDOWN_NAME.EXPENSES],
-    queryParamName: BREAKDOWN_BY_QUERY_PARAMETER
+    queryParamName: BREAKDOWN_BY_QUERY_PARAMETER,
   });
 
   return (

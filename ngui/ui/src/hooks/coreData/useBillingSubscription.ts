@@ -6,9 +6,9 @@ export const useBillingSubscription = () => {
 
   const { data: { billingSubscription } = {} } = useBillingSubscriptionQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    fetchPolicy: "cache-only"
+    fetchPolicy: "cache-only",
   });
 
   return billingSubscription;

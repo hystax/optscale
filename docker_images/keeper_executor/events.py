@@ -391,3 +391,10 @@ class Events(enum.Enum):
         ['object_name', 'object_id'],
         "INFO"
     ]
+    N0163 = [
+        "Billing data import for cloud account {object_name} "
+        "({cloud_account_id}) was throttled by the cloud provider: "
+        "{error_reason}",
+        ["object_name", "cloud_account_id", "error_reason"],
+        "WARNING"
+    ]

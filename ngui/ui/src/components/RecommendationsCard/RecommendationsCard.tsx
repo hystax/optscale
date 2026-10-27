@@ -19,7 +19,7 @@ const RecommendationsCard = ({
   costRecommendationsCount,
   securityRecommendationsCount,
   criticalRecommendationsCount,
-  thisMonthExpensesForecast
+  thisMonthExpensesForecast,
 }) => {
   const navigate = useNavigate();
 
@@ -28,8 +28,8 @@ const RecommendationsCard = ({
       pathname: RECOMMENDATIONS,
       search: `?${createSearchParams({
         [RECOMMENDATION_CATEGORY_QUERY_PARAMETER]: CATEGORY.ALL,
-        [RECOMMENDATION_SERVICE_QUERY_PARAMETER]: CATEGORY.ALL
-      })}`
+        [RECOMMENDATION_SERVICE_QUERY_PARAMETER]: CATEGORY.ALL,
+      })}`,
     });
 
   return (
@@ -39,18 +39,18 @@ const RecommendationsCard = ({
       titleButton={{
         type: "icon",
         tooltip: {
-          title: <FormattedMessage id="seeAllRecommendations" />
+          title: <FormattedMessage id="seeAllRecommendations" />,
         },
         buttonProps: {
           icon: <ExitToAppOutlinedIcon />,
           isLoading,
           onClick: seeAllRecommendations,
-          dataTestId: "btn_see_all_recommendations"
-        }
+          dataTestId: "btn_see_all_recommendations",
+        },
       }}
       dataTestIds={{
         wrapper: "block_recommendations",
-        title: "lbl_recommendations"
+        title: "lbl_recommendations",
       }}
       elevation={0}
     >
@@ -74,7 +74,7 @@ const RecommendationsCard = ({
             value={<FormattedNumber value={costRecommendationsCount} />}
             isLoading={isLoading}
             dataTestIds={{
-              value: "block_recommendations_cost_value"
+              value: "block_recommendations_cost_value",
             }}
           />
         </Grid>
@@ -94,7 +94,7 @@ const RecommendationsCard = ({
             value={<FormattedNumber value={securityRecommendationsCount} />}
             isLoading={isLoading}
             dataTestIds={{
-              value: "block_recommendations_security_value"
+              value: "block_recommendations_security_value",
             }}
           />
         </Grid>
@@ -114,7 +114,7 @@ const RecommendationsCard = ({
             value={<FormattedNumber value={criticalRecommendationsCount} />}
             isLoading={isLoading}
             dataTestIds={{
-              value: "block_recommendations_critical_value"
+              value: "block_recommendations_critical_value",
             }}
           />
         </Grid>

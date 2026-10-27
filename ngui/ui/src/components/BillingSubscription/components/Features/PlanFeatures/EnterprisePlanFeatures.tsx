@@ -5,7 +5,7 @@ const featureMessageIds = [
   "billingSubscriptionFeatures.privateDeployment",
   "billingSubscriptionFeatures.prioritizedPoolRequestReview",
   "billingSubscriptionFeatures.accessToRoadmap",
-  "billingSubscriptionFeatures.dedicated24HourSupportSevenDaysAWeek"
+  "billingSubscriptionFeatures.dedicated24HourSupportSevenDaysAWeek",
 ] as const;
 
 const EnterprisePlanFeatures = () => (

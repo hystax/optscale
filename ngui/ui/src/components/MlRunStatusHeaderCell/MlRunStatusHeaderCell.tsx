@@ -5,19 +5,19 @@ import { MlRunStatusIcon } from "components/MlRunStatus";
 const StatusDescription = ({ messageId, icon }) => (
   <div
     style={{
-      display: "inline-flex"
+      display: "inline-flex",
     }}
   >
     {icon}
     <span
       style={{
-        paddingTop: "2px"
+        paddingTop: "2px",
       }}
     >
       <FormattedMessage
         id={messageId}
         values={{
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         }}
       />
     </span>
@@ -34,7 +34,7 @@ const MlRunStatusHeaderCell = () => (
       aborted: <StatusDescription icon={<MlRunStatusIcon status="aborted" />} messageId="abortedStatusDescription" />,
       completed: <StatusDescription icon={<MlRunStatusIcon status="completed" />} messageId="completedStatusDescription" />,
       failed: <StatusDescription icon={<MlRunStatusIcon status="failed" />} messageId="failedStatusDescription" />,
-      br: <br />
+      br: <br />,
     }}
     onTooltipTitleClick={(e) => {
       // Prevent triggering sorting when clicking on the tooltip area

@@ -31,26 +31,26 @@ const SELECTOR_SX = {
      */
     minWidth: 270,
     "& label": {
-      color: (theme) => theme.palette.primary.main
+      color: (theme) => theme.palette.primary.main,
     },
     "& div": {
       color: (theme) => theme.palette.primary.main,
       "&.Mui-focused": {
         "& fieldset": {
-          borderColor: (theme) => theme.palette.primary.main
-        }
-      }
+          borderColor: (theme) => theme.palette.primary.main,
+        },
+      },
     },
     "& svg": {
-      color: (theme) => theme.palette.primary.main
+      color: (theme) => theme.palette.primary.main,
     },
     "& fieldset": {
-      borderColor: (theme) => theme.palette.primary.main
+      borderColor: (theme) => theme.palette.primary.main,
     },
     "&:hover fieldset": {
-      borderColor: (theme) => theme.palette.primary.main
-    }
-  }
+      borderColor: (theme) => theme.palette.primary.main,
+    },
+  },
 };
 
 type OrganizationSelectorProps = {
@@ -68,7 +68,7 @@ const OrganizationSelector = ({
   organizations,
   organizationId = "",
   onChange,
-  isLoading = false
+  isLoading = false,
 }: OrganizationSelectorProps) => {
   const { isDemo } = useOrganizationInfo();
   const openSideModal = useOpenSideModal();
@@ -108,12 +108,12 @@ const OrganizationSelector = ({
             const { displayName, isNameLong, originalName } = getOrganizationDisplayName({
               name: organization.name,
               isInactive: organization.disabled,
-              maxLength: MAX_ORGANIZATION_NAME_LENGTH
+              maxLength: MAX_ORGANIZATION_NAME_LENGTH,
             });
 
             const tooltip = isNameLong
               ? {
-                  title: originalName
+                  title: originalName,
                 }
               : undefined;
 
@@ -121,7 +121,7 @@ const OrganizationSelector = ({
               <Item key={organization.id} value={organization.id}>
                 <ItemContent
                   icon={{
-                    IconComponent: ApartmentIcon
+                    IconComponent: ApartmentIcon,
                   }}
                   tooltip={tooltip}
                 >
@@ -133,7 +133,7 @@ const OrganizationSelector = ({
         <Divider />
         <Button
           icon={{
-            IconComponent: VisibilityOutlinedIcon
+            IconComponent: VisibilityOutlinedIcon,
           }}
           onClick={() => navigate(ORGANIZATIONS_OVERVIEW)}
           dataTestId="orgs_dashboard"
@@ -143,7 +143,7 @@ const OrganizationSelector = ({
         {isCreateOrganizationEnabled && (
           <Button
             icon={{
-              IconComponent: AddOutlinedIcon
+              IconComponent: AddOutlinedIcon,
             }}
             onClick={() => openSideModal(CreateOrganizationModal, { onSuccess: onChange })}
             dataTestId="orgs_create_new"

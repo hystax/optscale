@@ -16,9 +16,6 @@ class Environment(CloudBase):
     def discovery_calls_map(self):
         return {}
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def volume_discovery_calls(self):
         raise NotImplementedError
 
@@ -43,7 +40,7 @@ class Environment(CloudBase):
     def ip_address_discovery_calls(self):
         raise NotImplementedError
 
-    def get_regions_coordinates(self):
+    def get_regions_coordinates(self, load=True):
         return {}
 
     def set_currency(self, currency):

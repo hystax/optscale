@@ -1,7 +1,7 @@
 FROM python:3.12.11-slim
 LABEL org.opencontainers.image.authors="Hystax"
 
-WORKDIR /src
+WORKDIR /usr/src/app
 
 RUN apt-get update \
     && apt-get install -y jq curl \
@@ -9,6 +9,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY docker_images/cleanelkdb/clean-elk-db.sh .
+COPY docker_images/cleanelkdb/clean-elk-db.sh /src/clean-elk-db.sh
 
 CMD ["sh", "/src/clean-elk-db.sh"]

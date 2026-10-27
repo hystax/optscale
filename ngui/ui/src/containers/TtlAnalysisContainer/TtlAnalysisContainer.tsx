@@ -51,19 +51,19 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
 
   const [alertState, setAlertState] = useState({
     show: false,
-    message: null
+    message: null,
   });
 
   const [shouldRenderReportLayout, setShouldRenderReportLayout] = useState(false);
 
   const [topSectionComponent, setTopSectionComponent] = useState({
-    type: TTL_ANALYSIS_TOP_SECTION_TYPES.FORM
+    type: TTL_ANALYSIS_TOP_SECTION_TYPES.FORM,
   });
 
   const [defaultValues, setDefaultValues] = useState({});
 
   const {
-    apiData: { pools: allPools = [] }
+    apiData: { pools: allPools = [] },
   } = useApiData(GET_AVAILABLE_POOLS);
 
   const { isInitialMount, setIsInitialMount } = useInitialMount();
@@ -74,8 +74,8 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
       resources_outside_of_ttl: resourcesOutsideOfTtl,
       total_expenses: totalExpenses,
       expenses_outside_of_ttl: expensesOutsideOfTtl,
-      resources = []
-    } = {}
+      resources = [],
+    } = {},
   } = useApiData(GET_TTL_ANALYSIS);
 
   useEffect(() => {
@@ -99,13 +99,13 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
           setDefaultValues({
             [POOL_ID]: poolIdQueryParams,
             [CUSTOM_TTL]: getDefaultCustomTtlValue(getTtlPolicyLimit(queryParamPool)),
-            [TTL_MODE]: isTtlQueryParameterValueValid(ttlValue) || !ttlPolicyLimit ? CUSTOM_TTL : PREDEFINED_TTL
+            [TTL_MODE]: isTtlQueryParameterValueValid(ttlValue) || !ttlPolicyLimit ? CUSTOM_TTL : PREDEFINED_TTL,
           });
         } else {
           setDefaultValues({
             [POOL_ID]: "",
             [CUSTOM_TTL]: getDefaultCustomTtlValue(""),
-            [TTL_MODE]: CUSTOM_TTL
+            [TTL_MODE]: CUSTOM_TTL,
           });
         }
       } else {
@@ -114,7 +114,7 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
         setDefaultValues({
           [POOL_ID]: poolId,
           [CUSTOM_TTL]: getDefaultCustomTtlValue(ttlPolicyLimit),
-          [TTL_MODE]: isTtlQueryParameterValueValid(ttlValue) || !ttlPolicyLimit ? CUSTOM_TTL : PREDEFINED_TTL
+          [TTL_MODE]: isTtlQueryParameterValueValid(ttlValue) || !ttlPolicyLimit ? CUSTOM_TTL : PREDEFINED_TTL,
         });
       }
     };
@@ -128,7 +128,7 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
         if (!queryParamPool) {
           setAlertState({
             show: true,
-            message: <FormattedMessage id="poolIsNotFoundSelectManually" values={{ id: poolIdQueryParams }} />
+            message: <FormattedMessage id="poolIsNotFoundSelectManually" values={{ id: poolIdQueryParams }} />,
           });
         }
       }
@@ -146,7 +146,7 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
     customTtl,
     startDateTimestamp,
     endDateTimestamp,
-    ttlMode
+    ttlMode,
   }) => {
     if (!shouldRenderReportLayout) {
       setShouldRenderReportLayout(true);
@@ -157,27 +157,27 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
       [TTL_ANALYSIS_QUERY_PARAMETERS.POOL_ID]: pathPoolId ? undefined : id,
       [TTL_ANALYSIS_QUERY_PARAMETERS.TTL]: ttlMode === TTL_MODES.CUSTOM_TTL ? ttl : undefined,
       startDate,
-      endDate
+      endDate,
     });
     dispatch(setDate(startDate, endDate, DATE_RANGE_TYPE.TTL_ANALYSIS));
     setDefaultValues((values) => ({
       ...values,
       [POOL_ID]: id,
       [TTL_MODE]: ttlMode,
-      [CUSTOM_TTL]: customTtl
+      [CUSTOM_TTL]: customTtl,
     }));
     dispatch((_, getState) => {
       dispatch(
         getTtlAnalysis(id, {
           startDate,
           endDate,
-          ttl
+          ttl,
         })
       ).then(() => {
         if (isError(GET_TTL_ANALYSIS, getState())) {
           setShouldRenderReportLayout(false);
           setTopSectionComponent({
-            type: TTL_ANALYSIS_TOP_SECTION_TYPES.FORM
+            type: TTL_ANALYSIS_TOP_SECTION_TYPES.FORM,
           });
         } else {
           setTopSectionComponent({
@@ -188,8 +188,8 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
               poolType,
               ttl,
               startDate,
-              endDate
-            }
+              endDate,
+            },
           });
         }
       });
@@ -221,7 +221,7 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
           isPoolSelectorReadOnly: isPoolIdPredefined,
           onSubmit: onTtlAnalysisFormSubmit,
           pools: allPools,
-          defaultValues
+          defaultValues,
         }}
         TtlAnalysisReportProps={{
           resourcesTracked,
@@ -229,7 +229,7 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
           totalExpenses,
           expensesOutsideOfTtl,
           resources,
-          isLoading: isGetTtlAnalysisLoading
+          isLoading: isGetTtlAnalysisLoading,
         }}
       />
     </>

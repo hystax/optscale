@@ -6,8 +6,8 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.paper,
     flexGrow: 1,
     padding: theme.spacing(SPACING_2),
-    paddingTop: theme.spacing(SPACING_1)
-  }
+    paddingTop: theme.spacing(SPACING_1),
+  },
 }));
 
 export default useStyles;

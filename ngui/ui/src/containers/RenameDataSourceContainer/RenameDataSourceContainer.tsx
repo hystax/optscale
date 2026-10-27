@@ -14,9 +14,9 @@ const RenameDataSourceContainer = ({ id, name, closeSideModal }) => {
       variables: {
         dataSourceId: id,
         params: {
-          name: formData.name
-        }
-      }
+          name: formData.name,
+        },
+      },
     }).then(() => {
       refetch([GET_AVAILABLE_FILTERS]);
       closeSideModal();

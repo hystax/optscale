@@ -31,7 +31,7 @@ const UnmarkEnvironmentContainer = ({ closeSideModal, resourceName, resourceId }
             id="unmarkEnvironmentInformation"
             values={{
               resourceName,
-              strong: (chunks) => <strong>{chunks}</strong>
+              strong: (chunks) => <strong>{chunks}</strong>,
             }}
           />
         </Typography>

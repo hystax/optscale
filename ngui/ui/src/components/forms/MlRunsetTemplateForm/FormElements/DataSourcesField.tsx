@@ -16,7 +16,7 @@ const DataSourcesField = ({ dataSources, isLoading }) => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (
@@ -25,8 +25,8 @@ const DataSourcesField = ({ dataSources, isLoading }) => {
       control={control}
       rules={{
         validate: {
-          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" }))
-        }
+          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" })),
+        },
       }}
       render={({ field: { value: formFieldValue, onChange } }) =>
         isLoading ? (
@@ -45,7 +45,7 @@ const DataSourcesField = ({ dataSources, isLoading }) => {
               .map(({ id, name, type }) => ({
                 id,
                 name,
-                type
+                type,
               }))}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             getOptionLabel={(option) => <CloudLabel name={option.name} type={option.type} disableLink />}

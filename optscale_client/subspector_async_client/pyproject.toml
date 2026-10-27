@@ -1,0 +1,18 @@
+[project]
+name = "subspector-async-client"
+version = "0.0.0"
+description = "OptScale Subspector Async Client"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "httpx==0.28.1",
+    "tenacity==9.1.2",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["optscale_client.subspector_async_client*"]
+namespaces = true

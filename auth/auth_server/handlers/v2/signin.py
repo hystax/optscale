@@ -1,8 +1,14 @@
 import json
+import logging
 
 from auth.auth_server.controllers.signin import SignInAsyncController
 from auth.auth_server.handlers.v1.base import BaseAsyncCollectionHandler
-from auth.auth_server.utils import ModelEncoder, run_task
+from auth.auth_server.utils import (
+    ModelEncoder, run_task, check_string_attribute)
+from tools.zoho_integrator.zoho_integrator import UTM_FIELDS
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+
+LOG = logging.getLogger(__name__)
 
 
 class SignInAsyncHandler(BaseAsyncCollectionHandler):
@@ -31,6 +37,16 @@ class SignInAsyncHandler(BaseAsyncCollectionHandler):
                     tenant_id: {type: string, required: false,
                         description: "Azure AD tenant id
                             (only for microsoft provider)"}
+                    utm_source: {type: string, description: UTM source,
+                        required: false}
+                    utm_medium: {type: string, description: UTM medium,
+                        required: false}
+                    utm_campaign: {type: string, description: UTM campaign,
+                        required: false}
+                    utm_term: {type: string, description: UTM term,
+                        required: false}
+                    utm_content: {type: string, description: UTM content,
+                        required: false}
         responses:
             201:
                 description: Success
@@ -66,6 +82,16 @@ class SignInAsyncHandler(BaseAsyncCollectionHandler):
         data = self._request_body()
         data.update(url_params)
         data.update({'ip': self.get_ip_addr()})
+        for param in UTM_FIELDS:
+            value = data.get(param)
+            if value is not None:
+                try:
+                    check_string_attribute(param, value)
+                except WrongArgumentsException:
+                    LOG.warning('Signin: Invalid %s parameter passed', param)
+                    data.pop(param)
+                    continue
+                data[param] = value.strip()
         await self._validate_params(**data)
         res = await run_task(self.controller.signin, **data)
         self.set_status(201)

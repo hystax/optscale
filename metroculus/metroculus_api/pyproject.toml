@@ -10,7 +10,7 @@ dependencies = [
     "optscale-exceptions",
     "pymongo==4.6.3",
     "pyyaml==6.0.1",
-    "tornado==6.5",
+    "tornado===6.5.5",
 ]
 
 [tool.uv.sources]

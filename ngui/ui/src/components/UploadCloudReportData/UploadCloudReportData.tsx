@@ -11,7 +11,7 @@ const FILE_TYPES = [
   "application/x-zip-compressed",
   "",
   "text/csv",
-  ".csv"
+  ".csv",
 ];
 
 const UploadCloudReportData = ({ onUpload, isLoading }) => {
@@ -27,7 +27,7 @@ const UploadCloudReportData = ({ onUpload, isLoading }) => {
       isSubmitDisabled={isRestricted}
       submitButtonTooltip={{
         show: isRestricted,
-        value: restrictionReasonMessage
+        value: restrictionReasonMessage,
       }}
     />
   ) : (

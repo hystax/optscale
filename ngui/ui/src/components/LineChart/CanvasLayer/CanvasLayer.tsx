@@ -20,7 +20,7 @@ const CanvasLayer = ({ layerProps, renderCanvasContent }) => {
   return (
     <div
       style={{
-        position: "absolute"
+        position: "absolute",
       }}
     >
       <canvas ref={ref} style={{ position: "absolute" }} height={outerHeight} width={outerWidth} />

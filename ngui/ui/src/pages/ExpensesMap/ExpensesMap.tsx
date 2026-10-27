@@ -17,8 +17,8 @@ import { updateSearchParams } from "utils/network";
 
 const actionBarDefinition = {
   title: {
-    messageId: "costMapTitle"
-  }
+    messageId: "costMapTitle",
+  },
 };
 
 const ExpensesMap = () => {
@@ -31,7 +31,7 @@ const ExpensesMap = () => {
         <Mocked mock={<RegionExpensesMocked />}>
           <RegionExpensesContainer />
         </Mocked>
-      )
+      ),
     },
     {
       title: EXPENSES_MAP_TYPES.TRAFFIC,
@@ -40,8 +40,8 @@ const ExpensesMap = () => {
         <Mocked mock={<TrafficExpensesMocked />}>
           <TrafficExpensesContainer />
         </Mocked>
-      )
-    }
+      ),
+    },
   ];
 
   // dates query handlers
@@ -50,7 +50,7 @@ const ExpensesMap = () => {
   const applyDates = ({ startDate, endDate }) => {
     updateSearchParams({
       startDate,
-      endDate
+      endDate,
     });
   };
 
@@ -63,15 +63,15 @@ const ExpensesMap = () => {
             name: "expensesMapsTab",
             queryTabName: "type",
             tabs,
-            defaultTab: EXPENSES_MAP_TYPES.REGION
+            defaultTab: EXPENSES_MAP_TYPES.REGION,
           }}
           headerSx={{
             display: "flex",
             justifyContent: "space-between",
             flexDirection: {
               sm: "row",
-              xs: "column"
-            }
+              xs: "column",
+            },
           }}
           headerAdornment={
             <Box display="flex" alignItems="center" sx={{ py: { xs: theme.spacing(SPACING_2), sm: 0 } }}>

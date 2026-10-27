@@ -13,8 +13,8 @@ it("renders with action", () => {
           {
             id: "add",
             messageId: "add",
-            onClick: (e) => console.log(e)
-          }
+            onClick: (e) => console.log(e),
+          },
         ]}
       />
     </TestProvider>

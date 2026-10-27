@@ -15,29 +15,29 @@ export const STRATEGIES = Object.freeze({
   OPTIMAL: "optimal",
   SAFE: "safe",
   AGGRESSIVE: "aggressive",
-  CUSTOM: "custom"
+  CUSTOM: "custom",
 });
 
 export const STRATEGY_METRICS = Object.freeze({
   [STRATEGIES.OPTIMAL]: {
     type: RIGHTSIZING_METRIC_LIMIT_TYPES.Q99,
-    limit: 80
+    limit: 80,
   },
   [STRATEGIES.SAFE]: {
     type: RIGHTSIZING_METRIC_LIMIT_TYPES.MAX,
-    limit: 80
+    limit: 80,
   },
   [STRATEGIES.AGGRESSIVE]: {
     type: RIGHTSIZING_METRIC_LIMIT_TYPES.AVG,
-    limit: 80
-  }
+    limit: 80,
+  },
 });
 
 const getMetricLimitMessageId = (limitType) =>
   ({
     [RIGHTSIZING_METRIC_LIMIT_TYPES.Q99]: "99quantile",
     [RIGHTSIZING_METRIC_LIMIT_TYPES.MAX]: "maximum",
-    [RIGHTSIZING_METRIC_LIMIT_TYPES.AVG]: "average"
+    [RIGHTSIZING_METRIC_LIMIT_TYPES.AVG]: "average",
   })[limitType];
 
 export const thresholdValidationRules = Object.freeze({
@@ -62,7 +62,7 @@ export const thresholdValidationRules = Object.freeze({
     const isInRange = isNumberInRange(Number(daysThreshold), THRESHOLD_DAYS_RANGE.min, THRESHOLD_DAYS_RANGE.max);
 
     return isInteger && isInRange ? true : rawIntl.formatMessage({ id: "daysParameterMustBeInRange" }, THRESHOLD_DAYS_RANGE);
-  }
+  },
 });
 
 const RightsizingStrategy = ({
@@ -74,7 +74,7 @@ const RightsizingStrategy = ({
   onDaysThresholdChange,
   customMetric,
   isLoading = false,
-  error = {}
+  error = {},
 }) => {
   const intl = useIntl();
 
@@ -92,7 +92,7 @@ const RightsizingStrategy = ({
               sx={{
                 margin: "-2px 0px 0px 0px",
                 minWidth: "32px",
-                marginRight: 0
+                marginRight: 0,
               }}
             >
               {Object.values(STRATEGY_METRICS).map(({ type }) => (
@@ -112,15 +112,15 @@ const RightsizingStrategy = ({
                 const { value } = event.target;
                 onCustomMetricChange("limit", Math.abs(value));
               }}
-              endAdornment={"%"}
+              endAdornment="%"
               error={Object.keys(thresholdValidationRules).includes(error.type)}
             />
-          )
+          ),
         }
       : {
           type: metric.type,
           limit: <strong>{`${metric.limit}%`}</strong>,
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         };
 
   return (
@@ -182,7 +182,7 @@ const RightsizingStrategy = ({
                       return onDaysThresholdChange(Number(event.target.value));
                     }}
                   />
-                )
+                ),
               }}
             />
           </Typography>

@@ -30,7 +30,7 @@ it("renders without crashing (with children)", () => {
   root.render(
     <TestProvider>
       <Brackets type="round" bold>
-        {"brackets content"}
+        brackets content
       </Brackets>
     </TestProvider>
   );

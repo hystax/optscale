@@ -5,7 +5,7 @@ import {
   ExecutorsUpgrade,
   GpuMemory,
   LocalStorageBottleneck,
-  SpotInstancesUsage
+  SpotInstancesUsage,
 } from "containers/RecommendationsOverviewContainer/recommendations/ml";
 import { useOptscaleRecommendations } from "./useOptscaleRecommendations";
 

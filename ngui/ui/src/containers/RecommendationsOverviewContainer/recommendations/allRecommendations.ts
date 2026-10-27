@@ -19,7 +19,7 @@ import {
   ExecutorsUpgrade,
   GpuMemory,
   LocalStorageBottleneck,
-  SpotInstancesUsage
+  SpotInstancesUsage,
 } from "./ml";
 import ObsoleteIps from "./ObsoleteIps";
 import ObsoleteSnapshotChains from "./ObsoleteSnapshotChains";
@@ -64,7 +64,7 @@ export const OPTSCALE_RECOMMENDATIONS = Object.fromEntries(
     SnapshotsWithNonUsedImages,
     AbandonedImages,
     AbandonedNebiusS3Buckets,
-    CvocAgreementOpportunities
+    CvocAgreementOpportunities,
   ].map((Rec) => [new Rec().type, Rec])
 );
 

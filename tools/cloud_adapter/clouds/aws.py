@@ -24,7 +24,7 @@ from botocore.parsers import ResponseParserError
 from retrying import retry
 
 from tools.cloud_adapter.exceptions import *
-from tools.cloud_adapter.clouds.base import S3CloudMixin
+from tools.cloud_adapter.clouds.base import S3CloudMixin, new_core_session
 from tools.cloud_adapter.model import *
 from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 from tools.cloud_adapter.templates import AwsTemplates
@@ -56,6 +56,7 @@ DEFAULT_STS_ENDPOINT_URL = "https://sts.amazonaws.com"
 
 # maximum value for MaxResults (AWS limitation)
 MAX_RESULTS = 1000
+LB_TAGS_BATCH_SIZE = 20
 CSV_FORMAT_PATTERN = r'\.csv.(gz|zip)$'
 PARQUET_FORMAT_PATTERN = r'\.snappy.parquet$'
 GROUP_DATES_PATTERNS = {
@@ -161,6 +162,11 @@ class Aws(S3CloudMixin):
         CloudParameter(name='assume_role_name', type=str, required=False),
         CloudParameter(name='assume_role_session_name', type=str,
                        required=False),
+        CloudParameter(name='assume_role_external_id', type=str,
+                       required=False),
+
+        CloudParameter(name='included_regions', type=list, required=False),
+        CloudParameter(name='excluded_regions', type=list, required=False),
 
         # Service parameters
         CloudParameter(name='cur_version', type=int, required=False),
@@ -178,6 +184,7 @@ class Aws(S3CloudMixin):
         role_session_name = self.config.get(
             'assume_role_session_name', 'opt-session'
         )
+        role_external_id = self.config.get('assume_role_external_id')
 
         def refresh_session():
             nonlocal access_key, secret_key, region_name
@@ -195,19 +202,24 @@ class Aws(S3CloudMixin):
                 aws_access_key_id=access_key,
                 aws_secret_access_key=secret_key,
                 region_name=region_name,
+                botocore_session=new_core_session(),
             )
 
             sts_client = base_session.client('sts', config=IAM_CLIENT_CONFIG)
-            response = sts_client.assume_role(
-                RoleArn=f'arn:aws:iam::{role_account_id}:role/{role_name}',
-                RoleSessionName=role_session_name,
-            )
+            assume_role_kwargs = {
+                'RoleArn': f'arn:aws:iam::{role_account_id}:role/{role_name}',
+                'RoleSessionName': role_session_name,
+            }
+            if role_external_id:
+                assume_role_kwargs['ExternalId'] = role_external_id
+            response = sts_client.assume_role(**assume_role_kwargs)
             creds = response['Credentials']
             self._session = boto3.Session(
                 aws_access_key_id=creds['AccessKeyId'],
                 aws_secret_access_key=creds['SecretAccessKey'],
                 aws_session_token=creds['SessionToken'],
                 region_name=region_name,
+                botocore_session=new_core_session(),
             )
 
         if not (role_account_id and role_name):
@@ -324,11 +336,20 @@ class Aws(S3CloudMixin):
 
     def _is_region_usable(self, region):
         try:
-            self.session.client("ec2", region).describe_availability_zones()
+            check_config = CoreConfig(
+                connect_timeout=5,
+                read_timeout=10,
+                retries={"max_attempts": 1}
+            )
+            self.session.client("ec2", region, config=check_config
+                                ).describe_availability_zones()
             return True
+        except (ReadTimeoutError, ConnectTimeoutError, SSLError,
+                EndpointConnectionError):
+            return False
         except ClientError as e:
             code = e.response["Error"]["Code"]
-            if code in ("AuthFailure", "UnauthorizedOperation"):
+            if code in ("AuthFailure", "UnauthorizedOperation", "InternalError"):
                 return False
             raise
 
@@ -349,6 +370,14 @@ class Aws(S3CloudMixin):
                         allowed.append(name)
                     elif status == "opted-in" and self._is_region_usable(name):
                         allowed.append(name)
+                included = self.config.get("included_regions")
+                excluded = self.config.get("excluded_regions")
+                if included:
+                    included_set = set(included)
+                    allowed = [r for r in allowed if r in included_set]
+                elif excluded:
+                    excluded_set = set(excluded)
+                    allowed = [r for r in allowed if r not in excluded_set]
                 self._allowed_regions = allowed
 
             return self._allowed_regions
@@ -371,6 +400,21 @@ class Aws(S3CloudMixin):
         region_name = self.config.get("region_name")
         if region_name and region_name not in self._get_coordinates_map():
             raise InvalidParameterException(f"Invalid region: {region_name}")
+        included_regions = self.config.get("included_regions")
+        excluded_regions = self.config.get("excluded_regions")
+        if included_regions and excluded_regions:
+            raise InvalidParameterException(
+                "included_regions and excluded_regions are mutually exclusive")
+        for param_name, value in (("included_regions", included_regions),
+                                  ("excluded_regions", excluded_regions)):
+            if value is None:
+                continue
+            if not isinstance(value, list) or not value:
+                raise InvalidParameterException(
+                    f"{param_name} must be a non-empty list")
+            if not all(isinstance(r, str) and r.strip() for r in value):
+                raise InvalidParameterException(
+                    f"{param_name} must be a list of non-empty strings")
         try:
             result = self._retry(self.sts.get_caller_identity)
         except (ClientError, InvalidRegionError,
@@ -472,6 +516,13 @@ class Aws(S3CloudMixin):
                     spotted = instance.get('InstanceLifecycle') == 'spot'
                     vpc_id = instance.get('VpcId')
                     architecture = instance.get('Architecture')
+                    core_count = instance.get('CpuOptions', {}).get(
+                        'CoreCount', 0)
+                    threads_per_core = instance.get('CpuOptions', {}).get(
+                        'ThreadsPerCore', 0)
+                    cpu_count = None
+                    if core_count and threads_per_core:
+                        cpu_count = core_count * threads_per_core
                     instance_resource = InstanceResource(
                         cloud_resource_id=instance['InstanceId'],
                         cloud_account_id=self.cloud_account_id,
@@ -486,7 +537,8 @@ class Aws(S3CloudMixin):
                         image_id=instance.get('ImageId'),
                         cloud_created_at=int(cloud_created.timestamp()),
                         vpc_id=vpc_id,
-                        vpc_name=vpc_id_to_name.get(vpc_id)
+                        vpc_name=vpc_id_to_name.get(vpc_id),
+                        cpu_count=cpu_count
                     )
                     self._set_cloud_link(instance_resource, region)
                     yield instance_resource
@@ -569,7 +621,19 @@ class Aws(S3CloudMixin):
                 "[S3_SKIP_REGION] bucket=%s bucket_region=%s reason=region_not_opted_in",
                 bucket, region)
             return None
-        return self.session.client("s3", region_name=region)
+        # every bucket is discovered in a separate thread, so cache and reuse
+        # s3 clients for regions for them
+        if not hasattr(self, '_s3_clients_by_region'):
+            self._s3_clients_by_region = {}
+            self._s3_clients_by_region_lock = threading.Lock()
+        client = self._s3_clients_by_region.get(region)
+        if client is None:
+            with self._s3_clients_by_region_lock:
+                client = self._s3_clients_by_region.get(region)
+                if client is None:
+                    client = self.session.client("s3", region_name=region)
+                    self._s3_clients_by_region[region] = client
+        return client
 
     def snapshot_discovery_calls(self):
         """
@@ -742,8 +806,7 @@ class Aws(S3CloudMixin):
             }
         }
 
-    @staticmethod
-    def _get_bucket_meta_by_s3(s3_client, bucket_name):
+    def _get_bucket_meta_by_s3(self, s3_client, bucket_name):
         """
          Gather Intelligent-Tiering and related storage metadata for a bucket.
 
@@ -788,14 +851,43 @@ class Aws(S3CloudMixin):
             'access_pattern': None,
             'it_status_bucket': None,
         }
+
+        # AWS api calls to collect bucket meta
+        sub_calls = [
+            ('it', Aws._get_bucket_it_config),
+            ('lifecycle', Aws._get_bucket_lifecycle_config),
+            ('analytics', Aws._get_bucket_analytics_config),
+            ('metrics', Aws._get_bucket_metrics_config),
+        ]
+        # cache AccessDenied errors on sub-calls, to not call apis on every
+        # bucket if cloud_account has not enough permissions
+        if not hasattr(self, '_bucket_meta_denied'):
+            self._bucket_meta_denied = set()
+        for key, call in sub_calls:
+            if key in self._bucket_meta_denied:
+                continue
+            result, denied = call(s3_client, bucket_name)
+            if denied:
+                self._bucket_meta_denied.add(key)
+            metadata.update(result)
+        return metadata
+
+    @staticmethod
+    def _get_bucket_it_config(s3_client, bucket_name):
+        result = {
+            'intelligent_tiering_enabled': False,
+            'intelligent_tiering_configs': [],
+            'it_status_bucket': None,
+        }
+        denied = False
         try:
             it_configs = s3_client.list_bucket_intelligent_tiering_configurations(
                 Bucket=bucket_name
             )
             configs_list = it_configs.get(
                 'IntelligentTieringConfigurationList', [])
-            metadata['intelligent_tiering_enabled'] = bool(configs_list)
-            metadata['intelligent_tiering_configs'] = configs_list
+            result['intelligent_tiering_enabled'] = bool(configs_list)
+            result['intelligent_tiering_configs'] = configs_list
             # Check if IT applies to entire bucket (no filter or empty prefix)
             full_bucket = False
             for cfg in configs_list:
@@ -812,44 +904,68 @@ class Aws(S3CloudMixin):
                         and_prefix in (None, '')):
                     full_bucket = True
                     break
-            metadata['it_status_bucket'] = 'enabled' if (
-                    metadata['intelligent_tiering_enabled'] and full_bucket) else 'disabled'
+            result['it_status_bucket'] = 'enabled' if (
+                    result['intelligent_tiering_enabled'] and full_bucket
+            ) else 'disabled'
         except ClientError as exc:
-            if exc.response['Error'].get('Code') != 'NoSuchConfiguration':
+            code = exc.response['Error'].get('Code')
+            if code != 'NoSuchConfiguration':
                 LOG.warning(f"[IT] Failed to get Intelligent-Tiering config for bucket {bucket_name}: {str(exc)}")
+                denied = code == 'AccessDenied'
+        return result, denied
 
+    @staticmethod
+    def _get_bucket_lifecycle_config(s3_client, bucket_name):
+        result = {'lifecycle_rules': [], 'has_lifecycle': False}
+        denied = False
         try:
             lifecycle = s3_client.get_bucket_lifecycle_configuration(
                 Bucket=bucket_name
             )
-            metadata['lifecycle_rules'] = lifecycle.get('Rules', [])
-            metadata['has_lifecycle'] = True
+            result['lifecycle_rules'] = lifecycle.get('Rules', [])
+            result['has_lifecycle'] = True
         except ClientError as exc:
-            if exc.response['Error'].get('Code') != 'NoSuchLifecycleConfiguration':
+            code = exc.response['Error'].get('Code')
+            if code != 'NoSuchLifecycleConfiguration':
                 LOG.warning(f"[IT] Failed to get lifecycle config for bucket {bucket_name}: {str(exc)}")
+                denied = code == 'AccessDenied'
+        return result, denied
 
+    @staticmethod
+    def _get_bucket_analytics_config(s3_client, bucket_name):
+        result = {'storage_class_analysis': []}
+        denied = False
         try:
             analytics = s3_client.list_bucket_analytics_configurations(
                 Bucket=bucket_name
             )
-            metadata['storage_class_analysis'] = analytics.get(
+            result['storage_class_analysis'] = analytics.get(
                 'AnalyticsConfigurationList', []
             )
         except ClientError as exc:
-            if exc.response['Error'].get('Code') not in ['NoSuchConfiguration', 'NoSuchAnalyticsConfiguration']:
+            code = exc.response['Error'].get('Code')
+            if code not in ['NoSuchConfiguration', 'NoSuchAnalyticsConfiguration']:
                 LOG.warning(f"[IT] Failed to get analytics config for bucket {bucket_name}: {str(exc)}")
+                denied = code == 'AccessDenied'
+        return result, denied
 
+    @staticmethod
+    def _get_bucket_metrics_config(s3_client, bucket_name):
+        result = {'metrics_configurations': []}
+        denied = False
         try:
             metrics = s3_client.list_bucket_metrics_configurations(
                 Bucket=bucket_name
             )
-            metadata['metrics_configurations'] = metrics.get(
+            result['metrics_configurations'] = metrics.get(
                 'MetricsConfigurationList', []
             )
         except ClientError as exc:
-            if exc.response['Error'].get('Code') not in ['NoSuchConfiguration', 'NoSuchMetricsConfiguration']:
+            code = exc.response['Error'].get('Code')
+            if code not in ['NoSuchConfiguration', 'NoSuchMetricsConfiguration']:
                 LOG.warning(f"[IT] Failed to get metrics config for bucket {bucket_name}: {str(exc)}")
-        return metadata
+                denied = code == 'AccessDenied'
+        return result, denied
 
     @staticmethod
     def get_region_from_location(region_info):
@@ -863,6 +979,18 @@ class Aws(S3CloudMixin):
             region = region_info['LocationConstraint']
         return region
 
+    @staticmethod
+    def _get_bucket_tags(s3_client, bucket_name):
+        try:
+            tags = s3_client.get_bucket_tagging(Bucket=bucket_name)
+        except ClientError as exc:
+            err_code = exc.response['Error'].get('Code')
+            if err_code and err_code == 'NoSuchTagSet':
+                tags = {}
+            else:
+                raise
+        return tags
+
     def discover_bucket_info(self, bucket_name):
         region_info = self.s3.get_bucket_location(Bucket=bucket_name)
         region = self.get_region_from_location(region_info)
@@ -873,7 +1001,6 @@ class Aws(S3CloudMixin):
 
         s3 = self._s3_client_for_bucket_region(region, bucket_name)
         if s3:
-
             public_and_tiering = self._get_bucket_public_settings(s3, bucket_name)
             is_public_policy = public_and_tiering.get('is_public_policy', False)
             is_public_acls = public_and_tiering.get('is_public_acls', False)
@@ -925,76 +1052,102 @@ class Aws(S3CloudMixin):
         return result
 
     @staticmethod
-    def _parse_lb_tags(response):
-        tags = {}
-        if response:
-            tags = {x['Key']: x['Value'] for x in response[0].get('Tags', [])}
-        return tags
+    def _chunks(lst, n):
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+
+    @staticmethod
+    def _parse_lb_tags_map(tag_descriptions, id_key):
+        tags_map = {}
+        for descr in tag_descriptions or []:
+            tags_map[descr[id_key]] = {
+                x['Key']: x['Value'] for x in descr.get('Tags', [])}
+        return tags_map
+
+    def _get_lb_tags_map(self, elb, ids, id_param, id_key):
+        tags_map = {}
+        for chunk in self._chunks(ids, LB_TAGS_BATCH_SIZE):
+            tag_descriptions = elb.describe_tags(
+                **{id_param: chunk}).get('TagDescriptions', [])
+            tags_map.update(self._parse_lb_tags_map(tag_descriptions, id_key))
+        return tags_map
 
     def discover_region_lbs_v2(self, region):
-        session = self.get_session()
-        elb = session.client('elbv2', region)
-        lbs = elb.describe_load_balancers().get('LoadBalancers', [])
-        for lb in lbs:
-            lb_arn = lb['LoadBalancerArn']
-            tags = elb.describe_tags(ResourceArns=[lb_arn]).get(
-                'TagDescriptions', [])
-            tags = self._parse_lb_tags(tags)
-            lb_resource = LoadBalancerResource(
-                name=lb['LoadBalancerName'],
-                cloud_resource_id=lb_arn,
-                cloud_account_id=self.cloud_account_id,
-                organization_id=self.organization_id,
-                region=region,
-                vpc_id=lb['VpcId'],
-                security_groups=lb.get('SecurityGroups'),
-                category=lb.get('Type'),
-                tags=tags,
-                cloud_console_link=self._generate_cloud_link(
-                    LoadBalancerResource, region, lb_arn),
-            )
-            yield lb_resource
+        elb = self.session.client('elbv2', region)
+        paginator = elb.get_paginator('describe_load_balancers')
+        for page in paginator.paginate():
+            lbs = page.get('LoadBalancers', [])
+            if not lbs:
+                continue
+            tags_map = self._get_lb_tags_map(
+                elb, [lb['LoadBalancerArn'] for lb in lbs],
+                'ResourceArns', 'ResourceArn')
+            for lb in lbs:
+                lb_arn = lb['LoadBalancerArn']
+                lb_resource = LoadBalancerResource(
+                    name=lb['LoadBalancerName'],
+                    cloud_resource_id=lb_arn,
+                    cloud_account_id=self.cloud_account_id,
+                    organization_id=self.organization_id,
+                    region=region,
+                    vpc_id=lb['VpcId'],
+                    security_groups=lb.get('SecurityGroups'),
+                    category=lb.get('Type'),
+                    tags=tags_map.get(lb_arn, {}),
+                    cloud_console_link=self._generate_cloud_link(
+                        LoadBalancerResource, region, lb_arn),
+                )
+                yield lb_resource
 
     def discover_region_lbs(self, region):
         """Discover "classic" load balancer resources"""
-        session = self.get_session()
-        elb = session.client('elb', region)
-        lbs = elb.describe_load_balancers().get(
-            'LoadBalancerDescriptions', [])
-        for lb in lbs:
-            name = lb['LoadBalancerName']
-            tags = elb.describe_tags(LoadBalancerNames=[name]).get(
-                'TagDescriptions', [])
-            tags = self._parse_lb_tags(tags)
-            # ARN is not returned for classic LBs, generate it
-            cloud_resource_id = (f'arn:aws:elasticloadbalancing:{region}:'
-                                 f'{self.config["account_id"]}:'
-                                 f'loadbalancer/{name}')
-            lb_resource = LoadBalancerResource(
-                name=name,
-                cloud_resource_id=cloud_resource_id,
-                cloud_account_id=self.cloud_account_id,
-                organization_id=self.organization_id,
-                region=region,
-                vpc_id=lb['VPCId'],
-                security_groups=lb.get('SecurityGroups'),
-                tags=tags,
-                category='classic',
-                cloud_console_link=self._generate_cloud_link(
-                    LoadBalancerResource, region, name),
-            )
-            yield lb_resource
+        elb = self.session.client('elb', region)
+        paginator = elb.get_paginator('describe_load_balancers')
+        for page in paginator.paginate():
+            lbs = page.get('LoadBalancerDescriptions', [])
+            if not lbs:
+                continue
+            tags_map = self._get_lb_tags_map(
+                elb, [lb['LoadBalancerName'] for lb in lbs],
+                'LoadBalancerNames', 'LoadBalancerName')
+            for lb in lbs:
+                name = lb['LoadBalancerName']
+                # ARN is not returned for classic LBs, generate it
+                cloud_resource_id = (f'arn:aws:elasticloadbalancing:{region}:'
+                                     f'{self.config["account_id"]}:'
+                                     f'loadbalancer/{name}')
+                lb_resource = LoadBalancerResource(
+                    name=name,
+                    cloud_resource_id=cloud_resource_id,
+                    cloud_account_id=self.cloud_account_id,
+                    organization_id=self.organization_id,
+                    region=region,
+                    vpc_id=lb['VPCId'],
+                    security_groups=lb.get('SecurityGroups'),
+                    tags=tags_map.get(name, {}),
+                    category='classic',
+                    cloud_console_link=self._generate_cloud_link(
+                        LoadBalancerResource, region, name),
+                )
+                yield lb_resource
+
+    def discover_region_lbs_all(self, region):
+        """Classic + v2 load balancers"""
+        yield from self.discover_region_lbs_v2(region)
+        yield from self.discover_region_lbs(region)
 
     def load_balancer_discovery_calls(self):
         """
         Returns list of discovery calls to discover load balancers presented
         as tuples (adapter_method, arguments_tuple)
         """
-        result = []
-        for r in self.list_regions():
-            result.append((self.discover_region_lbs_v2, (r,)))
-            result.append((self.discover_region_lbs, (r,)))
-        return result
+        regions = self.list_regions()
+        LOG.info('load_balancer discovery for cloud_account %s: %s '
+                 'region(s) to scan: %s',
+                 self.cloud_account_id or self.config.get('id'),
+                 len(regions), regions)
+        return [(self.discover_region_lbs_all, (r,))
+                for r in regions]
 
     def pod_discovery_calls(self):
         return []
@@ -1546,9 +1699,6 @@ class Aws(S3CloudMixin):
             'warnings': []
         }
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def try_to_find_existing_reports(self):
         try:
             LOG.info('Trying to find existing report files')
@@ -1642,12 +1792,14 @@ class Aws(S3CloudMixin):
             'global': {'longitude': -98.48424, 'latitude': 39.01190}
         }
 
-    def get_regions_coordinates(self):
+    def get_regions_coordinates(self, load=True):
         zero_coordinates = {
             'longitude': None,
             'latitude': None
         }
         coordinates_map = self._get_coordinates_map()
+        if not load:
+            return coordinates_map
         try:
             for available_region in self.list_regions():
                 if not coordinates_map.get(available_region):

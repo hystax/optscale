@@ -10,7 +10,7 @@ const usage = ({ headerDataTestId, headerMessageId, accessorKey = "usage" }) => 
   cell: ({ cell }) => (
     <FormattedMessage id="xHours" values={{ x: <FormattedNumber value={cell.getValue()} maximumFractionDigits={2} /> }} />
   ),
-  accessorKey
+  accessorKey,
 });
 
 export default usage;

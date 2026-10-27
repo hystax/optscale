@@ -7,8 +7,8 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: theme.spacing(2)
-  }
+    padding: theme.spacing(2),
+  },
 }));
 
 export default useStyles;

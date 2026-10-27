@@ -1,6 +1,7 @@
 ARG BUILDTAG=build
 FROM layout_cleaner:${BUILDTAG}
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 LABEL org.opencontainers.image.authors="Hystax"
 
-COPY docker_images/layout_cleaner/test-requirements.txt  docker_images/layout_cleaner/.pylintrc docker_images/layout_cleaner/
-RUN pip install --no-cache-dir -r docker_images/layout_cleaner/test-requirements.txt
+COPY docker_images/layout_cleaner/pyproject.toml docker_images/layout_cleaner/uv.lock docker_images/layout_cleaner/
+RUN uv --project docker_images/layout_cleaner sync --locked

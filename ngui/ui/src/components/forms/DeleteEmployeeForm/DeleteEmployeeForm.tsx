@@ -21,7 +21,7 @@ const DeleteEmployeeForm = ({
   onSubmit,
   isDeletingMyself = false,
   isOnlyOneOrganizationManager = false,
-  isLoading = false
+  isLoading = false,
 }: DeleteEmployeeFormProps) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
@@ -42,7 +42,7 @@ const DeleteEmployeeForm = ({
                   id="deleteUserDescription"
                   values={{
                     userName: entityToBeDeleted.employeeName,
-                    organizationName: <OrganizationLabel disableLink name={organizationName} />
+                    organizationName: <OrganizationLabel disableLink name={organizationName} />,
                   }}
                 />
               </Typography>
@@ -52,7 +52,7 @@ const DeleteEmployeeForm = ({
                 <FormattedMessage
                   id="selectNewUserThatWillTakeOverAllAssets"
                   values={{
-                    userName: entityToBeDeleted.employeeName
+                    userName: entityToBeDeleted.employeeName,
                   }}
                 />
               </Typography>
@@ -72,7 +72,7 @@ const DeleteEmployeeForm = ({
                     <Link to={EMPLOYEES_INVITE} component={RouterLink}>
                       {chunks}
                     </Link>
-                  )
+                  ),
                 }}
               />
             </Typography>
@@ -89,7 +89,7 @@ const DeleteEmployeeForm = ({
               disabled={isRestricted}
               tooltip={{
                 show: isRestricted,
-                value: restrictionReasonMessage
+                value: restrictionReasonMessage,
               }}
             />
           )}

@@ -13,7 +13,7 @@ const SaveMlChartsDashboardForm = ({
   createDashboard,
   onSuccess,
   onCancel,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const { isSubmitLoading } = isLoadingProps;
 
@@ -23,9 +23,9 @@ const SaveMlChartsDashboardForm = ({
     defaultValues: getDefaultValues({
       name: dashboard.name,
       saveAs: !isOwnedDashboard || isDefault ? SAVE_AS_VALUES.SAVE_AS_NEW : SAVE_AS_VALUES.SAVE_THIS,
-      share: dashboard.shared
+      share: dashboard.shared,
     }),
-    shouldUnregister: true
+    shouldUnregister: true,
   });
 
   const { handleSubmit, watch, clearErrors, setFocus } = methods;
@@ -36,13 +36,13 @@ const SaveMlChartsDashboardForm = ({
     if (saveAsNew) {
       return createDashboard({
         name: formValues[FIELD_NAMES.NAME],
-        shared: formValues[FIELD_NAMES.SHARE]
+        shared: formValues[FIELD_NAMES.SHARE],
       }).then(onSuccess);
     }
 
     return updateDashboard({
       name: dashboard.name,
-      shared: formValues[FIELD_NAMES.SHARE]
+      shared: formValues[FIELD_NAMES.SHARE],
     }).then(onSuccess);
   });
 

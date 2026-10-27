@@ -22,9 +22,9 @@ const SummaryCards = ({ runsCount, completedRuns, cost, isLoading = false }: Sum
           color: "primary",
           captionMessageId: "configurationsTried",
           dataTestIds: {
-            cardTestId: "card_configurations_tries"
+            cardTestId: "card_configurations_tries",
           },
-          isLoading
+          isLoading,
         },
         {
           key: "completed_runs",
@@ -33,9 +33,9 @@ const SummaryCards = ({ runsCount, completedRuns, cost, isLoading = false }: Sum
           color: "primary",
           captionMessageId: "completedRuns",
           dataTestIds: {
-            cardTestId: "card_completed_runs"
+            cardTestId: "card_completed_runs",
           },
-          isLoading
+          isLoading,
         },
         ...(isFinOpsEnabled
           ? [
@@ -43,17 +43,17 @@ const SummaryCards = ({ runsCount, completedRuns, cost, isLoading = false }: Sum
                 key: "totalExpenses",
                 valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
                 valueComponentProps: {
-                  value: cost
+                  value: cost,
                 },
                 color: "primary",
                 captionMessageId: "totalExpenses",
                 dataTestIds: {
-                  cardTestId: "card_total_expenses"
+                  cardTestId: "card_total_expenses",
                 },
-                isLoading
-              }
+                isLoading,
+              },
             ]
-          : [])
+          : []),
       ]}
     />
   );

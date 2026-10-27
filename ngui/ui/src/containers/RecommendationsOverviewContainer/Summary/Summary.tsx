@@ -31,7 +31,7 @@ type SummaryProps = {
 const getNextCheckCardValue = (lastRun: number, lastCompleted: number, nextRun: number) => {
   if (lastRun !== lastCompleted) {
     return {
-      id: "runningRightNow"
+      id: "runningRightNow",
     };
   }
 
@@ -46,15 +46,15 @@ const getNextCheckCardValue = (lastRun: number, lastCompleted: number, nextRun: 
   return {
     id: "valueIn",
     values: {
-      value: getTimeDistance(nextRun)
-    }
+      value: getTimeDistance(nextRun),
+    },
   };
 };
 
 const getRiSpExpensesCardDefinition = ({
   riSpExpensesSummary,
   isLoading,
-  navigate
+  navigate,
 }: {
   riSpExpensesSummary: RiSpExpensesSummaryType;
   isLoading: boolean;
@@ -78,20 +78,20 @@ const getRiSpExpensesCardDefinition = ({
     type: SUMMARY_CARD_TYPES.EXTENDED,
     valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
     valueComponentProps: {
-      value: totalSaving
+      value: totalSaving,
     },
     color: getColor(),
     captionMessageId: "savedWithCommitmentsForTheLast30Days",
     dataTestIds: {
       cardTestId: "card_ri_sp_expenses",
       titleTestId: "p_ri_sp_expenses",
-      valueTestId: "p_ri_sp_expenses"
+      valueTestId: "p_ri_sp_expenses",
     },
     relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
 
     relativeValueComponentProps: {
       format: "percentage",
-      value: computeExpensesCoveredWithCommitments
+      value: computeExpensesCoveredWithCommitments,
     },
     button: {
       show: true,
@@ -102,7 +102,7 @@ const getRiSpExpensesCardDefinition = ({
         const url = getRiSpCoverageUrl({
           secondsStartDate: startDate,
           secondsEndDate: endDate,
-          dataSourceId
+          dataSourceId,
         });
 
         navigate(url);
@@ -110,12 +110,12 @@ const getRiSpExpensesCardDefinition = ({
       tooltip: {
         show: true,
         messageId: "seeRiSpCoverage",
-        placement: "top"
-      }
+        placement: "top",
+      },
     },
     relativeValueCaptionMessageId: "computeExpensesCoveredWithCommitments",
     isLoading,
-    renderCondition: () => totalCostWithOffer && totalCostWithOffer !== 0
+    renderCondition: () => totalCostWithOffer && totalCostWithOffer !== 0,
   };
 };
 
@@ -136,8 +136,8 @@ const useS3DuplicateFinderCheckCardDefinition = () => {
     tooltip: {
       show: true,
       messageId: "goToS3DuplicateFinder",
-      placement: "top"
-    }
+      placement: "top",
+    },
   };
 
   const defaultCardDefinition = {
@@ -147,8 +147,8 @@ const useS3DuplicateFinderCheckCardDefinition = () => {
     dataTestIds: {
       cardTestId: "card_s3_duplicates",
       titleTestId: "p_s3_duplicates",
-      valueTestId: "p_s3_duplicates_value"
-    }
+      valueTestId: "p_s3_duplicates_value",
+    },
   };
 
   if (isEmptyArray(awsDataSources)) {
@@ -156,9 +156,9 @@ const useS3DuplicateFinderCheckCardDefinition = () => {
       ...defaultCardDefinition,
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
       valueComponentProps: {
-        id: "s3DuplicatesUnknown"
+        id: "s3DuplicatesUnknown",
       },
-      captionMessageId: "noConnectedAWSDataSources"
+      captionMessageId: "noConnectedAWSDataSources",
     };
   }
 
@@ -170,9 +170,9 @@ const useS3DuplicateFinderCheckCardDefinition = () => {
       button,
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
       valueComponentProps: {
-        id: "s3DuplicatesUnknown"
+        id: "s3DuplicatesUnknown",
       },
-      captionMessageId: "noSuccessfullyCompletedChecks"
+      captionMessageId: "noSuccessfullyCompletedChecks",
     };
   }
 
@@ -188,14 +188,14 @@ const useS3DuplicateFinderCheckCardDefinition = () => {
     valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedDigitalUnit,
     valueComponentProps: {
       value: duplicatesSize,
-      baseUnit: SI_UNITS.BYTE
+      baseUnit: SI_UNITS.BYTE,
     },
     captionMessageId: "s3DuplicatesRecommendationsCardCaption",
     relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
     relativeValueComponentProps: {
-      value: monthlySavings
+      value: monthlySavings,
     },
-    relativeValueCaptionMessageId: "possibleMonthlySavings"
+    relativeValueCaptionMessageId: "possibleMonthlySavings",
   };
 };
 
@@ -211,15 +211,15 @@ const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, riSpExpensesSum
       key: "possibleMonthlySavings",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: totalSaving
+        value: totalSaving,
       },
       dataTestIds: {
         cardTestId: "card_saving",
         titleTestId: "p_saving",
-        valueTestId: "p_saving_value"
+        valueTestId: "p_saving_value",
       },
       captionMessageId: "possibleMonthlySavings",
-      isLoading: isRecommendationsLoading
+      isLoading: isRecommendationsLoading,
     },
     {
       key: "lastCheckTime",
@@ -228,22 +228,22 @@ const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, riSpExpensesSum
       valueComponentProps: {
         id: !lastCompleted ? "never" : "valueAgo",
         values: {
-          value: !lastCompleted ? null : getTimeDistance(lastCompleted)
-        }
+          value: !lastCompleted ? null : getTimeDistance(lastCompleted),
+        },
       },
       captionMessageId: "lastCheckTime",
       dataTestIds: {
         cardTestId: "card_last_check",
         titleTestId: "p_last_check",
-        valueTestId: "p_last_time"
+        valueTestId: "p_last_time",
       },
       relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
       relativeValueComponentProps: getNextCheckCardValue(lastRun, lastCompleted, nextRun),
       relativeValueCaptionMessageId: "nextCheckTime",
-      isLoading: isRecommendationsLoading
+      isLoading: isRecommendationsLoading,
     },
     getRiSpExpensesCardDefinition({ riSpExpensesSummary, isLoading: isRiSpExpensesSummaryLoading, navigate }),
-    s3DuplicateFinderCheckCardDefinition
+    s3DuplicateFinderCheckCardDefinition,
   ];
 
   return <SummaryGrid summaryData={summaryData} />;

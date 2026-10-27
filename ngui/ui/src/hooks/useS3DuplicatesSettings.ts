@@ -6,7 +6,7 @@ export const useS3DuplicatesSettings = () => {
 
   const {
     isLoading,
-    options: { value = {} }
+    options: { value = {} },
   } = useGetS3DuplicatesOrganizationSettings();
 
   const { thresholds: { requiring_attention: requiringAttention = 50, critical = 200 } = {} } = parseJSON(value);
@@ -14,7 +14,7 @@ export const useS3DuplicatesSettings = () => {
   return {
     isLoading,
     settings: {
-      thresholds: { requiringAttention, critical }
-    }
+      thresholds: { requiringAttention, critical },
+    },
   };
 };

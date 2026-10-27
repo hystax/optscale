@@ -11,14 +11,14 @@ const filters = [
     id: EXPENSES_FILTERBY_TYPES.REGION,
     messageId: "region",
     forTypes: [CLOUD_DETAILS],
-    excludeFor: [KUBERNETES_CNR]
+    excludeFor: [KUBERNETES_CNR],
   },
   { id: EXPENSES_FILTERBY_TYPES.NODE, messageId: "node", forTypes: [CLOUD_DETAILS], showOnlyFor: [KUBERNETES_CNR] },
   { id: EXPENSES_FILTERBY_TYPES.NAMESPACE, messageId: "namespace", forTypes: [CLOUD_DETAILS], showOnlyFor: [KUBERNETES_CNR] },
   { id: EXPENSES_FILTERBY_TYPES.POOL, messageId: "pool", forTypes: [POOL_DETAILS, CLOUD_DETAILS, OWNER_DETAILS] },
   { id: EXPENSES_FILTERBY_TYPES.CLOUD, messageId: "source", forTypes: [POOL_DETAILS, OWNER_DETAILS] },
   { id: EXPENSES_FILTERBY_TYPES.EMPLOYEE, messageId: "owner", forTypes: [POOL_DETAILS, CLOUD_DETAILS] },
-  { id: EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE, messageId: "resourceType", forTypes: [CLOUD_DETAILS] }
+  { id: EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE, messageId: "resourceType", forTypes: [CLOUD_DETAILS] },
 ];
 
 const getButtonsGroup = (type, onClick, dataSourceType) =>

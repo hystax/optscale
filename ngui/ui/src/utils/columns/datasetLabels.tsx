@@ -24,7 +24,7 @@ const datasetLabels = ({ id, accessorFn, style }) => ({
         ))}
       </Box>
     );
-  }
+  },
 });
 
 export default datasetLabels;

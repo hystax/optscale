@@ -7,7 +7,7 @@ import {
   deletePowerSchedule,
   updatePowerSchedule,
   attachInstancesToSchedule,
-  removeInstancesFromSchedule
+  removeInstancesFromSchedule,
 } from "api";
 import {
   ATTACH_INSTANCES_TO_SCHEDULE,
@@ -16,7 +16,7 @@ import {
   GET_POWER_SCHEDULE,
   GET_POWER_SCHEDULES,
   REMOVE_INSTANCES_FROM_SCHEDULE,
-  UPDATE_POWER_SCHEDULE
+  UPDATE_POWER_SCHEDULE,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -78,12 +78,12 @@ const useGetAll = (): {
   }, [dispatch, shouldInvoke, organizationId]);
 
   const {
-    apiData: { power_schedules: powerSchedules = [] }
+    apiData: { power_schedules: powerSchedules = [] },
   } = useApiData(GET_POWER_SCHEDULES);
 
   return {
     isLoading,
-    powerSchedules
+    powerSchedules,
   };
 };
 
@@ -128,7 +128,7 @@ const useGet = (
 
   return {
     isLoading,
-    powerSchedule: apiData
+    powerSchedule: apiData,
   };
 };
 

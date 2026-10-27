@@ -1,0 +1,15 @@
+[project]
+name = "check-alembic-down-revisions"
+version = "0.0.0"
+description = "Alembic down revisions check"
+requires-python = ">=3.12.11,<3.13"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["tools.check_alembic_down_revisions*"]
+namespaces = true

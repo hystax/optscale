@@ -11,7 +11,7 @@ import TextWithInlineInput from "./components/TextWithInlineInput";
 import { useCommonSettingsData, useFormWithValuesFromOptions } from "./hooks";
 
 const VALUE_KEYS = Object.freeze({
-  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold"
+  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
 });
 
 const ObsoleteSnapshotsThresholds = ({ recommendationType, onSuccess }) => {
@@ -59,8 +59,8 @@ class ObsoleteSnapshotsModal extends BaseSideModal {
     messageId: "obsoleteSnapshots",
     dataTestIds: {
       title: "lbl_obsolete_snapshots_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_obsolete_snapshots";

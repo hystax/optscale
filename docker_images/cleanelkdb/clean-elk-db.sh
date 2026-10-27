@@ -22,7 +22,8 @@ remove_line_from_filebeat() {
 
 remove_index_from_elk() {
 	echo "DELETING "$2" INDEX FROM ELK"
-	curl -s -X DELETE $1':'$ELK_PORT'/'$2
+	encoded_index=$(jq -rn --arg index "$2" '$index|@uri')
+	curl -s -X DELETE $1':'$ELK_PORT'/'$encoded_index
 }
 
 m_total_log_size=$(get_size_of_logs $ELK_IP)
@@ -34,12 +35,11 @@ fi
 
 echo "SIZE OF LOGS BIGGER "$LOG_SIZE_MAX"Mb -> START TO REMOVE LOGS"
 curl -s -X GET "$ELK_IP:$ELK_PORT/_cat/indices?v" > curl_test.txt
-cat curl_test.txt | awk '/filebeat/ { print $3 }' | sort --reverse > filebeat.txt
+grep -oE '(%{[^}]+}|[a-zA-Z_]+)-[0-9]{4}\.[0-9]{2}\.[0-9]{2}' curl_test.txt | sort -t '-' -k2,2 > filebeat.txt
 
 while [ $m_total_log_size -gt $LOG_SIZE_MAX ]; do
 	m_filebeat=$(tail -n -1 filebeat.txt)
 	filebeat_date=$(echo $m_filebeat | awk -F '-' '{ print $2 }')
-
 	if [ "$m_filebeat" = "" ] ; then
 		break
 	else

@@ -17,35 +17,35 @@ const RegionField = () => {
       items={[
         {
           name: "region.af",
-          value: REGIONS.AF
+          value: REGIONS.AF,
         },
         {
           name: "region.ap",
-          value: REGIONS.AP
+          value: REGIONS.AP,
         },
         {
           name: "region.ca",
-          value: REGIONS.CA
+          value: REGIONS.CA,
         },
         {
           name: "region.eu",
-          value: REGIONS.EU
+          value: REGIONS.EU,
         },
         {
           name: "region.me",
-          value: REGIONS.ME
+          value: REGIONS.ME,
         },
         {
           name: "region.sa",
-          value: REGIONS.SA
+          value: REGIONS.SA,
         },
         {
           name: "region.us",
-          value: REGIONS.US
-        }
+          value: REGIONS.US,
+        },
       ].map(({ name, value }) => ({
         value,
-        content: <ItemContent>{intl.formatMessage({ id: name })}</ItemContent>
+        content: <ItemContent>{intl.formatMessage({ id: name })}</ItemContent>,
       }))}
     />
   );

@@ -5,7 +5,7 @@ export const FIELD_NAMES = Object.freeze({
   HYPERPARAMETERS_FIELD_ARRAY: Object.freeze({
     FIELD_NAME: "parameters",
     HYPERPARAMETER_NAME: "parameterName",
-    ENVIRONMENT_VARIABLE: "environmentVariable"
+    ENVIRONMENT_VARIABLE: "environmentVariable",
   }),
   INSTANCE_TYPES: "instanceTypes",
   BUDGET: "budget",
@@ -13,5 +13,5 @@ export const FIELD_NAMES = Object.freeze({
   RESOURCE_NAME_PREFIX: "resourceNamePrefix",
   REGIONS: "regions",
   TASKS: "tasks",
-  MAXIMUM_RUNSET_RUNNERS: "maximumRunsetRunners"
+  MAXIMUM_RUNSET_RUNNERS: "maximumRunsetRunners",
 });

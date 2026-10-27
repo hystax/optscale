@@ -4,7 +4,7 @@ export const ALERTS = "alerts";
 
 export const ALERT_TYPE = Object.freeze({
   COMMON_ALERTS: "commonAlerts",
-  ORGANIZATION_ALERTS: "organizationAlerts"
+  ORGANIZATION_ALERTS: "organizationAlerts",
 });
 
 const updateAlertState = (alerts, newAlertState) =>
@@ -21,7 +21,7 @@ const reducer = (state = {}, action) => {
   switch (action.type) {
     case UPDATE_ORGANIZATION_TOP_ALERT: {
       const {
-        payload: { alert, organizationId }
+        payload: { alert, organizationId },
       } = action;
 
       const currentOrganizationAlerts = state[organizationId] || [];
@@ -30,7 +30,7 @@ const reducer = (state = {}, action) => {
         ...state,
         [organizationId]: alertExists(currentOrganizationAlerts, alert)
           ? updateAlertState(currentOrganizationAlerts, alert)
-          : addAlertState(currentOrganizationAlerts, alert)
+          : addAlertState(currentOrganizationAlerts, alert),
       };
     }
     default:

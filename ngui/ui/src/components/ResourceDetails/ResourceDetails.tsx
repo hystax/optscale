@@ -35,14 +35,14 @@ const getIdLabelDefinition = ({ cloudResourceIdentifier, isActive }) => ({
   keyMessageId: "id",
   dataTestIds: {
     key: "lbl_id",
-    value: "lbl_id_value"
-  }
+    value: "lbl_id_value",
+  },
 });
 
 const getLabelDefinition = ({ value, keyMessageId, dataTestIds }) => ({
   value,
   keyMessageId,
-  dataTestIds
+  dataTestIds,
 });
 
 const getNameLabelDefinition = (resourceName) =>
@@ -51,8 +51,8 @@ const getNameLabelDefinition = (resourceName) =>
     keyMessageId: "name",
     dataTestIds: {
       key: "lbl_name",
-      value: "lbl_name_value"
-    }
+      value: "lbl_name_value",
+    },
   });
 
 const getSubResourcesLabelDefinition = (count) =>
@@ -61,8 +61,8 @@ const getSubResourcesLabelDefinition = (count) =>
     keyMessageId: "subResources",
     dataTestIds: {
       key: "lbl_sub_resources",
-      value: "lbl_sub_resources_value"
-    }
+      value: "lbl_sub_resources_value",
+    },
   });
 
 const getCloudNameLabelDefinition = (cloudName, cloudAccountId, cloudType) =>
@@ -71,8 +71,8 @@ const getCloudNameLabelDefinition = (cloudName, cloudAccountId, cloudType) =>
     keyMessageId: "dataSource",
     dataTestIds: {
       key: "lbl_cloud",
-      value: "lbl_cloud_value"
-    }
+      value: "lbl_cloud_value",
+    },
   });
 
 const getResourceTypeLabelDefinition = (value) =>
@@ -81,8 +81,8 @@ const getResourceTypeLabelDefinition = (value) =>
     keyMessageId: "type",
     dataTestIds: {
       key: "lbl_type",
-      value: "lbl_type_value"
-    }
+      value: "lbl_type_value",
+    },
   });
 
 const getServiceNameLabelDefinition = (serviceName) =>
@@ -91,8 +91,8 @@ const getServiceNameLabelDefinition = (serviceName) =>
     keyMessageId: "service",
     dataTestIds: {
       key: "lbl_service",
-      value: "lbl_service_value"
-    }
+      value: "lbl_service_value",
+    },
   });
 
 const getRegionLabelDefinition = (region) =>
@@ -101,8 +101,8 @@ const getRegionLabelDefinition = (region) =>
     keyMessageId: "region",
     dataTestIds: {
       key: "lbl_region",
-      value: "lbl_region_value"
-    }
+      value: "lbl_region_value",
+    },
   });
 
 const getK8sNodeLabelDefinition = (node) =>
@@ -111,8 +111,8 @@ const getK8sNodeLabelDefinition = (node) =>
     keyMessageId: "node",
     dataTestIds: {
       key: "lbl_k8s_node",
-      value: "lbl_k8s_node_value"
-    }
+      value: "lbl_k8s_node_value",
+    },
   });
 
 const getK8sNamespaceLabelDefinition = (namespace) =>
@@ -121,8 +121,8 @@ const getK8sNamespaceLabelDefinition = (namespace) =>
     keyMessageId: "namespace",
     dataTestIds: {
       key: "lbl_k8s_namespace",
-      value: "lbl_k8s_namespace_value"
-    }
+      value: "lbl_k8s_namespace_value",
+    },
   });
 
 const getPoolNameLabelDefinition = (poolId, poolName, poolType) =>
@@ -131,8 +131,8 @@ const getPoolNameLabelDefinition = (poolId, poolName, poolType) =>
     keyMessageId: "pool",
     dataTestIds: {
       key: "lbl_pool",
-      value: "lbl_pool_value"
-    }
+      value: "lbl_pool_value",
+    },
   });
 
 const getOwnerNameLabelDefinition = (ownerName) =>
@@ -141,8 +141,8 @@ const getOwnerNameLabelDefinition = (ownerName) =>
     keyMessageId: "owner",
     dataTestIds: {
       key: "lbl_owner",
-      value: "lbl_owner_value"
-    }
+      value: "lbl_owner_value",
+    },
   });
 
 const getFirstSeenLabelDefinition = (firstSeen) =>
@@ -151,8 +151,8 @@ const getFirstSeenLabelDefinition = (firstSeen) =>
     keyMessageId: "firstSeenOn",
     dataTestIds: {
       key: "lbl_first_seen",
-      value: "lbl_first_seen_value"
-    }
+      value: "lbl_first_seen_value",
+    },
   });
 
 const getLastSeenLabelDefinition = (lastSeen) =>
@@ -161,8 +161,8 @@ const getLastSeenLabelDefinition = (lastSeen) =>
     keyMessageId: "lastSeenOn",
     dataTestIds: {
       key: "lbl_last_seen",
-      value: "lbl_last_seen_value"
-    }
+      value: "lbl_last_seen_value",
+    },
   });
 
 const getPowerScheduleLabelDefinition = (powerScheduleId, powerScheduleName) =>
@@ -175,8 +175,8 @@ const getPowerScheduleLabelDefinition = (powerScheduleId, powerScheduleName) =>
     keyMessageId: "powerSchedule",
     dataTestIds: {
       key: "lbl_power_schedule",
-      value: "lbl_power_schedule_value"
-    }
+      value: "lbl_power_schedule_value",
+    },
   });
 
 const getCommonLabelsDefinition = ({
@@ -191,7 +191,7 @@ const getCommonLabelsDefinition = ({
   lastSeen,
   resourceType,
   isEnvironment,
-  shareable
+  shareable,
 }) => ({
   idLabelDefinition: getIdLabelDefinition({ cloudResourceIdentifier, isActive }),
   resourceTypeLabelDefinition: getResourceTypeLabelDefinition(
@@ -200,7 +200,7 @@ const getCommonLabelsDefinition = ({
         clusterTypeId,
         resourceType,
         isEnvironment,
-        shareable
+        shareable,
       }}
       iconDataTestId={clusterTypeId ? "img_type_cluster_logo" : ""}
     />
@@ -208,7 +208,7 @@ const getCommonLabelsDefinition = ({
   poolNameLabelDefinition: getPoolNameLabelDefinition(poolId, poolName, poolType),
   ownerNameLabelDefinition: getOwnerNameLabelDefinition(ownerName),
   firstSeenLabelDefinition: getFirstSeenLabelDefinition(firstSeen),
-  lastSeenLabelDefinition: getLastSeenLabelDefinition(lastSeen)
+  lastSeenLabelDefinition: getLastSeenLabelDefinition(lastSeen),
 });
 
 const ClusterDetails = ({ commonLabels, resourceDetails }) => {
@@ -220,7 +220,7 @@ const ClusterDetails = ({ commonLabels, resourceDetails }) => {
     poolNameLabelDefinition,
     ownerNameLabelDefinition,
     firstSeenLabelDefinition,
-    lastSeenLabelDefinition
+    lastSeenLabelDefinition,
   } = commonLabels;
 
   return (
@@ -234,7 +234,7 @@ const ClusterDetails = ({ commonLabels, resourceDetails }) => {
             poolNameLabelDefinition,
             ownerNameLabelDefinition,
             firstSeenLabelDefinition,
-            lastSeenLabelDefinition
+            lastSeenLabelDefinition,
           ].filter(Boolean)
         )}
       </Grid>
@@ -251,7 +251,7 @@ const SimpleResourceDetails = ({ commonLabels, resourceDetails }) => {
     firstSeenLabelDefinition,
     lastSeenLabelDefinition,
     vpcNameLabelDefinition,
-    vpcIdLabelDefinition
+    vpcIdLabelDefinition,
   } = commonLabels;
 
   const {
@@ -265,7 +265,7 @@ const SimpleResourceDetails = ({ commonLabels, resourceDetails }) => {
     cloudAccountId,
     cloudType,
     powerScheduleId,
-    powerScheduleName
+    powerScheduleName,
   } = resourceDetails;
 
   return (
@@ -287,7 +287,7 @@ const SimpleResourceDetails = ({ commonLabels, resourceDetails }) => {
             firstSeenLabelDefinition,
             lastSeenLabelDefinition,
             vpcIdLabelDefinition,
-            vpcNameLabelDefinition
+            vpcNameLabelDefinition,
           ].filter(Boolean)
         )}
       </Grid>
@@ -315,7 +315,7 @@ const getResourceProperties = (props) => {
                 <ResourceLink resourceId={props.clusterId} tabName={RESOURCE_PAGE_TABS.DETAILS} dataTestId="link_cluster">
                   {chunks}
                 </ResourceLink>
-              )
+              ),
             }}
           />
         </Typography>

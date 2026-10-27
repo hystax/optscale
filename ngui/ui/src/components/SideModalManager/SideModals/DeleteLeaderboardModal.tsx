@@ -7,8 +7,8 @@ class DeleteLeaderboardModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_delete_leaderboard",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_delete_leaderboard";

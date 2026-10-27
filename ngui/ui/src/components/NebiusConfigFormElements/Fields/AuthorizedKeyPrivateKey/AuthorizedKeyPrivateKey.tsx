@@ -14,11 +14,11 @@ const AuthorizedKeyPrivateKey = () => (
         <QuestionMark
           messageId="nebiusPrivateAuthorizedKeyTooltip"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_private_authorized_key"
         />
-      )
+      ),
     }}
     multiline
     minRows={4}
@@ -26,7 +26,7 @@ const AuthorizedKeyPrivateKey = () => (
     label={<FormattedMessage id="privateKey" />}
     autoComplete="off"
     sx={{
-      marginBottom: (theme) => theme.spacing(1)
+      marginBottom: (theme) => theme.spacing(1),
     }}
   />
 );

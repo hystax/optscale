@@ -19,12 +19,12 @@ const applyPaletteSettings = (settings) => {
 
   const mergeIfSettingIsNotEmpty = (target, settingName) => ({
     ...target,
-    ...(isEmptySetting(settingName) ? {} : settings.palette[settingName])
+    ...(isEmptySetting(settingName) ? {} : settings.palette[settingName]),
   });
 
   const primary = mergeIfSettingIsNotEmpty(
     {
-      main: "#004C74"
+      main: "#004C74",
     },
     "primary"
   );
@@ -32,7 +32,7 @@ const applyPaletteSettings = (settings) => {
   const info = mergeIfSettingIsNotEmpty(
     {
       main: "#5E6A7F",
-      header: getLighten("#5E6A7F", 0.93)
+      header: getLighten("#5E6A7F", 0.93),
     },
     "info"
   );
@@ -40,28 +40,28 @@ const applyPaletteSettings = (settings) => {
   const secondary = mergeIfSettingIsNotEmpty(
     {
       main: "#F58535",
-      contrastText: getDarken(info.main, 0.8)
+      contrastText: getDarken(info.main, 0.8),
     },
     "secondary"
   );
 
   const success = mergeIfSettingIsNotEmpty(
     {
-      main: "#007E00"
+      main: "#007E00",
     },
     "success"
   );
 
   const error = mergeIfSettingIsNotEmpty(
     {
-      main: "#B00020"
+      main: "#B00020",
     },
     "error"
   );
 
   const warning = mergeIfSettingIsNotEmpty(
     {
-      main: "#906B00"
+      main: "#906B00",
     },
     "warning"
   );
@@ -69,7 +69,7 @@ const applyPaletteSettings = (settings) => {
   const text = mergeIfSettingIsNotEmpty(
     {
       primary: getDarken(info.main),
-      secondary: primary.main
+      secondary: primary.main,
     },
     "text"
   );
@@ -81,7 +81,7 @@ const applyPaletteSettings = (settings) => {
     success,
     error,
     warning,
-    text
+    text,
   };
 };
 const applyChartPaletteSettings = (settings) => {
@@ -100,7 +100,7 @@ const applyChartPaletteSettings = (settings) => {
         "#834AEE",
         "#48E1FF",
         "#D53090",
-        "#99B150"
+        "#99B150",
       ]
     : settings.chartPalette.chart;
 
@@ -108,7 +108,7 @@ const applyChartPaletteSettings = (settings) => {
 
   return {
     chart,
-    monoChart
+    monoChart,
   };
 };
 
@@ -117,110 +117,110 @@ const applyGoogleMapPaletteSettings = (basicColorsPalette) => [
     elementType: "geometry",
     stylers: [
       {
-        color: "#ffffff"
-      }
-    ]
+        color: "#ffffff",
+      },
+    ],
   },
   {
     elementType: "labels.icon",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     elementType: "labels.text.fill",
     stylers: [
       {
-        color: basicColorsPalette.info.main
-      }
-    ]
+        color: basicColorsPalette.info.main,
+      },
+    ],
   },
   {
     elementType: "labels.text.stroke",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "administrative",
     elementType: "geometry",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "administrative.land_parcel",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "administrative.neighborhood",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "poi",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "poi",
     elementType: "labels.text",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "road",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "transit",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
+        visibility: "off",
+      },
+    ],
   },
   {
     featureType: "water",
     elementType: "geometry",
     stylers: [
       {
-        color: "#DEE1E5"
-      }
-    ]
+        color: "#DEE1E5",
+      },
+    ],
   },
   {
     featureType: "water",
     elementType: "labels.text",
     stylers: [
       {
-        visibility: "off"
-      }
-    ]
-  }
+        visibility: "off",
+      },
+    ],
+  },
 ];
 
 export const getThemeSpacingCoefficient = (theme) => {
@@ -255,8 +255,8 @@ const getThemeConfig = (settings = {}) => {
     typography: {
       fontFamily: "'Ubuntu', sans-serif",
       mono: {
-        fontFamily: "'Ubuntu Mono', monospace"
-      }
+        fontFamily: "'Ubuntu Mono', monospace",
+      },
     },
     components: {
       MuiAccordion: {
@@ -264,10 +264,10 @@ const getThemeConfig = (settings = {}) => {
           root: {
             "&:before": {
               // disable border between accordions
-              display: "none"
-            }
-          }
-        }
+              display: "none",
+            },
+          },
+        },
       },
       MuiAccordionSummary: {
         styleOverrides: {
@@ -275,15 +275,15 @@ const getThemeConfig = (settings = {}) => {
             maxWidth: "100%",
             margin: 0,
             "&.Mui-expanded": {
-              margin: 0
-            }
+              margin: 0,
+            },
           },
           root: {
             "&.Mui-expanded": {
-              minHeight: "48px"
-            }
-          }
-        }
+              minHeight: "48px",
+            },
+          },
+        },
       },
       MuiAutocomplete: {
         styleOverrides: {
@@ -301,17 +301,17 @@ const getThemeConfig = (settings = {}) => {
                 backgroundColor: ACTION_SELECTED,
                 color: secondary.contrastText,
                 "&.Mui-focused": {
-                  backgroundColor: ACTION_SELECTED
-                }
-              }
-            }
-          })
-        }
+                  backgroundColor: ACTION_SELECTED,
+                },
+              },
+            },
+          }),
+        },
       },
       MuiButton: {
         defaultProps: {
           size: "small",
-          color: "info"
+          color: "info",
         },
         variants: [
           {
@@ -319,91 +319,91 @@ const getThemeConfig = (settings = {}) => {
             style: ({ theme }) => ({
               color: theme.palette.lightYellow.contrastText,
               "&:hover": {
-                backgroundColor: lighten(theme.palette.lightYellow.main, 0.08)
-              }
-            })
+                backgroundColor: lighten(theme.palette.lightYellow.main, 0.08),
+              },
+            }),
           },
           {
             props: { variant: "contained", color: "lightBlue" },
             style: ({ theme }) => ({
               color: theme.palette.lightBlue.contrastText,
               "&:hover": {
-                backgroundColor: lighten(theme.palette.lightBlue.main, 0.08)
-              }
-            })
+                backgroundColor: lighten(theme.palette.lightBlue.main, 0.08),
+              },
+            }),
           },
           {
             props: { variant: "text", color: "info" },
             style: ({ theme }) => ({
-              color: theme.palette.text.primary
-            })
-          }
-        ]
+              color: theme.palette.text.primary,
+            }),
+          },
+        ],
       },
       MuiButtonGroup: {
         defaultProps: {
-          color: "info"
-        }
+          color: "info",
+        },
       },
       MuiCardHeader: {
         styleOverrides: {
           content: {
-            overflow: "hidden"
-          }
-        }
+            overflow: "hidden",
+          },
+        },
       },
       MuiCheckbox: {
         defaultProps: {
-          color: "secondary"
+          color: "secondary",
         },
         styleOverrides: {
           colorSecondary: {
-            color: secondary.main
-          }
-        }
+            color: secondary.main,
+          },
+        },
       },
       MuiCssBaseline: {
         styleOverrides: (theme) => ({
           "#root": { display: "flex", flexDirection: "column", minHeight: "100vh" },
           // https://github.com/mui/material-ui/issues/33519
           "input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active": {
-            WebkitBoxShadow: `0 0 0 30px ${getWebkitAutofillBackgroundColor(theme)} inset !important`
-          }
-        })
+            WebkitBoxShadow: `0 0 0 30px ${getWebkitAutofillBackgroundColor(theme)} inset !important`,
+          },
+        }),
       },
       MuiDialogActions: {
         styleOverrides: {
           root: {
-            justifyContent: "center"
-          }
-        }
+            justifyContent: "center",
+          },
+        },
       },
       MuiDialogTitle: {
         styleOverrides: {
           root: {
-            textAlign: "center"
-          }
-        }
+            textAlign: "center",
+          },
+        },
       },
       MuiFormControl: {
         defaultProps: {
-          margin: "dense"
-        }
+          margin: "dense",
+        },
       },
       MuiFormHelperText: {
         defaultProps: {
-          margin: "dense"
+          margin: "dense",
         },
         styleOverrides: {
           contained: () => ({
             marginLeft: 0,
-            marginRight: 0
-          })
-        }
+            marginRight: 0,
+          }),
+        },
       },
       MuiIconButton: {
         defaultProps: {
-          size: "small"
+          size: "small",
         },
         styleOverrides: {
           root: {
@@ -411,74 +411,74 @@ const getThemeConfig = (settings = {}) => {
             marginRight: 0,
             padding: 8,
             "&:hover": {
-              backgroundColor: alpha(ACTION_HOVER, 0.5)
-            }
-          }
-        }
+              backgroundColor: alpha(ACTION_HOVER, 0.5),
+            },
+          },
+        },
       },
       MuiInputLabel: {
         defaultProps: {
-          size: "small"
-        }
+          size: "small",
+        },
       },
       MuiInputBase: {
         defaultProps: {
-          size: "small"
+          size: "small",
         },
         styleOverrides: {
           root: ({ theme }) => ({
             // https://github.com/mui/material-ui/issues/33519
             "&:has(> input:-webkit-autofill)": {
-              backgroundColor: getWebkitAutofillBackgroundColor(theme)
-            }
-          })
-        }
+              backgroundColor: getWebkitAutofillBackgroundColor(theme),
+            },
+          }),
+        },
       },
       MuiLink: {
         defaultProps: {
-          underline: "hover"
+          underline: "hover",
         },
         styleOverrides: {
           root: {
-            fontWeight: "bold"
-          }
-        }
+            fontWeight: "bold",
+          },
+        },
       },
       MuiSwitch: {
         defaultProps: {
-          color: "secondary"
-        }
+          color: "secondary",
+        },
       },
       MuiListItem: {
         defaultProps: {
-          dense: true
+          dense: true,
         },
         styleOverrides: {
           dense: {
             paddingTop: "0.375rem",
-            paddingBottom: "0.375rem"
+            paddingBottom: "0.375rem",
           },
           root: {
             "&.Mui-selected": {
-              color: secondary.contrastText
+              color: secondary.contrastText,
             },
             "&.Mui-focusVisible": {
               backgroundColor: getLighten(secondary.main),
-              color: secondary.contrastText
-            }
-          }
-        }
+              color: secondary.contrastText,
+            },
+          },
+        },
       },
       MuiListItemSecondaryAction: {
         styleOverrides: {
           root: {
-            right: "0.2rem"
-          }
-        }
+            right: "0.2rem",
+          },
+        },
       },
       MuiMenuItem: {
         defaultProps: {
-          dense: true
+          dense: true,
         },
         styleOverrides: {
           root: {
@@ -488,40 +488,40 @@ const getThemeConfig = (settings = {}) => {
               color: secondary.contrastText,
               "&.Mui-focusVisible": { background: ACTION_SELECTED },
               "&:hover": {
-                backgroundColor: ACTION_SELECTED
-              }
-            }
-          }
-        }
+                backgroundColor: ACTION_SELECTED,
+              },
+            },
+          },
+        },
       },
       MuiSkeleton: {
         styleOverrides: {
           root: {
-            backgroundColor: SKELETON_COLOR
-          }
-        }
+            backgroundColor: SKELETON_COLOR,
+          },
+        },
       },
       MuiStepLabel: {
         styleOverrides: {
           label: {
-            color: text.primary
+            color: text.primary,
           },
           labelContainer: {
-            color: text.primary
-          }
-        }
+            color: text.primary,
+          },
+        },
       },
       MuiTab: {
         styleOverrides: {
           root: {
-            minHeight: "3rem"
-          }
-        }
+            minHeight: "3rem",
+          },
+        },
       },
       MuiTable: {
         defaultProps: {
-          size: "small"
-        }
+          size: "small",
+        },
       },
       MuiTableSortLabel: {
         styleOverrides: {
@@ -530,60 +530,60 @@ const getThemeConfig = (settings = {}) => {
               color: text.primary,
               // Apply color only to the sort arrow icon
               "> svg:last-child": {
-                color: primary.main
-              }
+                color: primary.main,
+              },
             },
             "&.Mui-active": {
-              color: primary.main
-            }
-          }
-        }
+              color: primary.main,
+            },
+          },
+        },
       },
       MuiAlert: {
         styleOverrides: {
           action: {
-            paddingTop: 0
-          }
-        }
+            paddingTop: 0,
+          },
+        },
       },
       MuiTabs: {
         styleOverrides: {
           root: {
-            minHeight: "2rem"
-          }
-        }
+            minHeight: "2rem",
+          },
+        },
       },
       MuiTextField: {
         defaultProps: {
-          size: "small"
-        }
+          size: "small",
+        },
       },
       MuiToolbar: {
         defaultProps: {
-          variant: "dense"
+          variant: "dense",
         },
         styleOverrides: {
           dense: {
-            paddingRight: 0
-          }
-        }
+            paddingRight: 0,
+          },
+        },
       },
       MuiTypography: {
         defaultProps: {
-          variant: "body2"
-        }
+          variant: "body2",
+        },
       },
       MuiUseMediaQuery: {
         defaultProps: {
-          noSsr: true
-        }
-      }
+          noSsr: true,
+        },
+      },
     },
     palette: {
       action: {
         hover: ACTION_HOVER,
         active: ACTION_ACTIVE,
-        selected: ACTION_SELECTED
+        selected: ACTION_SELECTED,
       },
       primary,
       secondary,
@@ -593,24 +593,24 @@ const getThemeConfig = (settings = {}) => {
       warning,
       common,
       background: {
-        default: BACKGROUND
+        default: BACKGROUND,
       },
       text,
       lightYellow: {
-        main: "#FFC348"
+        main: "#FFC348",
       },
       lightBlue: {
         main: "#4AB4EE",
-        contrastText: common.white
+        contrastText: common.white,
       },
       gold: {
-        main: "#FFD700"
+        main: "#FFD700",
       },
       silver: {
-        main: "#C0C0C0"
+        main: "#C0C0C0",
       },
       bronze: {
-        main: "#CD7F32"
+        main: "#CD7F32",
       },
       chart,
       monoChart,
@@ -625,9 +625,9 @@ const getThemeConfig = (settings = {}) => {
         colon: text.primary,
         keys: text.primary,
         keys_whiteSpace: text.primary,
-        primitive: text.primary
-      }
-    }
+        primitive: text.primary,
+      },
+    },
   });
 };
 
@@ -638,13 +638,13 @@ const PDF_THEME = {
     h1: 17,
     h2: 16,
     text: 12,
-    footerNote: 10
+    footerNote: 10,
   },
   colors: {
     // TODO: Make this color configurable, get PRIMARY (`getLighten(PRIMARY)`) from `theme`
-    link: getLighten("#004C74")
+    link: getLighten("#004C74"),
   },
-  logoWidth: 120
+  logoWidth: 120,
 };
 
 // TODO: applyChartPaletteSettings needs to be rewritten, adding one one chart palette affects multiple files,

@@ -27,7 +27,7 @@ import {
   KUBERNETES_CNR,
   K8S_NODE_FILTER,
   K8S_NAMESPACE_FILTER,
-  OPTSCALE_RESOURCE_TYPES
+  OPTSCALE_RESOURCE_TYPES,
 } from "utils/constants";
 import ExpensesBreakdownActionBar from "./ActionBar";
 import ExpensesBreakdownBarChart from "./BarChart";
@@ -53,7 +53,7 @@ const ExpensesBreakdown = ({
   updateFilter,
   name,
   dataSourceType,
-  isInScopeOfPageMockup = false
+  isInScopeOfPageMockup = false,
 }) => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -62,7 +62,7 @@ const ExpensesBreakdown = ({
 
   const colorsMap = getColorsMapByIds({
     data: filteredBreakdown,
-    colors: theme.palette.chart
+    colors: theme.palette.chart,
   });
 
   const getEntityExpensesUrl = (targetEntityId, targetEntityType) => {
@@ -77,24 +77,24 @@ const ExpensesBreakdown = ({
       [EXPENSES_FILTERBY_TYPES.POOL]:
         type === POOL_DETAILS
           ? entityId !== targetEntityId && `${getPoolExpensesUrl(targetEntityId)}?filterBy=${EXPENSES_FILTERBY_TYPES.POOL}`
-          : `${getPoolExpensesUrl(targetEntityId)}?filterBy=${EXPENSES_FILTERBY_TYPES.POOL}`
+          : `${getPoolExpensesUrl(targetEntityId)}?filterBy=${EXPENSES_FILTERBY_TYPES.POOL}`,
     }[filterBy];
   };
 
   const getFilterByEntity = (isTableWrapper = false) =>
     ({
       [OWNER_DETAILS]: {
-        [OWNER_ID_FILTER]: entityId
+        [OWNER_ID_FILTER]: entityId,
       },
       [CLOUD_DETAILS]: {
-        [CLOUD_ACCOUNT_ID_FILTER]: entityId
+        [CLOUD_ACCOUNT_ID_FILTER]: entityId,
       },
       [POOL_DETAILS]: isTableWrapper
         ? {
-            [POOL_ID_FILTER]: entityId
+            [POOL_ID_FILTER]: entityId,
           }
         : {},
-      [COST_EXPLORER]: {}
+      [COST_EXPLORER]: {},
     })[type];
 
   const getComputedParams = (details) =>
@@ -114,7 +114,7 @@ const ExpensesBreakdown = ({
       // When/if a different type is added to calculations (e.g. 'cluster'), the API will have to return it.
       [EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE]: `${RESOURCE_TYPE_FILTER}=${details.name}:${OPTSCALE_RESOURCE_TYPES.REGULAR}`,
       [EXPENSES_FILTERBY_TYPES.NODE]: `${K8S_NODE_FILTER}=${details.id}`,
-      [EXPENSES_FILTERBY_TYPES.NAMESPACE]: `${K8S_NAMESPACE_FILTER}=${details.id}`
+      [EXPENSES_FILTERBY_TYPES.NAMESPACE]: `${K8S_NAMESPACE_FILTER}=${details.id}`,
     })[filterBy];
 
   const renderHeading = () => (
@@ -172,7 +172,7 @@ const ExpensesBreakdown = ({
                         ...getFilterByEntity(),
                         computedParams: getComputedParams(bandDetails),
                         sStartDate: bandDetails.startDate,
-                        sEndDate: bandDetails.endDate
+                        sEndDate: bandDetails.endDate,
                       })
                     );
                   }
@@ -219,7 +219,7 @@ const ExpensesBreakdown = ({
                 }
           }
           getCustomDetails={({ id, type: sectionEntityType }) => ({
-            link: getEntityExpensesUrl(id, sectionEntityType)
+            link: getEntityExpensesUrl(id, sectionEntityType),
           })}
           getShouldApplyHoverStyles={(node) => {
             const { data: { details: { link = "" } = {} } = {} } = node;
@@ -247,7 +247,7 @@ const ExpensesBreakdown = ({
               getResourcesExpensesUrl({
                 ...getFilterByEntity(true),
                 sStartDate: startDateTimestamp,
-                sEndDate: endDateTimestamp
+                sEndDate: endDateTimestamp,
               })
             )
       }
@@ -259,7 +259,7 @@ const ExpensesBreakdown = ({
                 ...getFilterByEntity(),
                 computedParams: getComputedParams(rowData),
                 sStartDate: startDateTimestamp,
-                sEndDate: endDateTimestamp
+                sEndDate: endDateTimestamp,
               })
             )
       }
@@ -274,7 +274,7 @@ const ExpensesBreakdown = ({
           top={renderHeading()}
           center={{
             left: renderBarChartWidget(),
-            right: renderPieChartWidget()
+            right: renderPieChartWidget(),
           }}
           bottom={renderTableWidget()}
         />

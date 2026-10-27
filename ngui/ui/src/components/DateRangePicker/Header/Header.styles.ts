@@ -2,11 +2,11 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()(() => ({
   root: {
-    fontSize: "inherit"
+    fontSize: "inherit",
   },
   wrapper: {
-    height: "40px"
-  }
+    height: "40px",
+  },
 }));
 
 export default useStyles;

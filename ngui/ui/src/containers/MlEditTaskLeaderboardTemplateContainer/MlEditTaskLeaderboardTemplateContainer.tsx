@@ -36,7 +36,7 @@ const MlEditTaskLeaderboardTemplateContainer = ({ leaderboardTemplate, task }) =
         primaryMetric: leaderboardTemplate.primary_metric,
         secondaryMetrics: leaderboardTemplate.other_metrics,
         metricRestrictions: leaderboardTemplate.filters,
-        datasetCoverageRules: leaderboardTemplate.dataset_coverage_rules
+        datasetCoverageRules: leaderboardTemplate.dataset_coverage_rules,
       }),
     [
       leaderboardTemplate.dataset_coverage_rules,
@@ -44,7 +44,7 @@ const MlEditTaskLeaderboardTemplateContainer = ({ leaderboardTemplate, task }) =
       leaderboardTemplate.group_by_hp,
       leaderboardTemplate.grouping_tags,
       leaderboardTemplate.other_metrics,
-      leaderboardTemplate.primary_metric
+      leaderboardTemplate.primary_metric,
     ]
   );
 
@@ -57,7 +57,7 @@ const MlEditTaskLeaderboardTemplateContainer = ({ leaderboardTemplate, task }) =
   return (
     <Box
       sx={{
-        width: { md: "50%" }
+        width: { md: "50%" },
       }}
     >
       <LeaderboardForm
@@ -73,7 +73,7 @@ const MlEditTaskLeaderboardTemplateContainer = ({ leaderboardTemplate, task }) =
         isTemplate
         isLoadingProps={{
           isGetDataLoading: isGetTaskTagsLoading || isGetDatasetLabelsLoading,
-          isSubmitDataLoading: isUpdateLeaderboardTemplateLoading || isCreateLeaderboardTemplateLoading
+          isSubmitDataLoading: isUpdateLeaderboardTemplateLoading || isCreateLeaderboardTemplateLoading,
         }}
       />
     </Box>

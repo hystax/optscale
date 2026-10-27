@@ -6,8 +6,8 @@ class SaveMlChartsDashboard extends BaseSideModal {
     messageId: "saveDashboard",
     dataTestIds: {
       title: "lbl_save_dashboard",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_save_dashboard";

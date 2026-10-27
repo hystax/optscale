@@ -9,14 +9,14 @@ import {
   isQuotasAndBudgetsConstraint,
   isQuotasAndBudgetsConstraintViolated,
   isTaggingPolicyConstraint,
-  isTaggingPolicyConstraintViolated
+  isTaggingPolicyConstraintViolated,
 } from "utils/organizationConstraints";
 
 const CONSTRAINT_TYPES = Object.freeze(
   Object.keys({
     ...ANOMALY_TYPES,
     ...QUOTAS_AND_BUDGETS_TYPES,
-    ...TAGGING_POLICY_TYPES
+    ...TAGGING_POLICY_TYPES,
   })
 );
 
@@ -44,19 +44,19 @@ const addConstraintMessageIdAndLink = (constraint) => {
       case isAnomalyConstraint(constraintType): {
         return {
           typeMessageId: "anomaly",
-          typeLink: ANOMALIES
+          typeLink: ANOMALIES,
         };
       }
       case isQuotasAndBudgetsConstraint(constraintType): {
         return {
           typeMessageId: "quota/Budget",
-          typeLink: QUOTAS_AND_BUDGETS
+          typeLink: QUOTAS_AND_BUDGETS,
         };
       }
       case isTaggingPolicyConstraint(constraintType): {
         return {
           typeMessageId: "tagging",
-          typeLink: TAGGING_POLICIES
+          typeLink: TAGGING_POLICIES,
         };
       }
       default:
@@ -66,7 +66,7 @@ const addConstraintMessageIdAndLink = (constraint) => {
 
   return {
     ...constraint,
-    ...getMessageIdAndLink()
+    ...getMessageIdAndLink(),
   };
 };
 

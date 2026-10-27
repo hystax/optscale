@@ -11,7 +11,7 @@ it("renders without crashing", () => {
         dataSource={{
           id: "id",
           name: "name",
-          type: "aws_cnr"
+          type: "aws_cnr",
         }}
       />
     </TestProvider>

@@ -13,7 +13,7 @@ const CurrencyCodeField = () => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (
@@ -23,12 +23,12 @@ const CurrencyCodeField = () => {
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         validate: {
           isAllowedCurrency: (value) =>
-            currencyCodes.includes(value) ? true : intl.formatMessage({ id: "invalidCurrencyCode" })
-        }
+            currencyCodes.includes(value) ? true : intl.formatMessage({ id: "invalidCurrencyCode" }),
+        },
       }}
       render={({ field }) => (
         <FormControl fullWidth>
@@ -36,7 +36,7 @@ const CurrencyCodeField = () => {
             error={!!errors[FIELD_NAME]}
             helperText={errors[FIELD_NAME] && errors[FIELD_NAME].message}
             InputProps={{
-              endAdornment: <QuestionMark messageId="cloudCostComparisonCurrencyDescription" />
+              endAdornment: <QuestionMark messageId="cloudCostComparisonCurrencyDescription" />,
             }}
             {...field}
           />

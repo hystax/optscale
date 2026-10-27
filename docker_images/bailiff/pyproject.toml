@@ -1,0 +1,22 @@
+[project]
+name = "bailiff"
+version = "0.1.0"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "aio-pika==9.5.5",
+    "tenacity==9.1.2",
+    "config-client",
+    "restapi-client",
+    "subspector-async-client",
+]
+
+[tool.uv.sources]
+config-client = { path = "../../optscale_client/config_client", editable = true }
+restapi-client = { path = "../../optscale_client/rest_api_client", editable = true }
+subspector-async-client = { path = "../../optscale_client/subspector_async_client", editable = true }
+
+[dependency-groups]
+dev = [
+    "pycodestyle==2.11.1",
+    "pylint==3.0.2",
+]

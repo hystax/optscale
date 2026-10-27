@@ -10,9 +10,9 @@ const EditOrganizationConstraintNameFormContainer = ({ id, name, onCancel, onSuc
     update({
       id,
       params: {
-        name: formData.name
+        name: formData.name,
       },
-      onSuccess
+      onSuccess,
     });
 
   return (

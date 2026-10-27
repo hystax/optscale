@@ -42,6 +42,12 @@ class PolicyGeneratorAsyncCollectionHandler(BaseAuthHandler, BaseHandler):
             type: string
             description: Bucket name
             required: false
+        -   name: external_id
+            in: query
+            type: string
+            description: >
+                ExternalId for the sts:AssumeRole trust policy condition
+            required: false
         responses:
             200:
                 description: Cloud accounts list
@@ -68,11 +74,12 @@ class PolicyGeneratorAsyncCollectionHandler(BaseAuthHandler, BaseHandler):
         await self.check_permissions(
                 'INFO_ORGANIZATION', 'organization', organization_id)
         args = self._request_arguments()
-        allowed_args = ('bucket_name', 'cloud_type', 'linked')
+        allowed_args = ('bucket_name', 'cloud_type', 'linked', 'external_id')
 
         cloud_type = self.get_arg('cloud_type', str)
         linked = self.get_arg('linked', bool, False)
         bucket_name = self.get_arg('bucket_name', str, None)
+        external_id = self.get_arg('external_id', str, None)
 
         if not cloud_type:
             raise OptHTTPError(400, Err.OE0548, ['cloud_type'])
@@ -92,5 +99,5 @@ class PolicyGeneratorAsyncCollectionHandler(BaseAuthHandler, BaseHandler):
             raise OptHTTPError(400, Err.OE0212, [message])
 
         res = await run_task(self.controller.generate_policies,
-                             cloud_type, bucket_name, linked)
+                             cloud_type, bucket_name, linked, external_id)
         self.write(json.dumps(res, cls=ModelEncoder))

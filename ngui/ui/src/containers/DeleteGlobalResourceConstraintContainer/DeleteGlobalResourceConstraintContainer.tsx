@@ -16,7 +16,7 @@ const DeleteGlobalResourceConstraintContainer = ({
   constraintType,
   resourceName,
   cloudResourceId,
-  closeSideModal
+  closeSideModal,
 }) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
@@ -45,7 +45,7 @@ const DeleteGlobalResourceConstraintContainer = ({
             values={{
               type: <FormattedMessage id={CONSTRAINTS_TYPES[constraintType]} />,
               resourceName: resourceName || cloudResourceId,
-              strong: (chunks) => <strong>{chunks}</strong>
+              strong: (chunks) => <strong>{chunks}</strong>,
             }}
           />
         </Typography>
@@ -59,7 +59,7 @@ const DeleteGlobalResourceConstraintContainer = ({
           disabled={isRestricted}
           tooltip={{
             show: isRestricted,
-            value: restrictionReasonMessage
+            value: restrictionReasonMessage,
           }}
           isLoading={isLoading}
         />

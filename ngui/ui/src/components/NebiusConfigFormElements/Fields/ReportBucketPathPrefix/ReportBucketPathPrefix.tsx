@@ -14,11 +14,11 @@ const ReportBucketPathPrefix = ({ disabled = false }) => (
         <QuestionMark
           messageId="nebiusReportPathPrefixTooltip"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_report_path_prefix"
         />
-      )
+      ),
     }}
     label={<FormattedMessage id="pathPrefix" />}
     autoComplete="off"

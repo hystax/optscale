@@ -15,7 +15,7 @@ const utcTime = ({ id, accessorFn, headerMessageId, headerDataTestId, format = E
     return value ? unixTimestampToDateTime(value, format) : undefined;
   },
   defaultSort,
-  enableSorting
+  enableSorting,
 });
 
 export default utcTime;

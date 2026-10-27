@@ -18,7 +18,7 @@ const useSelectedTagSetting = () => {
 
   return {
     selectedTag,
-    updateSelectedTag
+    updateSelectedTag,
   };
 };
 
@@ -29,12 +29,12 @@ const TagsBreakdownContainer = ({ requestParams }) => {
 
   const {
     isGetTagsBreakdownLoading,
-    data: { breakdown: tagsBreakdown }
+    data: { breakdown: tagsBreakdown },
   } = useTagsBreakdownGet(requestParams);
   const resourceCountRequestParams = useMemo(
     () => ({
       ...requestParams,
-      tag: selectedTag === null ? EMPTY_UUID : selectedTag
+      tag: selectedTag === null ? EMPTY_UUID : selectedTag,
     }),
     [requestParams, selectedTag]
   );
@@ -42,7 +42,7 @@ const TagsBreakdownContainer = ({ requestParams }) => {
 
   const {
     isGetResourceCountBreakdownLoading,
-    data: { breakdown }
+    data: { breakdown },
   } = useResourcesCountBreakdownGet(undefined, resourceCountRequestParams);
 
   return (
@@ -55,7 +55,7 @@ const TagsBreakdownContainer = ({ requestParams }) => {
       updateSelectedTag={updateSelectedTag}
       appliedRange={{
         startSecondsTimestamp: Number(requestParams.startDate),
-        endSecondsTimestamp: Number(requestParams.endDate)
+        endSecondsTimestamp: Number(requestParams.endDate),
       }}
     />
   );

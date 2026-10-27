@@ -8,15 +8,15 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_s3_public_buckets"
+    headerDataTestId: "lbl_s3_public_buckets",
   }),
   resourceLocation({
     headerDataTestId: "lbl_s3_public_buckets_location",
-    typeAccessor: "cloud_type"
+    typeAccessor: "cloud_type",
   }),
   poolOwner({
     headerDataTestId: "lbl_s3_public_buckets_pool_owner",
-    id: "pool/owner"
+    id: "pool/owner",
   }),
   {
     header: (
@@ -29,7 +29,7 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMessage id={value ? "yes" : "no"} />;
-    }
+    },
   },
   {
     header: (
@@ -42,9 +42,9 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMessage id={value ? "yes" : "no"} />;
-    }
+    },
   },
-  detectedAt({ headerDataTestId: "lbl_s3_public_buckets_detected_at" })
+  detectedAt({ headerDataTestId: "lbl_s3_public_buckets_detected_at" }),
 ];
 
 class PublicS3Buckets extends BaseRecommendation {
@@ -70,7 +70,7 @@ class PublicS3Buckets extends BaseRecommendation {
 
   get previewItems() {
     return this.items.map((item) => [
-      { key: `${item.cloud_resource_id}-label`, value: <RecommendationListItemResourceLabel key={item.id} item={item} /> }
+      { key: `${item.cloud_resource_id}-label`, value: <RecommendationListItemResourceLabel key={item.id} item={item} /> },
     ]);
   }
 

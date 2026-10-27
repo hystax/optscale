@@ -40,6 +40,7 @@ import rest_api.rest_api_server.handlers.v2.cluster_types
 import rest_api.rest_api_server.handlers.v2.organizations_overview
 import rest_api.rest_api_server.handlers.v2.pool_expenses_export
 import rest_api.rest_api_server.handlers.v2.pool_expenses_export_data
+import rest_api.rest_api_server.handlers.v2.pool_expenses_report
 import rest_api.rest_api_server.handlers.v2.nodes
 import rest_api.rest_api_server.handlers.v2.resource_metrics
 import rest_api.rest_api_server.handlers.v2.cost_models

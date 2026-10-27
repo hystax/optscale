@@ -32,5 +32,5 @@ COPY herald/herald_server/alembic.template .
 COPY herald/modules/email_generator ../modules/email_generator
 COPY herald/modules/email_sender ../modules/email_sender
 
-CMD ["uv", "run", "--project", "herald", "python", "-u", "run.py"]
+CMD ["uv", "run", "--project", "/usr/src/app/herald", "python", "-u", "run.py"]
 EXPOSE 8906

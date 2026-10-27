@@ -12,23 +12,23 @@ const ReasonsRadioGroup = () => (
       {
         label: <FormattedMessage id="reasonSavings" />,
         value: REASONS.SAVINGS,
-        dataTestId: "radiobtn_savings"
+        dataTestId: "radiobtn_savings",
       },
       {
         label: <FormattedMessage id="reasonFeatures" />,
         value: REASONS.FEATURES,
-        dataTestId: "radiobtn_features"
+        dataTestId: "radiobtn_features",
       },
       {
         label: <FormattedMessage id="reasonGoal" />,
         value: REASONS.GOAL,
-        dataTestId: "radiobtn_goal"
+        dataTestId: "radiobtn_goal",
       },
       {
         label: <FormattedMessage id="other" />,
         value: REASONS.OTHER,
-        dataTestId: "radiobtn_other"
-      }
+        dataTestId: "radiobtn_other",
+      },
     ]}
   />
 );

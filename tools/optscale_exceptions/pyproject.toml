@@ -1,0 +1,18 @@
+[project]
+name = "optscale-exceptions"
+version = "0.0.0"
+description = "OptScale Exceptions"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "tornado===6.5.5",
+    "requests==2.32.4",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["tools.optscale_exceptions*"]
+namespaces = true

@@ -15,7 +15,7 @@ const Loading = () => (
         <FormattedMessage
           id="usuallyTheProcessTakesLessThanSeconds"
           values={{
-            value: SECONDS_TO_LOAD
+            value: SECONDS_TO_LOAD,
           }}
         />
       </Typography>

@@ -12,13 +12,13 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_ri_resource"
+    headerDataTestId: "lbl_ri_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_ri_location"
+    headerDataTestId: "lbl_ri_location",
   }),
   size({
-    headerDataTestId: "lbl_ri_size"
+    headerDataTestId: "lbl_ri_size",
   }),
   detectedAt({ headerDataTestId: "lbl_ri_detected_at" }),
   {
@@ -35,7 +35,7 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
-    }
+    },
   },
   {
     header: (
@@ -50,8 +50,8 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
-    }
-  }
+    },
+  },
 ];
 
 class ReservedInstances extends BaseRecommendation {
@@ -71,7 +71,7 @@ class ReservedInstances extends BaseRecommendation {
         <Link to={RI_SP_COVERAGE} component={RouterLink}>
           {chunks}
         </Link>
-      )
+      ),
     };
   }
 
@@ -95,16 +95,16 @@ class ReservedInstances extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-flavor`,
-        value: item.flavor
+        value: item.flavor,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

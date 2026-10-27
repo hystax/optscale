@@ -50,6 +50,13 @@ class Client(Client_v1):
         return url
 
     @staticmethod
+    def user_options_url(user_id, option_name=None):
+        url = '%s/options' % Client.user_url(user_id)
+        if option_name is not None:
+            url = '%s/%s' % (url, option_name)
+        return url
+
+    @staticmethod
     def query_url(**query):
         query = {
             key: value for key, value in query.items() if value is not None
@@ -178,3 +185,23 @@ class Client(Client_v1):
             "code": code,
         }
         return self.post(self.verification_codes_url(), body)
+
+    def user_options_list(self, user_id, with_values=False):
+        url = self.user_options_url(user_id) + self.query_url(
+            with_values=with_values)
+        return self.get(url)
+
+    def user_options_get(self, user_id, option_name):
+        url = self.user_options_url(user_id, option_name)
+        return self.get(url)
+
+    def user_options_update(self, user_id, option_name, value):
+        url = self.user_options_url(user_id, option_name)
+        return self.patch(url, value)
+
+    def user_options_create(self, user_id, option_name, value):
+        return self.user_options_update(user_id, option_name, value)
+
+    def user_options_delete(self, user_id, option_name):
+        url = self.user_options_url(user_id, option_name)
+        return self.delete(url)

@@ -29,7 +29,7 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
   const openSideModal = useOpenSideModal();
 
   const isManageArtifactsAllowed = useIsAllowed({
-    requiredActions: ["EDIT_PARTNER"]
+    requiredActions: ["EDIT_PARTNER"],
   });
 
   const tableData = useMemo(() => artifacts, [artifacts]);
@@ -45,8 +45,8 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
       id: "actions",
       cell: ({
         row: {
-          original: { id: artifactId, name, run: { task_id: artifactRunTaskId, id: artifactRunId } = {}, index }
-        }
+          original: { id: artifactId, name, run: { task_id: artifactRunTaskId, id: artifactRunId } = {}, index },
+        },
       }) => (
         <TableCellActions
           items={[
@@ -56,7 +56,7 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
               icon: <EditOutlinedIcon />,
               requiredActions: ["EDIT_PARTNER"],
               dataTestId: `btn_edit_${index}`,
-              action: () => navigate(getEditMlRunArtifactUrl(artifactRunTaskId, artifactRunId, artifactId))
+              action: () => navigate(getEditMlRunArtifactUrl(artifactRunTaskId, artifactRunId, artifactId)),
             },
             {
               key: "delete",
@@ -75,12 +75,12 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
                     if (isLastArtifactOnPage) {
                       pagination.onPageIndexChange(Math.max(pagination.pageIndex - 1, 0));
                     }
-                  }
-                })
-            }
+                  },
+                }),
+            },
           ]}
         />
-      )
+      ),
     });
 
     return [
@@ -89,7 +89,7 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
         headerDataTestId: "lbl_name",
         accessorKey: "name",
         maxTextLength: 70,
-        enableSorting: false
+        enableSorting: false,
       }),
       slicedText({
         headerMessageId: "path",
@@ -97,21 +97,21 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
         accessorKey: "path",
         maxTextLength: 70,
         copy: true,
-        enableSorting: false
+        enableSorting: false,
       }),
       markdown({
         id: "description",
         accessorFn: (originalRow) => originalRow.description,
         headerMessageId: "description",
         headerDataTestId: "lbl_description",
-        enableSorting: false
+        enableSorting: false,
       }),
       utcTime({
         id: "createdAt",
         accessorFn: (originalRow) => originalRow.created_at,
         headerMessageId: "createdAt",
         headerDataTestId: "lbl_created_at",
-        enableSorting: false
+        enableSorting: false,
       }),
       tags({
         id: "tags",
@@ -120,9 +120,9 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
         getTags: (originalRow) => originalRow.tags,
-        enableSorting: false
+        enableSorting: false,
       }),
-      ...(isManageArtifactsAllowed ? [getActionsColumn()] : [])
+      ...(isManageArtifactsAllowed ? [getActionsColumn()] : []),
     ];
   }, [artifacts.length, isManageArtifactsAllowed, navigate, openSideModal, pagination]);
 
@@ -143,16 +143,16 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
               type: "button",
               link: getCreateMlRunArtifactUrl(taskId, runId),
               dataTestId: "btn_add",
-              requiredActions: ["EDIT_PARTNER"]
-            }
-          ]
-        }
+              requiredActions: ["EDIT_PARTNER"],
+            },
+          ],
+        },
       }}
       localization={{ emptyMessageId: "noArtifacts" }}
       manualPagination={pagination}
       withSearch
       manualGlobalFiltering={{
-        search
+        search,
       }}
     />
   );

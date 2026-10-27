@@ -10,7 +10,7 @@ import { getDefaultValues } from "./utils";
 
 const OrganizationOptionForm = ({ onSubmit, onCancel, isLoading = false }: OrganizationOptionFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;

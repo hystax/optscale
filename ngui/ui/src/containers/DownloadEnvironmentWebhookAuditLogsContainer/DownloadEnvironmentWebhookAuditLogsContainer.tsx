@@ -14,7 +14,7 @@ const DownloadEnvironmentWebhookAuditLogsContainer = ({ webhookId }) => {
   const download = (format) => {
     fetchAndDownload({
       url: `${getApiUrl(RESTAPI)}/webhooks/${webhookId}/logs?format=${format}`,
-      fallbackFilename: `${webhookId}.${format}`
+      fallbackFilename: `${webhookId}.${format}`,
     });
   };
 
@@ -25,7 +25,7 @@ const DownloadEnvironmentWebhookAuditLogsContainer = ({ webhookId }) => {
       disabled={isRestricted}
       tooltip={{
         show: true,
-        value: isRestricted ? restrictionReasonMessage : "downloadAuditLogs"
+        value: isRestricted ? restrictionReasonMessage : "downloadAuditLogs",
       }}
       isLoading={isFileDownloading}
     />

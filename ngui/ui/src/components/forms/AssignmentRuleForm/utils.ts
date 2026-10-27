@@ -12,6 +12,6 @@ export const FIELD_NAMES = Object.freeze({
     TAG_VALUE_FIELD_NAME: "meta_info_value",
     CLOUD_IS_FIELD_NAME: "meta_info_cloudId",
     RESOURCE_TYPE_IS_FIELD_NAME: "resource_type_is",
-    REGION_IS_FIELD_NAME: "region_is"
-  })
+    REGION_IS_FIELD_NAME: "region_is",
+  }),
 });

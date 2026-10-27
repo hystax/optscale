@@ -27,7 +27,7 @@ const BucketsTable = ({ fromBucket, toBucket }) => {
         ...bucket,
         cloud_account_id: bucketDataSource?.id,
         cloud_account_name: bucketDataSource?.name,
-        cloud_account_type: bucketDataSource?.type
+        cloud_account_type: bucketDataSource?.type,
       };
     };
 
@@ -45,9 +45,9 @@ const BucketsTable = ({ fromBucket, toBucket }) => {
       text({
         headerDataTestId: "lbl_buckets",
         headerMessageId: "buckets",
-        accessorKey: "name"
+        accessorKey: "name",
       }),
-      dataSource()
+      dataSource(),
     ],
     []
   );
@@ -57,7 +57,7 @@ const BucketsTable = ({ fromBucket, toBucket }) => {
       data={data}
       columns={columns}
       counters={{
-        show: false
+        show: false,
       }}
     />
   );
@@ -72,7 +72,7 @@ const Duplicates = ({ crossBucketsStats }) => {
       <KeyValueLabel
         value={formatDigitalUnit({
           value: crossBucketsStats.duplicates_size,
-          baseUnit: SI_UNITS.BYTE
+          baseUnit: SI_UNITS.BYTE,
         })}
         keyMessageId="duplicatesSize"
       />
@@ -92,7 +92,7 @@ const SelectedBucketsInfo = ({ onClose, fromBucket, toBucket, crossBucketsStats,
           <FormattedMessage
             id="crossBucketDuplicatesApplySavings"
             values={{
-              bucketName: <strong>{fromBucket.name}</strong>
+              bucketName: <strong>{fromBucket.name}</strong>,
             }}
           />
         </Typography>

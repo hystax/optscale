@@ -3,15 +3,14 @@ import {
   MutationTokenArgs,
   MutationUpdateUserArgs,
   OrganizationAllowedActionsRequestParams,
+  UtmParams,
 } from "../../graphql/__generated__/types/auth";
 import { getParams } from "../../utils/getParams.js";
 
 class AuthClient extends BaseClient {
   override baseURL = `${process.env.AUTH_ENDPOINT || this.endpoint}/auth/v2/`;
 
-  async getOrganizationAllowedActions(
-    requestParams: OrganizationAllowedActionsRequestParams
-  ) {
+  async getOrganizationAllowedActions(requestParams: OrganizationAllowedActionsRequestParams) {
     const path = `allowed_actions`;
 
     const actions = await this.get(path, {
@@ -35,9 +34,10 @@ class AuthClient extends BaseClient {
     };
   }
 
-  async createUser(email, password, name) {
+  async createUser(email, password, name, utm?: UtmParams) {
     const result = await this.post("users", {
-      body: { email, password, display_name: name },
+      // The Auth service accepts UTM parameters as flat top-level body fields.
+      body: { email, password, display_name: name, ...utm },
     });
 
     return {
@@ -48,10 +48,7 @@ class AuthClient extends BaseClient {
     };
   }
 
-  async updateUser(
-    userId: MutationUpdateUserArgs["id"],
-    params: MutationUpdateUserArgs["params"]
-  ) {
+  async updateUser(userId: MutationUpdateUserArgs["id"], params: MutationUpdateUserArgs["params"]) {
     const result = await this.patch(`users/${userId}`, {
       body: { display_name: params.name, password: params.password },
     });
@@ -63,13 +60,14 @@ class AuthClient extends BaseClient {
     };
   }
 
-  async signIn(provider, token, tenantId, redirectUri) {
+  async signIn(provider, token, tenantId, redirectUri, utm?: UtmParams) {
     const result = await this.post("signin", {
       body: {
         provider,
         token,
         tenant_id: tenantId,
         redirect_uri: redirectUri,
+        ...utm,
       },
     });
 

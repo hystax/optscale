@@ -18,7 +18,7 @@ const NameAutocompleteField = ({ perspectiveNames = [] }: NameAutocompleteFieldP
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (
@@ -28,15 +28,15 @@ const NameAutocompleteField = ({ perspectiveNames = [] }: NameAutocompleteFieldP
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         maxLength: {
           value: NAME_MAX_SIZE,
           message: intl.formatMessage(
             { id: "maxLength" },
             { inputName: intl.formatMessage({ id: "name" }), max: NAME_MAX_SIZE }
-          )
-        }
+          ),
+        },
       }}
       render={({ field: { value: formFieldValue, onChange } }) => (
         <Autocomplete
@@ -59,7 +59,7 @@ const NameAutocompleteField = ({ perspectiveNames = [] }: NameAutocompleteFieldP
                 onChange: (e) => {
                   onChange(e.target.value);
                   params.inputProps?.onChange?.(e);
-                }
+                },
               }}
               required
               dataTestId="input_save_as"

@@ -244,9 +244,6 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     last_import_at:
                                         type: integer
                                         description: UTC timestamp of last successful data import
-                                    last_import_modified_at:
-                                        type: integer
-                                        description: last imported report modification time in timestamp format
                                     auto_import:
                                         type: boolean
                                         description: Is automatic import enabled? Default is True
@@ -259,6 +256,14 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     last_import_attempt_error:
                                         type: string
                                         description: Error message of last data import attempt, null if no error
+                                    last_import_source_id:
+                                        type: string
+                                        description: Last import root cloud account id
+                                            (for linked cloud accounts)
+                                    last_import_source_account_id:
+                                        type: string
+                                        description: Last import root account id
+                                            (cloud identifier, for linked cloud accounts)
                                     cleaned_at:
                                         type: integer
                                         description: UTC timestamp of date when cloud account was cleaned up
@@ -393,9 +398,6 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         last_import_at:
                             type: integer
                             description: UTC timestamp of last successful data import
-                        last_import_modified_at:
-                            type: integer
-                            description: last imported report modification time in timestamp format
                         auto_import:
                             type: boolean
                             description: Is automatic import enabled? Default is True
@@ -408,6 +410,14 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         last_import_attempt_error:
                             type: string
                             description: Error message of last data import attempt, null if no error
+                        last_import_source_id:
+                            type: string
+                            description: Last import root cloud account id
+                                (for linked cloud accounts)
+                        last_import_source_account_id:
+                            type: string
+                            description: Last import root account id
+                                (cloud identifier, for linked cloud accounts)
                         cleaned_at:
                             type: integer
                             description: UTC timestamp of date when cloud account was cleaned up
@@ -456,7 +466,9 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         secret = kwargs.get('secret')
         validate_map = {
             'last_import_attempt_at': check_int_attribute,
-            'last_import_attempt_error': check_string_attribute
+            'last_import_attempt_error': check_string_attribute,
+            'last_import_source_id': check_string_attribute,
+            'last_import_source_account_id': check_string_attribute
         }
         for param, func in validate_map.items():
             if not secret and param in kwargs:
@@ -469,7 +481,7 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 except WrongArgumentsException as exc:
                     raise OptHTTPError.from_opt_exception(400, exc)
 
-        for param in ['last_import_at', 'last_import_modified_at']:
+        for param in ['last_import_at']:
             value = kwargs.get(param)
             if value:
                 if not secret and cloud_acc.type in [CloudTypes.ENVIRONMENT,
@@ -530,11 +542,19 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             Attention! This field is for internal use, it is
                             undesirable to change it! Error message of last
                             data import attempt, null if no error
-                    last_import_modified_at:
-                        type: integer
+                    last_import_source_id:
+                        type: string
                         description: |
-                            Last imported report modification time in
-                            timestamp format
+                            Attention! This field is for internal use, it is
+                            undesirable to change it! Last import root cloud
+                            account id (for linked cloud accounts)
+                    last_import_source_account_id:
+                        type: string
+                        description: |
+                            Attention! This field is for internal use, it is
+                            undesirable to change it! Last import root
+                            account id (cloud identifier, for linked
+                            cloud accounts)
                     cleaned_at:
                         type: integer
                         description: |

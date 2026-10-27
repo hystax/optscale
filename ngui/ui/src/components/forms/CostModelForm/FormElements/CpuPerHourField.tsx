@@ -18,12 +18,12 @@ const CpuPerHourField = () => {
       name={FIELD_NAME}
       label={<FormattedMessage id="cpuPerHour" />}
       InputProps={{
-        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>
+        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
       }}
       min={0}
       validate={{
         positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumber" })),
-        fractionDigits: costModelValueMaxFractionDigitsValidation
+        fractionDigits: costModelValueMaxFractionDigitsValidation,
       }}
       dataTestId="input_cpu"
     />

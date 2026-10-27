@@ -16,13 +16,13 @@ export const useFormatDynamicFractionDigitsValue = (): FormatFunctionType => {
   return useCallback(
     ({ value, maximumFractionDigits = 2, notation }) => {
       const props = {
-        maximumFractionDigits
+        maximumFractionDigits,
       };
 
       if (notation === "compact") {
         return formatCompactNumber(intl.formatNumber)({
           value,
-          ...props
+          ...props,
         });
       }
 

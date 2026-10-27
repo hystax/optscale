@@ -17,9 +17,9 @@ const CreateColumnSetFormContainer = ({ tableContext }) => {
     return onCreate(organizationId, {
       name,
       data: JSON.stringify({
-        columns: visibleColumnIds
+        columns: visibleColumnIds,
       }),
-      type: LAYOUT_TYPES.RESOURCE_RAW_EXPENSES_COLUMNS
+      type: LAYOUT_TYPES.RESOURCE_RAW_EXPENSES_COLUMNS,
     });
   };
 
@@ -27,7 +27,7 @@ const CreateColumnSetFormContainer = ({ tableContext }) => {
     <CreateColumnSetForm
       onSubmit={createColumnSet}
       isLoadingProps={{
-        isSubmitLoading: isCreateLayoutLoading
+        isSubmitLoading: isCreateLayoutLoading,
       }}
     />
   );

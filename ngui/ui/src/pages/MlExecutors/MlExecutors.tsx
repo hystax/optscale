@@ -12,12 +12,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={ML_TASKS} component={RouterLink}>
       <FormattedMessage id="tasks" />
-    </Link>
+    </Link>,
   ],
   title: {
     messageId: "executors",
-    dataTestId: "lbl_ml_executors"
-  }
+    dataTestId: "lbl_ml_executors",
+  },
 };
 
 const MlExecutors = () => (

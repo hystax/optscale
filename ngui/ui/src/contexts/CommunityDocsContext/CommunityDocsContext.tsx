@@ -10,5 +10,5 @@ export default createContext({
   isCommunityDocsOpened: false,
   toggleCommunityDocs: () => {},
   openCommunityDocs: () => {},
-  closeCommunityDocs: () => {}
+  closeCommunityDocs: () => {},
 } as CommunityDocsContextType);

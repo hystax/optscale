@@ -29,20 +29,20 @@ const MlDeleteTaskContainer = ({ name, id, onCancel }) => {
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       dataTestIds={{
         text: "p_delete",
         deleteButton: "btn_smodal_delete",
-        cancelButton: "btn_cancel"
+        cancelButton: "btn_cancel",
       }}
       message={{
         messageId: "deleteMlTaskQuestion",
         values: {
           task: name,
-          strong: (chunks) => <strong>{chunks}</strong>
-        }
+          strong: (chunks) => <strong>{chunks}</strong>,
+        },
       }}
     />
   );

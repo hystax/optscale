@@ -22,7 +22,7 @@ import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useOrganizationActionRestrictions } from "hooks/useOrganizationActionRestrictions";
 import {
   useIsAllowedToManageAnyResourceConstraint,
-  useIsAllowedToManageResourceConstraint
+  useIsAllowedToManageResourceConstraint,
 } from "hooks/useResourceConstraintPermissions";
 import { RESOURCES } from "urls";
 import { checkError } from "utils/api";
@@ -77,7 +77,7 @@ const UpdateConstraintLimitContainer = ({ limit, formattedConstraintLimit, const
           disabled={isRestricted}
           tooltip={{
             show: true,
-            value: isRestricted ? restrictionReasonMessage : <FormattedMessage id="edit" />
+            value: isRestricted ? restrictionReasonMessage : <FormattedMessage id="edit" />,
           }}
         />
       )}
@@ -96,7 +96,7 @@ const DeleteResourceConstraintButton = ({ employeeId, resourceId, onClick }) => 
         onClick={onClick}
         tooltip={{
           show: true,
-          value: <FormattedMessage id="delete" />
+          value: <FormattedMessage id="delete" />,
         }}
       />
     )
@@ -122,8 +122,8 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
         formattedConstraintLimit: formatConstraintLimitMessage({
           limit: constraint.limit,
           type: constraint.type,
-          formats: { ttl: CONSTRAINT_MESSAGE_FORMAT.EXPIRES_AT_DATETIME }
-        })
+          formats: { ttl: CONSTRAINT_MESSAGE_FORMAT.EXPIRES_AT_DATETIME },
+        }),
       })),
     [constraints, formatConstraintLimitMessage, intl]
   );
@@ -131,7 +131,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
   const isAllowedToEditAnyResourcePolicy = useIsAllowedToManageAnyResourceConstraint([
     ...new Set(
       constraints.map(({ details: { employee_id: employeeId } = {}, resource_id: resourceId }) => ({ resourceId, employeeId }))
-    )
+    ),
   ]);
 
   const columns = useMemo(() => {
@@ -151,7 +151,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
             cloud_resource_hash: original.details.cloud_resource_hash,
             resource_name: original.details.name,
             active: original.details.active,
-            constraint_violated: original.details.constraint_violated
+            constraint_violated: original.details.constraint_violated,
           };
 
           return (
@@ -163,7 +163,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
           );
         },
         defaultSort: "asc",
-        enableHiding: false
+        enableHiding: false,
       },
       {
         header: (
@@ -173,14 +173,14 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
         ),
         accessorKey: "pool/owner",
         style: {
-          whiteSpace: "nowrap"
+          whiteSpace: "nowrap",
         },
         cell: ({ row: { original } }) => {
           const {
             details: {
               pool: { id: poolId, name: poolName, purpose: poolPurpose } = {},
-              owner: { id: ownerId, name: ownerName } = {}
-            } = {}
+              owner: { id: ownerId, name: ownerName } = {},
+            } = {},
           } = original;
 
           return poolId || ownerId ? (
@@ -188,7 +188,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
               {poolId && <PoolLabel id={poolId} name={poolName} type={poolPurpose} />}
             </CaptionedCell>
           ) : null;
-        }
+        },
       },
       {
         header: (
@@ -196,7 +196,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
             <FormattedMessage id="policyType" />
           </TextWithDataTestId>
         ),
-        accessorKey: "translatedType"
+        accessorKey: "translatedType",
       },
       {
         header: (
@@ -206,7 +206,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
         ),
         accessorKey: "formattedConstraintLimit",
         style: {
-          minWidth: "400px"
+          minWidth: "400px",
         },
         enableSorting: false,
         cell: ({ row: { original } }) => {
@@ -216,7 +216,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
             type,
             id,
             resource_id: resourceId,
-            details: { employee_id: employeeId } = {}
+            details: { employee_id: employeeId } = {},
           } = original;
 
           return (
@@ -229,8 +229,8 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
               employeeId={employeeId}
             />
           );
-        }
-      }
+        },
+      },
     ];
 
     return [
@@ -250,7 +250,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
                   id,
                   type,
                   resource_id: resourceId,
-                  details: { name: resourceName, employee_id: employeeId } = {}
+                  details: { name: resourceName, employee_id: employeeId } = {},
                 } = original;
 
                 return (
@@ -262,15 +262,15 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
                         id,
                         type,
                         resourceName,
-                        resourceDisplayedName: getResourceDisplayedName(original.details)
+                        resourceDisplayedName: getResourceDisplayedName(original.details),
                       });
                     }}
                   />
                 );
-              }
-            }
+              },
+            },
           ]
-        : [])
+        : []),
     ];
   }, [isAllowedToEditAnyResourcePolicy, openSideModal]);
 
@@ -297,8 +297,8 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
               <Link href={RESOURCES} target="_blank" rel="noopener">
                 {chunks}
               </Link>
-            )
-          }
+            ),
+          },
         }}
       />
     </>

@@ -41,7 +41,7 @@ const CountdownMessage = ({ onCountdownEnd }: CountdownMessageProps) => {
 
 const SendVerificationCodeAgainMessage = ({
   onSend,
-  sendingVerificationCode = false
+  sendingVerificationCode = false,
 }: SendVerificationCodeAgainMessageProps) => {
   const [codeCanBeSent, setCodeCanBeSent] = useState(false);
 
@@ -70,9 +70,9 @@ const SendVerificationCodeAgainMessage = ({
                 fontWeight: "normal",
                 color: (theme) => theme.palette.text.primary,
                 "&:hover": {
-                  textDecoration: "none"
+                  textDecoration: "none",
                 },
-                cursor: "default"
+                cursor: "default",
               }
             : undefined
         }

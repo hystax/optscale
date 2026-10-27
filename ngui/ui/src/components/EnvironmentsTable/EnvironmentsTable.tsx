@@ -19,7 +19,7 @@ import {
   BookEnvironmentModal,
   DeleteEnvironmentBookingModal,
   DeleteEnvironmentModal,
-  ReleaseEnvironmentModal
+  ReleaseEnvironmentModal,
 } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
@@ -96,7 +96,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
   const {
     isGetEnvironmentsLoading = false,
     isUpdateEnvironmentLoading = false,
-    isGetResourceAllowedActionsLoading = false
+    isGetResourceAllowedActionsLoading = false,
   } = isLoadingProps;
 
   const tableData = useMemo(() => data, [data]);
@@ -109,7 +109,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
       color: "error",
       requiredActions: ["MANAGE_RESOURCES"],
       dataTestId: `btn_delete_${index}`,
-      action: () => openSideModal(DeleteEnvironmentModal, { id, name })
+      action: () => openSideModal(DeleteEnvironmentModal, { id, name }),
     });
 
     const getActivityAction = ({ id, isActive }, index) => {
@@ -118,13 +118,13 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
             key: "deactivate",
             messageId: "deactivate",
             dataTestId: "btn_deactivate",
-            color: "error"
+            color: "error",
           }
         : {
             key: "activate",
             messageId: "activate",
             dataTestId: "btn_activate",
-            color: "success"
+            color: "success",
           };
       return {
         key,
@@ -140,8 +140,8 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       };
     };
 
@@ -161,7 +161,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
       allBookings,
       index,
       isSshRequired,
-      isEnvironmentAvailable
+      isEnvironmentAvailable,
     }) => ({
       key: "book",
       messageId: "book",
@@ -174,11 +174,11 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
           upcomingBookings,
           allBookings,
           isSshRequired,
-          isEnvironmentAvailable
+          isEnvironmentAvailable,
         });
       },
       dataTestId: `btn_book_${index}`,
-      requiredActions: ["BOOK_ENVIRONMENTS"]
+      requiredActions: ["BOOK_ENVIRONMENTS"],
     });
 
     const getReleaseAction = (activeBooking, index) => ({
@@ -188,10 +188,10 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
       action: () =>
         openSideModal(ReleaseEnvironmentModal, {
           bookingId: activeBooking.id,
-          bookedSince: activeBooking.acquired_since
+          bookedSince: activeBooking.acquired_since,
         }),
       dataTestId: `btn_release_${index}`,
-      requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"]
+      requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"],
     });
 
     const getDeleteBookingAction = (id, index) => ({
@@ -201,7 +201,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
       color: "error",
       action: () => openSideModal(DeleteEnvironmentBookingModal, { bookingId: id }),
       dataTestId: `btn_delete_booking_${index}`,
-      requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"]
+      requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"],
     });
 
     const defaultColumns = [
@@ -217,9 +217,9 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
         cell: ({ row: { original, index } }) =>
           renderEnvironmentCell({
             resource: original,
-            index
+            index,
           }),
-        defaultSort: "asc"
+        defaultSort: "asc",
       },
       {
         header: (
@@ -236,7 +236,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
             name={original.pool_name}
             type={original.pool_purpose}
           />
-        )
+        ),
       },
       {
         header: (
@@ -274,7 +274,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
                   index: rowIndex,
                   allBookings: shareableBookings,
                   isSshRequired,
-                  isEnvironmentAvailable: !activeBooking
+                  isEnvironmentAvailable: !activeBooking,
                 })
               : null;
 
@@ -309,7 +309,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
               )}
             </Fragment>
           );
-        }
+        },
       },
       {
         header: (
@@ -322,13 +322,13 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
         enableHiding: false,
         enableSorting: false,
         style: {
-          minWidth: "200px"
+          minWidth: "200px",
         },
         cell: ({
           cell,
           row: {
-            original: { id }
-          }
+            original: { id },
+          },
         }) => {
           const value = cell.getValue() ?? [];
 
@@ -346,7 +346,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
                   id: bookingId,
                   acquired_since: acquiredSince,
                   released_at: releasedAt,
-                  resource_id: resourceId
+                  resource_id: resourceId,
                 } = upcomingBooking;
                 return (
                   <Box key={bookingId} display="flex" justifyContent="flex-start" alignItems="center">
@@ -365,8 +365,8 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
               })}
             </Stack>
           );
-        }
-      }
+        },
+      },
     ];
 
     const envPropertiesColumns = getUniqueSortedEnvironmentProperties(tableData).map((field) => ({
@@ -376,7 +376,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
       columnSelector: {
         accessor: `env_properties.${field}`,
         title: field,
-        dataTestId: `btn_toggle_column_${field}`
+        dataTestId: `btn_toggle_column_${field}`,
       },
       dataProductTourId: getProductTourIdForDynamicField(field),
       style: {
@@ -385,7 +385,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
          * The maximum width is set to prevent the table from becoming too wide when the content is long
          * The value of 550 is selected to match the maximum width based on the environment property name length, which is limited to 64 characters
          */
-        maxWidth: 550
+        maxWidth: 550,
       },
       cell: ({ cell }) => {
         const value = cell.getValue();
@@ -399,7 +399,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
             <Markdown>{cell.getValue()}</Markdown>
           </Box>
         );
-      }
+      },
     }));
 
     return [
@@ -420,8 +420,8 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
             entityId={id}
             items={[...(isEnvironment ? getManuallyCreatedEnvironmentActions({ id, name, isActive }, index) : [])]}
           />
-        )
-      }
+        ),
+      },
     ];
   }, [
     entityId,
@@ -431,7 +431,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
     onUpdateActivity,
     openSideModal,
     restrictionReasonMessage,
-    tableData
+    tableData,
   ]);
 
   return isGetEnvironmentsLoading ? (
@@ -453,10 +453,10 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
               dataTestId: "btn_add",
               dataProductTourId: ENVIRONMENTS_TOUR_IDS.ADD_BUTTON,
               requiredActions: ["MANAGE_RESOURCES"],
-              isLoading: isGetResourceAllowedActionsLoading
-            }
-          ]
-        }
+              isLoading: isGetResourceAllowedActionsLoading,
+            },
+          ],
+        },
       }}
       data={tableData}
       columns={columns}
@@ -466,7 +466,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
       dataTestIds={{
         searchInput: "input_search",
         searchButton: "btn_search",
-        deleteSearchButton: "btn_delete_search"
+        deleteSearchButton: "btn_delete_search",
       }}
       localization={{ emptyMessageId: "noEnvironments" }}
     />

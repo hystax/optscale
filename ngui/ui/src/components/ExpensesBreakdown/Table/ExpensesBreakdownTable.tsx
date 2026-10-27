@@ -44,7 +44,7 @@ const getNameCellContentGetter = (filterBy) => {
   return (
     {
       [EXPENSES_FILTERBY_TYPES.CLOUD]: getDataSourceNameCellContent,
-      [EXPENSES_FILTERBY_TYPES.POOL]: getPoolNameCellContent
+      [EXPENSES_FILTERBY_TYPES.POOL]: getPoolNameCellContent,
     }[filterBy] || getDefaultSourceNameCellContent
   );
 };
@@ -65,7 +65,7 @@ const ExpensesBreakdownTable = ({
   filterBy,
   isLoading = false,
   startDateTimestamp,
-  endDateTimestamp
+  endDateTimestamp,
 }) => {
   const tableData = useMemo(() => data, [data]);
   const columns = useMemo(
@@ -73,18 +73,18 @@ const ExpensesBreakdownTable = ({
       {
         accessorKey: "name",
         header: <FormattedMessage id="name" />,
-        cell: ({ row }) => renderNameCell(row, filterBy)
+        cell: ({ row }) => renderNameCell(row, filterBy),
       },
       {
         accessorKey: "total",
         header: <ExpensesTableHeader startDateTimestamp={startDateTimestamp} endDateTimestamp={endDateTimestamp} />,
         cell: ({ cell }) => <FormattedMoney value={cell.getValue()} type={FORMATTED_MONEY_TYPES.COMMON} />,
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       {
         accessorKey: "percent",
         header: <FormattedMessage id="percent" />,
-        cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />
+        cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />,
       },
       {
         id: "actions",
@@ -97,12 +97,12 @@ const ExpensesBreakdownTable = ({
               icon={icon}
               tooltip={{
                 show: true,
-                value: <FormattedMessage id={tooltipMessageId} />
+                value: <FormattedMessage id={tooltipMessageId} />,
               }}
             />
           )),
-        enableSorting: false
-      }
+        enableSorting: false,
+      },
     ],
     [endDateTimestamp, filterBy, rowActions, startDateTimestamp]
   );

@@ -6,8 +6,8 @@ class AddInstanceToScheduleModal extends BaseSideModal {
     messageId: "addInstancesToScheduleTitle",
     dataTestIds: {
       title: "lbl_add_instances_to_schedule_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_add_instances_to_schedule_title";

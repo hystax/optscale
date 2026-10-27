@@ -29,7 +29,7 @@ const ClusterMarker = ({ setShowTooltip, total, items, fontSize, diameter, class
       style={{
         width: diameter,
         height: diameter,
-        fontSize
+        fontSize,
       }}
       className={className}
     >
@@ -56,7 +56,7 @@ const SimpleMarker = ({ setShowTooltip, className, diameter, fontSize, borderCol
       borderColor: `${borderColor}`,
       fontSize,
       left: -diameter / 2,
-      top: -diameter - diameter / 4
+      top: -diameter - diameter / 4,
     }}
   >
     <span style={{ transform: "rotate(45deg)" }}>
@@ -96,7 +96,7 @@ const getTooltipContent = ({ markers, startDateTimestamp, endDateTimestamp }) =>
             to={getResourcesExpensesUrl({
               computedParams: `${REGION_FILTER}=${region}`,
               sStartDate: startDateTimestamp,
-              sEndDate: endDateTimestamp
+              sEndDate: endDateTimestamp,
             })}
             component={RouterLink}
           >
@@ -139,7 +139,7 @@ const MapMarker = ({ markerData, startDateTimestamp, endDateTimestamp }) => {
     fontSize,
     diameter,
     setShowTooltip,
-    className: cx(classes.markerBase, isCluster ? classes.cluster : classes.marker)
+    className: cx(classes.markerBase, isCluster ? classes.cluster : classes.marker),
   };
 
   return (

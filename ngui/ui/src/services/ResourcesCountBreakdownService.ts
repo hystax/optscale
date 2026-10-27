@@ -9,7 +9,7 @@ import { mapCleanExpensesFilterParamsToApiParams } from "./CleanExpensesService"
 
 const getParams = (breakdownBy, filterParams) => ({
   ...mapCleanExpensesFilterParamsToApiParams(filterParams),
-  breakdown_by: breakdownBy
+  breakdown_by: breakdownBy,
 });
 
 export const useGet = (breakdownBy, params) => {
@@ -19,7 +19,7 @@ export const useGet = (breakdownBy, params) => {
 
   const { isLoading, shouldInvoke } = useApiState(GET_RESOURCE_COUNT_BREAKDOWN, {
     organizationId,
-    ...getParams(breakdownBy, params)
+    ...getParams(breakdownBy, params),
   });
 
   useEffect(() => {

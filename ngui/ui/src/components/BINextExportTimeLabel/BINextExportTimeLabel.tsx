@@ -15,7 +15,7 @@ const BINextExportTimeLabel = ({ nextRun, activity }) => {
     <FormattedMessage
       id="valueIn"
       values={{
-        value: getTimeDistance(nextRun)
+        value: getTimeDistance(nextRun),
       }}
     />
   );

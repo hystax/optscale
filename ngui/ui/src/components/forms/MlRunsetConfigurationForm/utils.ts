@@ -20,5 +20,5 @@ export const getDefaultValues = (): FormValues => ({
   [FIELD_NAMES.MAX_DURATION_VALUE]: "",
   [FIELD_NAMES.USE_SPOT_INSTANCES]: false,
   [FIELD_NAMES.MAX_SPOT_ATTEMPTS]: "1",
-  [FIELD_NAMES.MAX_SPOT_COST_PER_HOUR]: ""
+  [FIELD_NAMES.MAX_SPOT_COST_PER_HOUR]: "",
 });

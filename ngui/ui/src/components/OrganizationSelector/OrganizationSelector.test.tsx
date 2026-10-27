@@ -8,8 +8,8 @@ const pools = [
     id: "a2e75d53-4a90-4f28-9a97-dead860b3d58",
     created_at: null,
     name: "Partner",
-    parent_id: null
-  }
+    parent_id: null,
+  },
 ];
 
 it("renders without crashing", () => {

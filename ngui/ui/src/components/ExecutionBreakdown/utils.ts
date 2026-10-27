@@ -5,7 +5,7 @@ export const getMilestoneTuplesGroupedByTime = (milestones) => {
 
   const milestonesTuplesGroupedByTime = Object.entries(milestonesGroupedByTime).map((el) => [
     Number(el[0]),
-    el[1].map(({ milestone }) => milestone)
+    el[1].map(({ milestone }) => milestone),
   ]);
 
   return milestonesTuplesGroupedByTime;

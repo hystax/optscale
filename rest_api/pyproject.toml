@@ -29,14 +29,16 @@ dependencies = [
     "optscale-password",
     "optscale-time",
     "optscale-types",
+    "optscale-telemetry",
     "protobuf>=5.29.1,<6",
     "pydevd-pycharm==201.5616.27",
     "pymongo==4.6.3",
     "pyyaml==6.0.1",
     "sqlalchemy==1.3.24",
-    "tornado==6.5",
+    "tornado===6.5.5",
     "xlsxwriter==1.4.4",
     "subspector-client",
+    "zoho-integrator",
 ]
 
 [dependency-groups]
@@ -47,7 +49,7 @@ dev = [
     "mongomock==4.1.2",
     "pycodestyle==2.11.1",
     "pylint==3.0.2",
-    "pytest==8.1.0",
+    "pytest==8.4.2",
     "pytest-xdist==3.5.0",
     "restapi-client",
     "setuptools==80.9.0",
@@ -77,3 +79,5 @@ cloud-adapter = { path = "../tools/cloud_adapter", editable = true }
 check-alembic-down-revisions = { path = "../tools/check_alembic_down_revisions", editable = true }
 restapi-client = { path = "../optscale_client/rest_api_client", editable = true }
 subspector-client = { path = "../optscale_client/subspector_client", editable = true }
+optscale-telemetry = { path = "../tools/optscale_telemetry", editable = true }
+zoho-integrator = { path = "../tools/zoho_integrator", editable = true }

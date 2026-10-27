@@ -14,7 +14,7 @@ export const useCurrentOrganization = (organizations = []) => {
     name: organizationName,
     is_demo: isDemo = false,
     currency = "USD",
-    disabled = false
+    disabled = false,
   } = organizations.find((org) => org.id === currentOrganizationId) ?? organizations?.[0] ?? {};
 
   return {
@@ -24,7 +24,7 @@ export const useCurrentOrganization = (organizations = []) => {
     isDemo,
     isInactive: disabled,
     currency,
-    currencySymbol: currency ? localeManager.getCurrencySymbol(currency) : undefined
+    currencySymbol: currency ? localeManager.getCurrencySymbol(currency) : undefined,
   };
 };
 

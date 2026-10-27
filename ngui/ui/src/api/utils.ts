@@ -22,7 +22,7 @@ export const apiAction = ({
   successHandlerPayload,
   headersOverride = {},
   affectedRequests = [],
-  allowMultipleRequests = false
+  allowMultipleRequests = false,
 }) => ({
   type: API,
   payload: {
@@ -39,8 +39,8 @@ export const apiAction = ({
     successHandlerPayload,
     headersOverride,
     affectedRequests,
-    allowMultipleRequests
-  }
+    allowMultipleRequests,
+  },
 });
 
 const immutableArraySort = (arr) => [...arr].sort();

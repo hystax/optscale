@@ -48,7 +48,7 @@ const AdoptionScore = ({ isLoading, fraction }) => {
           {!isLoading && (
             <TitleValue
               style={{
-                color: fraction === 0 ? colorValue : "inherit" // red text for 0%
+                color: fraction === 0 ? colorValue : "inherit", // red text for 0%
               }}
             >
               <FormattedNumber value={fraction} format="percentage" />

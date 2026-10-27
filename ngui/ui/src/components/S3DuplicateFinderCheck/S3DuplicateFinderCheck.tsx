@@ -43,7 +43,7 @@ const getSortedMatrix = (matrix, buckets) => {
   return Object.fromEntries(
     sortedBucketNames.map((name) => [
       name,
-      Object.fromEntries(sortedBucketNames.map((relationBucketName) => [relationBucketName, matrix[name][relationBucketName]]))
+      Object.fromEntries(sortedBucketNames.map((relationBucketName) => [relationBucketName, matrix[name][relationBucketName]])),
     ])
   );
 };
@@ -58,8 +58,8 @@ const getBuckets = (statsBuckets, filtersBuckets) =>
         name,
         {
           ...stats,
-          ...filterBucket
-        }
+          ...filterBucket,
+        },
       ];
     })
   );
@@ -74,7 +74,7 @@ const S3DuplicateFinderCheck = ({ gemini: checkData, thresholds, isLoadingProps 
     status,
     last_run: lastRun,
     last_completed: lastCompleted,
-    last_error: lastError
+    last_error: lastError,
   } = checkData;
 
   const {
@@ -83,7 +83,7 @@ const S3DuplicateFinderCheck = ({ gemini: checkData, thresholds, isLoadingProps 
     duplicates_size: duplicatesSize = 0,
     monthly_savings: monthlySavings = 0,
     buckets: statsBuckets = {},
-    matrix = {}
+    matrix = {},
   } = stats;
 
   const { min_size: minSize = 0, buckets: filtersBuckets = [] } = filters;
@@ -95,12 +95,12 @@ const S3DuplicateFinderCheck = ({ gemini: checkData, thresholds, isLoadingProps 
       </Link>,
       <Link key={2} to={S3_DUPLICATE_FINDER} component={RouterLink}>
         <FormattedMessage id="s3DuplicateFinderTitle" />
-      </Link>
+      </Link>,
     ],
     title: {
       text: format(secondsToMilliseconds(createdAt), EN_FULL_FORMAT),
-      isLoading: isGetCheckLoading
-    }
+      isLoading: isGetCheckLoading,
+    },
   };
 
   return (

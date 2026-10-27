@@ -9,11 +9,11 @@ it("renders without crashing", () => {
     <TestProvider
       state={{
         initial: {
-          user_id: "123"
-        }
+          user_id: "123",
+        },
       }}
     >
-      <ProfileMenuContainer name={"profile-name"} />
+      <ProfileMenuContainer name="profile-name" />
     </TestProvider>
   );
   root.unmount();

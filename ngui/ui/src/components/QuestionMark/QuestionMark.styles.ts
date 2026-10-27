@@ -5,15 +5,15 @@ const useStyles = makeStyles()((theme) => ({
   questionMark: {
     cursor: "default",
     "&:hover": {
-      backgroundColor: "inherit"
-    }
+      backgroundColor: "inherit",
+    },
   },
   leftMargin: {
-    marginLeft: theme.spacing(SPACING_1)
+    marginLeft: theme.spacing(SPACING_1),
   },
   rightSide: {
-    paddingRight: 0
-  }
+    paddingRight: 0,
+  },
 }));
 
 export default useStyles;

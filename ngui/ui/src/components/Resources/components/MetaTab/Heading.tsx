@@ -27,7 +27,7 @@ const Heading = ({
   applyFilterByCategory,
   onApplyFilterByCategoryChange,
   withLegend,
-  onWithLegendChange
+  onWithLegendChange,
 }: HeadingProps) => (
   <Box display="flex" gap={SPACING_1} flexWrap="wrap">
     <BreakdownBySelector value={breakdownBy} onChange={onBreakdownChange} metaNames={metaNames} />

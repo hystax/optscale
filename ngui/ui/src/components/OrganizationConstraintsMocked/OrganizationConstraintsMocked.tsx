@@ -14,9 +14,9 @@ const mockedData = {
       definition: {
         conditions: {
           tag: "aqa_uuid",
-          without_tag: "aqa"
+          without_tag: "aqa",
         },
-        start_date: 1648897200
+        start_date: 1648897200,
       },
       filters: {
         active: [true],
@@ -24,11 +24,11 @@ const mockedData = {
           {
             id: "2ceda346-26af-478c-bd9b-d1293e33dfae",
             name: "Azure QA",
-            type: "azure_cnr"
-          }
-        ]
+            type: "azure_cnr",
+          },
+        ],
       },
-      last_run: 1651064162
+      last_run: 1651064162,
     },
     {
       deleted_at: 0,
@@ -39,28 +39,28 @@ const mockedData = {
       type: "tagging_policy",
       definition: {
         conditions: {
-          tag: "00000000-0000-0000-0000-000000000000"
+          tag: "00000000-0000-0000-0000-000000000000",
         },
-        start_date: 1648898100
+        start_date: 1648898100,
       },
       filters: {
         resource_type: [
           {
             name: "Bucket",
-            type: "regular"
-          }
+            type: "regular",
+          },
         ],
         active: [true],
         cloud_account: [
           {
             id: "32f4375a-dead-45e0-9f70-0635ff0f6b23",
             name: "AWS HQ",
-            type: "aws_cnr"
-          }
-        ]
+            type: "aws_cnr",
+          },
+        ],
       },
-      last_run: 1651064162
-    }
+      last_run: 1651064162,
+    },
   ],
   [QUOTAS_AND_BUDGETS]: [
     {
@@ -71,23 +71,23 @@ const mockedData = {
       organization_id: "dc31d34a-8684-42a3-88c7-fb0877b94eae",
       type: "resource_quota",
       definition: {
-        max_value: 3
+        max_value: 3,
       },
       filters: {
         region: [
           {
             name: "us-east-1",
-            cloud_type: "aws_cnr"
-          }
+            cloud_type: "aws_cnr",
+          },
         ],
         resource_type: [
           {
             name: "Bucket",
-            type: "regular"
-          }
-        ]
+            type: "regular",
+          },
+        ],
       },
-      last_run: 1651064162
+      last_run: 1651064162,
     },
     {
       deleted_at: 0,
@@ -97,17 +97,17 @@ const mockedData = {
       organization_id: "dc31d34a-8684-42a3-88c7-fb0877b94eae",
       type: "recurring_budget",
       definition: {
-        monthly_budget: 5300
+        monthly_budget: 5300,
       },
       filters: {
         service_name: [
           {
             name: "AmazonS3",
-            cloud_type: "aws_cnr"
-          }
-        ]
+            cloud_type: "aws_cnr",
+          },
+        ],
       },
-      last_run: 1651064162
+      last_run: 1651064162,
     },
     {
       deleted_at: 0,
@@ -117,23 +117,23 @@ const mockedData = {
       organization_id: "dc31d34a-8684-42a3-88c7-fb0877b94eae",
       type: "resource_quota",
       definition: {
-        max_value: 10
+        max_value: 10,
       },
       filters: {
         region: [
           {
             name: "eu-west-2",
-            cloud_type: "aws_cnr"
-          }
+            cloud_type: "aws_cnr",
+          },
         ],
         resource_type: [
           {
             name: "Bucket",
-            type: "regular"
-          }
-        ]
+            type: "regular",
+          },
+        ],
       },
-      last_run: 1651064162
+      last_run: 1651064162,
     },
     {
       deleted_at: 0,
@@ -144,19 +144,19 @@ const mockedData = {
       type: "expiring_budget",
       definition: {
         total_budget: 2650,
-        start_date: 1646203500
+        start_date: 1646203500,
       },
       filters: {
         pool: [
           {
             id: "e67869b2-035e-440a-8d54-bd91b86a4a48",
             name: "Environment",
-            purpose: "budget"
-          }
-        ]
+            purpose: "budget",
+          },
+        ],
       },
-      last_run: 1651064162
-    }
+      last_run: 1651064162,
+    },
   ],
   [ANOMALIES]: [
     {
@@ -168,23 +168,23 @@ const mockedData = {
       type: "expense_anomaly",
       definition: {
         threshold_days: 4,
-        threshold: 10
+        threshold: 10,
       },
       filters: {
         cloud_account: [
           {
             id: "be176e7c-e233-4225-9fef-6df899567875",
             name: "AWS HQ",
-            type: "aws_cnr"
-          }
+            type: "aws_cnr",
+          },
         ],
         pool: [
           {
             id: "8ac078ee-69cb-43d3-9814-41d21280ecbf+",
             name: "Engineering",
-            purpose: "business_unit"
-          }
-        ]
+            purpose: "business_unit",
+          },
+        ],
       },
       last_run: 1660285844,
       last_run_result: {
@@ -194,10 +194,10 @@ const mockedData = {
           1659916800: 18.5225175343,
           1660003200: 16.339856684600004,
           1660089600: 12.989782186100001,
-          1660176000: 8.478992506600001
-        }
+          1660176000: 8.478992506600001,
+        },
       },
-      limit_hits: []
+      limit_hits: [],
     },
     {
       deleted_at: 0,
@@ -208,15 +208,15 @@ const mockedData = {
       type: "resource_count_anomaly",
       definition: {
         threshold_days: 7,
-        threshold: 20
+        threshold: 20,
       },
       filters: {
         resource_type: [
           {
             name: "Instance",
-            type: "regular"
-          }
-        ]
+            type: "regular",
+          },
+        ],
       },
       last_run: 1660285844,
       last_run_result: {
@@ -229,8 +229,8 @@ const mockedData = {
           1659916800: 65,
           1660003200: 94,
           1660089600: 79,
-          1660176000: 49
-        }
+          1660176000: 49,
+        },
       },
       limit_hits: [
         {
@@ -251,11 +251,11 @@ const mockedData = {
               1659744000: 49,
               1659830400: 49,
               1659916800: 65,
-              1660003200: 94
-            }
-          }
-        }
-      ]
+              1660003200: 94,
+            },
+          },
+        },
+      ],
     },
     {
       deleted_at: 0,
@@ -266,16 +266,16 @@ const mockedData = {
       type: "expense_anomaly",
       definition: {
         threshold_days: 30,
-        threshold: 10
+        threshold: 10,
       },
       filters: {
         pool: [
           {
             id: "f85a2ef0-0c03-41f2-9973-a6057076516b+",
             name: "Marketing",
-            purpose: "business_unit"
-          }
-        ]
+            purpose: "business_unit",
+          },
+        ],
       },
       last_run: 1660285844,
       last_run_result: {
@@ -311,12 +311,12 @@ const mockedData = {
           1659916800: 0.06422027,
           1660003200: 0.06422027,
           1660089600: 0.06422027,
-          1660176000: 0.03242796
-        }
+          1660176000: 0.03242796,
+        },
       },
-      limit_hits: []
-    }
-  ]
+      limit_hits: [],
+    },
+  ],
 };
 
 const OrganizationConstraintsMocked = ({ actionBarDefinition }) => {
@@ -329,7 +329,7 @@ const OrganizationConstraintsMocked = ({ actionBarDefinition }) => {
       actionBarDefinition={actionBarDefinition}
       constraints={constraints}
       isLoading={false}
-      addButtonLink={""}
+      addButtonLink=""
     />
   );
 };

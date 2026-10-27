@@ -1,0 +1,18 @@
+[project]
+name = "stripe-client"
+version = "0.0.0"
+description = "OptScale Stripe Client"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "stripe==12.3.0",
+    "tenacity==9.1.2",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["tools.stripe_client*"]
+namespaces = true

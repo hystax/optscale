@@ -29,7 +29,7 @@ class RequestManager {
 
     this.pendingRequests[requestId] = {
       abortController,
-      label
+      label,
     };
 
     return abortController.signal;

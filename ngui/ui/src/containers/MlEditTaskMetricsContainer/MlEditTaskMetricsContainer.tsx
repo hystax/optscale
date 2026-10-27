@@ -10,7 +10,7 @@ const MlEditTaskMetricsContainer = ({ taskMetrics }) => {
 
       return {
         is_attached: isAttached,
-        ...globalMetric
+        ...globalMetric,
       };
     });
 

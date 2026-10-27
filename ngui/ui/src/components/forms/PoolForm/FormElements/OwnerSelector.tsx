@@ -32,14 +32,14 @@ const OwnerSelector = ({ owners, isLoading = false, isReadOnly = false, helpMess
         ...owners.filter((owner) => owner.id === currentEmployee.id),
         ...owners
           .filter((owner) => owner.id !== currentEmployee.id)
-          .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
+          .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB)),
       ].map((owner) => ({
         value: owner.id,
         content: (
           <ItemContent>
             {owner.id === currentEmployee.id ? `${owner.name} (${intl.formatMessage({ id: "you" })})` : owner.name}
           </ItemContent>
-        )
+        ),
       }))}
       endAdornment={helpMessageId && <QuestionMark messageId={helpMessageId} dataTestId="qmark_default_owner" />}
     />

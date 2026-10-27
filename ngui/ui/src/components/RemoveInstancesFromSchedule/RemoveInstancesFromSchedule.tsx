@@ -29,17 +29,17 @@ const RemoveInstancesFromSchedule = ({ instancesToRemove, onDelete, onCancel, is
           <CaptionedCell caption={original.name}>
             <ResourceLabel resourceId={original.id} cloudResourceIdentifier={getCloudResourceIdentifier(original)} />
           </CaptionedCell>
-        )
+        ),
       },
       resourceLocation({
         idAccessor: "cloud_account_id",
         typeAccessor: "cloud_type",
         locationAccessors: {
-          region: "region"
+          region: "region",
         },
         accessorKey: "cloud_account_name",
-        headerDataTestId: "lbl_location"
-      })
+        headerDataTestId: "lbl_location",
+      }),
     ],
     []
   );
@@ -54,23 +54,23 @@ const RemoveInstancesFromSchedule = ({ instancesToRemove, onDelete, onCancel, is
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       dataTestIds={{
         text: "p_remove_instances_from_schedule",
         deleteButton: "btn_remove_instances_from_schedule_delete",
-        cancelButton: "btn_remove_instances_from_schedule_cancel"
+        cancelButton: "btn_remove_instances_from_schedule_cancel",
       }}
       message={{
-        messageId: "removeInstancedFromScheduleQuestion"
+        messageId: "removeInstancedFromScheduleQuestion",
       }}
     >
       <Table
         data={tableData}
         columns={columns}
         localization={{
-          emptyMessageId: "noInstances"
+          emptyMessageId: "noInstances",
         }}
         pageSize={50}
         enablePaginationQueryParam={false}

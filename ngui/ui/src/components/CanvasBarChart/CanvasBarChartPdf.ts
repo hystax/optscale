@@ -5,8 +5,8 @@ class CanvasBarChartPdf extends PDFAble {
   pdfRender = () => [
     {
       type: TYPES.image,
-      value: this.data.canvasRef.current
-    }
+      value: this.data.canvasRef.current,
+    },
   ];
 }
 

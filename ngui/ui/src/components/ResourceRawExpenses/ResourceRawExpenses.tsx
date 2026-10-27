@@ -26,7 +26,7 @@ const ResourceRawExpenses = ({ expenses, shownExpenses, startDate, endDate, isLo
             value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={shownExpenses} />}
             dataTestIds={{
               value: "lbl_expenses_value",
-              key: "lbl_expenses"
+              key: "lbl_expenses",
             }}
           />
         )}
@@ -37,11 +37,11 @@ const ResourceRawExpenses = ({ expenses, shownExpenses, startDate, endDate, isLo
           data={chartData}
           isLoading={isLoading}
           yScale={{
-            stacked: true
+            stacked: true,
           }}
           renderTooltipBody={({ slice, stacked }) => <ResourceRawExpensesChartTooltipBody slice={slice} stacked={stacked} />}
           axisLeft={{
-            format: (value) => formatMoney(FORMATTED_MONEY_TYPES.COMPACT, value)
+            format: (value) => formatMoney(FORMATTED_MONEY_TYPES.COMPACT, value),
           }}
         />
       </Grid>

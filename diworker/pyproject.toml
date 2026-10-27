@@ -13,6 +13,7 @@ dependencies = [
     "mongodb-migrations==0.7.0",
     "optscale-data",
     "optscale-time",
+    "optscale-telemetry",
     "pandas==2.1.4",
     "pyarrow==14.0.1",
     "pymongo==4.6.3",
@@ -29,6 +30,7 @@ config-client = { path = "../optscale_client/config_client" }
 herald-client = { path = "../optscale_client/herald_client" }
 insider-client = { path = "../optscale_client/insider_client" }
 restapi-client = { path = "../optscale_client/rest_api_client" }
+optscale-telemetry = { path = "../tools/optscale_telemetry" }
 
 [dependency-groups]
 dev = ["pycodestyle==2.11.1", "pylint==3.0.2"]

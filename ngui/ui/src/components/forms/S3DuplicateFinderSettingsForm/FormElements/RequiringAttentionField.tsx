@@ -24,10 +24,10 @@ const RequiringAttentionField = ({ isLoading = false }) => {
             dataTestId="qmark_critical_duplicates_saving_threshold_description"
           />
         ),
-        startAdornment: <InputAdornment position="start">$</InputAdornment>
+        startAdornment: <InputAdornment position="start">$</InputAdornment>,
       }}
       validate={{
-        positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumberOrZero" }))
+        positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumberOrZero" })),
       }}
     />
   );

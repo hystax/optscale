@@ -41,6 +41,9 @@ def find_duplicates(
             },
         )
 
+    # sqlite cannot create intermediate directories; in k8s the directory is
+    # created by a volume mount, but in other deployments it may not exist
+    os.makedirs(CACHE_PATH, exist_ok=True)
     cache_filename = os.path.join(CACHE_PATH, f"{random_string()}.sqlite")
     LOG.info(f"Cache filename is {cache_filename}")
     cache = SqliteCache(cache_filename, stats)
@@ -48,10 +51,7 @@ def find_duplicates(
     enumerators = []
 
     for config, buckets in data:
-        client_factory = DefaultAWSClientFactory(
-            access_key_id=config.get("access_key_id"),
-            secret_access_key=config.get("secret_access_key"),
-        )
+        client_factory = DefaultAWSClientFactory(config)
         enumerator = AWSObjectEnumerator(buckets, stats, client_factory)
         enumerators.append(enumerator)
 

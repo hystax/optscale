@@ -25,18 +25,18 @@ const DatasetsTable = ({ datasets }) => {
         ),
         id: "dataset",
         style: {
-          width: "500px"
+          width: "500px",
         },
         cell: ({
           row: {
-            original: { name, path }
-          }
+            original: { name, path },
+          },
         }) => (
           <>
             <Typography gutterBottom>{name}</Typography>
             <Typography>{path}</Typography>
           </>
-        )
+        ),
       },
       {
         header: (
@@ -48,8 +48,8 @@ const DatasetsTable = ({ datasets }) => {
         enableSorting: false,
         cell: ({
           row: {
-            original: { covered_by: coveredBy }
-          }
+            original: { covered_by: coveredBy },
+          },
         }) => {
           if (coveredBy) {
             const { task_id: taskId, id: runId, number: runNumber, name: runName } = coveredBy;
@@ -71,8 +71,8 @@ const DatasetsTable = ({ datasets }) => {
               <FormattedMessage id="notCovered" />
             </Box>
           );
-        }
-      }
+        },
+      },
     ],
     []
   );
@@ -82,10 +82,10 @@ const DatasetsTable = ({ datasets }) => {
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noDataset"
+        emptyMessageId: "noDataset",
       }}
       counters={{
-        show: false
+        show: false,
       }}
     />
   );
@@ -112,7 +112,7 @@ const CoverageTab = ({ datasets, datasetCoverage, isLoading = false }) => (
               colorizeBy={label}
               labelTypographyProps={{
                 variant: "subtitle1",
-                component: "h4"
+                component: "h4",
               }}
             />
             <DatasetsTable datasets={coverageDatasets} />

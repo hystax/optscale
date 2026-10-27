@@ -17,9 +17,9 @@ const CostModelFormContainer = ({ cloudAccountId, costModel = {}, onSuccess, onC
           config: {
             cost_model: {
               cpu_hourly_cost: Number(formData.cpuPerHour),
-              memory_hourly_cost: Number(formData.memoryPerHour)
-            }
-          }
+              memory_hourly_cost: Number(formData.memoryPerHour),
+            },
+          },
         }).then(() => onSuccess())
       }
       onCancel={onCancel}

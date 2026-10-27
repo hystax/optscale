@@ -12,8 +12,8 @@ class ObsoleteImagesModal extends BaseSideModal {
     messageId: "obsoleteImagesTitle",
     dataTestIds: {
       title: "lbl_obsolete_images_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_obsolete_images";

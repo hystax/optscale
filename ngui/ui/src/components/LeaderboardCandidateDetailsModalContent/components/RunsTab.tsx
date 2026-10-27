@@ -38,13 +38,13 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
         accessorFn: ({ number, name }) => formatRunFullName(number, name),
         defaultSort: "desc",
         style: {
-          width: "200px"
+          width: "200px",
         },
         searchFn: (runName, filterValue, { row }) => {
           const search = filterValue.toLocaleLowerCase();
 
           const {
-            original: { runset_name: runsetName, finish }
+            original: { runset_name: runsetName, finish },
           } = row;
 
           const timeAgo = formatRunTimeAgo(finish);
@@ -53,7 +53,7 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
             runName,
             timeAgo,
             // runsetName can be null
-            runsetName ?? ""
+            runsetName ?? "",
           ].some((str) => str.toLocaleLowerCase().includes(search));
         },
         sortingFn: "alphanumeric",
@@ -65,7 +65,7 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
               caption={[
                 {
                   node: <Typography variant="caption">{formatRunTimeAgo(finish)}</Typography>,
-                  key: "timeAgo"
+                  key: "timeAgo",
                 },
                 ...(runsetName
                   ? [
@@ -81,10 +81,10 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
                             }
                           />
                         ),
-                        key: "template"
-                      }
+                        key: "template",
+                      },
                     ]
-                  : [])
+                  : []),
               ]}
             >
               <Link to={getMlTaskRunUrl(taskId, runId)} component={RouterLink}>
@@ -92,11 +92,11 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
               </Link>
             </CaptionedCell>
           );
-        }
+        },
       },
       dataset({
         id: "dataset",
-        accessorFn: (originalRow) => originalRow.dataset?.name
+        accessorFn: (originalRow) => originalRow.dataset?.name,
       }),
       ...[candidatePrimaryMetric, ...candidateSecondaryMetrics].map(({ key, name, unit }) => ({
         header: <TextWithDataTestId dataTestId={`lbl_${key}`}>{name}</TextWithDataTestId>,
@@ -107,8 +107,10 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
           return formatDynamicFractionDigitsValue({ value }).includes(search);
         },
         accessorFn: (originalRow) => originalRow.data?.[key]?.value,
-        cell: ({ cell }) => <MetricUnitLabel label={formatDynamicFractionDigitsValue({ value: cell.getValue() })} unit={unit} />
-      }))
+        cell: ({ cell }) => (
+          <MetricUnitLabel label={formatDynamicFractionDigitsValue({ value: cell.getValue() })} unit={unit} />
+        ),
+      })),
     ],
     [formatDynamicFractionDigitsValue, formatRunTimeAgo, candidatePrimaryMetric, candidateSecondaryMetrics]
   );
@@ -118,14 +120,14 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noRuns"
+        emptyMessageId: "noRuns",
       }}
       withSearch
       pageSize={RUNS_TABLE_ROWS_PER_PAGE}
       enablePaginationQueryParam={false}
       enableSearchQueryParam={false}
       counters={{
-        show: false
+        show: false,
       }}
     />
   );

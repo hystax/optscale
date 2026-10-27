@@ -16,7 +16,7 @@ import {
   POOL_TYPE_CICD,
   POOL_TYPE_MLAI,
   POOL_TYPE_ASSET_POOL,
-  POOL_TYPES_LIST
+  POOL_TYPES_LIST,
 } from "utils/constants";
 
 type PoolType = keyof typeof POOL_TYPES;
@@ -33,7 +33,7 @@ export const getIcon = (type: PoolType) =>
     [POOL_TYPE_PROJECT]: WorkOutlineOutlinedIcon,
     [POOL_TYPE_CICD]: MediationOutlinedIcon,
     [POOL_TYPE_MLAI]: InsightsOutlinedIcon,
-    [POOL_TYPE_ASSET_POOL]: DynamicFeedOutlinedIcon
+    [POOL_TYPE_ASSET_POOL]: DynamicFeedOutlinedIcon,
   })[type];
 
 const PoolTypeIcon = ({ type, ...rest }: PoolTypeIconProps) =>

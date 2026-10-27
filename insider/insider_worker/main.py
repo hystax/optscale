@@ -21,6 +21,7 @@ QUEUE_NAME = 'insider-task'
 LOG = get_logger(__name__)
 TASK_EXCHANGE = Exchange(EXCHANGE_NAME, type='direct')
 TASK_QUEUE = Queue(QUEUE_NAME, TASK_EXCHANGE, routing_key=QUEUE_NAME)
+DISCOVERIES_THRESHOLD = 43200  # 12 hours in seconds
 
 
 class InsiderWorker(ConsumerMixin):
@@ -42,13 +43,28 @@ class InsiderWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task], prefetch_count=10)]
+                         callbacks=[self.process_task], prefetch_count=1)]
+
+    def get_last_discovery_ts(self, cloud_type):
+        discoveries = self.discoveries.find(
+            {'cloud_type': cloud_type, 'completed_at': {'$ne': 0}}
+        ).sort(
+            [('completed_at', -1)]).limit(1)
+        try:
+            discovery = next(discoveries)
+            return discovery.get('started_at', 0)
+        except StopIteration:
+            return 0
 
     def _process_task(self, task):
         start_process_time = int(datetime.now(tz=timezone.utc).timestamp())
         cloud_type = task.get('cloud_type')
         if not cloud_type:
             raise Exception('Invalid task received: {}'.format(task))
+        last_discovery_ts = self.get_last_discovery_ts(cloud_type)
+        if last_discovery_ts + DISCOVERIES_THRESHOLD >= start_process_time:
+            LOG.info('Skipping task for %s by threshold', cloud_type)
+            return
         discovery_id = self.discoveries.insert_one({
             'cloud_type': cloud_type,
             'started_at': start_process_time,
@@ -56,7 +72,7 @@ class InsiderWorker(ConsumerMixin):
         }).inserted_id
 
         get_processor_class(cloud_type)(
-            self.mongo_client, self.config_cl).process_prices()
+            self.mongo_client, self.config_cl).process_prices(last_discovery_ts)
 
         end_process_time = int(datetime.now(tz=timezone.utc).timestamp())
         self.discoveries.update_one(

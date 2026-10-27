@@ -1,6 +1,6 @@
 import RecommendationsFilter, {
   DEFAULT_RECOMMENDATIONS_FILTER,
-  POSSIBLE_RECOMMENDATIONS_FILTERS
+  POSSIBLE_RECOMMENDATIONS_FILTERS,
 } from "./RecommendationsFilter";
 import ServicesFilter from "./ServicesFilter";
 import View, { DEFAULT_VIEW, POSSIBLE_VIEWS, VIEW_CARDS, VIEW_TABLE } from "./View";
@@ -14,5 +14,5 @@ export {
   DEFAULT_VIEW,
   POSSIBLE_VIEWS,
   VIEW_CARDS,
-  VIEW_TABLE
+  VIEW_TABLE,
 };

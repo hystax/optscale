@@ -7,8 +7,8 @@ class CreateLeaderboardModal extends BaseSideModal {
     showExpand: true,
     dataTestIds: {
       title: "lbl_create_leaderboard",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_create_leaderboard";

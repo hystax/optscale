@@ -32,7 +32,7 @@ class TestRole(TestAuthBase):
             "group": self.group_scope_id
         }
         self.hierarchy = (
-            {'root': {'null': {'partner': {
+            {'partner': {
                 self.partner_1_scope_id:
                     {'customer': {
                         self.customer_1_scope_id:
@@ -46,7 +46,7 @@ class TestRole(TestAuthBase):
                             {'group': [self.group_scope_id]}
                     }},
             }
-            }}})
+            })
         admin_user = self.create_root_user()
         session = self.db_session
         self.type_partner = Type(id_=10, name='partner',

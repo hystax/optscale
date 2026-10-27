@@ -12,8 +12,8 @@ const datasetTimespan = () => ({
   id: "timespan",
   cell: ({
     row: {
-      original: { timespan_from: timespanFrom, timespan_to: timespanTo }
-    }
+      original: { timespan_from: timespanFrom, timespan_to: timespanTo },
+    },
   }) => (
     <>
       <KeyValueLabel
@@ -25,7 +25,7 @@ const datasetTimespan = () => ({
         value={timespanTo ? format(secondsToMilliseconds(timespanTo), EN_FULL_FORMAT) : undefined}
       />
     </>
-  )
+  ),
 });
 
 export default datasetTimespan;

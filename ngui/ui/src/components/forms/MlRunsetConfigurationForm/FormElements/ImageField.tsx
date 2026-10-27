@@ -14,7 +14,7 @@ const ImageField = ({ isLoading = false }) =>
       label={<FormattedMessage id="image" />}
       name={FIELD_NAME}
       InputProps={{
-        endAdornment: <QuestionMark messageId="runsetImageDescription" dataTestId="qmark_runset_image" />
+        endAdornment: <QuestionMark messageId="runsetImageDescription" dataTestId="qmark_runset_image" />,
       }}
     />
   );

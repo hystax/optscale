@@ -24,5 +24,5 @@ export const getOrganizationManagersWhoSuitableForAssignment = (organizationMana
     })
     .map((el) => ({
       value: el.id,
-      name: el.name
+      name: el.name,
     }));

@@ -18,19 +18,19 @@ const stringifyMetaValue = (value: unknown): string => (typeof value === "string
 export const metaConfig = {
   first_seen: {
     translationId: METADATA_FIELDS.FIRST_SEEN,
-    format: formatTimestampOrNever
+    format: formatTimestampOrNever,
   },
   last_seen: {
     translationId: METADATA_FIELDS.LAST_SEEN,
-    format: formatTimestampOrNever
+    format: formatTimestampOrNever,
   },
   last_attached: {
     translationId: METADATA_FIELDS.LAST_ATTACHED,
-    format: formatTimestampOrNever
+    format: formatTimestampOrNever,
   },
   last_used: {
     translationId: METADATA_FIELDS.LAST_USED,
-    format: formatTimestampOrNever
+    format: formatTimestampOrNever,
   },
   attached: { translationId: METADATA_FIELDS.ATTACHED },
   category: { translationId: METADATA_FIELDS.CATEGORY },
@@ -45,11 +45,11 @@ export const metaConfig = {
   preinstalled: { translationId: METADATA_FIELDS.PREINSTALLED },
   size: {
     translationId: METADATA_FIELDS.SIZE,
-    format: formatMetaDigitalUnit
+    format: formatMetaDigitalUnit,
   },
   ram: {
     translationId: METADATA_FIELDS.RAM,
-    format: formatMetaDigitalUnit
+    format: formatMetaDigitalUnit,
   },
   snapshot_id: { translationId: METADATA_FIELDS.SNAPSHOT_ID },
   state: { translationId: METADATA_FIELDS.STATE },
@@ -76,7 +76,7 @@ export const metaConfig = {
   start: { translationId: METADATA_FIELDS.START, format: formatTimestampOrNever },
   end: { translationId: METADATA_FIELDS.END, format: formatTimestampOrNever },
   is_public_policy: { translationId: METADATA_FIELDS.IS_PUBLIC_POLICY },
-  is_public_acls: { translationId: METADATA_FIELDS.IS_PUBLIC_ACLS }
+  is_public_acls: { translationId: METADATA_FIELDS.IS_PUBLIC_ACLS },
 };
 
 const getMetaConfigByName = (name: string): ObjectValues<typeof metaConfig> | undefined =>
@@ -101,7 +101,7 @@ export const getMetaFormattedValue = (name: string, value: string) => {
 export const MetadataNodes = ({
   first_seen: firstSeen,
   last_seen: lastSeen,
-  meta
+  meta,
 }: {
   first_seen: string | number;
   last_seen: string | number;
@@ -116,7 +116,7 @@ export const MetadataNodes = ({
       if (config) {
         return {
           label: intl.formatMessage({ id: config.translationId }),
-          value: config.format?.(value) ?? stringifyMetaValue(value)
+          value: config.format?.(value) ?? stringifyMetaValue(value),
         };
       }
       return { label: name, value: stringifyMetaValue(value) };
@@ -128,6 +128,6 @@ export const MetadataNodes = ({
 
   return {
     getTags,
-    toString
+    toString,
   };
 };

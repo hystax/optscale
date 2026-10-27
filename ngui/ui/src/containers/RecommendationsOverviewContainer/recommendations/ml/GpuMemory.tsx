@@ -10,13 +10,13 @@ const columns = [
     headerDataTestId: "lbl_location",
     idAccessor: "cloud_id",
     typeAccessor: "cloud_type",
-    accessorKey: "cloud_name"
+    accessorKey: "cloud_name",
   }),
   size({
     accessorKey: "size",
-    headerDataTestId: "lbl_size"
+    headerDataTestId: "lbl_size",
   }),
-  mlGpuMemoryUsage()
+  mlGpuMemoryUsage(),
 ];
 
 class GpuMemory extends BaseRecommendation {
@@ -43,12 +43,12 @@ class GpuMemory extends BaseRecommendation {
               icon={<CloudTypeIcon type={cloudType} hasRightMargin />}
               label={<CloudResourceId resourceId={cloudResourceId} cloudResourceIdentifier={id} />}
             />
-          )
+          ),
         },
         {
           key: "mlGpuMemoryUsage",
-          node: <strong>{mlGpuMemoryUsage().cell({ cell: { getValue: () => gpuMemoryUsage } })}</strong>
-        }
+          node: <strong>{mlGpuMemoryUsage().cell({ cell: { getValue: () => gpuMemoryUsage } })}</strong>,
+        },
       ];
     });
   }

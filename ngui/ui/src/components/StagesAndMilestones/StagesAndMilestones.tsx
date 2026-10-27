@@ -19,7 +19,7 @@ const MilestonesTable = ({ milestones, onMilestoneZoom }) => {
     () =>
       milestones.map(([second, milestoneNames]) => ({
         second,
-        milestoneNames
+        milestoneNames,
       })),
     [milestones]
   );
@@ -47,11 +47,11 @@ const MilestonesTable = ({ milestones, onMilestoneZoom }) => {
               dataTestId={`btn_select_milestone_${index}`}
               tooltip={{
                 show: true,
-                messageId: "zoom"
+                messageId: "zoom",
               }}
             />
           </Box>
-        )
+        ),
       },
       {
         header: (
@@ -61,8 +61,8 @@ const MilestonesTable = ({ milestones, onMilestoneZoom }) => {
         ),
         accessorKey: "second",
         cell: ({ cell }) => formatSecondsToHHMMSS(cell.getValue()),
-        defaultSort: "asc"
-      }
+        defaultSort: "asc",
+      },
     ],
     [onMilestoneZoom]
   );
@@ -72,7 +72,7 @@ const MilestonesTable = ({ milestones, onMilestoneZoom }) => {
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noMilestones"
+        emptyMessageId: "noMilestones",
       }}
     />
   );
@@ -104,7 +104,7 @@ const StagesTable = ({ stages, onStageZoom, onStageHighlight, isStageHighlighted
                       dataTestId={`btn_zoom_stage_${index}`}
                       tooltip={{
                         show: true,
-                        messageId: "zoom"
+                        messageId: "zoom",
                       }}
                     />
                     <IconButton
@@ -116,14 +116,14 @@ const StagesTable = ({ stages, onStageZoom, onStageHighlight, isStageHighlighted
                             : {
                                 name: value,
                                 start: original.start,
-                                end: original.end
+                                end: original.end,
                               }
                         )
                       }
                       dataTestId={`btn_highlight_stage_${index}`}
                       tooltip={{
                         show: true,
-                        messageId: isHighlighted ? "removeHighlight" : "highlight"
+                        messageId: isHighlighted ? "removeHighlight" : "highlight",
                       }}
                     />
                   </>
@@ -132,7 +132,7 @@ const StagesTable = ({ stages, onStageZoom, onStageHighlight, isStageHighlighted
               label={value}
             />
           );
-        }
+        },
       },
       {
         header: (
@@ -143,8 +143,8 @@ const StagesTable = ({ stages, onStageZoom, onStageHighlight, isStageHighlighted
         accessorKey: "start",
         cell: ({
           row: {
-            original: { start, end, startTimestamp }
-          }
+            original: { start, end, startTimestamp },
+          },
         }) => {
           const formattedStart = formatSecondsToHHMMSS(start);
           const formattedEnd = end ? formatSecondsToHHMMSS(end) : null;
@@ -156,7 +156,7 @@ const StagesTable = ({ stages, onStageZoom, onStageHighlight, isStageHighlighted
                   id="value - value"
                   values={{
                     value1: formattedStart,
-                    value2: formattedEnd
+                    value2: formattedEnd,
                   }}
                 />
               </div>
@@ -169,15 +169,15 @@ const StagesTable = ({ stages, onStageZoom, onStageHighlight, isStageHighlighted
                 <FormattedMessage
                   id="runningForX"
                   values={{
-                    x: formatSecondsToHHMMSS(millisecondsToSeconds(+new Date()) - startTimestamp)
+                    x: formatSecondsToHHMMSS(millisecondsToSeconds(+new Date()) - startTimestamp),
                   }}
                 />
               </div>
             </>
           );
         },
-        defaultSort: "asc"
-      }
+        defaultSort: "asc",
+      },
     ],
     [isStageHighlighted, onStageHighlight, onStageZoom]
   );
@@ -187,7 +187,7 @@ const StagesTable = ({ stages, onStageZoom, onStageHighlight, isStageHighlighted
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noStages"
+        emptyMessageId: "noStages",
       }}
     />
   );
@@ -199,7 +199,7 @@ const StagesAndMilestones = ({
   stages,
   highlightedStage,
   setHighlightedStage,
-  secondsTimeRange
+  secondsTimeRange,
 }) => {
   const isUpSm = useIsUpMediaQuery("sm");
 

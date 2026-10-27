@@ -15,9 +15,9 @@ it("renders without crashing", () => {
               displayedGroupName: "displayedGroupName",
               count: 0,
               totalExpenses: 0,
-              expenses: []
-            }
-          ]
+              expenses: [],
+            },
+          ],
         ]}
       />
     </TestProvider>

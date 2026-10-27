@@ -12,7 +12,7 @@ import {
   FormButtons,
   NameField,
   OwnerSelector,
-  PoolSelector
+  PoolSelector,
 } from "./FormElements";
 import { AssignmentRuleFormProps, FormValues } from "./types";
 import { FIELD_NAMES } from "./utils";
@@ -28,13 +28,13 @@ const AssignmentRuleForm = ({
   onPoolChange,
   poolOwners,
   defaultValues,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }: AssignmentRuleFormProps) => {
   const methods = useForm<FormValues>({
     // We need to pass defaultValues to useForm in order to reset the Controller components' value.
     // (defaultValues.poolId, defaultValues.ownerId are marked as required in the propTypes definition)
     // see https://react-hook-form.com/api#reset
-    defaultValues
+    defaultValues,
   });
 
   const { handleSubmit, reset } = methods;
@@ -53,7 +53,7 @@ const AssignmentRuleForm = ({
         TAG_VALUE_FIELD_NAME,
         CLOUD_IS_FIELD_NAME,
         RESOURCE_TYPE_IS_FIELD_NAME,
-        REGION_IS_FIELD_NAME
+        REGION_IS_FIELD_NAME,
       } = FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
 
       return formData[FIELD_NAME].map((item) => {
@@ -61,21 +61,21 @@ const AssignmentRuleForm = ({
           return {
             [META_INFO]: JSON.stringify({
               key: item[TAG_KEY_FIELD_NAME].trim(),
-              value: item[TAG_VALUE_FIELD_NAME].trim()
+              value: item[TAG_VALUE_FIELD_NAME].trim(),
             }),
-            [TYPE]: item[TYPE]
+            [TYPE]: item[TYPE],
           };
         }
         if (CLOUD_IS_FIELD_NAME in item) {
           return {
             [META_INFO]: item[CLOUD_IS_FIELD_NAME].trim(),
-            [TYPE]: item[TYPE]
+            [TYPE]: item[TYPE],
           };
         }
         if (RESOURCE_TYPE_IS_FIELD_NAME in item) {
           return {
             [META_INFO]: item[RESOURCE_TYPE_IS_FIELD_NAME].trim(),
-            [TYPE]: item[TYPE]
+            [TYPE]: item[TYPE],
           };
         }
         if (REGION_IS_FIELD_NAME in item) {
@@ -83,7 +83,7 @@ const AssignmentRuleForm = ({
 
           return {
             [META_INFO]: regionName === null ? null : regionName.trim(),
-            [TYPE]: item[TYPE]
+            [TYPE]: item[TYPE],
           };
         }
 
@@ -93,7 +93,7 @@ const AssignmentRuleForm = ({
 
     const modifiedData = {
       ...formData,
-      conditions: getConditions()
+      conditions: getConditions(),
     };
 
     onSubmit(modifiedData);
@@ -114,7 +114,7 @@ const AssignmentRuleForm = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            flexDirection: "row"
+            flexDirection: "row",
           }}
         >
           <FormLabel data-test-id="lbl_conditions" required component="div">

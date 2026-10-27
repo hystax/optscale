@@ -4,10 +4,16 @@ import AwsAssumedRoleInputs from "./AwsAssumedRoleInputs";
 import AwsBillingBucket, { FIELD_NAMES as AWS_BILLING_BUCKET_FIELD_NAMES } from "./AwsBillingBucket";
 import AwsExportType, { FIELD_NAMES as AWS_EXPORT_TYPE_FIELD_NAMES } from "./AwsExportType";
 import AwsLinkedCredentials, { FIELD_NAMES as AWS_LINKED_CREDENTIALS_FIELD_NAMES } from "./AwsLinkedCredentials";
+import AwsRegionScope, {
+  AWS_REGION_SCOPE_FIELD_NAMES,
+  REGION_SCOPE_MODES as AWS_REGION_SCOPE_MODES,
+  getRegionScopeDefaultValues,
+  getRegionScopeConfigParams,
+} from "./AwsRegionScope";
 import AwsRootCredentials, { FIELD_NAMES as AWS_ROOT_CREDENTIALS_FIELD_NAMES } from "./AwsRootCredentials";
 import AwsUseAwsEdpDiscount, { FIELD_NAMES as AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES } from "./AwsUseAwsEdpDiscount";
 import AzureSubscriptionCredentials, {
-  FIELD_NAMES as AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES
+  FIELD_NAMES as AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES,
 } from "./AzureSubscriptionCredentials";
 import AzureTenantCredentials, { FIELD_NAMES as AZURE_TENANT_CREDENTIALS_FIELD_NAMES } from "./AzureTenantCredentials";
 import DatabricksCredentials, { FIELD_NAMES as DATABRICKS_CREDENTIALS_FIELD_NAMES } from "./DatabricksCredentials";
@@ -30,6 +36,11 @@ export {
   AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES,
   AwsLinkedCredentials,
   AWS_LINKED_CREDENTIALS_FIELD_NAMES,
+  AwsRegionScope,
+  AWS_REGION_SCOPE_FIELD_NAMES,
+  AWS_REGION_SCOPE_MODES,
+  getRegionScopeDefaultValues,
+  getRegionScopeConfigParams,
   AzureTenantCredentials,
   AZURE_TENANT_CREDENTIALS_FIELD_NAMES,
   AzureSubscriptionCredentials,
@@ -44,5 +55,5 @@ export {
   ALIBABA_CREDENTIALS_FIELD_NAMES,
   NebiusCredentials,
   DatabricksCredentials,
-  DATABRICKS_CREDENTIALS_FIELD_NAMES
+  DATABRICKS_CREDENTIALS_FIELD_NAMES,
 };

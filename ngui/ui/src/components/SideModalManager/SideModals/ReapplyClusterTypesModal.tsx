@@ -6,8 +6,8 @@ class ReapplyClusterTypesModal extends BaseSideModal {
     messageId: "reapplyClusterTypesTitle",
     dataTestIds: {
       title: "lbl_re_apply_cluster_types",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_reapply";

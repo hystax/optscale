@@ -7,8 +7,8 @@ class AbandonedKinesisStreamsModal extends BaseSideModal {
     messageId: "abandonedKinesisStreams",
     dataTestIds: {
       title: "lbl_abandoned_kinesis_streams_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_abandoned_kinesis_streams";
@@ -17,7 +17,7 @@ class AbandonedKinesisStreamsModal extends BaseSideModal {
     return (
       <InformationWrapper>
         <DaysThreshold
-          messageId={"thresholds.abandonedKinesisStreams"}
+          messageId="thresholds.abandonedKinesisStreams"
           recommendationType={this.payload?.recommendationType}
           onSuccess={this.closeSideModal}
         />

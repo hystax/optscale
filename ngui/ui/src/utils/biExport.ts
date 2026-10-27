@@ -4,13 +4,13 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 export const BI_EXPORT_STATUSES = Object.freeze({
   NONE: "none",
   FAILED: "failed",
-  COMPLETED: "completed"
+  COMPLETED: "completed",
 });
 
 export const BI_EXPORT_ACTIVITY_STATUSES = Object.freeze({
   QUEUED: "queued",
   RUNNING: "running",
-  IDLE: "idle"
+  IDLE: "idle",
 });
 
 export const getBIExportStatus = (biExport) => {
@@ -27,7 +27,7 @@ export const getBIExportActivityStatus = (status) => BI_EXPORT_ACTIVITY_STATUSES
 
 export const BI_EXPORT_STORAGE_TYPE = Object.freeze({
   AWS_RAW_EXPORT: "AWS_RAW_EXPORT",
-  AZURE_RAW_EXPORT: "AZURE_RAW_EXPORT"
+  AZURE_RAW_EXPORT: "AZURE_RAW_EXPORT",
 });
 
 export const getBIExportStatusIconSettings = (status) =>
@@ -35,11 +35,11 @@ export const getBIExportStatusIconSettings = (status) =>
     [BI_EXPORT_STATUSES.COMPLETED]: {
       Icon: CheckCircleIcon,
       color: "success",
-      messageId: "completed"
+      messageId: "completed",
     },
     [BI_EXPORT_STATUSES.FAILED]: {
       Icon: CancelIcon,
       color: "error",
-      messageId: "failed"
-    }
+      messageId: "failed",
+    },
   })[status];

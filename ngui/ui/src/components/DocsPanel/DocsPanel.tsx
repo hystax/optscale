@@ -17,7 +17,7 @@ const STATUSES = {
   LOADING: "loading",
   OK: "ok",
   ERROR: "error",
-  MISSING: "missing"
+  MISSING: "missing",
 };
 
 const GithubLink = (chunks) => (
@@ -98,7 +98,7 @@ const DocsPanel = () => {
               messageValues={{
                 documentationUrl: <DocumentationUrl url={documentationUrl} />,
                 github: GithubLink,
-                action: intl.formatMessage({ id: "edit" }).toLocaleLowerCase()
+                action: intl.formatMessage({ id: "edit" }).toLocaleLowerCase(),
               }}
             />
           </>
@@ -114,10 +114,10 @@ const DocsPanel = () => {
                   values={{
                     documentationUrl: <DocumentationUrl url={documentationUrl} />,
                     github: GithubLink,
-                    action: intl.formatMessage({ id: "add" }).toLocaleLowerCase()
+                    action: intl.formatMessage({ id: "add" }).toLocaleLowerCase(),
                   }}
                 />
-              )
+              ),
             }}
           />
         )}

@@ -14,7 +14,7 @@ const powerScheduleName = ({
   accessorKey,
   headerDataTestId,
   headerMessageId,
-  cellDataAccessors: { enabled: enabledAccessor, id: idAccessor } = {}
+  cellDataAccessors: { enabled: enabledAccessor, id: idAccessor } = {},
 }) => ({
   id,
   accessorFn,
@@ -47,7 +47,7 @@ const powerScheduleName = ({
         }
       />
     );
-  }
+  },
 });
 
 export default powerScheduleName;

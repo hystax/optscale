@@ -9,7 +9,7 @@ const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE, isLoading = f
   const {
     control,
     trigger,
-    formState: { errors, isSubmitted }
+    formState: { errors, isSubmitted },
   } = useFormContext();
 
   const intl = useIntl();
@@ -35,12 +35,12 @@ const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE, isLoading = f
                 { id: "xMustBeLessThanOrEqualToY" },
                 {
                   x: intl.formatMessage({ id: "initiationDate" }),
-                  y: intl.formatMessage({ id: "expirationDate" })
+                  y: intl.formatMessage({ id: "expirationDate" }),
                 }
               )
             );
-          }
-        }
+          },
+        },
       }}
       render={({ field: { name: fieldName, onChange, value } }) => (
         <IntervalTimePicker
@@ -60,13 +60,13 @@ const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE, isLoading = f
           validation={{
             dataTestId: `input_${fieldName}`,
             error: !!errors[fieldName],
-            helperText: errors[fieldName]?.message
+            helperText: errors[fieldName]?.message,
           }}
           dataTestIds={{
             field: {
               input: `input_${fieldName}`,
-              iconButton: `btn_${fieldName}select_date`
-            }
+              iconButton: `btn_${fieldName}select_date`,
+            },
           }}
         />
       )}

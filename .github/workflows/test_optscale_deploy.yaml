@@ -1,0 +1,26 @@
+name: Validate OptScale deployment manifests
+run-name: Validate OptScale deployment manifests - started by ${{ github.actor }}
+permissions: read-all
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+    - 'optscale-deploy/**'
+    - '.github/workflows/test_optscale_deploy.yaml'
+  workflow_dispatch:
+
+
+jobs:
+  validate_deployment_manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: python -m pip install pytest PyYAML
+      - name: Validate compose and k8s parity
+        run: python -m pytest optscale-deploy/tests

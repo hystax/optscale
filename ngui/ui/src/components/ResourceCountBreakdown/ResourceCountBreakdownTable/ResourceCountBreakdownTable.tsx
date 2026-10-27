@@ -20,7 +20,7 @@ const getTotalBreakdownTableData = (counts) =>
   Object.entries(counts).map(([id, { name = "", ...details }]) => ({
     id: id ?? name,
     name,
-    ...details
+    ...details,
   }));
 
 const ResourceCountBreakdownTable = ({
@@ -31,7 +31,7 @@ const ResourceCountBreakdownTable = ({
   onToggleResourceCountDisplay,
   onToggleAllResourceCountsDisplay,
   hiddenLines,
-  breakdownBy
+  breakdownBy,
 }) => {
   const tableData = useMemo(() => getTotalBreakdownTableData(counts), [counts]);
   const columns = useMemo(
@@ -49,7 +49,7 @@ const ResourceCountBreakdownTable = ({
             label={<BreakdownLabel breakdownBy={breakdownBy} details={original} />}
             textFirst={false}
           />
-        )
+        ),
       },
       {
         header: (
@@ -71,7 +71,7 @@ const ResourceCountBreakdownTable = ({
           ) : (
             <FormattedNumber value={value} maximumFractionDigits={0} />
           );
-        }
+        },
       },
       {
         header: (
@@ -87,18 +87,18 @@ const ResourceCountBreakdownTable = ({
             helperMessageId="totalResourceCountForSelectedPeriod"
           />
         ),
-        accessorKey: "total"
+        accessorKey: "total",
       },
       {
         header: () => {
           const { messageId, Icon } = isEmptyArray(hiddenLines)
             ? {
                 messageId: "hideAllBreakdowns",
-                Icon: VisibilityOffOutlinedIcon
+                Icon: VisibilityOffOutlinedIcon,
               }
             : {
                 messageId: "showAllBreakdown",
-                Icon: VisibilityOutlinedIcon
+                Icon: VisibilityOutlinedIcon,
               };
 
           return (
@@ -107,7 +107,7 @@ const ResourceCountBreakdownTable = ({
               dataTestId="btn_toggle_all"
               tooltip={{
                 show: true,
-                messageId
+                messageId,
               }}
               icon={<Icon />}
             />
@@ -120,11 +120,11 @@ const ResourceCountBreakdownTable = ({
           const { messageId, Icon } = isLineVisible
             ? {
                 messageId: "hideBreakdown",
-                Icon: VisibilityOffOutlinedIcon
+                Icon: VisibilityOffOutlinedIcon,
               }
             : {
                 messageId: "showBreakdown",
-                Icon: VisibilityOutlinedIcon
+                Icon: VisibilityOutlinedIcon,
               };
 
           return (
@@ -135,13 +135,13 @@ const ResourceCountBreakdownTable = ({
                   messageId,
                   icon: <Icon />,
                   dataTestId: `btn_toggle_${index}`,
-                  action: () => onToggleResourceCountDisplay(id)
-                }
+                  action: () => onToggleResourceCountDisplay(id),
+                },
               ]}
             />
           );
-        }
-      }
+        },
+      },
     ],
     [
       appliedRange.startSecondsTimestamp,
@@ -150,7 +150,7 @@ const ResourceCountBreakdownTable = ({
       breakdownBy,
       hiddenLines,
       onToggleAllResourceCountsDisplay,
-      onToggleResourceCountDisplay
+      onToggleResourceCountDisplay,
     ]
   );
 
@@ -163,7 +163,7 @@ const ResourceCountBreakdownTable = ({
       columns={columns}
       localization={{ emptyMessageId: "noResources" }}
       dataTestIds={{
-        container: "resources_count_table"
+        container: "resources_count_table",
       }}
       queryParamPrefix="resourceType"
       pageSize={50}

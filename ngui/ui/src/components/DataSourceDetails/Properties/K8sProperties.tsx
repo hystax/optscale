@@ -9,7 +9,7 @@ const K8sProperties = ({ id, accountId, config, createdAt }: K8sPropertiesProps)
   const {
     cost_model: { cpu_hourly_cost: cpuHourlyCost, memory_hourly_cost: memoryHourlyCost } = {},
     user,
-    custom_price: customPrice
+    custom_price: customPrice,
   } = config;
 
   return (
@@ -19,7 +19,7 @@ const K8sProperties = ({ id, accountId, config, createdAt }: K8sPropertiesProps)
         value={createdAt}
         dataTestIds={{
           key: `p_connected_at_id`,
-          value: `p_connected_at_value`
+          value: `p_connected_at_value`,
         }}
       />
       <KeyValueLabel
@@ -27,7 +27,7 @@ const K8sProperties = ({ id, accountId, config, createdAt }: K8sPropertiesProps)
         value={accountId}
         dataTestIds={{
           key: `p_${KUBERNETES_CNR}_id`,
-          value: `p_${KUBERNETES_CNR}_value`
+          value: `p_${KUBERNETES_CNR}_value`,
         }}
       />
       <KeyValueLabel

@@ -16,7 +16,7 @@ const WrongInvitationEmailAlert = ({
   invitationEmail,
   currentEmail,
   onGoToDashboard,
-  onSignOut
+  onSignOut,
 }: WrongInvitationEmailAlertProps) => {
   const { classes } = useStyles();
   return (
@@ -27,7 +27,7 @@ const WrongInvitationEmailAlert = ({
           values={{
             invitationEmail,
             currentEmail,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </Typography>

@@ -3,7 +3,7 @@ ARG IMAGE=node:22.16.0-alpine3.21
 
 FROM $IMAGE AS base
 
-RUN npm install -g pnpm@10.12.1
+RUN npm install -g pnpm@10.33.0
   
 ENV NODE_ENV production
 

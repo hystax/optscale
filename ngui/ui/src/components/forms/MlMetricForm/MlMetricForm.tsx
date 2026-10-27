@@ -31,13 +31,13 @@ const MlMetricForm = ({ onSubmit, isGetLoading = false, defaultValues, onCancel,
             <Link key={1} to={ML_METRICS} component={RouterLink}>
               <FormattedMessage id="mlMetricsLibraryTitle" />
             </Link>,
-            isEdit ? <span key={2}>{defaultValues.name}</span> : null
+            isEdit ? <span key={2}>{defaultValues.name}</span> : null,
           ],
           title: {
             isLoading: isEdit && isGetLoading,
             messageId: isEdit ? "editMetricTitle" : "addMetricTitle",
-            dataTestId: "lbl_add_metric"
-          }
+            dataTestId: "lbl_add_metric",
+          },
         }}
       />
       <PageContentWrapper>
@@ -57,7 +57,7 @@ const MlMetricForm = ({ onSubmit, isGetLoading = false, defaultValues, onCancel,
                   dataTestId="btn_create"
                   tooltip={{
                     show: isRestricted,
-                    value: restrictionReasonMessage
+                    value: restrictionReasonMessage,
                   }}
                   disabled={isRestricted}
                 />

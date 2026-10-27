@@ -50,14 +50,14 @@ export const getPoolColorStatus = (percent = 0) => {
 export const getSquareNodesStyle = (count: number, index: number) => ({
   borderRight: {
     xs: "0",
-    lg: index % 2 === 0 ? "1px solid" : "0px solid"
+    lg: index % 2 === 0 ? "1px solid" : "0px solid",
   },
   borderBottom: {
     xs: index + 1 === count ? "0" : "1px solid",
-    lg: index + 2 >= count ? "0" : "1px solid"
+    lg: index + 2 >= count ? "0" : "1px solid",
   },
   borderColor: {
     xs: "divider",
-    lg: "divider"
-  }
+    lg: "divider",
+  },
 });

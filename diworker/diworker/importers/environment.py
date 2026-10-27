@@ -17,13 +17,18 @@ class EnvironmentReportImporter(BaseReportImporter):
         self._insider_client = None
         self._nodes_provider = None
         self.period_start = None
-        if self.cloud_acc.get('last_import_at'):
-            last_import_at = self.get_last_import_date(self.cloud_acc_id)
-            if last_import_at:
-                self.period_start = last_import_at.replace(
-                    hour=0, minute=0, second=0, microsecond=0)
-        if self.period_start is None:
-            self.set_period_start()
+        if self.import_from is not None:
+            self.period_start = opttime.utcfromtimestamp(
+                self.import_from).replace(
+                hour=0, minute=0, second=0, microsecond=0)
+        else:
+            if self.cloud_acc.get('last_import_at'):
+                last_import_at = self.get_last_import_date(self.cloud_acc_id)
+                if last_import_at:
+                    self.period_start = last_import_at.replace(
+                        hour=0, minute=0, second=0, microsecond=0)
+            if self.period_start is None:
+                self.set_period_start()
 
     def get_update_fields(self):
         return [
@@ -41,7 +46,6 @@ class EnvironmentReportImporter(BaseReportImporter):
         ]
 
     def load_raw_data(self):
-        now = opttime.utcnow()
         org_id = self.cloud_acc['organization_id']
         _, resources = self.rest_cl.environment_resource_list(org_id)
 
@@ -54,6 +58,7 @@ class EnvironmentReportImporter(BaseReportImporter):
             c['id']: c['value'] for c in cost_models['cost_models']
         }
 
+        end_time = self.period_end
         chunk = []
         for k, v in environment_resources_map.items():
             created_at = datetime.fromtimestamp(v['created_at'])
@@ -65,7 +70,7 @@ class EnvironmentReportImporter(BaseReportImporter):
             current_day = start_date
             LOG.info('Generating raw expenses for environment resource (%s) '
                      'from %s' % (k, start_date))
-            while current_day < now:
+            while current_day < end_time:
                 if len(chunk) == CHUNK_SIZE:
                     self.update_raw_records(chunk)
                     chunk = []
@@ -74,8 +79,8 @@ class EnvironmentReportImporter(BaseReportImporter):
                 next_day_start = current_day_start + timedelta(days=1)
                 current_day_end = next_day_start - timedelta(seconds=1)
                 date_end = next_day_start
-                if date_end > now:
-                    date_end = now
+                if date_end > end_time:
+                    date_end = end_time
                 value = (date_end - current_day).total_seconds() / 3600
                 expense = {
                     'start_date': current_day_start,

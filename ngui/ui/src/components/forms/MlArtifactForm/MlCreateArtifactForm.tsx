@@ -7,7 +7,7 @@ const MlCreateArtifactForm = ({ onSubmit, onCancel, isLoadingProps = {} }: MlCre
   const { isCreateArtifactLoading = false } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;

@@ -1,0 +1,15 @@
+[project]
+name = "optscale-password"
+version = "0.0.0"
+description = "OptScale Password"
+requires-python = ">=3.12.11,<3.13"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["tools.optscale_password*"]
+namespaces = true

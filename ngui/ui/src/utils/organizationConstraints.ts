@@ -13,7 +13,7 @@ export const isTaggingPolicyConstraint = (type: string) => Object.keys(TAGGING_P
 export const isAnomalyConstraintViolated = (constraint) => {
   const {
     last_run_result: { average, today },
-    definition: { threshold }
+    definition: { threshold },
   } = constraint;
 
   return today > average + (average * threshold) / 100;
@@ -21,7 +21,7 @@ export const isAnomalyConstraintViolated = (constraint) => {
 
 export const isQuotasAndBudgetsConstraintViolated = (constraint) => {
   const {
-    last_run_result: { current, limit }
+    last_run_result: { current, limit },
   } = constraint;
 
   return current > limit;
@@ -29,7 +29,7 @@ export const isQuotasAndBudgetsConstraintViolated = (constraint) => {
 
 export const isTaggingPolicyConstraintViolated = (constraint) => {
   const {
-    last_run_result: { value }
+    last_run_result: { value },
   } = constraint;
 
   return value !== 0;

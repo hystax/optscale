@@ -23,20 +23,20 @@ const DeletePowerSchedule = ({ name, onSubmit, onCancel, isLoading = false }: De
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       dataTestIds={{
         text: "p_delete_power_schedule",
         deleteButton: "btn_delete_power_schedule",
-        cancelButton: "btn_cancel_delete_power_schedule"
+        cancelButton: "btn_cancel_delete_power_schedule",
       }}
       message={{
         messageId: "deletePowerScheduleQuestion",
         values: {
           name,
-          strong: (chunks) => <strong>{chunks}</strong>
-        }
+          strong: (chunks) => <strong>{chunks}</strong>,
+        },
       }}
     />
   );

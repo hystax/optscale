@@ -8,7 +8,7 @@ from rest_api.rest_api_server.models.models import (
     Organization, CloudAccount, Employee, Pool, ReportImport, PoolAlert,
     PoolPolicy, ResourceConstraint, Rule, ShareableBooking, Webhook,
     OrganizationConstraint, OrganizationBI, OrganizationGemini, PowerSchedule,
-    EmployeeEmail)
+    EmployeeEmail, GeminiData)
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   NotFoundException)
 from rest_api.rest_api_server.utils import tp_executor_context
@@ -49,7 +49,7 @@ class ContextController(MongoMixin):
                              'shareable_booking', 'webhook',
                              'organization_constraint', 'organization_bi',
                              'organization_gemini', 'power_schedule',
-                             'employee_email']:
+                             'employee_email', 'gemini_data']:
             raise WrongArgumentsException(Err.OE0174, [type_name])
         return type_name, uuid
 
@@ -68,7 +68,8 @@ class ContextController(MongoMixin):
             'organization_bi': OrganizationBI.__name__,
             'organization_gemini': OrganizationGemini.__name__,
             'power_schedule': PowerSchedule.__name__,
-            'employee_email': EmployeeEmail.__name__
+            'employee_email': EmployeeEmail.__name__,
+            'gemini_data': GeminiData.__name__,
         }
 
         def call_query(base):
@@ -97,6 +98,7 @@ class ContextController(MongoMixin):
                                     call_query),
             'power_schedule': (self.session.query(PowerSchedule), call_query),
             'employee_email': (self.session.query(EmployeeEmail), call_query),
+            'gemini_data': (self.session.query(GeminiData), call_query)
         }
 
         query_base, func = query_map.get(type_name)
@@ -166,6 +168,11 @@ class ContextController(MongoMixin):
                 'employee',
                 self._get_item('employee', x.employee_id)
             ),
+            'gemini_data': lambda x: (
+                'organization',
+                self._get_item('organization',
+                               x.organization_gemini.organization_id)
+            )
         }
         item = self._get_item(type_name, uuid)
         source_type = type_name

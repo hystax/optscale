@@ -18,14 +18,14 @@ const getChartData = (breakdown) =>
         const {
           sp: { cost_with_offer: itemSpCostWithOffer },
           ri: { cost_with_offer: itemRiCostWithOffer },
-          total: { cost_with_offer: itemTotalCostWithOffer, cost_without_offer: itemTotalCostWithoutOffer }
+          total: { cost_with_offer: itemTotalCostWithOffer, cost_without_offer: itemTotalCostWithoutOffer },
         } = item;
 
         const {
           sp_cost_with_offer: spCostWithOffer,
           ri_cost_with_offer: riCostWithOffer,
           total_cost_with_offer: totalCostWithOffer,
-          total_cost_without_offer: totalCostWithoutOffer
+          total_cost_without_offer: totalCostWithoutOffer,
         } = result;
 
         const spCostHrsAggregated = round(spCostWithOffer + itemSpCostWithOffer, 2);
@@ -39,15 +39,15 @@ const getChartData = (breakdown) =>
             sp_cost_with_offer: spCostHrsAggregated,
             ri_cost_with_offer: riCostHrsAggregated,
             total_cost_with_offer: totalCostWithHrsAggregated,
-            total_cost_without_offer: totalCostWithoutHrsAggregated
-          }
+            total_cost_without_offer: totalCostWithoutHrsAggregated,
+          },
         };
       },
       {
         ri_cost_with_offer: 0,
         sp_cost_with_offer: 0,
         total_cost_with_offer: 0,
-        total_cost_without_offer: 0
+        total_cost_without_offer: 0,
       }
     );
 
@@ -55,7 +55,7 @@ const getChartData = (breakdown) =>
       sp_cost_with_offer: tempSpCostWithOffer,
       ri_cost_with_offer: tempRiCostWithOffer,
       total_cost_with_offer: tempTotalCostWithOffer,
-      total_cost_without_offer: tempTotalCostWithoutOffer
+      total_cost_without_offer: tempTotalCostWithoutOffer,
     } = temp;
 
     const finalItem = {
@@ -65,7 +65,7 @@ const getChartData = (breakdown) =>
       ri_expenses: tempRiCostWithOffer,
       total_expenses: tempTotalCostWithOffer,
       total_savings: round(tempTotalCostWithoutOffer - tempTotalCostWithOffer, 2),
-      uncovered_expenses: round(tempTotalCostWithOffer - tempSpCostWithOffer - tempRiCostWithOffer, 2)
+      uncovered_expenses: round(tempTotalCostWithOffer - tempSpCostWithOffer - tempRiCostWithOffer, 2),
     };
 
     return [...data, finalItem];
@@ -83,14 +83,14 @@ const getTooltipItem = (id, paletteColorIndex, value) => ({
         textFirst={false}
       />
     ),
-  value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+  value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />,
 });
 
 export const RI_SP_EXPENSES_COLOR_INDEXES = {
   SP_EXPENSES: 0,
   RI_EXPENSES: 1,
   UNCOVERED_EXPENSES: 2,
-  SAVINGS: 3
+  SAVINGS: 3,
 };
 
 const getRenderTooltipBody = (sectionData, showSavings) => {
@@ -101,8 +101,8 @@ const getRenderTooltipBody = (sectionData, showSavings) => {
       total_savings: totalSavings = 0,
       sp_cost_with_offer: spCostWithOffer = 0,
       ri_cost_with_offer: riCostWithOffer = 0,
-      uncovered_expenses: uncoveredExpenses = 0
-    }
+      uncovered_expenses: uncoveredExpenses = 0,
+    },
   } = sectionData;
 
   const items = [
@@ -110,7 +110,7 @@ const getRenderTooltipBody = (sectionData, showSavings) => {
     showSavings && getTooltipItem("savings", RI_SP_EXPENSES_COLOR_INDEXES.SAVINGS, totalSavings),
     getTooltipItem("uncoveredExpenses", RI_SP_EXPENSES_COLOR_INDEXES.UNCOVERED_EXPENSES, uncoveredExpenses),
     getTooltipItem("riExpenses", RI_SP_EXPENSES_COLOR_INDEXES.RI_EXPENSES, riCostWithOffer),
-    getTooltipItem("spExpenses", RI_SP_EXPENSES_COLOR_INDEXES.SP_EXPENSES, spCostWithOffer)
+    getTooltipItem("spExpenses", RI_SP_EXPENSES_COLOR_INDEXES.SP_EXPENSES, spCostWithOffer),
   ].filter(Boolean);
 
   return (

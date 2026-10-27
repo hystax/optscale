@@ -4,8 +4,8 @@ import useStyles from "./ChartTooltip.styles";
 
 const TooltipTypography = withStyles(Typography, {
   root: {
-    fontSize: "0.9rem"
-  }
+    fontSize: "0.9rem",
+  },
 });
 
 const ChartTooltip = ({ body }) => {

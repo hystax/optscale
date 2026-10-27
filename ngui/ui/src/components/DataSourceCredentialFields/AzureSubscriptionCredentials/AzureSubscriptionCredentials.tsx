@@ -12,7 +12,7 @@ export const FIELD_NAMES = Object.freeze({
   EXPORT_NAME: "exportName",
   STORAGE_ACCOUNT_CONNECTION_STRING: "storageAccountConnectionString",
   STORAGE_CONTAINER: "storageContainer",
-  STORAGE_DIRECTORY: "storageDirectory"
+  STORAGE_DIRECTORY: "storageDirectory",
 });
 
 const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }) => {
@@ -35,11 +35,11 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
             <QuestionMark
               messageId="directoryTenantIdTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_tenant_id"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="directoryTenantId" />}
         autoComplete="off"
@@ -50,7 +50,7 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
           required
           dataTestId="input_subscription_id"
           InputProps={{
-            endAdornment: <QuestionMark messageId="subscriptionIdTooltip" dataTestId="qmark_subs_id" />
+            endAdornment: <QuestionMark messageId="subscriptionIdTooltip" dataTestId="qmark_subs_id" />,
           }}
           label={<FormattedMessage id={FIELD_NAMES.SUBSCRIPTION_ID} />}
           autoComplete="off"
@@ -65,11 +65,11 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
             <QuestionMark
               messageId="applicationClientIdTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_client_id"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="applicationClientId" />}
         autoComplete="off"
@@ -83,11 +83,11 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
             <QuestionMark
               messageId="secretTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_secret"
             />
-          )
+          ),
         }}
         dataTestId="input_azure_secret"
         label={<FormattedMessage id={FIELD_NAMES.SECRET} />}
@@ -109,11 +109,11 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
                 <QuestionMark
                   messageId="exportNameDescription"
                   messageValues={{
-                    i: (chunks) => <i>{chunks}</i>
+                    i: (chunks) => <i>{chunks}</i>,
                   }}
                   dataTestId="qmark_export_name"
                 />
-              )
+              ),
             }}
             dataTestId="input_azure_export_name"
             label={<FormattedMessage id={FIELD_NAMES.EXPORT_NAME} />}
@@ -127,11 +127,11 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
                 <QuestionMark
                   messageId="storageAccountConnectionStringDescription"
                   messageValues={{
-                    i: (chunks) => <i>{chunks}</i>
+                    i: (chunks) => <i>{chunks}</i>,
                   }}
                   dataTestId="qmark_storage_account_connection_string"
                 />
-              )
+              ),
             }}
             masked
             dataTestId="input_azure_storage_account_connection_string"
@@ -146,11 +146,11 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
                 <QuestionMark
                   messageId="storageContainerDescription"
                   messageValues={{
-                    i: (chunks) => <i>{chunks}</i>
+                    i: (chunks) => <i>{chunks}</i>,
                   }}
                   dataTestId="qmark_storage_container"
                 />
-              )
+              ),
             }}
             dataTestId="input_azure_container"
             label={<FormattedMessage id={FIELD_NAMES.STORAGE_CONTAINER} />}
@@ -164,11 +164,11 @@ const AzureSubscriptionCredentials = ({ hiddenFields = [], readOnlyFields = [] }
                 <QuestionMark
                   messageId="storageDirectoryDescription"
                   messageValues={{
-                    i: (chunks) => <i>{chunks}</i>
+                    i: (chunks) => <i>{chunks}</i>,
                   }}
                   dataTestId="qmark_storage_directory"
                 />
-              )
+              ),
             }}
             dataTestId="input_azure_directory"
             label={<FormattedMessage id={FIELD_NAMES.STORAGE_DIRECTORY} />}

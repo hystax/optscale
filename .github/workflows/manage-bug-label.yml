@@ -1,10 +1,11 @@
 name: Manage PR "bug" label
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened]
 
 permissions:
+  contents: read # Recommended for actions/checkout
   pull-requests: write
   issues: write
 
@@ -23,7 +24,12 @@ jobs:
 
       - name: Add "bug" label if branch contains "bug"
         if: steps.check-branch.outputs.contains_bug == 'true'
-        uses: actions-ecosystem/action-add-labels@v1
+        uses: actions/github-script@v8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: bug
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['bug'],
+            });

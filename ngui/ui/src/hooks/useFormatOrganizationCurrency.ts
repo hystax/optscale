@@ -7,17 +7,17 @@ export const useFormatOrganizationCurrency = () => {
   return (currencyCode) =>
     intl.formatMessage(
       {
-        id: "value(parenthesisValue)"
+        id: "value(parenthesisValue)",
       },
       {
         value: intl.formatMessage(
           { id: "value - value" },
           {
             value1: currencyCode,
-            value2: intl.formatMessage({ id: currencyCode })
+            value2: intl.formatMessage({ id: currencyCode }),
           }
         ),
-        parenthesisValue: localeManager.getCurrencySymbol(currencyCode)
+        parenthesisValue: localeManager.getCurrencySymbol(currencyCode),
       }
     );
 };

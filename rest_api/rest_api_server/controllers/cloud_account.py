@@ -306,6 +306,15 @@ class CloudAccountController(BaseController, ClickHouseMixin):
             raise FailedDependency(Err.OE0569, [])
         return service_creds
 
+    @staticmethod
+    def validate_assume_role_external_id(external_id):
+        check_string_attribute(
+            'assume_role_external_id', external_id, min_length=2,
+            max_length=1224)
+        if not re.match(r'^[a-zA-Z0-9+=,.@:/_-]+$', external_id):
+            raise WrongArgumentsException(
+                Err.OE0218, ['assume_role_external_id', external_id])
+
     def create(self, **kwargs):
         org_id = kwargs.get('organization_id')
         self._check_organization(org_id)
@@ -330,6 +339,9 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                     raise_not_provided_exception('assume_role_name')
                 if not assume_role_account_id:
                     raise_not_provided_exception('assume_role_account_id')
+                external_id = config.get('assume_role_external_id')
+                if external_id is not None:
+                    self.validate_assume_role_external_id(external_id)
                 # assumed role -> get credentials from service account
                 for param in not_allowed:
                     if config.get(param):
@@ -346,10 +358,6 @@ class CloudAccountController(BaseController, ClickHouseMixin):
             adapter_cls, config, organization)
         self.check_cloud_account_exists(org_id, cloud_acc_type, account_id)
         kwargs['account_id'] = account_id
-        last_import_modified_at = self._configure_last_import_modified_at(
-            adapter_cls, config)
-        if last_import_modified_at:
-            kwargs['last_import_modified_at'] = last_import_modified_at
         LOG.info('Creating cloud account. Input data: %s', kwargs)
         ca_obj = CloudAccount(**kwargs)
         self._validate(ca_obj, True, **kwargs)
@@ -493,10 +501,6 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         except CloudConnectionError as ex:
             raise TimeoutException(Err.OE0455, [str(ex)])
 
-    def _configure_last_import_modified_at(self, adapter_cls, config):
-        adapter = adapter_cls(config)
-        return adapter.configure_last_import_modified_at()
-
     @staticmethod
     def _need_notification(kwargs):
         return bool(set(kwargs.keys()).intersection(set(NOTIFY_FIELDS)))
@@ -564,6 +568,13 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                         "secret_access_key", "")
                     config["assume_role_account_id"] = role_acc
                     config["assume_role_name"] = role
+                    old_external_id = old_config.get('assume_role_external_id')
+                    if 'assume_role_external_id' in config:
+                        if config.get('assume_role_external_id') != old_external_id:
+                            raise WrongArgumentsException(
+                                Err.OE0211, ['assume_role_external_id'])
+                    if old_external_id:
+                        config["assume_role_external_id"] = old_external_id
             # non-assumed
             else:
                 access_key_id = config.get('access_key_id')
@@ -582,7 +593,10 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                             ]
                         )
                 # valid keys, but unexpected for non-assumed roles
-                unexpected = ['assume_role_account_id', 'assume_role_name']
+                unexpected = [
+                    'assume_role_account_id', 'assume_role_name',
+                    'assume_role_external_id',
+                ]
                 for i in unexpected:
                     if i in config:
                         raise WrongArgumentsException(Err.OE0212, [i])
@@ -614,20 +628,10 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                 warnings.extend(configuration_res['warnings'])
                 kwargs['config'] = encode_config(config)
 
-        last_import_update = self._configure_last_import_modified_at(
-            adapter_cls, config)
-        if last_import_update:
-            last_import_modified_at = last_import_update
-            kwargs['last_import_modified_at'] = last_import_modified_at
-
         if kwargs:
             updated_cloud_account = super().update(item_id, **kwargs)
             self._publish_validation_warnings_activities(updated_cloud_account,
                                                          warnings)
-            for import_f in ['last_import_at', 'last_import_modified_at',
-                             'last_import_attempt_at',
-                             'last_import_attempt_error']:
-                kwargs.pop(import_f, None)
         else:
             updated_cloud_account = cloud_acc_obj
 

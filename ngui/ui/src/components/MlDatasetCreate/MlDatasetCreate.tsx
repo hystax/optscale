@@ -10,12 +10,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={ML_DATASETS} component={RouterLink}>
       <FormattedMessage id="datasets" />
-    </Link>
+    </Link>,
   ],
   title: {
     messageId: "addDatasetTitle",
-    dataTestId: "lbl_add_dataset"
-  }
+    dataTestId: "lbl_add_dataset",
+  },
 };
 
 const MlDatasetCreate = () => (
@@ -24,7 +24,7 @@ const MlDatasetCreate = () => (
     <PageContentWrapper>
       <Box
         sx={{
-          width: { md: "50%" }
+          width: { md: "50%" },
         }}
       >
         <MlDatasetCreateFormContainer />

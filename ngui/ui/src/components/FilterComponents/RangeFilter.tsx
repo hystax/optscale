@@ -45,14 +45,14 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
   label,
   buttonIcon = <CalendarTodayOutlinedIcon />,
   onChange,
-  appliedRange
+  appliedRange,
 }) => {
   const intl = useIntl();
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const [selectedRange, setSelectedRange] = React.useState<RangeValue>({
     from: undefined,
-    to: undefined
+    to: undefined,
   });
 
   const popoverId = React.useId();
@@ -77,28 +77,28 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
   const handleFromChange = (value: Date) => {
     setSelectedRange((prev) => ({
       ...prev,
-      from: +value
+      from: +value,
     }));
   };
 
   const handleToChange = (value: Date) => {
     setSelectedRange((prev) => ({
       ...prev,
-      to: +value
+      to: +value,
     }));
   };
 
   const handleResetFrom = () => {
     setSelectedRange((prev) => ({
       ...prev,
-      from: undefined
+      from: undefined,
     }));
   };
 
   const handleResetTo = () => {
     setSelectedRange((prev) => ({
       ...prev,
-      to: undefined
+      to: undefined,
     }));
   };
 
@@ -137,7 +137,7 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
         onClose={handleCancel}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "left"
+          horizontal: "left",
         }}
       >
         <Box sx={{ width: "400px", p: 2 }}>

@@ -18,7 +18,7 @@ export const GOOGLE_CALENDAR = "googleCalendar";
 const GOOGLE_CALENDAR_STATUS = Object.freeze({
   ALL_DISABLED: "allDisabled",
   CAN_CONNECT: "canConnect",
-  CAN_DISCONNECT: "canDisconnect"
+  CAN_DISCONNECT: "canDisconnect",
 });
 
 const getBlocksDependingOnCalendarConnectionStatus = ({ googleCalendarStatus, isLoading, shareableLink, lastCompleted }) => {
@@ -35,7 +35,7 @@ const getBlocksDependingOnCalendarConnectionStatus = ({ googleCalendarStatus, is
           key="description2"
           messageId="integrationsGoogleCalendarDescription2"
           values={{
-            link: <CopyText text={shareableLink}>{shareableLink}</CopyText>
+            link: <CopyText text={shareableLink}>{shareableLink}</CopyText>,
           }}
         />,
         <TextBlock
@@ -44,9 +44,9 @@ const getBlocksDependingOnCalendarConnectionStatus = ({ googleCalendarStatus, is
           messageId="lastSync"
           values={{
             value:
-              lastSync === 0 ? <FormattedMessage id="never" /> : <FormattedMessage id="timeAgo" values={{ time: lastSync }} />
+              lastSync === 0 ? <FormattedMessage id="never" /> : <FormattedMessage id="timeAgo" values={{ time: lastSync }} />,
           }}
-        />
+        />,
       ];
     }
     default:
@@ -56,11 +56,11 @@ const getBlocksDependingOnCalendarConnectionStatus = ({ googleCalendarStatus, is
 
 const getBlocks = (googleCalendarStatus, isLoading, { shareable_link: shareableLink, last_completed: lastCompleted }) => {
   const defaultBlocks = [
-    <TextBlock isLoading={isLoading} key="description1" messageId="integrationsGoogleCalendarDescription1" />
+    <TextBlock isLoading={isLoading} key="description1" messageId="integrationsGoogleCalendarDescription1" />,
   ];
   return [
     ...defaultBlocks,
-    ...getBlocksDependingOnCalendarConnectionStatus({ googleCalendarStatus, isLoading, shareableLink, lastCompleted })
+    ...getBlocksDependingOnCalendarConnectionStatus({ googleCalendarStatus, isLoading, shareableLink, lastCompleted }),
   ];
 };
 
@@ -77,7 +77,7 @@ const getButton = ({ googleCalendarStatus, isLoading, canUpdate, canDelete, open
           startIcon={<GoogleCalendarIcon />}
           tooltip={{
             show: !canUpdate,
-            messageId: "onlyOrganizationManagersCanSetThisUp"
+            messageId: "onlyOrganizationManagersCanSetThisUp",
           }}
           color="primary"
           messageId="connectCalendar"
@@ -91,7 +91,7 @@ const getButton = ({ googleCalendarStatus, isLoading, canUpdate, canDelete, open
           disabled={!canDelete}
           tooltip={{
             show: !canDelete,
-            messageId: "onlyOrganizationManagersCanDisconnectThis"
+            messageId: "onlyOrganizationManagersCanDisconnectThis",
           }}
           color="error"
           variant="contained"
@@ -135,15 +135,15 @@ const GoogleCalendar = ({ isLoading, serviceAccount, calendarSynchronization }) 
         canUpdate,
         canDelete,
         openConnectModal,
-        openDisconnectModal
+        openDisconnectModal,
       })}
       withBackdrop={!serviceAccount && !isLoading}
       backdropMessage={{
         id: "notAvailableOnYourSetup",
         values: {
           email: <MailTo email={EMAIL_SUPPORT} text={EMAIL_SUPPORT} />,
-          br: <br />
-        }
+          br: <br />,
+        },
       }}
       blocks={getBlocks(googleCalendarStatus, isLoading, calendarSynchronization)}
     />

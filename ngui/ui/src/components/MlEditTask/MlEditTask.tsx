@@ -13,7 +13,7 @@ import { isEmptyObject } from "utils/objects";
 const SETTING_TABS = Object.freeze({
   COMMON: "common",
   METRICS: "metrics",
-  LEADERBOARD_TEMPLATE: "leaderboardTemplate"
+  LEADERBOARD_TEMPLATE: "leaderboardTemplate",
 });
 
 const MlEditTask = ({ leaderboardTemplate, task, isLoading = false }) => {
@@ -26,35 +26,35 @@ const MlEditTask = ({ leaderboardTemplate, task, isLoading = false }) => {
       </Link>,
       <Link key={2} to={getMlTaskDetailsUrl(id)} component={RouterLink}>
         {name}
-      </Link>
+      </Link>,
     ],
     title: {
       messageId: "editTaskTitle",
       isLoading,
-      dataTestId: "lbl_edit_task"
-    }
+      dataTestId: "lbl_edit_task",
+    },
   };
 
   const tabs = [
     {
       title: SETTING_TABS.COMMON,
       dataTestId: "tab_common",
-      node: <MlEditTaskFormContainer task={task} />
+      node: <MlEditTaskFormContainer task={task} />,
     },
     {
       title: SETTING_TABS.METRICS,
       dataTestId: "tab_metrics",
-      node: <MlEditTaskMetricsContainer taskMetrics={task.metrics ?? []} />
+      node: <MlEditTaskMetricsContainer taskMetrics={task.metrics ?? []} />,
     },
     ...(!isEmptyObject(leaderboardTemplate)
       ? [
           {
             title: SETTING_TABS.LEADERBOARD_TEMPLATE,
             dataTestId: "tab_leaderboard_template",
-            node: <MlEditTaskLeaderboardTemplateContainer leaderboardTemplate={leaderboardTemplate} task={task} />
-          }
+            node: <MlEditTaskLeaderboardTemplateContainer leaderboardTemplate={leaderboardTemplate} task={task} />,
+          },
         ]
-      : [])
+      : []),
   ];
 
   return (
@@ -66,7 +66,7 @@ const MlEditTask = ({ leaderboardTemplate, task, isLoading = false }) => {
           tabsProps={{
             tabs,
             defaultTab: SETTING_TABS.COMMON,
-            name: "edit-task"
+            name: "edit-task",
           }}
         />
       </PageContentWrapper>

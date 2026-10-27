@@ -6,7 +6,7 @@ export const getEditFormDefaultValues = ({
   poolName,
   limitAmount,
   defaultResourceOwnerId,
-  type
+  type,
 }: {
   poolName: string;
   limitAmount: number;
@@ -17,7 +17,7 @@ export const getEditFormDefaultValues = ({
   [FIELD_NAMES.LIMIT]: String(limitAmount),
   [FIELD_NAMES.TYPE]: type,
   [FIELD_NAMES.OWNER]: defaultResourceOwnerId,
-  [FIELD_NAMES.AUTO_EXTENSION]: false
+  [FIELD_NAMES.AUTO_EXTENSION]: false,
 });
 
 export const getCreateFormDefaultValues = (): CreatePoolFormValues => ({
@@ -25,5 +25,5 @@ export const getCreateFormDefaultValues = (): CreatePoolFormValues => ({
   [FIELD_NAMES.LIMIT]: "",
   [FIELD_NAMES.TYPE]: POOL_TYPE_BUDGET,
   [FIELD_NAMES.OWNER]: "",
-  [FIELD_NAMES.AUTO_EXTENSION]: false
+  [FIELD_NAMES.AUTO_EXTENSION]: false,
 });

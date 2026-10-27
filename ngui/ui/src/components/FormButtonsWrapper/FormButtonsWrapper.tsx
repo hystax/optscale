@@ -15,7 +15,7 @@ const FormButtonsWrapper = ({
   justifyContent = "flex-start",
   alignItems,
   mt = 2,
-  mb = 0
+  mb = 0,
 }: FormButtonsWrapperProps) => {
   const { classes } = useStyles();
   return (

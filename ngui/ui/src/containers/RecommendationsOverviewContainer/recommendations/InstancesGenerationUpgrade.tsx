@@ -11,10 +11,10 @@ const columns = [
   text({
     headerMessageId: "recommendedSize",
     headerDataTestId: "lbl_igu_recommended_flavor",
-    accessorKey: "recommended_flavor"
+    accessorKey: "recommended_flavor",
   }),
   detectedAt({ headerDataTestId: "lbl_igu_detected_at" }),
-  savings({ headerDataTestId: "lbl_igu_possible_monthly_savings", options: { defaultSort: "desc" } })
+  savings({ headerDataTestId: "lbl_igu_possible_monthly_savings", options: { defaultSort: "desc" } }),
 ];
 
 class InstancesGenerationUpgrade extends BaseRecommendation {
@@ -42,12 +42,12 @@ class InstancesGenerationUpgrade extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: item.recommended_flavor
-      }
+        value: item.recommended_flavor,
+      },
     ]);
   }
 

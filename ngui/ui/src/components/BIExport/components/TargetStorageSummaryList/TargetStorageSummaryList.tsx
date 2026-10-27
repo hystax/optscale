@@ -11,7 +11,7 @@ const TypeLabel = ({ type }) => {
       [BI_EXPORT_STORAGE_TYPE.AWS_RAW_EXPORT]: <CloudLabel type={AWS_CNR} label={<FormattedMessage id="amazonS3" />} />,
       [BI_EXPORT_STORAGE_TYPE.AZURE_RAW_EXPORT]: (
         <CloudLabel type={AZURE_CNR} label={<FormattedMessage id="azureBlobStorage" />} />
-      )
+      ),
     })[type];
 
   return <KeyValueLabel key="type" keyMessageId="type" value={getValue()} />;
@@ -26,15 +26,15 @@ const TargetStorageSummaryList = ({ type, meta, isLoading = false }) => (
       ...(type === BI_EXPORT_STORAGE_TYPE.AWS_RAW_EXPORT
         ? [
             <KeyValueLabel key="bucket" keyMessageId="bucket" value={meta.bucket} />,
-            <KeyValueLabel key="s3Prefix" keyMessageId="s3Prefix" value={meta.s3_prefix} />
+            <KeyValueLabel key="s3Prefix" keyMessageId="s3Prefix" value={meta.s3_prefix} />,
           ]
         : []),
       ...(type === BI_EXPORT_STORAGE_TYPE.AZURE_RAW_EXPORT
         ? [
             <KeyValueLabel key="container" keyMessageId="container" value={meta.container} />,
-            <KeyValueLabel key="storageAccount" keyMessageId="storageAccount" value={meta.storage_account} />
+            <KeyValueLabel key="storageAccount" keyMessageId="storageAccount" value={meta.storage_account} />,
           ]
-        : [])
+        : []),
     ]}
   />
 );

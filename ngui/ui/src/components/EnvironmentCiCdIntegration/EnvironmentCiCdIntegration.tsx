@@ -16,8 +16,7 @@ const EnvironmentCiCdIntegration = ({ text }) => (
     </Box>
     <Box mb={2}>
       <Typography>
-        <FormattedMessage id="youNeedToInsertFollowingPOSTRequest" />
-        {":"}
+        <FormattedMessage id="youNeedToInsertFollowingPOSTRequest" />:
       </Typography>
     </Box>
     <Box mb={2}>
@@ -29,7 +28,7 @@ const EnvironmentCiCdIntegration = ({ text }) => (
           id="requestBodyMustContainPlainJSON"
           values={{
             break: <br />,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </Typography>
@@ -43,7 +42,7 @@ const EnvironmentCiCdIntegration = ({ text }) => (
               <Link to={INTEGRATIONS} component={RouterLink}>
                 {chunks}
               </Link>
-            )
+            ),
           }}
         />
       </Typography>

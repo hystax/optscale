@@ -28,7 +28,7 @@ const ResourceGroupedExpensesTable = ({ data, isLoading, startDate, endDate, sho
         ),
         cell: ({ row: { original = {} } }) => (
           <CircleLabel figureColor={colorScale(original.category)} label={original.category} textFirst={false} />
-        )
+        ),
       },
       {
         accessorKey: "expenses",
@@ -38,7 +38,7 @@ const ResourceGroupedExpensesTable = ({ data, isLoading, startDate, endDate, sho
           </TextWithDataTestId>
         ),
         cell: ({ row: { original = {} } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={original.expenses} />,
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       ...(shouldShowUsageColumn
         ? [
@@ -54,10 +54,10 @@ const ResourceGroupedExpensesTable = ({ data, isLoading, startDate, endDate, sho
                   <ResourceUsageFormattedNumber usage={original.usage} unit={original.usageUnit} />
                 ) : (
                   "-"
-                )
-            }
+                ),
+            },
           ]
-        : [])
+        : []),
     ];
   }, [endDate, shouldShowUsageColumn, startDate, theme.palette.chart]);
 
@@ -69,13 +69,13 @@ const ResourceGroupedExpensesTable = ({ data, isLoading, startDate, endDate, sho
         container: "table_grouped",
         searchInput: "input_search",
         searchButton: "btn_search",
-        deleteSearchButton: "btn_delete_search"
+        deleteSearchButton: "btn_delete_search",
       }}
       withSearch
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noExpenses"
+        emptyMessageId: "noExpenses",
       }}
       pageSize={50}
       queryParamPrefix="grouped"

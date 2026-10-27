@@ -13,7 +13,7 @@ const GoogleAuthButton = ({ handleSignIn, isLoading, disabled }) => {
       const { message = "", type = "", ...rest } = response;
       console.warn(`Google response failure ${message}: ${type}`, rest);
     },
-    clientId
+    clientId,
   });
 
   const environmentNotSet = !clientId;
@@ -30,7 +30,7 @@ const GoogleAuthButton = ({ handleSignIn, isLoading, disabled }) => {
       fullWidth
       tooltip={{
         show: environmentNotSet,
-        messageId: "signInWithGoogleIsNotConfigured"
+        messageId: "signInWithGoogleIsNotConfigured",
       }}
     />
   );

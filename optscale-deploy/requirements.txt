@@ -1,7 +1,5 @@
 ansible==9.0.1
 pyyaml==6.0.1
-# kubernetes 10.0.1 broken with urllib3 2.6.0+ (removed getheaders)
-# https://github.com/kubernetes-client/python/issues/2477
-urllib3>=2.0,<2.6
+urllib3==2.7.0
 kubernetes==10.0.1
 python-on-whales==0.72.0

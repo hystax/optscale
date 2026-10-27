@@ -25,6 +25,13 @@
   command: ['sh', '-c', 'until nc -z {{ .service.name }}.default.svc.cluster.local {{ .service.httpExternalPort }} -w 2; do sleep 2; done']
 {{- end -}}
 
+{{- define "wait_for_tempo_service" -}}
+- name: "wait-{{ .service.name }}"
+  image: "busybox:1.30.0"
+  imagePullPolicy: IfNotPresent
+  command: ['sh', '-c', 'until nc -z {{ .service.name }}.default.svc.cluster.local {{ .service.externalQueryPort }} -w 2; do sleep 2; done']
+{{- end -}}
+
 {{- define "wait_for_elk" -}}
 - name: "wait-elk"
   image: "busybox:1.30.0"

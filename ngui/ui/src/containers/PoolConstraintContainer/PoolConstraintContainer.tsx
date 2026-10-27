@@ -43,7 +43,7 @@ const PoolConstraintContainer = ({ poolId, policy, isLoading, policyType }) => {
         isGetDataLoading: isLoading,
         isUpdateLoading: policy?.id === entityId && updateIsLoading,
         isUpdateActivityLoading: policy?.id === updateActivityEntityId && isUpdateActivityLoading,
-        isCreateLoading: createIsLoading
+        isCreateLoading: createIsLoading,
       }}
     />
   );

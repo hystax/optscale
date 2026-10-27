@@ -9,7 +9,7 @@ const size = ({ headerDataTestId, id, accessorKey = "flavor", accessorFn }) => (
     </TextWithDataTestId>
   ),
   accessorFn,
-  accessorKey
+  accessorKey,
 });
 
 export default size;

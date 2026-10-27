@@ -40,7 +40,7 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
     () =>
       prepareData({
         assignmentRules,
-        entities
+        entities,
       }),
     [assignmentRules, entities]
   );
@@ -53,15 +53,15 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         messageId: "edit",
         icon: <EditOutlinedIcon />,
         action: (rowDataId) => navigate(getEditAssignmentRuleUrl(rowDataId)),
-        dataTestId: "btn_edit"
+        dataTestId: "btn_edit",
       },
       {
         messageId: "delete",
         icon: <DeleteOutlinedIcon />,
         action: (rowDataId) => openSideModal(DeleteAssignmentRuleModal, { ruleId: rowDataId }),
         dataTestId: "btn_delete",
-        color: "error"
-      }
+        color: "error",
+      },
     ];
 
     const priorityActions = [
@@ -76,8 +76,8 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       },
       {
         messageId: "promote",
@@ -90,8 +90,8 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       },
       {
         messageId: "demote",
@@ -104,8 +104,8 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       },
       {
         messageId: "deprioritize",
@@ -118,9 +118,9 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
-      }
+          value: restrictionReasonMessage,
+        },
+      },
     ];
 
     return [
@@ -148,7 +148,7 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
                       disabled: item.disabled || original.priority === item.disabledPriority,
                       icon: item.icon,
                       tooltip: item.tooltip,
-                      action: () => item.action(original.id)
+                      action: () => item.action(original.id),
                     })),
                     ...basicActions.map((item) => ({
                       key: item.messageId,
@@ -156,14 +156,14 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
                       icon: item.icon,
                       action: () => item.action(original.id),
                       dataTestId: `${item.dataTestId}_${id}`,
-                      color: item.color
-                    }))
+                      color: item.color,
+                    })),
                   ]}
                 />
-              )
-            }
+              ),
+            },
           ]
-        : [])
+        : []),
     ];
   }, [isRestricted, restrictionReasonMessage, rulesCount, isManageAllowed, navigate, openSideModal, onUpdatePriority]);
 
@@ -178,7 +178,7 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         type: "button",
         dataTestId: "btn_add",
         action: addButtonAction,
-        requiredActions: ["EDIT_PARTNER"]
+        requiredActions: ["EDIT_PARTNER"],
       },
       {
         key: "bu-reapply",
@@ -188,9 +188,9 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         action: () => openSideModal(ReapplyRulesetModal, { managedPools }),
         dataTestId: "btn_re_apply",
         show: !isEmptyArray(managedPools),
-        isLoading: isGetManagedPoolsLoading
-      }
-    ]
+        isLoading: isGetManagedPoolsLoading,
+      },
+    ],
   };
 
   return isGetAssignmentRulesLoading ? (
@@ -204,11 +204,11 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
         localization={{ emptyMessageId: "noAutomaticResourceAssignmentRules" }}
         actionBar={{
           show: true,
-          definition: actionBarDefinition
+          definition: actionBarDefinition,
         }}
         pageSize={50}
         dataTestIds={{
-          container: "table_rules"
+          container: "table_rules",
         }}
       />
     </>

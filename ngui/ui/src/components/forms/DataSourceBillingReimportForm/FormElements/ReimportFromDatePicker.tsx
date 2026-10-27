@@ -11,7 +11,7 @@ const ReimportFromDatePicker = () => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (
@@ -21,8 +21,8 @@ const ReimportFromDatePicker = () => {
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
-        }
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
+        },
       }}
       render={({ field: { value, onChange } }) => (
         <IntervalTimePicker
@@ -39,13 +39,13 @@ const ReimportFromDatePicker = () => {
           validation={{
             dataTestId: `input_${FIELD_NAME}`,
             error: !!errors[FIELD_NAME],
-            helperText: errors[FIELD_NAME]?.message
+            helperText: errors[FIELD_NAME]?.message,
           }}
           dataTestIds={{
             field: {
               input: `input_${FIELD_NAME}`,
-              iconButton: "btn_select_date"
-            }
+              iconButton: "btn_select_date",
+            },
           }}
         />
       )}

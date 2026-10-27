@@ -25,14 +25,14 @@ const getChartData = (breakdown) =>
           ...{
             sp_usage_hrs: spUsageHrsAggregated,
             ri_usage_hrs: riUsageHrsAggregated,
-            total_usage_hrs: totalUsageHrsAggregated
-          }
+            total_usage_hrs: totalUsageHrsAggregated,
+          },
         };
       },
       {
         ri_usage_hrs: 0,
         sp_usage_hrs: 0,
-        total_usage_hrs: 0
+        total_usage_hrs: 0,
       }
     );
 
@@ -48,7 +48,7 @@ const getChartData = (breakdown) =>
       ri_usage_percent: riUsagePercent,
       // intPercentXofY works not as expected when working with floating numbers
       // When is it essential to have 100% as a sum of all the addends
-      uncovered_usage_percent: 1 - spUsagePercent - riUsagePercent
+      uncovered_usage_percent: 1 - spUsagePercent - riUsagePercent,
     };
 
     return [...data, finalItem];
@@ -59,13 +59,13 @@ const getTooltipItem = (id, paletteColorIndex, value) => ({
   keyText: (
     <CircleLabel figureColor={RI_SP_CHART_PALETTE[paletteColorIndex]} label={<FormattedMessage id={id} />} textFirst={false} />
   ),
-  value: <FormattedNumber value={value} format="percentage" />
+  value: <FormattedNumber value={value} format="percentage" />,
 });
 
 export const RI_SP_COVERAGE_COLOR_INDEXES = {
   SP_USAGE: 0,
   RI_USAGE: 1,
-  UNCOVERED_USAGE: 2
+  UNCOVERED_USAGE: 2,
 };
 
 const getRenderTooltipBody = (sectionData) => {
@@ -74,14 +74,14 @@ const getRenderTooltipBody = (sectionData) => {
       date,
       sp_usage_percent: spUsagePercent = 0,
       ri_usage_percent: riUsagePercent = 0,
-      uncovered_usage_percent: uncoveredUsagePercent = 0
-    }
+      uncovered_usage_percent: uncoveredUsagePercent = 0,
+    },
   } = sectionData;
 
   const items = [
     getTooltipItem("uncoveredUsage", RI_SP_COVERAGE_COLOR_INDEXES.UNCOVERED_USAGE, uncoveredUsagePercent),
     getTooltipItem("riUsage", RI_SP_COVERAGE_COLOR_INDEXES.RI_USAGE, riUsagePercent),
-    getTooltipItem("spUsage", RI_SP_COVERAGE_COLOR_INDEXES.SP_USAGE, spUsagePercent)
+    getTooltipItem("spUsage", RI_SP_COVERAGE_COLOR_INDEXES.SP_USAGE, spUsagePercent),
   ];
 
   return (

@@ -54,7 +54,7 @@ const addSelectionColumn = (columns) => {
                 tableContext.setRowSelection((currentSelectionState) => {
                   const newState = {
                     ...currentSelectionState,
-                    ...Object.fromEntries(toBeToggled)
+                    ...Object.fromEntries(toBeToggled),
                   };
                   /**
                    * TODO: Investigate state format
@@ -72,10 +72,10 @@ const addSelectionColumn = (columns) => {
       },
       style: {
         padding: 0,
-        width: "48px"
-      }
+        width: "48px",
+      },
     },
-    ...columns
+    ...columns,
   ];
 };
 

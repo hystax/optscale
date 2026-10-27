@@ -10,7 +10,7 @@ const details = true;
 
 const ResourceContainer = ({ resourceId }) => {
   const {
-    apiData: { resource = {} }
+    apiData: { resource = {} },
   } = useApiData(GET_RESOURCE);
 
   const { isLoading: isLoadingPatch } = useApiState(UPDATE_RESOURCE_VISIBILITY);
@@ -28,7 +28,7 @@ const ResourceContainer = ({ resourceId }) => {
     dispatch(
       updateResourceVisibility(resourceId, {
         recommendation: recommendationType,
-        action
+        action,
       })
     );
 

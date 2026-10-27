@@ -15,14 +15,14 @@ const mlTaskName = ({ accessorKey = "name", enableSorting = true, enableHiding =
   enableSorting,
   cell: ({
     row: {
-      original: { id }
+      original: { id },
     },
-    cell
+    cell,
   }) => (
     <Link to={getMlTaskDetailsUrl(id)} component={RouterLink}>
       {cell.getValue()}
     </Link>
-  )
+  ),
 });
 
 export default mlTaskName;

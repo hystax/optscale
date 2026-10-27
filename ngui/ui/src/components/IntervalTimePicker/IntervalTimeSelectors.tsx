@@ -10,7 +10,7 @@ import {
   roundTimeToInterval,
   AMOUNT_30_MINUTES,
   generateDayHours,
-  MERIDIEM_NAMES
+  MERIDIEM_NAMES,
 } from "utils/datetime";
 
 const IntervalTimeSelectors = ({ value = +new Date(), setValue, stepMinutes = AMOUNT_30_MINUTES }) => {

@@ -30,7 +30,9 @@ const dataset = ({ id, accessorFn, accessorKey }) => ({
 
     return (
       <>
-        <Typography noWrap>{<DatasetName name={name} deleted={deleted} />}</Typography>
+        <Typography noWrap>
+          <DatasetName name={name} deleted={deleted} />
+        </Typography>
         <Typography gutterBottom>{path}</Typography>
         <Box display="flex" gap={SPACING_1} flexWrap="wrap">
           {labels.map((label) => (
@@ -39,7 +41,7 @@ const dataset = ({ id, accessorFn, accessorKey }) => ({
         </Box>
       </>
     );
-  }
+  },
 });
 
 export default dataset;

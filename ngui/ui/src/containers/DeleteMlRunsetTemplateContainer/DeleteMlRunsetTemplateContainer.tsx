@@ -26,16 +26,16 @@ const DeleteMlRunsetTemplateContainer = ({ id, onCancel }) => {
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       dataTestIds={{
         text: "p_delete_pool",
         deleteButton: "btn_sm_delete",
-        cancelButton: "btn_sm_cancel"
+        cancelButton: "btn_sm_cancel",
       }}
       message={{
-        messageId: "deleteRunsetTemplateQuestion"
+        messageId: "deleteRunsetTemplateQuestion",
       }}
     />
   );

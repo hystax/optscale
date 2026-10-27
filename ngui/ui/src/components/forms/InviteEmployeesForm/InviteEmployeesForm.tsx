@@ -32,7 +32,7 @@ const getEmailInvitations = (
     ? additionalRoles.map((item) => ({
         scope_id: item.role === ORGANIZATION_MANAGER ? organizationId : item.poolId,
         scope_type: item.role === ORGANIZATION_MANAGER ? SCOPE_TYPES.ORGANIZATION : SCOPE_TYPES.POOL,
-        purpose: item.role === ORGANIZATION_MANAGER ? MANAGER : item.role
+        purpose: item.role === ORGANIZATION_MANAGER ? MANAGER : item.role,
       }))
     : [{ scope_id: organizationId, scope_type: SCOPE_TYPES.ORGANIZATION, purpose: null }];
 
@@ -46,7 +46,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
 
   const { name, organizationId } = useOrganizationInfo();
   const methods = useForm<FormValues>({
-    shouldUnregister: true
+    shouldUnregister: true,
   });
 
   const { control, handleSubmit } = methods;
@@ -56,18 +56,18 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     invalidEmails: string[];
   }>({
     emails: [],
-    invalidEmails: []
+    invalidEmails: [],
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: FIELD_NAMES.ADDITIONAL_ROLES_FIELD_ARRAY.FIELD_NAME
+    name: FIELD_NAMES.ADDITIONAL_ROLES_FIELD_ARRAY.FIELD_NAME,
   });
 
   const onSuccessCallback = () => {
     setValues({
       emails: [],
-      invalidEmails: []
+      invalidEmails: [],
     });
     remove();
   };
@@ -95,7 +95,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
       <Grid item xs={4}>
         <Input
           InputProps={{
-            readOnly: true
+            readOnly: true,
           }}
           defaultValue={intl.formatMessage({ id: "member" })}
           label={<FormattedMessage id="role" />}
@@ -106,7 +106,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
       <Grid item xs={8}>
         <Input
           InputProps={{
-            readOnly: true
+            readOnly: true,
           }}
           defaultValue={name}
           label={<FormattedMessage id="organization" />}
@@ -144,12 +144,12 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     if (emails.includes(option)) {
       setValues({
         ...values,
-        emails: emails.filter((email) => email !== option)
+        emails: emails.filter((email) => email !== option),
       });
     } else {
       setValues({
         ...values,
-        invalidEmails: invalidEmails.filter((email) => email !== option)
+        invalidEmails: invalidEmails.filter((email) => email !== option),
       });
     }
   };
@@ -211,7 +211,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
               color={values.invalidEmails.includes(option) ? "error" : "info"}
               dataTestIds={{
                 chip: `chip_${index}`,
-                deleteIcon: `chip_btn_close_${index}`
+                deleteIcon: `chip_btn_close_${index}`,
               }}
               {...removeKey(getTagProps({ index }), "onDelete")}
             />
@@ -248,7 +248,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
               disabled={isRestricted}
               tooltip={{
                 show: isRestricted,
-                value: restrictionReasonMessage
+                value: restrictionReasonMessage,
               }}
               isLoading={isCreateInvitationsLoading || isGetAvailablePoolsLoading}
             />

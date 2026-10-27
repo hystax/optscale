@@ -16,27 +16,27 @@ const useStyles = makeStyles()((theme, { buttonOpacity, isExpanded }) => ({
     display: "flex",
     flexDirection: "row",
     transition: `width ${ANIMATION_LENGTH}s ${ANIMATION_FUNCTION}`,
-    width: `${INTERACTIVE_BORDER_WIDTH}px`
+    width: `${INTERACTIVE_BORDER_WIDTH}px`,
   },
   wrapperExpanded: {
-    width: `${DRAWER_WIDTH}px`
+    width: `${DRAWER_WIDTH}px`,
   },
   // hiding menu using its margin
   menu: {
     width: DRAWER_WIDTH,
     transition: `margin ${ANIMATION_LENGTH}s ${ANIMATION_FUNCTION}`,
     marginLeft: 0,
-    height: "100%"
+    height: "100%",
   },
   hiddenMenu: {
-    marginLeft: `${-DRAWER_WIDTH + INTERACTIVE_BORDER_WIDTH}px`
+    marginLeft: `${-DRAWER_WIDTH + INTERACTIVE_BORDER_WIDTH}px`,
   },
   menuCollapseBorder: {
     right: `${INTERACTIVE_BORDER_WIDTH / 2}px`,
     zIndex: theme.zIndex.drawer,
     cursor: "pointer",
     position: "relative",
-    minWidth: `${INTERACTIVE_BORDER_WIDTH}px`
+    minWidth: `${INTERACTIVE_BORDER_WIDTH}px`,
   },
   drawerPaper: {
     position: "relative",
@@ -45,18 +45,18 @@ const useStyles = makeStyles()((theme, { buttonOpacity, isExpanded }) => ({
     "& > *": {
       // opacity of drawer children helps to move away currently selected menu item background, when menu is collapsed
       opacity: 1,
-      transition: `opacity ${ANIMATION_LENGTH / 2}s ${ANIMATION_FUNCTION} 0s`
-    }
+      transition: `opacity ${ANIMATION_LENGTH / 2}s ${ANIMATION_FUNCTION} 0s`,
+    },
   },
   drawerPaperHidden: {
     "& > *": {
       opacity: 0,
-      transition: `opacity ${ANIMATION_LENGTH}s ${ANIMATION_FUNCTION} ${ANIMATION_LENGTH / 2}s`
+      transition: `opacity ${ANIMATION_LENGTH}s ${ANIMATION_FUNCTION} ${ANIMATION_LENGTH / 2}s`,
     },
     scrollbarWidth: "none",
     "::-webkit-scrollbar": {
-      display: "none"
-    }
+      display: "none",
+    },
   },
   button: {
     position: "absolute",
@@ -74,14 +74,14 @@ const useStyles = makeStyles()((theme, { buttonOpacity, isExpanded }) => ({
     opacity: buttonOpacity,
     ":hover": {
       backgroundColor: theme.palette.primary.main,
-      color: theme.palette.common.white
-    }
+      color: theme.palette.common.white,
+    },
   },
   buttonIcon: {
     transition: "transform 0.2s ease-in",
     transform: `rotate(${isExpanded ? "180" : "0"}deg) scale(0.8)`,
-    fontSize: "inherit"
-  }
+    fontSize: "inherit",
+  },
 }));
 
 export default useStyles;

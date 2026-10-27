@@ -21,10 +21,10 @@ export const useFormatConstraintHitMessage = () => {
         if (ttlFormat === CONSTRAINT_MESSAGE_FORMAT.TEXT) {
           return intl.formatMessage(
             {
-              id: "hour"
+              id: "hour",
             },
             {
-              value: limit
+              value: limit,
             }
           );
         }

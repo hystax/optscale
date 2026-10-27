@@ -30,13 +30,13 @@ const EditPowerSchedule = ({ powerSchedule, onSubmit, onCancel, isLoadingProps =
             </Link>,
             <Link key={2} to={getPowerScheduleDetailsUrl(powerSchedule.id)} component={RouterLink}>
               {powerSchedule.name}
-            </Link>
+            </Link>,
           ],
           title: {
             isLoading: isGetDataLoading,
             messageId: "edit",
-            dataTestId: "lbl_create_power_schedule_title"
-          }
+            dataTestId: "lbl_create_power_schedule_title",
+          },
         }}
       />
       <PageContentWrapper>
@@ -46,7 +46,7 @@ const EditPowerSchedule = ({ powerSchedule, onSubmit, onCancel, isLoadingProps =
           onCancel={onCancel}
           isLoadingProps={{
             isGetDataLoading,
-            isSubmitLoading
+            isSubmitLoading,
           }}
         />
       </PageContentWrapper>

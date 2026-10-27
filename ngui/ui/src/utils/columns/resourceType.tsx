@@ -12,14 +12,14 @@ const getMessageId = (resourceType) =>
     rds_instance: "resourceType.rdsInstance",
     ip_address: "resourceType.ipAddress",
     image: "resourceType.image",
-    load_balancer: "resourceType.loadBalancer"
+    load_balancer: "resourceType.loadBalancer",
   })[resourceType];
 
 const resourceType = ({
   headerDataTestId = "lbl_resource_type",
   messageId = "resourceType",
   accessorKey = "resource_type",
-  style = {}
+  style = {},
 } = {}) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -34,7 +34,7 @@ const resourceType = ({
     const typeTranslationMessageId = getMessageId(type);
 
     return typeTranslationMessageId ? <FormattedMessage id={typeTranslationMessageId} /> : type;
-  }
+  },
 });
 
 export default resourceType;

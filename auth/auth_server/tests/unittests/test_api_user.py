@@ -25,7 +25,7 @@ class TestUser(TestAuthBase):
         self.customer2_scope_id = '6cfea3e7-a037-4529-9a14-dd9c5151b1f5'
         self.group11_scope_id = 'be7b4d5e-33b6-40aa-bc6a-00c7d822606f'
         self.hierarchy = (
-            {'root': {'null': {'partner': {
+            {'partner': {
                 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d':
                     {'customer': {
                         '19a00828-fbff-4318-8291-4b6c14a8066d':
@@ -36,7 +36,7 @@ class TestUser(TestAuthBase):
                                        '42667dde-0427-49be-9541-8e99362ee96e']
                              },
                     }},
-                '843f42c4-76b5-467f-b5e3-f7370b1235d6': {'customer': {}}}}}})
+                '843f42c4-76b5-467f-b5e3-f7370b1235d6': {'customer': {}}}})
         admin_user = self.create_root_user()
         session = self.db_session
         type_partner = Type(id_=10, name='partner', parent=admin_user.type)
@@ -287,7 +287,7 @@ class TestUser(TestAuthBase):
     @patch(HIERARCHY_URL)
     def test_list_user_assigned_resource_deleted(self, p_hierarchy,
                                                  p_res_info):
-        del self.hierarchy['root']['null']['partner'][
+        del self.hierarchy['partner'][
             self.partner_scope_id]['customer'][self.customer1_scope_id]
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -721,6 +721,19 @@ class TestUser(TestAuthBase):
         self.assertEqual(code, 400)
         self.assertEqual(response['error']['reason'],
                          'Parameter "type_id" is immutable')
+
+    def test_check_invalid_user_info(self):
+        code, response = self.client.user_exists(
+            'test@email.com', user_info=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(response['exists'], False)
+        self.assertIsNone(response.get('user_info'))
+
+        for invalid_value in [1234, 'invalid']:
+            code, response = self.client.user_exists(
+                'test@email.com', user_info=invalid_value)
+            self.assertEqual(code, 400)
+            self.assertEqual(response['error']['error_code'], 'OA0063')
 
     def test_check_existence(self):
         code, response = self.client.user_exists('test@email.com')

@@ -4,7 +4,7 @@ import { TENDENCY } from "utils/constants";
 const getTendencyMessageId = (tendency) =>
   ({
     [TENDENCY.MORE]: "moreIsBetter",
-    [TENDENCY.LESS]: "lessIsBetter"
+    [TENDENCY.LESS]: "lessIsBetter",
   })[tendency];
 
 const TendencyFormattedMessage = ({ tendency }) => <FormattedMessage id={getTendencyMessageId(tendency)} />;

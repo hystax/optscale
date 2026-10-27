@@ -7,7 +7,7 @@ const ResourceCountBreakdownContainer = ({ requestParams }) => {
   const { useGet } = ResourcesCountBreakdownService();
 
   const [{ value: breakdownByValue }, onBreakdownByChange] = useBreakdownBy({
-    queryParamName: DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME
+    queryParamName: DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME,
   });
 
   const { isGetResourceCountBreakdownLoading, data } = useGet(breakdownByValue, requestParams);

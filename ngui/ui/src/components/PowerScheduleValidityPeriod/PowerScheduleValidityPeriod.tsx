@@ -19,11 +19,11 @@ const stringifiedPowerScheduleValidityPeriod = ({ startDate, endDate }: PowerSch
 
   return intl.formatMessage(
     {
-      id: "value - value"
+      id: "value - value",
     },
     {
       value1: unixTimestampToDateTime(startDate, EN_FORMAT),
-      value2: unixTimestampToDateTime(endDate, EN_FORMAT)
+      value2: unixTimestampToDateTime(endDate, EN_FORMAT),
     }
   );
 };
@@ -39,7 +39,7 @@ const PowerScheduleValidityPeriod = ({ startDate, endDate, iconFontSize = "mediu
         id="value - value"
         values={{
           value1: unixTimestampToDateTime(startDate, EN_FORMAT),
-          value2: unixTimestampToDateTime(endDate, EN_FORMAT)
+          value2: unixTimestampToDateTime(endDate, EN_FORMAT),
         }}
       />
       {isPowerScheduleExpired(endDate) && (

@@ -15,7 +15,7 @@ const ProgressBar = ({ children, height = "2rem", value, color = "primary", tool
       <LinearProgress
         className={classes.progress}
         classes={{
-          bar: classes["bar".concat(capitalize(color))]
+          bar: classes["bar".concat(capitalize(color))],
         }}
         variant="determinate"
         value={value > 100 ? 100 : value || 0}

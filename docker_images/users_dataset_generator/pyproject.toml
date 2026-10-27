@@ -1,0 +1,23 @@
+[project]
+name = "users-dataset-generator"
+version = "0.1.0"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "boto3==1.34.7",
+    "clickhouse-connect==0.8.15",
+    "mysql-connector-python==9.1.0",
+    "pymongo==4.6.3",
+    "sqlalchemy==1.3.24",
+    "config-client",
+    "optscale-data",
+]
+
+[tool.uv.sources]
+config-client = { path = "../../optscale_client/config_client", editable = true }
+optscale-data = { path = "../../tools/optscale_data", editable = true }
+
+[dependency-groups]
+dev = [
+    "pycodestyle==2.11.1",
+    "pylint==3.0.2",
+]

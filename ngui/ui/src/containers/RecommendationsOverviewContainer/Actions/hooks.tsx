@@ -11,7 +11,7 @@ import { DOWNLOAD_FILE_FORMATS } from "utils/constants";
 import {
   useIsRecommendationPinned,
   usePinnedRecommendationsCount,
-  useRecommendationPinActions
+  useRecommendationPinActions,
 } from "../redux/pinnedRecommendations/hooks";
 
 export const useSettingItems = (recommendation) => {
@@ -28,9 +28,9 @@ export const useSettingItems = (recommendation) => {
             body: <FormattedMessage id="settings" />,
             onClick: () =>
               openSideModal(recommendation.settingsSidemodalClass, {
-                recommendationType: recommendation.type
-              })
-          }
+                recommendationType: recommendation.type,
+              }),
+          },
         ]
       : []),
     ...(withExclusions
@@ -42,11 +42,11 @@ export const useSettingItems = (recommendation) => {
             onClick: () =>
               openSideModal(ExcludePoolsFromRecommendationModal, {
                 recommendationName: recommendation.name,
-                recommendationType: recommendation.type
-              })
-          }
+                recommendationType: recommendation.type,
+              }),
+          },
         ]
-      : [])
+      : []),
   ];
 };
 
@@ -54,7 +54,7 @@ export const useDownloadCleanupScripts = (recommendation) => {
   const { type, hasItems, allDataSources } = recommendation;
 
   const { download, isLoading } = useDownloadCleanupScript({
-    type
+    type,
   });
 
   if (hasItems) {
@@ -62,7 +62,7 @@ export const useDownloadCleanupScripts = (recommendation) => {
       key: id,
       isLoading,
       body: <CloudLabel disableLink name={name} type={dataSourceType} />,
-      onClick: () => download(id)
+      onClick: () => download(id),
     }));
   }
 
@@ -76,7 +76,7 @@ export const useDownloadItems = (recommendation, downloadLimit, selectedDataSour
     limit: downloadLimit,
     type,
     status,
-    dataSourceIds: selectedDataSourceIds
+    dataSourceIds: selectedDataSourceIds,
   });
 
   return isEmptyArray(items)
@@ -86,14 +86,14 @@ export const useDownloadItems = (recommendation, downloadLimit, selectedDataSour
           key: "downloadXlsxFile",
           isLoading,
           body: <FormattedMessage id="downloadXlsxFile" />,
-          onClick: () => download(DOWNLOAD_FILE_FORMATS.XLSX)
+          onClick: () => download(DOWNLOAD_FILE_FORMATS.XLSX),
         },
         {
           key: "downloadJsonFile",
           isLoading,
           body: <FormattedMessage id="downloadJsonFile" />,
-          onClick: () => download(DOWNLOAD_FILE_FORMATS.JSON)
-        }
+          onClick: () => download(DOWNLOAD_FILE_FORMATS.JSON),
+        },
       ];
 };
 
@@ -113,8 +113,8 @@ export const usePinItems = (recommendation) => {
         body: <FormattedMessage id="unpin" />,
         onClick: () => {
           pinActions.unpin();
-        }
-      }
+        },
+      },
     ];
   }
 
@@ -125,8 +125,8 @@ export const usePinItems = (recommendation) => {
         body: <FormattedMessage id="pin" />,
         onClick: () => {
           pinActions.pin();
-        }
-      }
+        },
+      },
     ];
   }
 

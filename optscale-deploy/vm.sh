@@ -513,8 +513,8 @@ function vm_run_ansible_role {
 }
 
 function vm_show_optscale_info {
-    cluster_secret=$(vm_ssh "kubectl get secret cluster-secret -o jsonpath='{.data.cluster_secret}' | base64 --decode")
-    cluster_ip_addr=$(vm_ssh "kubectl get svc ngingress-nginx-ingress-controller -o jsonpath='{.spec.clusterIP}'")
+    cluster_secret=$(vm_ssh "kubectl get secret cluster-secret -o jsonpath='{.data.cluster_secret}' | base64 --decode; echo")
+    cluster_ip_addr=$(vm_ssh "kubectl get svc ngingress-ingress-nginx-controller -o jsonpath='{.spec.clusterIP}'")
 
     forwarded_https_port=$(grep -A10 "define_vm" "$SCRIPT_DIR/Vagrantfile" |
         grep -A10 "$VM_NAME" |
@@ -528,10 +528,10 @@ function vm_show_optscale_info {
     echo "Cluster IP Address: $cluster_ip_addr"
     echo "Cluster Secret: $cluster_secret"
 
-    failing_pods=$(vm_ssh "kubectl get pods -o custom-columns='POD:metadata.name,STATE:status.containerStatuses[*].state.waiting.reason' | grep -v '<none>'")
-    echo
-    echo "Failing Pods"
-    echo "$failing_pods"
+    k8s_pods=$(vm_ssh "kubectl get pods --all-namespaces")
+    echo "================================"
+    echo "K8S Pods"
+    echo "$k8s_pods"
 }
 
 function vm_deploy_service {

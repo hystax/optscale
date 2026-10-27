@@ -12,7 +12,7 @@ const NewDefaultKeySelector = ({ keysToSelect }) => (
     labelMessageId="newDefaultSshKey"
     items={keysToSelect.map(({ id, name, fingerprint }) => ({
       value: id,
-      content: <ItemContent>{`${name} (${fingerprint})`}</ItemContent>
+      content: <ItemContent>{`${name} (${fingerprint})`}</ItemContent>,
     }))}
   />
 );

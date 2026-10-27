@@ -9,7 +9,7 @@ const SaveButton = ({ isGetDataLoading, isSaveDataLoading, isChangeSettingsAllow
       color="primary"
       tooltip={{
         show: !isChangeSettingsAllowed,
-        messageId: "youDoNotHaveEnoughPermissions"
+        messageId: "youDoNotHaveEnoughPermissions",
       }}
       type="submit"
       isLoading={isGetDataLoading || isSaveDataLoading}

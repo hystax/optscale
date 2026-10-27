@@ -35,7 +35,7 @@ const ResourcePaidNetworkTrafficList = ({ trafficExpenses = [] }) => {
   const trafficExpensesSorted = sortObjects({
     array: trafficExpenses,
     field: "cost",
-    type: "desc"
+    type: "desc",
   });
 
   return (

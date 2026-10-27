@@ -12,12 +12,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={POOLS} component={RouterLink}>
       <FormattedMessage id="pools" />
-    </Link>
+    </Link>,
   ],
   title: {
     text: <FormattedMessage id="assignmentRulesTitle" />,
-    dataTestId: "lbl_assignment_rules"
-  }
+    dataTestId: "lbl_assignment_rules",
+  },
 };
 
 const AssignmentRules = ({ rules, managedPools, onUpdatePriority, isLoadingProps = {}, isUpdateLoading = false }) => (
@@ -35,7 +35,7 @@ const AssignmentRules = ({ rules, managedPools, onUpdatePriority, isLoadingProps
           position="bottom"
           alertProps={{
             messageId: "assignmentRulesPageDescription",
-            messageDataTestId: "p_environments_list"
+            messageDataTestId: "p_environments_list",
           }}
         />
       </ContentBackdropLoader>

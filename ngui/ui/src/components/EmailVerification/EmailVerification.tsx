@@ -59,7 +59,7 @@ const EmailVerification = () => {
                 navigate(
                   `${INITIALIZE}?${stringifySearchParams({
                     [SHOW_POLICY_QUERY_PARAM]: true,
-                    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability
+                    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability,
                   })}`
                 );
               }}
@@ -69,7 +69,7 @@ const EmailVerification = () => {
           </Typography>
         </div>
       </Stack>
-    )
+    ),
   }[step];
 
   return <Greeter content={stepContent} />;

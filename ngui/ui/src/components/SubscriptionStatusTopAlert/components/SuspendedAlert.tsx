@@ -21,7 +21,7 @@ const SuspendedAlert = () => {
               <SettingsLink color={theme.palette[ALERT_COLOR].contrastText} underline="always" tab="subscription">
                 {chunks}
               </SettingsLink>
-            )
+            ),
           }}
         />
       </Typography>

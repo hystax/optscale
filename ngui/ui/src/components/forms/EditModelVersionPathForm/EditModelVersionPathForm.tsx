@@ -7,7 +7,7 @@ const EditModelVersionPathForm = ({ modelVersion, onSubmit, onCancel, isLoadingP
   const { isSubmitLoading } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues(modelVersion)
+    defaultValues: getDefaultValues(modelVersion),
   });
 
   const { handleSubmit } = methods;

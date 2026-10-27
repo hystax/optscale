@@ -17,7 +17,7 @@ import {
   CLOUD_ACCOUNT_CONNECT_K8S,
   ANOMALY_CREATE,
   QUOTA_AND_BUDGET_CREATE,
-  TAGGING_POLICY_CREATE
+  TAGGING_POLICY_CREATE,
 } from "urls";
 import { isEmptyArray } from "utils/arrays";
 import useStyles from "./BannerContent.styles";
@@ -42,48 +42,48 @@ export const getBannerIcon = (messageType) =>
   ({
     cloudAccounts: {
       Component: DataSourceIcon,
-      dataTestId: "img_connect_data_source"
+      dataTestId: "img_connect_data_source",
     },
     dashboard: {
       Component: DataSourceIcon,
-      dataTestId: "img_connect_data_source"
+      dataTestId: "img_connect_data_source",
     },
     recommendations: {
       Component: DataSourceIcon,
-      dataTestId: "img_connect_data_source"
+      dataTestId: "img_connect_data_source",
     },
     pools: {
       Component: PoolLimitIcon,
-      dataTestId: "img_set_pool_limit"
+      dataTestId: "img_set_pool_limit",
     },
     assignmentRules: {
       Component: AssignmentRuleIcon,
-      dataTestId: "img_add_rule"
+      dataTestId: "img_add_rule",
     },
     environments: {
       Component: EnvironmentIcon,
-      dataTestId: "img_add_env"
+      dataTestId: "img_add_env",
     },
     k8sRightsizing: {
       Component: DataSourceIcon,
-      dataTestId: "img_connect_data_source"
+      dataTestId: "img_connect_data_source",
     },
     anomalyDetectionPolicy: {
       Component: DataSourceIcon,
-      dataTestId: "img_add_anomaly_detection_policy"
+      dataTestId: "img_add_anomaly_detection_policy",
     },
     quotasAndBudgetsPolicy: {
       Component: DataSourceIcon,
-      dataTestId: "img_add_quotas_and_budget_policy"
+      dataTestId: "img_add_quotas_and_budget_policy",
     },
     taggingPolicy: {
       Component: DataSourceIcon,
-      dataTestId: "img_add_tagging_policy"
+      dataTestId: "img_add_tagging_policy",
     },
     awsCloudAccounts: {
       Component: DataSourceIcon,
-      dataTestId: "img_connect_data_source"
-    }
+      dataTestId: "img_connect_data_source",
+    },
   })[messageType];
 
 const getConfiguration = (messageType) =>
@@ -99,13 +99,13 @@ const getConfiguration = (messageType) =>
           mainMessage: ["p_sample", "p_connect_ca"],
           button: "btn_connect_ca",
           wrapper: "banner_mockup",
-          subMessage: ["p_connection"]
+          subMessage: ["p_connection"],
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "dataSourcesContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "dataSourcesContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
+        Icon: DataSourceIcon,
+      },
     },
     awsCloudAccounts: {
       item: {
@@ -118,13 +118,13 @@ const getConfiguration = (messageType) =>
           mainMessage: ["p_sample", "p_connect_ca"],
           button: "btn_connect_ca",
           wrapper: "banner_mockup",
-          subMessage: ["p_connection"]
+          subMessage: ["p_connection"],
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "awsDataSourcesContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "awsDataSourcesContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
+        Icon: DataSourceIcon,
+      },
     },
     dashboard: {
       item: {
@@ -136,24 +136,24 @@ const getConfiguration = (messageType) =>
           {
             messageId: ADD_ENVIRONMENT,
             onClick: redirectToCreateEnvironment,
-            dataTestId: "btn_add_env"
+            dataTestId: "btn_add_env",
           },
           {
             messageId: CONNECT_DATA_SOURCE,
             onClick: redirectToCreateCloudAccount,
-            dataTestId: "btn_connect_ca"
-          }
+            dataTestId: "btn_connect_ca",
+          },
         ],
         dataTestIds: {
           mainMessage: ["p_sample", "p_connect_ca"],
           wrapper: "banner_mockup",
-          subMessage: ["p_connection"]
+          subMessage: ["p_connection"],
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "dashboardContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "dashboardContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
+        Icon: DataSourceIcon,
+      },
     },
     recommendations: {
       item: {
@@ -166,13 +166,13 @@ const getConfiguration = (messageType) =>
           mainMessage: ["p_sample"],
           button: "btn_connect_ca",
           subMessage: ["p_connection"],
-          wrapper: "banner_mockup"
+          wrapper: "banner_mockup",
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["recommendationsContactManagerBackdropMessage"]
+          mainMessageIds: ["recommendationsContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
+        Icon: DataSourceIcon,
+      },
     },
     pools: {
       item: {
@@ -183,13 +183,13 @@ const getConfiguration = (messageType) =>
         dataTestIds: {
           mainMessage: ["p_sample", "p_set_pool"],
           button: "btn_set_pool",
-          wrapper: "banner_mockup"
+          wrapper: "banner_mockup",
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "poolsContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "poolsContactManagerBackdropMessage"],
         },
-        Icon: PoolLimitIcon
-      }
+        Icon: PoolLimitIcon,
+      },
     },
     assignmentRules: {
       item: {
@@ -199,10 +199,10 @@ const getConfiguration = (messageType) =>
         dataTestIds: {
           mainMessage: ["p_no_automatic_rules", "p_add_an_assignment_rule"],
           button: "btn_add_rule",
-          wrapper: "banner_mockup"
+          wrapper: "banner_mockup",
         },
-        Icon: AssignmentRuleIcon
-      }
+        Icon: AssignmentRuleIcon,
+      },
     },
     environments: {
       item: {
@@ -213,13 +213,13 @@ const getConfiguration = (messageType) =>
         dataTestIds: {
           mainMessage: ["p_sample", "p_add_env"],
           button: "btn_add_env",
-          wrapper: "banner_mockup"
+          wrapper: "banner_mockup",
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["youDontHaveAnyEnvironmentsCreatedYet", "environmentsContactManagerBackdropMessage"]
+          mainMessageIds: ["youDontHaveAnyEnvironmentsCreatedYet", "environmentsContactManagerBackdropMessage"],
         },
-        Icon: EnvironmentIcon
-      }
+        Icon: EnvironmentIcon,
+      },
     },
     k8sRightsizing: {
       item: {
@@ -232,13 +232,13 @@ const getConfiguration = (messageType) =>
           mainMessage: ["p_sample", "p_connect_ca"],
           button: "btn_connect_ca",
           wrapper: "banner_mockup",
-          subMessage: ["p_connection"]
+          subMessage: ["p_connection"],
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "dataSourcesContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "dataSourcesContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
+        Icon: DataSourceIcon,
+      },
     },
     anomalyDetectionPolicy: {
       item: {
@@ -249,13 +249,13 @@ const getConfiguration = (messageType) =>
         dataTestIds: {
           mainMessage: ["p_sample", "p_add_anomaly_detection_policy"],
           button: "btn_add_anomaly_detection_policy",
-          wrapper: "banner_mockup"
+          wrapper: "banner_mockup",
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "anomalyDetectionPolicyContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "anomalyDetectionPolicyContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
+        Icon: DataSourceIcon,
+      },
     },
     quotasAndBudgetsPolicy: {
       item: {
@@ -266,13 +266,13 @@ const getConfiguration = (messageType) =>
         dataTestIds: {
           mainMessage: ["p_sample", "p_add_quotas_and_budget_policy"],
           button: "btn_add_quotas_and_budget_policy",
-          wrapper: "banner_mockup"
+          wrapper: "banner_mockup",
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "quotasAndBudgetPolicyContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "quotasAndBudgetPolicyContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
+        Icon: DataSourceIcon,
+      },
     },
     taggingPolicy: {
       item: {
@@ -284,14 +284,14 @@ const getConfiguration = (messageType) =>
           mainMessage: ["p_sample", "p_add_tagging_policy"],
           button: "btn_add_tagging_policy",
           wrapper: "banner_mockup",
-          img: "img_add_tagging_policy"
+          img: "img_add_tagging_policy",
         },
         renderIfNotAllowed: {
-          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "taggingPolicyContactManagerBackdropMessage"]
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "taggingPolicyContactManagerBackdropMessage"],
         },
-        Icon: DataSourceIcon
-      }
-    }
+        Icon: DataSourceIcon,
+      },
+    },
   })[messageType];
 
 const BannerContent = ({ messageType }) => {
@@ -305,7 +305,7 @@ const BannerContent = ({ messageType }) => {
 
   const [{ mainMessageIds = [], buttons, buttonMessageId, subMessageIds = [], onButtonClick, dataTestIds = {} } = {}] =
     useAllowedItems({
-      items: [item]
+      items: [item],
     });
 
   const renderTypography = (messageIds, messageDataTestIds, isSubMessage = false) =>

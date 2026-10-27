@@ -13,7 +13,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
   const {
     isUpdateMlRunsetTemplateLoading = false,
     isGetAllTasksLoading = false,
-    isGetRunsetTemplateLoading = false
+    isGetRunsetTemplateLoading = false,
   } = isLoading;
 
   const defaultValues = useMemo(() => {
@@ -27,7 +27,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
       cloud_accounts: runsetTemplateDataSources = [],
       tasks: runsetTemplateTasks = [],
       instance_types: runsetTemplateInstanceTypes = [],
-      regions: runsetTemplateRegions = []
+      regions: runsetTemplateRegions = [],
     } = runsetTemplate;
 
     const [tagKey, tagName] = Object.entries(tags)[0] ?? [];
@@ -42,7 +42,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
       [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.FIELD_NAME]: Object.entries(hyperparameters).map(
         ([hyperparameterName, hyperparameterEnvironmentVariable]) => ({
           [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.HYPERPARAMETER_NAME]: hyperparameterName,
-          [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.ENVIRONMENT_VARIABLE]: hyperparameterEnvironmentVariable
+          [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.ENVIRONMENT_VARIABLE]: hyperparameterEnvironmentVariable,
         })
       ),
       [FIELD_NAMES.TASKS]: runsetTemplateTasks.filter(
@@ -60,7 +60,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
           runsetTemplateInstanceTypes.find(
             (runsetTemplateInstanceType) => runsetTemplateInstanceType.name === instanceType.name
           ) !== undefined
-      )
+      ),
     };
   }, [tasks, dataSources, runsetTemplate]);
 
@@ -71,13 +71,13 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
       </Link>,
       <Link key={2} to={getMlRunsetTemplateUrl(runsetTemplate.id)} component={RouterLink}>
         {runsetTemplate.name}
-      </Link>
+      </Link>,
     ],
     title: {
       messageId: "editRunsetTemplateTitle",
       isLoading: isGetRunsetTemplateLoading,
-      dataTestId: "lbl_edit_runset_template"
-    }
+      dataTestId: "lbl_edit_runset_template",
+    },
   };
 
   return (
@@ -86,7 +86,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <MlRunsetTemplateForm
@@ -95,7 +95,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
             isLoading={{
               isGetRunsetTemplateLoading,
               isGetAllTasksLoading,
-              isSubmitLoading: isUpdateMlRunsetTemplateLoading
+              isSubmitLoading: isUpdateMlRunsetTemplateLoading,
             }}
             onSubmit={onSubmit}
             onCancel={onCancel}

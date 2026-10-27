@@ -15,7 +15,7 @@ const LimitExceededAlert = ({ gracePeriodStart, gracePeriodDays }: LimitExceeded
         <FormattedMessage
           id="organizationUsageLimitExceeded"
           values={{
-            manageSettingsLabel: (chunks) => chunks
+            manageSettingsLabel: (chunks) => chunks,
           }}
         />
       </Box>

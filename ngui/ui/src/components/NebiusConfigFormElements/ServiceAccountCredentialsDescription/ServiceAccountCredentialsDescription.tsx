@@ -8,7 +8,7 @@ const ServiceAccountCredentialsDescription = () => (
       <FormattedMessage
         id="createNebiusDescription.provideCredentialsForServiceAccount"
         values={{
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         }}
       />
     </Typography>
@@ -22,7 +22,7 @@ const ServiceAccountCredentialsDescription = () => (
       <ul
         style={{
           marginTop: "0px",
-          marginBottom: "0px"
+          marginBottom: "0px",
         }}
       >
         <li>

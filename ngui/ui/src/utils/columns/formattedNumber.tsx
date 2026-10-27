@@ -9,7 +9,7 @@ const formattedNumber = ({ headerMessageId, headerDataTestId, accessorKey, optio
   ),
   accessorKey,
   cell: ({ cell }) => <FormattedNumber value={cell.getValue()} maximumFractionDigits={fractionDigitsMax} />,
-  ...options
+  ...options,
 });
 
 export default formattedNumber;

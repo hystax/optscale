@@ -26,7 +26,7 @@ const savings = ({ totalTotalCostWithoutOffer, totalTotalCostWithOffer }) => ({
   footer: () => {
     const value = totalTotalCostWithoutOffer - totalTotalCostWithOffer;
     return <CellValue savings={value} totalCostWithoutOffer={totalTotalCostWithoutOffer} />;
-  }
+  },
 });
 
 export default savings;

@@ -4,7 +4,7 @@ import { MAP_MARKER_FONT_SIZE_IN_PX } from "../../utils/fonts";
 const useStyles = makeStyles()((theme) => ({
   marker: {
     "&:hover": {
-      zIndex: theme.zIndex.drawer
+      zIndex: theme.zIndex.drawer,
     },
     display: "flex",
     cursor: "pointer",
@@ -17,14 +17,14 @@ const useStyles = makeStyles()((theme) => ({
     border: `2px solid ${theme.palette.info.light}`,
     backgroundColor: theme.palette.common.white,
     position: "absolute",
-    fontSize: theme.typography.pxToRem(MAP_MARKER_FONT_SIZE_IN_PX)
+    fontSize: theme.typography.pxToRem(MAP_MARKER_FONT_SIZE_IN_PX),
   },
   markerTop: {
-    transform: "translate(-50%, -100%)"
+    transform: "translate(-50%, -100%)",
   },
   markerBottom: {
-    transform: "translate(-50%, 0)"
-  }
+    transform: "translate(-50%, 0)",
+  },
 }));
 
 export default useStyles;

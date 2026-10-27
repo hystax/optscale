@@ -1,5 +1,5 @@
 const EVENTS = Object.freeze({
-  UPDATE_SEARCH_PARAMS: "updatedSearchParams"
+  UPDATE_SEARCH_PARAMS: "updatedSearchParams",
 });
 
 export const dispatchSearchParamsChangeEvent = (params) => {

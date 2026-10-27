@@ -20,7 +20,7 @@ class TestActionResourcesApi(TestAuthBase):
         self.customer3_scope_id = 'c39e4f59-e2a0-4199-80b2-fa688b53598a'
         self.group3_scope_id = '4c6a6953-1c31-402d-b864-99790badd361'
         self.hierarchy = (
-            {'root': {'null': {'partner': {
+            {'partner': {
                 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d':
                     {'customer': {
                         '19a00828-fbff-4318-8291-4b6c14a8066d':
@@ -36,7 +36,7 @@ class TestActionResourcesApi(TestAuthBase):
                         'c39e4f59-e2a0-4199-80b2-fa688b53598a':
                             {'group': ['4c6a6953-1c31-402d-b864-99790badd361']
                              }
-                    }}}}}})
+                    }}}})
         self.admin_user_password = 'password!'
         self.admin_user = self.create_root_user(
             password=self.admin_user_password)
@@ -156,21 +156,23 @@ class TestActionResourcesApi(TestAuthBase):
         code, response = self.client.action_resources_get(
             ['CREATE_USER'])
         self.assertEqual(code, 200)
-        self.assertEqual(len(list(filter(lambda x: x[1] in [
-            self.partner_scope_id, self.partner2_scope_id,
-            self.customer1_scope_id, self.customer2_scope_id,
-            self.customer3_scope_id], response['CREATE_USER']))), 5)
+        self.assertEqual(response['CREATE_USER'], [])
 
     @patch(HIERARCHY_URL)
     def test_action_user_id(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         code, response = self.client.action_resources_get(
-            ['CREATE_USER'], user_id=self.admin_user.id)
+            ['CREATE_USER'], user_id=self.user_partner.id)
         self.assertEqual(code, 200)
         self.assertEqual(len(list(filter(lambda x: x[1] in [
-            self.partner_scope_id, self.partner2_scope_id,
-            self.customer1_scope_id, self.customer2_scope_id,
-            self.customer3_scope_id], response['CREATE_USER']))), 5)
+            self.partner_scope_id, self.customer1_scope_id,
+            self.customer2_scope_id], response['CREATE_USER']))), 3)
+
+        code, response = self.client.action_resources_get(
+            ['CREATE_USER'], user_id=self.user_customer.id)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(list(filter(lambda x: x[1] in [
+            self.customer3_scope_id], response['CREATE_USER']))), 1)
 
     @patch(HIERARCHY_URL)
     def test_bulk_action_resources(self, p_hierarchy):
@@ -186,11 +188,14 @@ class TestActionResourcesApi(TestAuthBase):
             self.assertCountEqual(response[user_id].keys(),
                                   ['CREATE_USER'])
         admin_response = response[self.admin_user.id]
-        self.assertCountEqual(admin_response['CREATE_USER'], [
-            ['root', None],
+        self.assertEqual(admin_response['CREATE_USER'], [])
+        partner_response = response[self.user_partner.id]
+        self.assertCountEqual(partner_response['CREATE_USER'], [
             ['partner', self.partner_scope_id],
-            ['partner', self.partner2_scope_id],
             ['customer', self.customer1_scope_id],
             ['customer', self.customer2_scope_id],
+        ])
+        customer_response = response[self.user_customer.id]
+        self.assertCountEqual(customer_response['CREATE_USER'], [
             ['customer', self.customer3_scope_id],
         ])

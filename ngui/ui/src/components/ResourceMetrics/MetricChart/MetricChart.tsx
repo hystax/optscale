@@ -20,18 +20,18 @@ const MetricChart = ({ lines, formatYAxis, emptyMessageId, legend, yFormat, isLo
             left: marginLeft,
             top: 5,
             bottom: 25,
-            right: 32
-          }
+            right: 32,
+          },
         }}
         axisLeft={{
-          format: formatYAxis
+          format: formatYAxis,
         }}
         colors={({ color }) => color}
         pointSize={1}
         shouldRenderOnlyFirstAndLastBottomTickValues
         renderTooltipBody={({ slice }) => <MetricChartTooltip slice={slice} />}
         axisBottom={{
-          format: (value) => unixTimestampToDateTime(value, EN_FORMAT)
+          format: (value) => unixTimestampToDateTime(value, EN_FORMAT),
         }}
         isLoading={isLoading}
         yFormat={yFormat}

@@ -3,59 +3,59 @@ import { makeStyles } from "tss-react/mui";
 const getExpandColorStyles = ({ theme, expandTitleColor, alwaysHighlightTitle = false }) => {
   const style = {
     background: {
-      backgroundColor: theme.palette.background.default
-    }
+      backgroundColor: theme.palette.background.default,
+    },
   }[expandTitleColor] ?? {
     color: theme.palette.secondary.contrastText,
     backgroundColor: theme.palette.action.selected,
     "& svg": {
-      color: theme.palette.secondary.contrastText
+      color: theme.palette.secondary.contrastText,
     },
     "& p": {
-      color: theme.palette.secondary.contrastText
+      color: theme.palette.secondary.contrastText,
     },
     "& input": {
-      color: theme.palette.secondary.contrastText
-    }
+      color: theme.palette.secondary.contrastText,
+    },
   };
 
   return {
     "&.MuiAccordionSummary-root": alwaysHighlightTitle
       ? style
       : {
-          "&.Mui-expanded": style
-        }
+          "&.Mui-expanded": style,
+        },
   };
 };
 
 const useStyles = makeStyles()((theme, { expandTitleColor, alwaysHighlightTitle }) => ({
   details: {
-    display: "block"
+    display: "block",
   },
   summary: {
-    flexDirection: "row-reverse"
+    flexDirection: "row-reverse",
   },
   enableBorder: {
-    borderBottom: `1px solid ${theme.palette.divider}`
+    borderBottom: `1px solid ${theme.palette.divider}`,
   },
   disableShadows: {
-    boxShadow: "none"
+    boxShadow: "none",
   },
   inheritFlexDirection: {
-    flexDirection: "inherit"
+    flexDirection: "inherit",
   },
   summaryPadding: {
-    padding: "0 0.5rem 0 0.5rem"
+    padding: "0 0.5rem 0 0.5rem",
   },
   disableExpandedSpacing: {
     "&.Mui-expanded": {
-      margin: 0
-    }
+      margin: 0,
+    },
   },
   zeroSummaryMinHeight: {
-    minHeight: "0"
+    minHeight: "0",
   },
-  expandTitleColor: getExpandColorStyles({ theme, expandTitleColor, alwaysHighlightTitle })
+  expandTitleColor: getExpandColorStyles({ theme, expandTitleColor, alwaysHighlightTitle }),
 }));
 
 export default useStyles;

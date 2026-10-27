@@ -90,6 +90,7 @@ class UrlsV2(Urls):
         'organizations_overview': r"%s/organizations_overview",
         'pool_expenses_export_data': r"%s/pool_expenses_exports/(?P<export_id>[^/]+)",
         'pool_expense_exports': r"%s/pools/(?P<pool_id>[^/]+)/expenses_export",
+        'pool_expenses_report': r"%s/organizations/(?P<organization_id>[^/]+)/pool_expenses_report",
         'nodes_collection_bulk': r"%s/cloud_accounts/(?P<cloud_account_id>[^/]+)/nodes/bulk",
         'nodes_collection': r"%s/cloud_accounts/(?P<cloud_account_id>[^/]+)/nodes",
         'resource_metrics': r"%s/cloud_resources/(?P<resource_id>[^/]+)/metrics",
@@ -161,7 +162,10 @@ class UrlsV2(Urls):
         'organization_geminis_collection': r"%s/organizations/(?P<organization_id>["r"^/]+)/geminis",
         'geminis_collection': r"%s/geminis",
         'geminis': r"%s/geminis/(?P<gemini_id>["r"^/]+)",
-        'geminis_data': r"%s/geminis/(?P<gemini_id>["r"^/]+)/data",
+        'geminis_data_collection': r"%s/geminis/(?P<gemini_id>["r"^/]+)/geminis_data",
+        'geminis_data': r"%s/geminis_data/(?P<gemini_data_id>["r"^/]+)",
+        'geminis_data_download':
+            r"%s/geminis_data/(?P<gemini_data_id>["r"^/]+)/download",
         'disconnect_survey': r"%s/organizations/(?P<organization_id>["r"^/]+)/disconnect_survey",
         'power_schedules_collection':
             r"%s/organizations/(?P<organization_id>[^/]+)/power_schedules",

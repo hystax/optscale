@@ -41,7 +41,7 @@ const useGetEmailVerificationCodeToken = () => {
 function VerifyEmailService() {
   return {
     useSendEmailVerificationCode,
-    useGetEmailVerificationCodeToken
+    useGetEmailVerificationCodeToken,
   };
 }
 

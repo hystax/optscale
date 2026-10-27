@@ -1,3 +1,3 @@
 export const FIELD_NAMES = Object.freeze({
-  OPTION_NAME: "organizationOptionName"
+  OPTION_NAME: "organizationOptionName",
 });

@@ -6,7 +6,7 @@ const AddInstancesToScheduleForm = ({
   onCancel,
   filterValues,
   instancesCountLimit,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const { isSubmitLoading = false, isGetInstancesLoading = false, isGetFilterValuesLoading = false } = isLoadingProps;
 

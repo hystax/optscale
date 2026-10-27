@@ -10,7 +10,7 @@ const violatedAt = () => ({
   ),
   accessorKey: "created_at",
   cell: ({ cell }) => format(secondsToMilliseconds(cell.getValue()), EN_FULL_FORMAT),
-  defaultSort: "desc"
+  defaultSort: "desc",
 });
 
 export default violatedAt;

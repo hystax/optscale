@@ -1,62 +1,96 @@
+import { Box, Grid, Stack } from "@mui/material";
 import { FormattedMessage, useIntl } from "react-intl";
-import airbus from "assets/customers/airbus.svg";
-import bentley from "assets/customers/bentley.svg";
-import dhl from "assets/customers/dhl.svg";
-import nokia from "assets/customers/nokia.svg";
-import pwc from "assets/customers/pwc.svg";
-import tSystems from "assets/customers/t-systems.svg";
-import yvesRocher from "assets/customers/yves-rocher.svg";
+import bluebill from "assets/customers/bluebill.svg";
+import dexory from "assets/customers/dexory.svg";
+import luminance from "assets/customers/luminance.svg";
+import nekoHealth from "assets/customers/neko-health.svg";
+import nubephant from "assets/customers/nubephant.svg";
+import osapiens from "assets/customers/osapiens.svg";
+import physicsX from "assets/customers/physics-x.svg";
+import secureData from "assets/customers/securedata.svg";
+import softwareOne from "assets/customers/softwareone.svg";
+import taktile from "assets/customers/taktile.svg";
+import veesion from "assets/customers/veesion.svg";
+import viadex from "assets/customers/viadex.svg";
 import SubTitle from "components/SubTitle";
-import useStyles from "./CustomersGallery.styles";
+import { SPACING_1 } from "utils/layouts";
 
-const customersLogos = [
+const logos = [
   {
-    src: airbus,
-    altMessageId: "airbus"
+    src: viadex,
+    altMessageId: "viadex",
   },
   {
-    src: pwc,
-    altMessageId: "pwc"
+    src: bluebill,
+    altMessageId: "bluebill",
   },
   {
-    src: nokia,
-    altMessageId: "nokia"
+    src: dexory,
+    altMessageId: "dexory",
   },
   {
-    src: bentley,
-    altMessageId: "bentley"
+    src: luminance,
+    altMessageId: "luminance",
   },
   {
-    src: yvesRocher,
-    altMessageId: "yvesRocher"
+    src: nekoHealth,
+    altMessageId: "nekoHealth",
   },
   {
-    src: dhl,
-    altMessageId: "dhl"
+    src: nubephant,
+    altMessageId: "nubephant",
   },
   {
-    src: tSystems,
-    altMessageId: "tSystems"
-  }
+    src: osapiens,
+    altMessageId: "osapiens",
+  },
+  {
+    src: secureData,
+    altMessageId: "secureData",
+  },
+  {
+    src: softwareOne,
+    altMessageId: "softwareOne",
+  },
+  {
+    src: taktile,
+    altMessageId: "taktile",
+  },
+  {
+    src: veesion,
+    altMessageId: "veesion",
+  },
+  {
+    src: physicsX,
+    altMessageId: "physicsX",
+  },
 ];
 
 const CustomersGallery = () => {
   const intl = useIntl();
-  const { classes } = useStyles();
 
   return (
-    <div data-test-id="div_meet_customer" className={classes.meetCustomersWrapper}>
+    <Stack data-test-id="div_meet_customer" spacing={SPACING_1}>
       <SubTitle>
         <FormattedMessage id="trustedBy" />
       </SubTitle>
-      <div className={classes.logosWrapper}>
-        {customersLogos.map((item) => (
-          <div className={classes.logoWrapper} key={item.altMessageId}>
-            <img src={item.src} alt={intl.formatMessage({ id: item.altMessageId })} className={classes.logoImage} />
-          </div>
+      <Grid container columnSpacing={SPACING_1} rowSpacing={SPACING_1}>
+        {logos.map((item) => (
+          <Grid item key={item.altMessageId} xs={4} sm={3} md={3} lg={2}>
+            <Box height={40} width="100%">
+              <Box
+                component="img"
+                src={item.src}
+                alt={intl.formatMessage({ id: item.altMessageId })}
+                width="100%"
+                height="100%"
+                sx={{ objectFit: "contain", opacity: 0.55 }}
+              />
+            </Box>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   );
 };
 

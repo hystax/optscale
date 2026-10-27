@@ -3,7 +3,7 @@ import { DEFAULT_PAGE_KEY, DEFAULT_SEARCH_KEY } from "utils/constants";
 
 export const RESOURCE_ID_COLUMN_CELL_STYLE = Object.freeze({
   wordBreak: "break-word",
-  minWidth: 250
+  minWidth: 250,
 });
 
 export const getDefaultTableData = <T, K extends keyof T>(sourceArray: T[], field: K, sortType: "desc" | "asc" = "desc") =>

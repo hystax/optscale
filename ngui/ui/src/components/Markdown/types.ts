@@ -1,4 +1,4 @@
 export type MarkdownProps = {
   children: string;
-  transformImageUri?: (uri: string) => string;
+  urlTransform?: (url: string) => string;
 };

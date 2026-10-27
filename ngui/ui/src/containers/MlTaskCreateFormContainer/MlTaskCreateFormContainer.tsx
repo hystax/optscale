@@ -34,7 +34,7 @@ const MlTaskCreateFormContainer = () => {
       isLoading={{
         isGetEmployeesLoading,
         isCreateTaskLoading,
-        isGetMlMetricsLoading
+        isGetMlMetricsLoading,
       }}
     />
   );

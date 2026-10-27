@@ -37,7 +37,7 @@ const EventsOverviewList = ({ events, isLoading }) => {
       <List>
         <Container className={classes.customContainer} maxWidth="sm">
           <Typography display="block" gutterBottom>
-            {<FormattedMessage id="youHaveNoEvents" />}
+            <FormattedMessage id="youHaveNoEvents" />
           </Typography>
         </Container>
       </List>

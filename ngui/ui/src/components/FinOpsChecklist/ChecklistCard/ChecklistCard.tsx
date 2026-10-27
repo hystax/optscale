@@ -18,7 +18,7 @@ const ChecklistCard = ({ title, description, checked, canUpdate, onClick, dataTe
   return (
     <Card
       className={cx(classes.root, {
-        [classes.fullHeight]: isExpanded
+        [classes.fullHeight]: isExpanded,
       })}
     >
       <CardHeader action={<Checkbox data-test-id={dataTestId} checked={checked} disabled={!canUpdate} onClick={onClick} />} />
@@ -27,7 +27,7 @@ const ChecklistCard = ({ title, description, checked, canUpdate, onClick, dataTe
       </CardContent>
       <CardActions
         classes={{
-          root: classes.title
+          root: classes.title,
         }}
       >
         <Box display="inline" className={classes.titleContainer}>

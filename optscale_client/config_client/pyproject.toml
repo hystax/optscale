@@ -1,0 +1,19 @@
+[project]
+name = "config-client"
+version = "0.0.0"
+description = "OptScale Config Client"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "urllib3==2.7.0",
+    "python-etcd==0.4.5",
+    "retrying",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["optscale_client.config_client*"]
+namespaces = true

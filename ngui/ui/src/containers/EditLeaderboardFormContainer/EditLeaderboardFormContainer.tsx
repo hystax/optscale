@@ -7,9 +7,9 @@ import MlLeaderboardsService from "services/MlLeaderboardsService";
 const EditLeaderboardFormContainer = ({ task, leaderboard, onSuccess, onCancel }) => {
   const {
     data: { datasets, datasetLabels, groupingTags },
-    isLoading: isGetDataLoading
+    isLoading: isGetDataLoading,
   } = useLeaderboardFormContainerData({
-    taskId: task.id
+    taskId: task.id,
   });
 
   const { useUpdateLeaderboard } = MlLeaderboardsService();
@@ -25,7 +25,7 @@ const EditLeaderboardFormContainer = ({ task, leaderboard, onSuccess, onCancel }
         primaryMetric: leaderboard.primary_metric,
         secondaryMetrics: leaderboard.other_metrics,
         metricRestrictions: leaderboard.filters,
-        datasetCoverageRules: leaderboard.dataset_coverage_rules
+        datasetCoverageRules: leaderboard.dataset_coverage_rules,
       }),
     [
       datasets,
@@ -36,7 +36,7 @@ const EditLeaderboardFormContainer = ({ task, leaderboard, onSuccess, onCancel }
       leaderboard.grouping_tags,
       leaderboard.name,
       leaderboard.other_metrics,
-      leaderboard.primary_metric
+      leaderboard.primary_metric,
     ]
   );
 
@@ -51,7 +51,7 @@ const EditLeaderboardFormContainer = ({ task, leaderboard, onSuccess, onCancel }
       datasetLabels={datasetLabels}
       isLoadingProps={{
         isGetDataLoading,
-        isSubmitDataLoading: isUpdateLeaderboardLoading
+        isSubmitDataLoading: isUpdateLeaderboardLoading,
       }}
     />
   );

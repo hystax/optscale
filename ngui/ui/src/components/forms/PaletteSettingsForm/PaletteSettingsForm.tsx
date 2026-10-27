@@ -11,7 +11,7 @@ const PaletteSettingsForm = ({ color, options, onUpdate }) => {
   const themeSettings = useThemeSettingsOptions();
 
   const methods = useForm({
-    defaultValues: options
+    defaultValues: options,
   });
 
   const { handleSubmit, reset } = methods;
@@ -19,7 +19,7 @@ const PaletteSettingsForm = ({ color, options, onUpdate }) => {
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...options
+      ...options,
     }));
   }, [options, reset]);
 
@@ -28,8 +28,8 @@ const PaletteSettingsForm = ({ color, options, onUpdate }) => {
       ...themeSettings,
       palette: {
         ...themeSettings.palette,
-        [color]: formData
-      }
+        [color]: formData,
+      },
     };
 
     onUpdate(updatedSettings);
@@ -40,8 +40,8 @@ const PaletteSettingsForm = ({ color, options, onUpdate }) => {
       ...themeSettings,
       palette: {
         ...themeSettings.palette,
-        [color]: {}
-      }
+        [color]: {},
+      },
     };
 
     onUpdate(updatedSettings);
@@ -54,7 +54,7 @@ const PaletteSettingsForm = ({ color, options, onUpdate }) => {
           id="colorPaletteSettings"
           values={{
             color,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </SubTitle>

@@ -4,8 +4,9 @@ import ConnectForm from "components/ConnectForm";
 import {
   AwsBillingBucket,
   AwsExportType,
+  AwsRegionScope,
   AwsRootCredentials,
-  AwsUseAwsEdpDiscount
+  AwsUseAwsEdpDiscount,
 } from "components/DataSourceCredentialFields";
 import { RadioGroup, Switch } from "components/forms/common/fields";
 import QuestionMark from "components/QuestionMark";
@@ -22,6 +23,7 @@ export const AwsConnectionAccessKeyInputs = ({ showAdvancesOptions = true }) => 
       return (
         <>
           <AwsRootCredentials />
+          <AwsRegionScope />
           {showAdvancesOptions && (
             <>
               <AwsUseAwsEdpDiscount />
@@ -34,7 +36,7 @@ export const AwsConnectionAccessKeyInputs = ({ showAdvancesOptions = true }) => 
                   <QuestionMark
                     messageId="dataExportDetectionTooltip"
                     messageValues={{
-                      break: <br />
+                      break: <br />,
                     }}
                     dataTestId="qmark_data_export_detection"
                   />
@@ -48,12 +50,12 @@ export const AwsConnectionAccessKeyInputs = ({ showAdvancesOptions = true }) => 
                     radioButtons={[
                       {
                         value: AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT,
-                        label: <FormattedMessage id="createNewCostUsageReport" />
+                        label: <FormattedMessage id="createNewCostUsageReport" />,
                       },
                       {
                         value: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY,
-                        label: <FormattedMessage id="connectOnlyToDataInBucket" />
-                      }
+                        label: <FormattedMessage id="connectOnlyToDataInBucket" />,
+                      },
                     ]}
                   />
                   <Typography gutterBottom data-test-id="p_data_export_detection_description">

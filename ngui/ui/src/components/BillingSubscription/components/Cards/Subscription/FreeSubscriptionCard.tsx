@@ -20,7 +20,7 @@ const FreeSubscriptionCard = ({
   gracePeriodStart,
   gracePeriodDays,
   endDate,
-  cancelAtPeriodEnd
+  cancelAtPeriodEnd,
 }: FreeSubscriptionCardProps) => (
   <BaseCard
     header={<SubscriptionCardHeader content={<PlanName name={<FormattedMessage id="free" />} />} status={status} />}

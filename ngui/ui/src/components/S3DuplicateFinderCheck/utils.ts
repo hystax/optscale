@@ -3,7 +3,7 @@ export const STATUS = Object.freeze({
   RUNNING: "RUNNING",
   FAILED: "FAILED",
   SUCCESS: "SUCCESS",
-  QUEUED: "QUEUED"
+  QUEUED: "QUEUED",
 });
 
 const COLORS = Object.freeze({
@@ -11,7 +11,7 @@ const COLORS = Object.freeze({
   [STATUS.QUEUED]: "info",
   [STATUS.SUCCESS]: "success",
   [STATUS.RUNNING]: "primary",
-  [STATUS.FAILED]: "error"
+  [STATUS.FAILED]: "error",
 });
 
 export const getStatusColor = (status) => COLORS[status];

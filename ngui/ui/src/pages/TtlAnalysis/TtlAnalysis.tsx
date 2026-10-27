@@ -6,8 +6,8 @@ import TtlAnalysisContainer from "containers/TtlAnalysisContainer";
 const actionBarDefinition = {
   title: {
     messageId: "ttlAnalysisReport",
-    dataTestId: "lbl_ttl_report"
-  }
+    dataTestId: "lbl_ttl_report",
+  },
 };
 
 const TtlAnalysis = () => {

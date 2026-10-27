@@ -14,8 +14,8 @@ const poolLimit = () => ({
   columnSelector: {
     accessor: "limit",
     messageId: "limit",
-    dataTestId: "btn_toggle_limit"
-  }
+    dataTestId: "btn_toggle_limit",
+  },
 });
 
 export default poolLimit;

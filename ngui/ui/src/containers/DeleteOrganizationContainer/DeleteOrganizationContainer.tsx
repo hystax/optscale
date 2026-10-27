@@ -25,8 +25,8 @@ const DeleteOrganizationContainer = ({ onCancel }) => {
   const onDelete = () => {
     deleteOrganization({
       variables: {
-        organizationId
-      }
+        organizationId,
+      },
     }).then(() => {
       onCancel();
       signOut();
@@ -38,16 +38,16 @@ const DeleteOrganizationContainer = ({ onCancel }) => {
       message={{
         messageId: "deleteOrganizationQuestion",
         values: {
-          organizationName: <OrganizationLabel name={organizationName} disableLink />
-        }
+          organizationName: <OrganizationLabel name={organizationName} disableLink />,
+        },
       }}
       deleteButtonProps={{
         onDelete,
         disabled: isRestricted || confirmationTextInputValue !== CONFIRMATION_TEXT,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       onCancel={onCancel}
       isLoading={loading}

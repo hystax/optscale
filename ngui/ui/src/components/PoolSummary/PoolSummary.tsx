@@ -4,12 +4,12 @@ import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import Circle from "components/Circle";
+import ExpensesTableHeader from "components/ExpensesTableHeader";
 import FormattedMoney from "components/FormattedMoney";
 import { EditPoolForm } from "components/forms/PoolForm";
 import KeyValueChartTooltipBody from "components/KeyValueChartTooltipBody";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PieChart from "components/PieChart";
-import PoolExpenses from "components/PoolExpenses";
 import PoolForecast from "components/PoolForecast";
 import PoolLabel from "components/PoolLabel";
 import PoolTypeIcon from "components/PoolTypeIcon";
@@ -23,7 +23,7 @@ const renderTooltipBody = (sectionData) => {
   const {
     value,
     label,
-    data: { purpose }
+    data: { purpose },
   } = sectionData;
 
   return <KeyValueChartTooltipBody value={value} text={<PoolLabel name={label} type={purpose} disableLink />} />;
@@ -33,7 +33,7 @@ const buildChartData = (pools) =>
   pools.map(({ name, cost, purpose }) => ({
     id: name,
     value: cost,
-    purpose
+    purpose,
   }));
 
 const Chart = ({ poolPurpose, poolCost, childPools }) => {
@@ -49,9 +49,9 @@ const Chart = ({ poolPurpose, poolCost, childPools }) => {
             {
               name: <FormattedMessage id="(thisPool)" />,
               cost: thisPoolCost,
-              purpose: poolPurpose
+              purpose: poolPurpose,
             },
-            ...childPools
+            ...childPools,
           ])}
           style={{ height: 30, width: 30 }}
           renderTooltipBody={renderTooltipBody}
@@ -89,8 +89,8 @@ const Summary = ({ name, purpose, limit, owner }) => (
   </>
 );
 
-const PoolSummary = ({ pool, parentPool, childPools, onSuccess }) => {
-  const { limit = 0, cost = 0, forecast = 0, name, purpose, default_owner_name: owner } = pool;
+const PoolSummary = ({ pool, startDateTimestamp, endDateTimestamp, parentPool, childPools, onSuccess }) => {
+  const { cost = 0, limit = 0, forecast = 0, name, purpose, default_owner_name: owner } = pool;
   const { unallocated_limit: unallocatedLimit = 0 } = parentPool;
 
   const [isEditMode, toggleIsEditMode] = useToggle(false);
@@ -114,10 +114,10 @@ const PoolSummary = ({ pool, parentPool, childPools, onSuccess }) => {
       <Divider />
       <Box display="flex" alignItems="center">
         <Typography>
-          <FormattedMessage id="expensesThisMonth" />
+          <ExpensesTableHeader startDateTimestamp={startDateTimestamp} endDateTimestamp={endDateTimestamp} />
         </Typography>
         &#58;&nbsp;
-        <PoolExpenses limit={limit} cost={cost} />
+        <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />
       </Box>
       <Box display="flex" alignItems="center">
         <Typography>

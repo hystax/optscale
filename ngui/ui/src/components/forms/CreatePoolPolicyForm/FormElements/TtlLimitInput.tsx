@@ -21,12 +21,12 @@ const TtlLimitInput = () => {
           <Typography variant="body2">
             <FormattedMessage id="hours" />
           </Typography>
-        )
+        ),
       }}
       min={0}
       max={TTL_LIMIT_MAX}
       validate={{
-        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true)
+        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
       }}
     />
   );

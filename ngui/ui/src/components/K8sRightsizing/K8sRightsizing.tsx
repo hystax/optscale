@@ -11,7 +11,7 @@ const K8sRightsizing = ({ actionBarDefinition, namespaces, isLoading = false, ta
       <PageContentDescription
         position="bottom"
         alertProps={{
-          messageId: "k8sRightsizingDescription"
+          messageId: "k8sRightsizingDescription",
         }}
       />
     </PageContentWrapper>

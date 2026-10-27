@@ -19,12 +19,12 @@ const actionBarDefinition = {
     </Link>,
     <Link key={2} to={CLUSTER_TYPES} component={RouterLink}>
       <FormattedMessage id="clusterTypesTitle" />
-    </Link>
+    </Link>,
   ],
   title: {
     text: <FormattedMessage id="addClusterTypeTitle" />,
-    dataTestId: "lbl_add_cluster_type"
-  }
+    dataTestId: "lbl_add_cluster_type",
+  },
 };
 
 const CreateClusterTypeForm = ({ onSubmit, onCancel, isSubmitLoading = false }: CreateClusterTypeFormProps) => {
@@ -50,8 +50,8 @@ const CreateClusterTypeForm = ({ onSubmit, onCancel, isSubmitLoading = false }: 
                       <Link data-test-id="link_read_more" href={DOCS_HYSTAX_CLUSTERS} target="_blank" rel="noopener">
                         {chunks}
                       </Link>
-                    )
-                  }
+                    ),
+                  },
                 }}
               />
               <FormButtons onCancel={onCancel} isLoading={isSubmitLoading} />

@@ -30,7 +30,7 @@ const LiveDemo = () => {
           <FormattedMessage
             id="liveDemoDisclaimer"
             values={{
-              br: <br />
+              br: <br />,
             }}
           />
         </Typography>

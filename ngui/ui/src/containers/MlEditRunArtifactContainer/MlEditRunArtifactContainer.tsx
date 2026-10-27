@@ -44,12 +44,12 @@ const MlEditRunArtifactContainer = () => {
         {formatRunFullName(runNumber, runName)}
       </Link>,
       <FormattedMessage key={4} id="artifacts" />,
-      <Typography key={5}>{artifactName}</Typography>
+      <Typography key={5}>{artifactName}</Typography>,
     ],
     title: {
       isLoading: isGetArtifactLoading || isGetRunLoading,
-      messageId: "editArtifactTitle"
-    }
+      messageId: "editArtifactTitle",
+    },
   };
 
   const redirect = () => navigate(taskRunUrl);
@@ -60,7 +60,7 @@ const MlEditRunArtifactContainer = () => {
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <MlEditArtifactForm

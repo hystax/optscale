@@ -8,7 +8,7 @@ import RunsTabContainer from "./RunsTabContainer";
 const TABS = Object.freeze({
   RUNS: "runs",
   COVERAGE: "coverage",
-  DISCUSSION: "discussion"
+  DISCUSSION: "discussion",
 });
 
 const Tabs = ({ taskId, candidateDetails, leaderboard }) => {
@@ -29,7 +29,7 @@ const Tabs = ({ taskId, candidateDetails, leaderboard }) => {
           qualifiedRunIds={qualifiedRunIds}
           otherDatasetRunIds={otherDatasetRunIds}
         />
-      )
+      ),
     },
     {
       title: TABS.COVERAGE,
@@ -41,13 +41,13 @@ const Tabs = ({ taskId, candidateDetails, leaderboard }) => {
           leaderboard={leaderboard}
           candidateDetails={candidateDetails}
         />
-      )
+      ),
     },
     {
       title: TABS.DISCUSSION,
       dataTestId: "tab_discussion",
-      node: <DiscussionTab />
-    }
+      node: <DiscussionTab />,
+    },
   ];
 
   return (
@@ -56,7 +56,7 @@ const Tabs = ({ taskId, candidateDetails, leaderboard }) => {
         tabs,
         defaultTab: TABS.RUNS,
         name: "candidate-details-tabs",
-        queryTabName: "candidateDetailsTab"
+        queryTabName: "candidateDetailsTab",
       }}
     />
   );

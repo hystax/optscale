@@ -24,7 +24,7 @@ class TestScopeApi(TestAuthBase):
         self.group11_scope_id = 'be7b4d5e-33b6-40aa-bc6a-00c7d822606f'
         self.customer3_scope_id = 'c39e4f59-e2a0-4199-80b2-fa688b53598a'
         self.hierarchy = (
-            {'root': {'null': {'partner': {
+            {'partner': {
                 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d':
                     {'customer': {
                         '19a00828-fbff-4318-8291-4b6c14a8066d':
@@ -40,7 +40,7 @@ class TestScopeApi(TestAuthBase):
                         'c39e4f59-e2a0-4199-80b2-fa688b53598a':
                             {'group': ['4c6a6953-1c31-402d-b864-99790badd361']
                              }
-                    }}}}}})
+                    }}}})
         self.admin_user_password = 'password!'
         self.admin_user = self.create_root_user(
             password=self.admin_user_password)
@@ -259,8 +259,8 @@ class TestScopeApi(TestAuthBase):
     @patch(HIERARCHY_URL)
     def test_scope_assign_partner_role(self, p_hierarchy, p_res_info,
                                        p_context):
-        self.client.token = self.get_token(self.admin_user.email,
-                                           self.admin_user_password)
+        self.client.token = self.get_token(self.user_partner.email,
+                                           self.user_partner_password)
         partner_hierarchy = (
             {'partner': {
                 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d':
@@ -294,8 +294,8 @@ class TestScopeApi(TestAuthBase):
     @patch(CONTEXT_URL)
     def test_scope_assign_customer_role(self, p_context, p_hierarchy,
                                         p_res_info):
-        self.client.token = self.get_token(self.admin_user.email,
-                                           self.admin_user_password)
+        self.client.token = self.get_token(self.user_partner.email,
+                                           self.user_partner_password)
         partner_hierarchy = (
             {'partner': {
                 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d':

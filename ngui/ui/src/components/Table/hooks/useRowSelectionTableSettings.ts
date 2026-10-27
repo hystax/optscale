@@ -8,16 +8,16 @@ export const useRowSelectionTableSettings = ({ withSelection, rowSelection, onRo
   if (withSelection && !!rowSelection && isObject(rowSelection) && typeof onRowSelectionChange === "function") {
     return {
       state: {
-        rowSelection
+        rowSelection,
       },
       tableOptions: {
-        onRowSelectionChange: handleChange(rowSelection, onRowSelectionChange)
-      }
+        onRowSelectionChange: handleChange(rowSelection, onRowSelectionChange),
+      },
     };
   }
 
   return {
     state: {},
-    tableOptions: {}
+    tableOptions: {},
   };
 };

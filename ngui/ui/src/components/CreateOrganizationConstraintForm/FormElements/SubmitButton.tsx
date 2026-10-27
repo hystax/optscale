@@ -23,7 +23,7 @@ const SubmitButton = () => {
       disabled={isRestricted}
       tooltip={{
         show: isRestricted,
-        value: restrictionReasonMessage
+        value: restrictionReasonMessage,
       }}
       dataTestId="btn_create"
     />

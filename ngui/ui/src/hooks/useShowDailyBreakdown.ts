@@ -20,7 +20,7 @@ export const useShowDailyBreakdown = ({ reduxKey, queryParamName, actionCreator 
 
   useEffect(() => {
     updateSearchParams({
-      [queryParamName]: showDailyBreakdown
+      [queryParamName]: showDailyBreakdown,
     });
     dispatch(actionCreator(showDailyBreakdown));
   }, [actionCreator, dispatch, queryParamName, showDailyBreakdown]);

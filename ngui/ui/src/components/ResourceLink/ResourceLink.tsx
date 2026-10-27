@@ -6,7 +6,7 @@ import { getSearchParams, stringifySearchParams } from "utils/network";
 
 const getResourceUrlQueryParameters = (tabName, params) => {
   const tabQueryParameter = {
-    [TAB_QUERY_PARAM_NAME]: tabName
+    [TAB_QUERY_PARAM_NAME]: tabName,
   };
 
   if (tabName === RESOURCE_PAGE_TABS.EXPENSES) {

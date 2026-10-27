@@ -74,6 +74,10 @@ spec:
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
+            - "uv"
+            - "--project"
+            - "docker_images/booking_observer"
+            - "run"
             - "python3"
             - "docker_images/booking_observer/scheduler.py"
             env:

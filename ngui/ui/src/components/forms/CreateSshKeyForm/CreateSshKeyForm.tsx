@@ -6,7 +6,7 @@ import { getDefaultValues } from "./utils";
 
 const CreateSshKeyForm = ({ onSubmit, isSubmitLoading = false }: CreateSshKeyFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;
@@ -17,7 +17,7 @@ const CreateSshKeyForm = ({ onSubmit, isSubmitLoading = false }: CreateSshKeyFor
         position="top"
         alertProps={{
           messageId: "sshHint",
-          messageDataTestId: "ssh-hint"
+          messageDataTestId: "ssh-hint",
         }}
       />
       <FormProvider {...methods}>

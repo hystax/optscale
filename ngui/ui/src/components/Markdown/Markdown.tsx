@@ -1,11 +1,10 @@
+import { isValidElement } from "react";
 import { Box } from "@mui/material";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { Highlight, themes } from "prism-react-renderer";
 import ReactMarkdown from "react-markdown";
-import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
-import { visit } from "unist-util-visit";
 import { v4 as uuidv4 } from "uuid";
 import CopyText from "components/CopyText";
 import { MarkdownProps } from "./types";
@@ -13,32 +12,16 @@ import { MarkdownProps } from "./types";
 const THEME = themes.github;
 const PADDING = "0.5em";
 
-function reactMarkdownRemarkDirective() {
-  return (tree) => {
-    visit(tree, ["textDirective", "leafDirective", "containerDirective"], (node) => {
-      // won't work without reassign.
-      // eslint-disable-next-line no-param-reassign
-      node.data = {
-        hName: node.name,
-        hProperties: node.attributes,
-        ...node.data
-      };
-      return node;
-    });
-  };
-}
-
-const Markdown = ({ children, transformImageUri }: MarkdownProps) => (
+const Markdown = ({ children, urlTransform }: MarkdownProps) => (
   <Box
     sx={{
       "& > :last-child": {
-        marginBottom: 0
-      }
+        marginBottom: 0,
+      },
     }}
   >
     <ReactMarkdown
-      transformImageUri={(uri) => (typeof transformImageUri === "function" ? transformImageUri(uri) : uri)}
-      linkTarget="_blank"
+      urlTransform={urlTransform}
       components={{
         a: ({ children: markdownChildren, href }) => (
           <Link href={href} target="_blank" rel="noopener noreferrer">
@@ -84,8 +67,7 @@ const Markdown = ({ children, transformImageUri }: MarkdownProps) => (
           </Typography>
         ),
         pre: ({ children: pChildren }) => {
-          const codeText = pChildren[0].props.children;
-
+          const codeText = isValidElement(pChildren) ? pChildren.props.children : String(pChildren);
           return (
             <Typography
               component="div"
@@ -95,24 +77,24 @@ const Markdown = ({ children, transformImageUri }: MarkdownProps) => (
                 display: "flex",
                 alignItems: "flex-start",
                 justifyContent: "space-between",
-                backgroundColor: THEME.plain.backgroundColor
+                backgroundColor: THEME.plain.backgroundColor,
               })}
             >
               {pChildren}
               <CopyText
                 text={codeText}
                 sx={{
-                  padding: PADDING
+                  padding: PADDING,
                 }}
               />
             </Typography>
           );
         },
-        code: ({ inline, className, children: codeChildren }) => {
+        code: ({ className, children: codeChildren }) => {
           const match = /language-(\w+)/.exec(className || "");
 
           // Block code
-          if (!inline && match) {
+          if (match) {
             return (
               <Highlight theme={THEME} code={String(codeChildren).replace(/\n$/, "")} language={match[1]}>
                 {({ style, tokens, getLineProps, getTokenProps }) => (
@@ -122,7 +104,7 @@ const Markdown = ({ children, transformImageUri }: MarkdownProps) => (
                       ...style,
                       margin: 0,
                       padding: PADDING,
-                      overflow: "auto"
+                      overflow: "auto",
                     }}
                   >
                     {tokens.map((line) => (
@@ -146,15 +128,15 @@ const Markdown = ({ children, transformImageUri }: MarkdownProps) => (
                 backgroundColor: THEME.plain.backgroundColor,
                 px: theme.spacing(0.5),
                 py: theme.spacing(0.25),
-                borderRadius: theme.spacing(0.5)
+                borderRadius: theme.spacing(0.5),
               })}
             >
               {codeChildren}
             </Typography>
           );
-        }
+        },
       }}
-      remarkPlugins={[remarkGfm, remarkDirective, reactMarkdownRemarkDirective]}
+      remarkPlugins={[remarkGfm]}
     >
       {children}
     </ReactMarkdown>

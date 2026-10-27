@@ -42,7 +42,7 @@ const {
   RECOMMENDATIONS: RECOMMENDATIONS_TAB,
   MONITORING: MONITORING_TAB,
   COST_MODEL: COST_MODEL_TAB,
-  BOOKINGS: BOOKINGS_TAB
+  BOOKINGS: BOOKINGS_TAB,
 } = RESOURCE_PAGE_TABS;
 
 const getTitleLogo = ({ cloudType, logo, imgDataTestId, clusterTypeId, isEnvironment, shareable }) => {
@@ -50,8 +50,8 @@ const getTitleLogo = ({ cloudType, logo, imgDataTestId, clusterTypeId, isEnviron
     return {
       icon: [
         <DnsOutlinedIcon key="environment" data-test-id="img_title_environment_logo" />,
-        <GroupWorkOutlinedIcon key="cluster" data-test-id="img_title_cluster_logo" />
-      ]
+        <GroupWorkOutlinedIcon key="cluster" data-test-id="img_title_cluster_logo" />,
+      ],
     };
   }
   if (clusterTypeId) {
@@ -63,7 +63,7 @@ const getTitleLogo = ({ cloudType, logo, imgDataTestId, clusterTypeId, isEnviron
   return {
     src: logo,
     alt: cloudType,
-    dataTestId: imgDataTestId
+    dataTestId: imgDataTestId,
   };
 };
 
@@ -104,7 +104,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
     service_name: serviceName,
     active = false,
     first_seen: firstSeen,
-    last_seen: lastSeen
+    last_seen: lastSeen,
   } = resource;
 
   const { cloud_console_link: cloudConsoleLink } = meta;
@@ -121,7 +121,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
     pool_name: poolName,
     pool_purpose: poolPurpose,
     owner_name: ownerName,
-    cloud_name: cloudName
+    cloud_name: cloudName,
   } = details;
 
   const savings = getSumByObjectKey(modules, "saving");
@@ -134,7 +134,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
     breadcrumbs: [
       <Link key={1} to={RESOURCES} component={RouterLink}>
         <FormattedMessage id="resources" />
-      </Link>
+      </Link>,
     ],
     title: {
       text: () => {
@@ -149,7 +149,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
       },
       dataTestId: "lbl_resource_name",
       isLoading: isGetResourceLoading,
-      logo: getTitleLogo({ cloudType, logo, imgDataTestId: `img_{cloud_type}`, clusterTypeId, isEnvironment, shareable })
+      logo: getTitleLogo({ cloudType, logo, imgDataTestId: `img_{cloud_type}`, clusterTypeId, isEnvironment, shareable }),
     },
     items: [
       {
@@ -160,7 +160,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         href: cloudConsoleLink,
         show: !!cloudConsoleLink,
         dataTestId: "btn_cloud_console",
-        isLoading: isGetResourceLoading
+        isLoading: isGetResourceLoading,
       },
       {
         key: "envPropertiesCollectorLink",
@@ -170,7 +170,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         action: () => openSideModal(CiCdIntegrationModal, { envPropertiesCollectorLink }),
         show: !!envPropertiesCollectorLink,
         dataTestId: "btn_env_properties_collector_link",
-        isLoading: isGetResourceLoading
+        isLoading: isGetResourceLoading,
       },
       {
         key: "assignmentRule",
@@ -180,7 +180,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         action: () => navigate(getCreateResourceAssignmentRuleUrl(id)),
         dataTestId: "btn_add_rule",
         show: !isPartOfCluster,
-        isLoading: isGetResourceLoading
+        isLoading: isGetResourceLoading,
       },
       {
         key: "unmarkEnvironment",
@@ -191,9 +191,9 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         dataTestId: "btn_unmark_environment",
         requiredActions: ["MANAGE_RESOURCES"],
         show: !isEnvironment && shareable,
-        isLoading: isGetResourceLoading
-      }
-    ]
+        isLoading: isGetResourceLoading,
+      },
+    ],
   };
 
   const getSummaryData = [
@@ -201,37 +201,37 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
       key: "totalExpenses",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: totalCost
+        value: totalCost,
       },
       captionMessageId: "totalExpenses",
       isLoading: isGetResourceLoading,
       dataTestIds: {
-        cardTestId: "card_total_exp"
-      }
+        cardTestId: "card_total_exp",
+      },
     },
     {
       key: "expensesThisMonth",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: cost
+        value: cost,
       },
       captionMessageId: "expensesThisMonth",
       isLoading: isGetResourceLoading,
       dataTestIds: {
-        cardTestId: "card_exp_this_month"
-      }
+        cardTestId: "card_exp_this_month",
+      },
     },
     {
       key: "forecastThisMonth",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: forecast
+        value: forecast,
       },
       captionMessageId: "forecastThisMonth",
       isLoading: isGetResourceLoading,
       dataTestIds: {
-        cardTestId: "card_forecast_this_month"
-      }
+        cardTestId: "card_forecast_this_month",
+      },
     },
     {
       key: "totalPaidNetworkTraffic",
@@ -240,14 +240,14 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
       captionMessageId: "totalPaidNetworkTraffic",
       isLoading: isGetResourceLoading,
       dataTestIds: {
-        cardTestId: "card_total_paid_network_traffic"
-      }
+        cardTestId: "card_total_paid_network_traffic",
+      },
     },
     {
       key: "possibleMonthlySavings",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: savings
+        value: savings,
       },
       captionMessageId: "possibleMonthlySavings",
       renderCondition: () => savings !== 0,
@@ -258,14 +258,14 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         tooltip: {
           show: true,
           messageId: "seeAllRecommendations",
-          placement: "top"
-        }
+          placement: "top",
+        },
       },
       isLoading: isGetResourceLoading || isLoadingPatch,
       dataTestIds: {
-        cardTestId: "card_savings"
-      }
-    }
+        cardTestId: "card_savings",
+      },
+    },
   ];
 
   const tabs = [
@@ -305,7 +305,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
             powerScheduleName={powerScheduleName}
           />
         </>
-      )
+      ),
     },
     {
       title: BOOKINGS_TAB,
@@ -321,13 +321,13 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
           resourceType={resourceType}
         />
       ),
-      renderCondition: () => isEnvironment || shareable
+      renderCondition: () => isEnvironment || shareable,
     },
     {
       title: SUB_RESOURCES_TAB,
       dataTestId: "tab_sub_resources",
       node: !!id && <ClusterSubResourcesTable data={subResources} />,
-      renderCondition: () => !!clusterTypeId
+      renderCondition: () => !!clusterTypeId,
     },
     {
       title: CONSTRAINTS_TAB,
@@ -344,7 +344,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
           billingOnly={!active}
           isResourceActive={active}
         />
-      )
+      ),
     },
     {
       title: COST_MODEL_TAB,
@@ -356,7 +356,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
           )}
         </ResourceAllowedActionsContainer>
       ),
-      renderCondition: () => isEnvironment
+      renderCondition: () => isEnvironment,
     },
     {
       title: EXPENSES_TAB,
@@ -368,7 +368,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
           resourceId={id}
           hasNetworkTrafficExpenses={totalTrafficExpenses !== 0 || totalTrafficUsage !== 0}
         />
-      )
+      ),
     },
     {
       title: RECOMMENDATIONS_TAB,
@@ -387,14 +387,14 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         </ResourceAllowedActionsContainer>
       ),
       // Temporary hide recommendations for clusters - "!clusterTypeId"
-      renderCondition: () => !clusterTypeId && !(isEmptyArray(modules) && isEmptyArray(dismissedModules))
+      renderCondition: () => !clusterTypeId && !(isEmptyArray(modules) && isEmptyArray(dismissedModules)),
     },
     {
       title: MONITORING_TAB,
       dataTestId: "tab_monitoring",
       node: !!id && <ResourceMetricsContainer resourceId={id} firstSeen={firstSeen} lastSeen={lastSeen} />,
-      renderCondition: () => hasMetrics
-    }
+      renderCondition: () => hasMetrics,
+    },
   ];
 
   const handleChange = (event, value) => {
@@ -420,7 +420,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
                 defaultTab: DETAILS_TAB,
                 activeTab,
                 handleChange,
-                name: "resources-details"
+                name: "resources-details",
               }}
             />
           </Grid>

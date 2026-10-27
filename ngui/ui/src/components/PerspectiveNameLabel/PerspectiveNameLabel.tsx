@@ -13,7 +13,7 @@ const PerspectiveNameLabel = ({ name }: PerspectiveNameLabelProps) => {
       <Box
         component="span"
         sx={{
-          whiteSpaceCollapse: "preserve"
+          whiteSpaceCollapse: "preserve",
         }}
       >
         {isNameLong ? sliceByLimitWithEllipsis(name, MAX_NAME_LENGTH) : name}

@@ -7,8 +7,8 @@ class ColumnSetsModal extends BaseSideModal {
     color: "primary",
     dataTestIds: {
       title: "lbl_column_sets_modal",
-      closeButton: "bnt_close_column_sets_modal"
-    }
+      closeButton: "bnt_close_column_sets_modal",
+    },
   };
 
   dataTestId = "smodal_column_sets_modal";

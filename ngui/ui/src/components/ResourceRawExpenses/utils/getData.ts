@@ -6,26 +6,35 @@ import { formatISO } from "utils/datetime";
 const AWS = Object.freeze({
   LINE_ITEM_DESCRIPTION: "lineItem/LineItemDescription",
   LINE_ITEM_BLENDED_RATE: "lineItem/BlendedRate",
-  PRICING_UNIT: "pricing/unit"
+  PRICING_UNIT: "pricing/unit",
 });
 
 const ALIBABA = Object.freeze({
-  BILLING_ITEM: "BillingItem"
+  BILLING_ITEM: "BillingItem",
 });
 
 const NEBIUS = Object.freeze({
   SKU_NAME: "sku_name",
   COST: "cost",
   PRICING_QUANTITY: "pricing_quantity",
-  PRICING_UNIT: "pricing_unit"
+  PRICING_UNIT: "pricing_unit",
 });
+
+const AZURE = Object.freeze({
+  KIND: "kind",
+  KIND_MODERN: "modern",
+  USAGE_QUANTITY: "usage_quantity",
+});
+
+// AWS/Nebius/Azure carry a meaningful usage quantity; other cloud types don't.
+const USAGE_TRACKED_CLOUD_TYPES = [AWS_CNR, NEBIUS_DATA_SOURCE, AZURE_CNR];
 
 const getFormattedOrdinateValues = (currentValue, currentPointValue) => {
   const values = {
-    y: (currentPointValue.y || 0) + currentValue.expense
+    y: (currentPointValue.y || 0) + currentValue.expense,
   };
 
-  if (currentValue.cloudType === AWS_CNR) {
+  if (USAGE_TRACKED_CLOUD_TYPES.includes(currentValue.cloudType)) {
     values.usage = (currentPointValue.usage || 0) + (currentValue.usage || 0);
     values.usageUnit = currentValue.usageUnit || currentPointValue.usageUnit;
   }
@@ -56,7 +65,7 @@ const getCategory = (cloudType, item) =>
     [ALIBABA_CNR]: item?.[ALIBABA.BILLING_ITEM],
     [NEBIUS_DATA_SOURCE]: item?.[NEBIUS.SKU_NAME],
     // If we could not identify cloud_type by the raw_data -> place it in the default group - "Total expenses"
-    [NOT_SET_CLOUD_TYPE]: intl.formatMessage({ id: "totalExpenses" })
+    [NOT_SET_CLOUD_TYPE]: intl.formatMessage({ id: "totalExpenses" }),
   })[cloudType];
 
 const getUsage = (cloudType, item) =>
@@ -68,27 +77,54 @@ const getUsage = (cloudType, item) =>
         if (!lineItemBlendedRate || !pricingUnit) {
           return {
             usage: 0,
-            usageUnit: undefined
+            usageUnit: undefined,
           };
         }
         const cost = item.cost ?? 0;
         const usage = lineItemBlendedRate === 0 ? 0 : cost / lineItemBlendedRate;
         return {
           usage,
-          usageUnit: pricingUnit
+          usageUnit: pricingUnit,
         };
       },
       [NEBIUS_DATA_SOURCE]: () => ({
         usage: +item[NEBIUS.PRICING_QUANTITY],
-        usageUnit: item[NEBIUS.PRICING_UNIT]
-      })
+        usageUnit: item[NEBIUS.PRICING_UNIT],
+      }),
+      [AZURE_CNR]: () => {
+        // Azure raw records have multiple "generations" (kind: legacy/modern/raw/export,
+        // or absent on old data) with inconsistent usage fields. Only "modern" records are
+        // known to carry a reliable usage_quantity/meter_details.unit pair.
+        if (item[AZURE.KIND] !== AZURE.KIND_MODERN) {
+          return {
+            usage: 0,
+            usageUnit: undefined,
+          };
+        }
+        const rawUsageQuantity = item[AZURE.USAGE_QUANTITY];
+        const hasNumericUsageQuantity =
+          typeof rawUsageQuantity === "number" || (typeof rawUsageQuantity === "string" && rawUsageQuantity.trim() !== "");
+        const usageQuantity = +rawUsageQuantity;
+        const usageUnit = item.meter_details?.unit;
+        if (!hasNumericUsageQuantity || !Number.isFinite(usageQuantity) || !usageUnit) {
+          return {
+            usage: 0,
+            usageUnit: undefined,
+          };
+        }
+        return {
+          usage: usageQuantity,
+          usageUnit: `* ${usageUnit}`,
+        };
+      },
     })[cloudType] ?? (() => {})
   )();
 
 const buildData = (cloudType, item) => ({
+  cloudType,
   date: formatISO(item.start_date),
   expense: item.cost ?? 0,
-  ...getUsage(cloudType, item)
+  ...getUsage(cloudType, item),
 });
 
 /**
@@ -122,9 +158,9 @@ const prepareTableData = (groupedExpenses) =>
       ...(categoryPayload.some(({ usage, usageUnit }) => !!usage && !!usageUnit)
         ? {
             usage: categoryPayload.reduce((usageSum, { usage = 0 }) => usageSum + usage, 0),
-            usageUnit: categoryPayload.find(({ usageUnit }) => Boolean(usageUnit)).usageUnit
+            usageUnit: categoryPayload.find(({ usageUnit }) => Boolean(usageUnit)).usageUnit,
           }
-        : {})
+        : {}),
     }))
     .filter(({ expenses: expensesSum }) => expensesSum !== 0);
 
@@ -143,7 +179,7 @@ const prepareChartData = (groupedData, expenses) => {
     const diff = getDifference(uniqueDays, xValues);
     diff.forEach((missingXValue) => {
       pointsMap.set(missingXValue, {
-        y: 0
+        y: 0,
       });
     });
 
@@ -160,7 +196,7 @@ const prepareChartData = (groupedData, expenses) => {
 
     return {
       ...result,
-      [groupName]: data
+      [groupName]: data,
     };
   }, {});
 
@@ -192,7 +228,7 @@ export const getData = (expenses) => {
 
     return {
       ...result,
-      [category]: [...(result[category] ?? []), data]
+      [category]: [...(result[category] ?? []), data],
     };
   }, {});
 

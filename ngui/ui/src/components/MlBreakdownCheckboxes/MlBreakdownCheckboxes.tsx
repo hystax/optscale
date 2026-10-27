@@ -9,7 +9,7 @@ const MlBreakdownCheckboxes = ({
   breakdownConfig,
   onAddBreakdown,
   onRemoveBreakdown,
-  isLoading
+  isLoading,
 }) =>
   isLoading ? (
     <Skeleton width="100%">

@@ -14,7 +14,7 @@ const MlRunsets = () => {
   const actionBarDefinition = {
     title: {
       messageId: "runsetTemplatesTitle",
-      dataTestId: "lbl_ml_runset_templates"
+      dataTestId: "lbl_ml_runset_templates",
     },
     items: [
       {
@@ -23,9 +23,9 @@ const MlRunsets = () => {
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_RUNSET_TEMPLATES])
-      }
-    ]
+        action: () => refetch([GET_ML_RUNSET_TEMPLATES]),
+      },
+    ],
   };
 
   return (

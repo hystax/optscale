@@ -15,7 +15,7 @@ const PrimaryMetricSelector = ({ metrics = [], isLoading = false }) => {
     control,
     formState: { errors },
     setValue,
-    getValues
+    getValues,
   } = useFormContext<FormValues>();
 
   const intl = useIntl();
@@ -26,8 +26,8 @@ const PrimaryMetricSelector = ({ metrics = [], isLoading = false }) => {
       control={control}
       rules={{
         validate: {
-          required: (value) => (value ? true : intl.formatMessage({ id: "thisFieldIsRequired" }))
-        }
+          required: (value) => (value ? true : intl.formatMessage({ id: "thisFieldIsRequired" })),
+        },
       }}
       render={({ field: { name, value: formFieldValue, onBlur, onChange, ref } }) =>
         isLoading ? (
@@ -51,7 +51,7 @@ const PrimaryMetricSelector = ({ metrics = [], isLoading = false }) => {
             isOptionEqualToValue={(option, value) => option.id === value.id}
             options={metrics.map((metric) => ({
               name: metric.name,
-              id: metric.id
+              id: metric.id,
             }))}
             getOptionLabel={(option) => option?.name ?? ""}
             renderTags={(autocompleteValue, getTagProps) =>
@@ -73,7 +73,7 @@ const PrimaryMetricSelector = ({ metrics = [], isLoading = false }) => {
                       <QuestionMark messageId="primaryMetricHint" dataTestId="qmark_primary_metric" />
                       {params.InputProps.endAdornment}
                     </>
-                  )
+                  ),
                 }}
                 required
                 ref={ref}

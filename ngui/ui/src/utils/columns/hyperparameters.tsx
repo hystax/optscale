@@ -17,7 +17,7 @@ const hyperparameters = ({ accessorKey = "hyperparameters" } = {}) => ({
       return CELL_EMPTY_VALUE;
     }
     return <CollapsableTableCell maxRows={5} tags={cell.getValue()} />;
-  }
+  },
 });
 
 export default hyperparameters;

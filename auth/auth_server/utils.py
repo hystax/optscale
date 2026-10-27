@@ -149,6 +149,13 @@ def check_list_attribute(name, value, required=True):
         raise WrongArgumentsException(Err.OA0055, [name])
 
 
+def strtobool(val):
+    val = val.lower()
+    if val not in ['true', 'false']:
+        raise ValueError('Should be false or true')
+    return val == 'true'
+
+
 class ModelEncoder(json.JSONEncoder):
     # pylint: disable=E0202
     def default(self, obj):
@@ -198,14 +205,28 @@ def unique_list(list_to_filter):
     return list(set(list_to_filter))
 
 
-def load_payload(payload):
+def _get_valid_json(json_str_value, json_value_key):
     try:
-        payload_dict = json.loads(payload)
-        if not isinstance(payload_dict, dict):
-            raise WrongArgumentsException(Err.OA0047, [])
-    except ValueError:
-        raise WrongArgumentsException(Err.OA0046, [])
-    return payload_dict
+        json_dict = json.loads(json_str_value)
+        if not isinstance(json_dict, dict):
+            return None
+    except (TypeError, ValueError):
+        raise WrongArgumentsException(Err.OA0046, [json_value_key])
+    return json_dict
+
+
+def check_valid_json(json_str_value, json_value_key):
+    json_dict = _get_valid_json(json_str_value, json_value_key)
+    if json_dict is None:
+        raise WrongArgumentsException(Err.OA0046, [json_value_key])
+    return json_dict
+
+
+def load_payload(json_payload, payload_key='Payload'):
+    json_dict = _get_valid_json(json_payload, payload_key)
+    if json_dict is None:
+        raise WrongArgumentsException(Err.OA0047, [])
+    return json_dict
 
 
 def popkey(obj, key):

@@ -69,7 +69,6 @@ def get_default_context():
     return {
         "images": {
             "logo": "https://cdn.hystax.com/OptScale/OptScale-logo-white.png",
-            "telegram": "https://cdn.hystax.com/OptScale/email-images/telegram.png",
             "optscale_ml_banner": "https://cdn.hystax.com/OptScale/email-images/optscale-ml-welcome-banner.png",
             "optscale_finops": "https://cdn.hystax.com/OptScale/email-images/optscale-finops-capabilities.png",
         },
@@ -87,7 +86,6 @@ def get_default_context():
             "linkedin": "https://linkedin.com/company/hystax",
             "twitter": "https://twitter.com/hystaxcom",
             "facebook": "https://facebook.com/hystax",
-            "telegram": "https://t.me/hystax",
             "terms_of_use": "https://hystax.com/terms-of-use/",
             "privacy_policy": "https://hystax.com/privacy-policy/",
             "documentation": "https://hystax.com/documentation/optscale",

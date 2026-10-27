@@ -12,7 +12,7 @@ export const MlRunStatusLabel = ({ status }) => {
     [ML_RUN_STATUS.ABORTED]: "aborted",
     [ML_RUN_STATUS.RUNNING]: "running",
     [ML_RUN_STATUS.COMPLETED]: "completed",
-    [ML_RUN_STATUS.FAILED]: "failed"
+    [ML_RUN_STATUS.FAILED]: "failed",
   }[status];
 
   return <FormattedMessage id={labelMessageId} />;
@@ -24,7 +24,7 @@ export const MlRunStatusIcon = ({ status, iconSize = "small" }) => {
     [ML_RUN_STATUS.ABORTED]: <StopCircleOutlinedIcon fontSize={iconSize} color="info" />,
     [ML_RUN_STATUS.COMPLETED]: <CheckCircleIcon fontSize={iconSize} color="success" />,
     [ML_RUN_STATUS.RUNNING]: <PlayCircleIcon fontSize={iconSize} color="primary" />,
-    [ML_RUN_STATUS.FAILED]: <CancelIcon fontSize={iconSize} color="error" />
+    [ML_RUN_STATUS.FAILED]: <CancelIcon fontSize={iconSize} color="error" />,
   }[status];
 
   return icon;

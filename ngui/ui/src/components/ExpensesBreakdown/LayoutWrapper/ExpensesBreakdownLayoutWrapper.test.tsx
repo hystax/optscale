@@ -12,7 +12,7 @@ it("renders without crashing", () => {
         top={<Box>Child 1</Box>}
         center={{
           left: <Box>Child 2</Box>,
-          right: <Box>Child 3</Box>
+          right: <Box>Child 3</Box>,
         }}
         bottom={<Box>Child 4</Box>}
       />

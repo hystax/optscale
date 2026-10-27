@@ -14,7 +14,7 @@ const MlEditTaskFormOwnerField = ({ employees = [], isLoading = false }) => (
     isLoading={isLoading}
     items={employees.map(({ id, name: employeeName }) => ({
       value: id,
-      content: <ItemContent>{employeeName}</ItemContent>
+      content: <ItemContent>{employeeName}</ItemContent>,
     }))}
   />
 );

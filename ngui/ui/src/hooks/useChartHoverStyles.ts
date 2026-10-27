@@ -7,10 +7,10 @@ const useStyles = makeStyles()((theme, { borderWidth, isClickable }) => ({
     "& svg": {
       [`& .${HOVER}`]: {
         strokeWidth: borderWidth + 1,
-        cursor: isClickable ? "pointer" : "auto"
-      }
-    }
-  }
+        cursor: isClickable ? "pointer" : "auto",
+      },
+    },
+  },
 }));
 
 export const useChartHoverStyles = ({ borderWidth = 0, isClickable = false }) => {

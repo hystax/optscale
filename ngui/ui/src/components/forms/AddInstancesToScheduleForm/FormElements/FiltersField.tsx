@@ -17,7 +17,7 @@ const FiltersField = ({ filterValues, isLoading }) => {
   const resourceFilters = new Filters({
     filters: POWER_SCHEDULE_INSTANCES_FILTERS,
     filterValues,
-    appliedFilters
+    appliedFilters,
   });
 
   const items = resourceFilters.getFilterSelectors();
@@ -46,7 +46,7 @@ const FiltersField = ({ filterValues, isLoading }) => {
                   ...rest,
                   [filterName]: Array.isArray(filterToDeleteValues)
                     ? filterToDeleteValues.filter((val) => val !== filterValue)
-                    : undefined
+                    : undefined,
                 });
                 resetField(INSTANCES_FIELD_NAME);
               }}

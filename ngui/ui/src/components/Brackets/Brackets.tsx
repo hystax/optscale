@@ -2,20 +2,20 @@ const getBrackets = (type) =>
   ({
     round: {
       opening: "(",
-      closing: ")"
+      closing: ")",
     },
     curly: {
       opening: "{",
-      closing: "}"
+      closing: "}",
     },
     square: {
       opening: "[",
-      closing: "]"
+      closing: "]",
     },
     angle: {
       opening: "<",
-      closing: ">"
-    }
+      closing: ">",
+    },
   })[type];
 
 const Brackets = ({ children, type = "round", bold = false }) => {

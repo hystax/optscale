@@ -86,4 +86,5 @@ class TestApiRoleRoot(TestAuthBase):
             assignable_to_user_id=self.admin_user.id)
         self.assertEqual(code, 200)
         # will return admin role
-        self.assertEqual(len(response), 1)
+        # denied in OSN-1379
+        self.assertEqual(len(response), 0)

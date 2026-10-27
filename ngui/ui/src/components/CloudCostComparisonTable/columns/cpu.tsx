@@ -8,5 +8,5 @@ export const cpu = () => ({
     </TextWithDataTestId>
   ),
   defaultSort: "asc",
-  accessorKey: "cpu"
+  accessorKey: "cpu",
 });

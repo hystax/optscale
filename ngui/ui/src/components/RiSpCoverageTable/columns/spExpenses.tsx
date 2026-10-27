@@ -22,10 +22,10 @@ const spExpenses = ({ totalSpCostWithOffer, totalTotalCostWithOffer }) => ({
   cell: ({
     cell,
     row: {
-      original: { total_cost_with_offer: totalExpenses }
-    }
+      original: { total_cost_with_offer: totalExpenses },
+    },
   }) => <CellValue expenses={cell.getValue()} totalExpenses={totalExpenses} />,
-  footer: () => <CellValue expenses={totalSpCostWithOffer} totalExpenses={totalTotalCostWithOffer} />
+  footer: () => <CellValue expenses={totalSpCostWithOffer} totalExpenses={totalTotalCostWithOffer} />,
 });
 
 export default spExpenses;

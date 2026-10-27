@@ -12,7 +12,7 @@ export const FIELD_NAMES = Object.freeze({
   BILLING_DATA_TABLE: "billingDataTableName",
   AUTOMATICALLY_DETECT_PRICING_DATA: "automaticallyDetectPricingData",
   PRICING_DATA_DATASET: "pricingDataDatasetName",
-  PRICING_DATA_TABLE: "pricingDataTableName"
+  PRICING_DATA_TABLE: "pricingDataTableName",
 });
 
 type FieldName = ObjectValues<typeof FIELD_NAMES>;
@@ -47,11 +47,11 @@ const GcpTenantCredentials = ({ hidden = [] }: GcpTenantCredentialsProps) => {
               <QuestionMark
                 messageId="billingDataDatasetNameTooltip"
                 messageValues={{
-                  i: (chunks) => <i>{chunks}</i>
+                  i: (chunks) => <i>{chunks}</i>,
                 }}
                 dataTestId="qmark_billing_data_dataset_name"
               />
-            )
+            ),
           }}
           label={<FormattedMessage id="billingDataDatasetName" />}
           autoComplete="off"
@@ -63,7 +63,7 @@ const GcpTenantCredentials = ({ hidden = [] }: GcpTenantCredentialsProps) => {
           dataTestId="input_billing_data_table_name"
           name={FIELD_NAMES.BILLING_DATA_TABLE}
           InputProps={{
-            endAdornment: <QuestionMark messageId="billingDataTableNameTooltip" dataTestId="qmark_billing_data_table_name" />
+            endAdornment: <QuestionMark messageId="billingDataTableNameTooltip" dataTestId="qmark_billing_data_table_name" />,
           }}
           label={<FormattedMessage id="billingDataTableName" />}
           autoComplete="off"
@@ -95,11 +95,11 @@ const GcpTenantCredentials = ({ hidden = [] }: GcpTenantCredentialsProps) => {
                   <QuestionMark
                     messageId="pricingDataDatasetNameTooltip"
                     messageValues={{
-                      i: (chunks) => <i>{chunks}</i>
+                      i: (chunks) => <i>{chunks}</i>,
                     }}
                     dataTestId="qmark_pricing_data_dataset_name"
                   />
-                )
+                ),
               }}
               label={<FormattedMessage id="pricingDataDatasetName" />}
               autoComplete="off"
@@ -113,7 +113,7 @@ const GcpTenantCredentials = ({ hidden = [] }: GcpTenantCredentialsProps) => {
               InputProps={{
                 endAdornment: (
                   <QuestionMark messageId="pricingDataTableNameTooltip" dataTestId="qmark_pricing_data_table_name" />
-                )
+                ),
               }}
               label={<FormattedMessage id="pricingDataTableName" />}
               autoComplete="off"

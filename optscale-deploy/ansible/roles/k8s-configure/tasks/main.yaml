@@ -74,23 +74,6 @@
   shell: helm upgrade --install ngingress ingress-nginx --repo https://kubernetes.github.io/ingress-nginx -f {{ ansible_env.HOME }}/nginx-ingress/values.yaml
   run_once: true
 
-- name: Check domain presence
-  shell: kubectl get cm -o json coredns -n kube-system | grep -v "last-applied-configuration" | grep "dts.loc"
-  run_once: true
-  register: domain_set
-  when: configure_dts_domain
-  ignore_errors: True
-
-- name: Add dts.loc domain into coredns config
-  shell: kubectl get cm -o json coredns -n kube-system | jq '.data.Corefile = .data.Corefile + "dts.loc:53 {\n    errors\n    cache 30\n    forward . 172.22.1.2\n}\n"' | kubectl apply -f -
-  run_once: true
-  when: configure_dts_domain and domain_set.rc == 1
-
-- name: Delete coredns pods
-  shell: kubectl -n kube-system delete pod $(kubectl -n kube-system get pod | awk '/coredns/ {print $1}')
-  run_once: true
-  when: configure_dts_domain and domain_set.rc == 1
-
 - name: Get the current hostname
   command: hostname
   register: hostname_result
@@ -118,6 +101,24 @@
     regexp: '^maxPods:'
     line: 'maxPods: 250'
     backup: yes
+    mode: '0644'
+  become: yes
+
+- name: Ensure kubelet systemd override directory exists
+  file:
+    path: /etc/systemd/system/kubelet.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: Ensure kubelet starts after containerd
+  copy:
+    src: kubelet-containerd-override.conf
+    dest: /etc/systemd/system/kubelet.service.d/20-containerd-dependency.conf
+    owner: root
+    group: root
     mode: '0644'
   become: yes
 

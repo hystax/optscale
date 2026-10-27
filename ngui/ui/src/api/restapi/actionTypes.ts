@@ -11,6 +11,7 @@ export const UPDATE_DATA_SOURCE = "UPDATE_DATA_SOURCE";
 
 export const GET_POOL = "GET_POOL";
 export const SET_POOL = "SET_POOL";
+export const GET_POOL_EXPENSES_RANGE = "GET_POOL_EXPENSES_RANGE";
 
 export const CREATE_POOL = "CREATE_POOL";
 

@@ -1,8 +1,10 @@
 import json
+import logging
 
 from tools.optscale_exceptions.common_exc import InternalServerError
 from tools.optscale_exceptions.http_exc import OptHTTPError
-from rest_api.rest_api_server.controllers.live_demo import LiveDemoAsyncController
+from rest_api.rest_api_server.controllers.live_demo import (
+    LiveDemoAsyncController, UTM_FIELDS)
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncCollectionHandler
 from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
@@ -10,6 +12,8 @@ from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from rest_api.rest_api_server.utils import (
     run_task, ModelEncoder, check_string_attribute, is_email_format,
     check_bool_attribute)
+
+LOG = logging.getLogger(__name__)
 
 
 class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
@@ -21,8 +25,8 @@ class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
     def prepare(self):
         self.set_content_type()
 
-    def _validate_params(self, **kwargs):
-        expected_params = ['email', 'subscribe']
+    def _validate_params(self, kwargs):
+        expected_params = ['email', 'subscribe'] + UTM_FIELDS
         unexpected = list(
             filter(lambda x: x not in expected_params, kwargs.keys()))
         if unexpected:
@@ -37,6 +41,15 @@ class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     raise WrongArgumentsException(Err.OE0218, ['Email', email])
             if subscribe is not None:
                 check_bool_attribute('subscribe', subscribe)
+            for param in UTM_FIELDS:
+                value = kwargs.get(param)
+                if value is not None:
+                    try:
+                        check_string_attribute(param, value)
+                    except WrongArgumentsException:
+                        LOG.warning('Live Demo: Invalid %s parameter passed',
+                                    param)
+                        kwargs.pop(param)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         super()._validate_params(**kwargs)
@@ -66,6 +79,26 @@ class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         description: subscribe newsletter
                         required: false
                         default: false
+                    utm_source:
+                        type: string
+                        description: UTM source
+                        required: false
+                    utm_medium:
+                        type: string
+                        description: UTM medium
+                        required: false
+                    utm_campaign:
+                        type: string
+                        description: UTM campaign
+                        required: false
+                    utm_term:
+                        type: string
+                        description: UTM term
+                        required: false
+                    utm_content:
+                        type: string
+                        description: UTM content
+                        required: false
         responses:
             201:
                 description: Created (returns demo environment information)
@@ -88,7 +121,7 @@ class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
         """
         secret = self.check_cluster_secret(raises=False)
         data = self._request_body()
-        self._validate_params(**data)
+        self._validate_params(data)
         try:
             res = await run_task(self.controller.create, pregenerate=secret,
                                  **data)

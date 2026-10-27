@@ -6,7 +6,7 @@ const MOCKED_DATA = {
       saving: 125.5,
       options: {
         excluded_pools: {},
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
       items: [
         {
@@ -22,10 +22,10 @@ const MOCKED_DATA = {
           is_with_intelligent_tiering: false,
           detected_at: 1682054418,
           cloud_account_name: "AWS HQ",
-          saving: 125.5
-        }
+          saving: 125.5,
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     abandoned_instances: {
       count: 32,
@@ -35,7 +35,7 @@ const MOCKED_DATA = {
         cpu_percent_threshold: 5,
         network_bps_threshold: 1000,
         excluded_pools: {},
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
       items: [
         {
@@ -50,7 +50,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           saving: 186.10285714285718,
           detected_at: 1682054418,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           resource_id: "a945f0a3-9f5a-4490-bd1e-39ab1009a79f",
@@ -64,7 +64,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           saving: 186.10285714285718,
           detected_at: 1682054418,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           resource_id: "aed1a586-2c3d-4813-922d-52c5ebdf646e",
@@ -78,10 +78,10 @@ const MOCKED_DATA = {
           is_excluded: false,
           saving: 186.10285714285718,
           detected_at: 1682054418,
-          cloud_account_name: "Ali dev"
-        }
+          cloud_account_name: "Ali dev",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     abandoned_kinesis_streams: {
       count: 1,
@@ -102,10 +102,10 @@ const MOCKED_DATA = {
           shardhours_price: 0.018,
           saving: 25.919999999999995,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     inactive_console_users: {
       count: 4,
@@ -118,7 +118,7 @@ const MOCKED_DATA = {
           user_id: "AIDAIKFDVXZELQ5NVB2EQ",
           last_used: 1652869334,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_account_id: "1ef6f7ed-4600-4541-a6d7-43fc151feeb9",
@@ -127,7 +127,7 @@ const MOCKED_DATA = {
           user_id: "AIDAIPPYCHRYQONGDLRJS",
           last_used: 1629370721,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_account_id: "1ef6f7ed-4600-4541-a6d7-43fc151feeb9",
@@ -136,10 +136,10 @@ const MOCKED_DATA = {
           user_id: "AIDAQUWY5LJ4UVW7CRF5Y",
           last_used: 1671603701,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     inactive_users: {
       count: 29,
@@ -152,7 +152,7 @@ const MOCKED_DATA = {
           user_id: "AIDAQUWY5LJ43UZ5EL2U6",
           last_used: 1661759335,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_account_id: "1ef6f7ed-4600-4541-a6d7-43fc151feeb9",
@@ -161,7 +161,7 @@ const MOCKED_DATA = {
           user_id: "AIDAQUWY5LJ47ZTO26I6P",
           last_used: 1645774440,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_account_id: "1ef6f7ed-4600-4541-a6d7-43fc151feeb9",
@@ -170,10 +170,10 @@ const MOCKED_DATA = {
           user_id: "AIDAQUWY5LJ426CC2RH2V",
           last_used: 0,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     insecure_security_groups: {
       count: 22,
@@ -182,9 +182,9 @@ const MOCKED_DATA = {
         insecure_ports: [
           { protocol: "tcp", port: 22 },
           { protocol: "tcp", port: 3389 },
-          { protocol: "tcp", port: 1080 }
+          { protocol: "tcp", port: 1080 },
         ],
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
       items: [
         {
@@ -199,7 +199,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           insecure_ports: [{ port: "*", protocol: null }],
           detected_at: 1684226578,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id:
@@ -215,7 +215,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           insecure_ports: [{ port: 22, protocol: "tcp" }],
           detected_at: 1682995378,
-          cloud_account_name: "Dev environment"
+          cloud_account_name: "Dev environment",
         },
         {
           cloud_resource_id:
@@ -231,10 +231,10 @@ const MOCKED_DATA = {
           is_excluded: false,
           insecure_ports: [{ port: 22, protocol: "tcp" }],
           detected_at: 1682995378,
-          cloud_account_name: "Dev environment"
-        }
+          cloud_account_name: "Dev environment",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     instance_generation_upgrade: {
       count: 3,
@@ -255,7 +255,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           flavor: "ecs.g6.large",
           detected_at: 1681968318,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           cloud_resource_id:
@@ -272,7 +272,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           flavor: "Standard_D4s_v3",
           detected_at: 1683794578,
-          cloud_account_name: "Dev environment"
+          cloud_account_name: "Dev environment",
         },
         {
           cloud_resource_id:
@@ -289,10 +289,10 @@ const MOCKED_DATA = {
           is_excluded: false,
           flavor: "Standard_D4s_v3",
           detected_at: 1682995378,
-          cloud_account_name: "Dev environment"
-        }
+          cloud_account_name: "Dev environment",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     instance_migration: {
       count: 2,
@@ -311,7 +311,7 @@ const MOCKED_DATA = {
           cloud_type: "alibaba_cnr",
           is_excluded: false,
           detected_at: 1683880978,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           saving: 1.152000000000001,
@@ -325,10 +325,10 @@ const MOCKED_DATA = {
           cloud_type: "aws_cnr",
           is_excluded: false,
           detected_at: 1682411718,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     instance_subscription: {
       count: 4,
@@ -349,7 +349,7 @@ const MOCKED_DATA = {
           cloud_type: "alibaba_cnr",
           is_excluded: false,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           monthly_saving: 20.080000000000005,
@@ -365,7 +365,7 @@ const MOCKED_DATA = {
           cloud_type: "alibaba_cnr",
           is_excluded: false,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           monthly_saving: 5.699999999999999,
@@ -381,10 +381,10 @@ const MOCKED_DATA = {
           cloud_type: "alibaba_cnr",
           is_excluded: false,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
-        }
+          cloud_account_name: "Ali dev",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     instances_for_shutdown: {
       count: 14,
@@ -394,7 +394,7 @@ const MOCKED_DATA = {
         cpu_percent_threshold: 6,
         network_bps_threshold: 1001,
         excluded_pools: {},
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
       items: [
         {
@@ -409,11 +409,11 @@ const MOCKED_DATA = {
           is_excluded: false,
           inactivity_periods: [
             { start: { day_of_week: 0, hour: 0 }, end: { day_of_week: 3, hour: 11 } },
-            { start: { day_of_week: 3, hour: 13 }, end: { day_of_week: 6, hour: 23 } }
+            { start: { day_of_week: 3, hour: 13 }, end: { day_of_week: 6, hour: 23 } },
           ],
           saving: 176.4156190476191,
           detected_at: 1681972518,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           resource_id: "958e44e2-c83d-4dfd-bdda-5a3878003c47",
@@ -443,11 +443,11 @@ const MOCKED_DATA = {
             { start: { day_of_week: 4, hour: 17 }, end: { day_of_week: 5, hour: 5 } },
             { start: { day_of_week: 5, hour: 12 }, end: { day_of_week: 5, hour: 12 } },
             { start: { day_of_week: 5, hour: 16 }, end: { day_of_week: 5, hour: 17 } },
-            { start: { day_of_week: 5, hour: 20 }, end: { day_of_week: 6, hour: 23 } }
+            { start: { day_of_week: 5, hour: 20 }, end: { day_of_week: 6, hour: 23 } },
           ],
           saving: 162.641389459265,
           detected_at: 1682995378,
-          cloud_account_name: "Dev environment"
+          cloud_account_name: "Dev environment",
         },
         {
           resource_id: "83a0c055-870b-49d5-a662-eac2794f89af",
@@ -485,14 +485,14 @@ const MOCKED_DATA = {
             { start: { day_of_week: 4, hour: 21 }, end: { day_of_week: 5, hour: 7 } },
             { start: { day_of_week: 5, hour: 9 }, end: { day_of_week: 5, hour: 12 } },
             { start: { day_of_week: 5, hour: 14 }, end: { day_of_week: 5, hour: 15 } },
-            { start: { day_of_week: 5, hour: 17 }, end: { day_of_week: 6, hour: 23 } }
+            { start: { day_of_week: 5, hour: 17 }, end: { day_of_week: 6, hour: 23 } },
           ],
           saving: 99.36719791517858,
           detected_at: 1682628178,
-          cloud_account_name: "AWS Marketing"
-        }
+          cloud_account_name: "AWS Marketing",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     instances_in_stopped_state_for_a_long_time: {
       count: 3,
@@ -512,7 +512,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_active: 0,
           detected_at: 1682584978,
-          cloud_account_name: "Azure QA"
+          cloud_account_name: "Azure QA",
         },
         {
           cloud_resource_id:
@@ -527,7 +527,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_active: 0,
           detected_at: 1682584978,
-          cloud_account_name: "Azure QA"
+          cloud_account_name: "Azure QA",
         },
         {
           cloud_resource_id: "i-gw8692qiefklcvhgc75e",
@@ -541,10 +541,10 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_active: 0,
           detected_at: 1681968318,
-          cloud_account_name: "Ali dev"
-        }
+          cloud_account_name: "Ali dev",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     obsolete_images: {
       count: 87,
@@ -563,12 +563,12 @@ const MOCKED_DATA = {
             {
               cloud_resource_id: "snap-0b14b0f5690db4384",
               resource_id: "ace55d86-cd32-4185-8a05-4d538751dd18",
-              cost: 2.7195960953
-            }
+              cost: 2.7195960953,
+            },
           ],
           first_seen: 1663761975,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id: "ami-007af5b6be13d6765",
@@ -582,12 +582,12 @@ const MOCKED_DATA = {
             {
               cloud_resource_id: "snap-0ccbccb24d31ffd6f",
               resource_id: "de08f9d4-8a4f-4794-8c0a-c665994bf29d",
-              cost: 2.5604244129
-            }
+              cost: 2.5604244129,
+            },
           ],
           first_seen: 1631175628,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id: "ami-0bbceb7fb22af85bd",
@@ -601,15 +601,15 @@ const MOCKED_DATA = {
             {
               cloud_resource_id: "snap-09e187c95dfdaa1ee",
               resource_id: "03ff8041-03bb-4cab-ab7a-57c7ab6ff77d",
-              cost: 2.5181445328
-            }
+              cost: 2.5181445328,
+            },
           ],
           first_seen: 1660299423,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     obsolete_ips: {
       count: 27,
@@ -628,7 +628,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_active: 0,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           cloud_resource_id: "eip-gw8f117dmb0k4e4nkobsl",
@@ -642,7 +642,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_active: 0,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           cloud_resource_id:
@@ -657,10 +657,10 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_active: 0,
           detected_at: 1681968018,
-          cloud_account_name: "Dev environment"
-        }
+          cloud_account_name: "Dev environment",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     obsolete_snapshot_chains: {
       count: 4,
@@ -682,13 +682,13 @@ const MOCKED_DATA = {
               cloud_resource_id: "s-gw8h0b454q5zxeyeulsm",
               name: "sunflower_lily_VA_MGR_Alibaba_3_9_om20221228-feature_cloud7_en",
               cloud_console_link:
-                "https://ecs.console.aliyun.com/#/snapshot/region/eu-central-1?snapshotIds=s-gw8h0b454q5zxeyeulsm"
-            }
+                "https://ecs.console.aliyun.com/#/snapshot/region/eu-central-1?snapshotIds=s-gw8h0b454q5zxeyeulsm",
+            },
           ],
           first_seen: 1681344000,
           last_seen: 1683936000,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           cloud_resource_id: "sl-gw84m857olspqve95jb9",
@@ -705,13 +705,13 @@ const MOCKED_DATA = {
               cloud_resource_id: "s-gw8f5fd047rk6z0mpkx8",
               name: "sunflower_lily_VA_DR_Alibaba_3_9_om20221228-feature_cloud7_en",
               cloud_console_link:
-                "https://ecs.console.aliyun.com/#/snapshot/region/eu-central-1?snapshotIds=s-gw8f5fd047rk6z0mpkx8"
-            }
+                "https://ecs.console.aliyun.com/#/snapshot/region/eu-central-1?snapshotIds=s-gw8f5fd047rk6z0mpkx8",
+            },
           ],
           first_seen: 1681344000,
           last_seen: 1683936000,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
+          cloud_account_name: "Ali dev",
         },
         {
           cloud_resource_id: "sl-gw8d2sicdq9oq331hb05",
@@ -728,16 +728,16 @@ const MOCKED_DATA = {
               cloud_resource_id: "s-gw85a66uwrbpu8ef27r4",
               name: "ds-test",
               cloud_console_link:
-                "https://ecs.console.aliyun.com/#/snapshot/region/eu-central-1?snapshotIds=s-gw85a66uwrbpu8ef27r4"
-            }
+                "https://ecs.console.aliyun.com/#/snapshot/region/eu-central-1?snapshotIds=s-gw85a66uwrbpu8ef27r4",
+            },
           ],
           first_seen: 1681344000,
           last_seen: 1683936000,
           detected_at: 1681968018,
-          cloud_account_name: "Ali dev"
-        }
+          cloud_account_name: "Ali dev",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     obsolete_snapshots: {
       count: 45,
@@ -758,7 +758,7 @@ const MOCKED_DATA = {
           first_seen: 1681257600,
           last_seen: 1683849600,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id: "snap-04b96eca0fa400096",
@@ -774,7 +774,7 @@ const MOCKED_DATA = {
           first_seen: 1681257600,
           last_seen: 1683849600,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id: "snap-0f8f3562ed71e18b5",
@@ -790,10 +790,10 @@ const MOCKED_DATA = {
           first_seen: 1681257600,
           last_seen: 1683849600,
           detected_at: 1682054418,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     reserved_instances: {
       count: 6,
@@ -812,7 +812,7 @@ const MOCKED_DATA = {
           cloud_type: "aws_cnr",
           is_excluded: false,
           detected_at: 1682628178,
-          cloud_account_name: "AWS Marketing"
+          cloud_account_name: "AWS Marketing",
         },
         {
           saving: 4.032,
@@ -826,7 +826,7 @@ const MOCKED_DATA = {
           cloud_type: "aws_cnr",
           is_excluded: false,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           saving: 3.5999999999999943,
@@ -840,10 +840,10 @@ const MOCKED_DATA = {
           cloud_type: "aws_cnr",
           is_excluded: false,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     rightsizing_instances: {
       count: 30,
@@ -854,7 +854,7 @@ const MOCKED_DATA = {
         excluded_flavor_regex: "",
         excluded_pools: { "3a248797-84f6-46b8-b6b9-9aa612105d1e": true, "9ef6f469-434d-4937-80b0-6eea3085deb6": true },
         recommended_flavor_cpu_min: 1,
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
       items: [
         {
@@ -883,7 +883,7 @@ const MOCKED_DATA = {
           projected_cpu_qtl_50: 60.47,
           projected_cpu_qtl_99: 100,
           detected_at: 1683578578,
-          cloud_account_name: "GCP dev"
+          cloud_account_name: "GCP dev",
         },
         {
           cloud_resource_id: "i-082b1a163698b8ede",
@@ -911,7 +911,7 @@ const MOCKED_DATA = {
           projected_cpu_qtl_50: 2.82,
           projected_cpu_qtl_99: 12.67,
           detected_at: 1682628178,
-          cloud_account_name: "AWS Marketing"
+          cloud_account_name: "AWS Marketing",
         },
         {
           cloud_resource_id: "i-0e464cfbf9650bd21",
@@ -939,10 +939,10 @@ const MOCKED_DATA = {
           projected_cpu_qtl_50: 1.02,
           projected_cpu_qtl_99: 3.39,
           detected_at: 1682628178,
-          cloud_account_name: "AWS Marketing"
-        }
+          cloud_account_name: "AWS Marketing",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     rightsizing_rds: {
       count: 0,
@@ -953,9 +953,9 @@ const MOCKED_DATA = {
         excluded_flavor_regex: "",
         excluded_pools: {},
         recommended_flavor_cpu_min: 1,
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
-      items: []
+      items: [],
     },
     s3_abandoned_buckets: {
       count: 45,
@@ -966,7 +966,7 @@ const MOCKED_DATA = {
         tier_1_request_quantity_threshold: 100,
         tier_2_request_quantity_threshold: 2000,
         excluded_pools: {},
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
       items: [
         {
@@ -984,7 +984,7 @@ const MOCKED_DATA = {
           tier_2_request_quantity: 0,
           saving: 19.520247625714287,
           detected_at: 1682390118,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id: "sunflower-ap-south-1",
@@ -1001,7 +1001,7 @@ const MOCKED_DATA = {
           tier_2_request_quantity: 0,
           saving: 2.529079726285714,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id: "sunflower-us-east-1",
@@ -1018,10 +1018,10 @@ const MOCKED_DATA = {
           tier_2_request_quantity: 0,
           saving: 2.207960509714286,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     s3_public_buckets: {
       count: 2,
@@ -1040,7 +1040,7 @@ const MOCKED_DATA = {
           is_public_policy: true,
           is_public_acls: true,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id: "sunflower-static-files",
@@ -1055,10 +1055,10 @@ const MOCKED_DATA = {
           is_public_policy: true,
           is_public_acls: false,
           detected_at: 1681967718,
-          cloud_account_name: "AWS HQ"
-        }
+          cloud_account_name: "AWS HQ",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     short_living_instances: {
       count: 10,
@@ -1079,7 +1079,7 @@ const MOCKED_DATA = {
           first_seen: 1684108800,
           last_seen: 0,
           detected_at: 1684237378,
-          cloud_account_name: "Azure QA"
+          cloud_account_name: "Azure QA",
         },
         {
           cloud_resource_id:
@@ -1095,7 +1095,7 @@ const MOCKED_DATA = {
           first_seen: 1684022400,
           last_seen: 1684108800,
           detected_at: 1684150978,
-          cloud_account_name: "Azure QA"
+          cloud_account_name: "Azure QA",
         },
         {
           cloud_resource_id:
@@ -1111,10 +1111,10 @@ const MOCKED_DATA = {
           first_seen: 1684022400,
           last_seen: 1684108800,
           detected_at: 1684140178,
-          cloud_account_name: "Azure QA"
-        }
+          cloud_account_name: "Azure QA",
+        },
       ],
-      limit: 3
+      limit: 3,
     },
     volumes_not_attached_for_a_long_time: {
       count: 41,
@@ -1126,9 +1126,9 @@ const MOCKED_DATA = {
           "cd7714e5-9bdd-4408-b380-1fc2bec648a9": true,
           "54704172-af6c-4c91-bf78-5e59ad3ace11": true,
           "cbefe6bf-5515-4f26-9a6d-75b2259ba158": true,
-          "f6fafb13-747b-4cb3-bee6-0cb91bc56fbb": true
+          "f6fafb13-747b-4cb3-bee6-0cb91bc56fbb": true,
         },
-        skip_cloud_accounts: []
+        skip_cloud_accounts: [],
       },
       items: [
         {
@@ -1144,7 +1144,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_in_attached_state: 1682067635,
           detected_at: 1682163318,
-          cloud_account_name: "Dev environment"
+          cloud_account_name: "Dev environment",
         },
         {
           cloud_resource_id: "vol-0afae39442f921eb2",
@@ -1158,7 +1158,7 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_in_attached_state: 0,
           detected_at: 1682228118,
-          cloud_account_name: "AWS HQ"
+          cloud_account_name: "AWS HQ",
         },
         {
           cloud_resource_id:
@@ -1173,21 +1173,21 @@ const MOCKED_DATA = {
           is_excluded: false,
           last_seen_in_attached_state: 0,
           detected_at: 1681968318,
-          cloud_account_name: "Dev environment"
-        }
+          cloud_account_name: "Dev environment",
+        },
       ],
-      limit: 3
-    }
+      limit: 3,
+    },
   },
   dismissed_optimizations: {
     instances_in_stopped_state_for_a_long_time: { count: 1, saving: 17.13213857032258 },
     s3_public_buckets: { count: 1 },
-    volumes_not_attached_for_a_long_time: { count: 3, saving: 69.88859608064516 }
+    volumes_not_attached_for_a_long_time: { count: 3, saving: 69.88859608064516 },
   },
   excluded_optimizations: {
     instance_migration: { count: 2, saving: 4.32 },
     rightsizing_instances: { count: 39, saving: 6610.8 },
-    volumes_not_attached_for_a_long_time: { count: 1, saving: 3.0490571148387096 }
+    volumes_not_attached_for_a_long_time: { count: 1, saving: 3.0490571148387096 },
   },
   deleted_at: 0,
   id: "8b348dc0-510c-48d0-9c28-2b521e0b5eb0",
@@ -1195,7 +1195,7 @@ const MOCKED_DATA = {
   organization_id: "f3360466-1b66-4276-9dbc-3f456ee2065a",
   last_run: 1684237378,
   next_run: 1684248178,
-  last_completed: 1684237378
+  last_completed: 1684237378,
 };
 
 export { MOCKED_DATA };

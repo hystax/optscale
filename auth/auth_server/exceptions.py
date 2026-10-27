@@ -130,7 +130,7 @@ class Err(enum.Enum):
         "Invalid model type: %s",
     ]
     OA0046 = [
-        "Payload is not a valid json",
+        "%s is not a valid json",
     ]
     OA0047 = [
         "Payload is malformed",

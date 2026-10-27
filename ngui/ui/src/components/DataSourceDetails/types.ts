@@ -8,7 +8,7 @@ import {
   KUBERNETES_CNR,
   NEBIUS,
   DATABRICKS,
-  GCP_TENANT
+  GCP_TENANT,
 } from "utils/constants";
 import {
   AlibabaPropertiesProps,
@@ -17,7 +17,7 @@ import {
   DatabricksPropertiesProps,
   GcpPropertiesProps,
   K8sPropertiesProps,
-  NebiusPropertiesProps
+  NebiusPropertiesProps,
 } from "./Properties/types";
 
 type CloudAccountType =
@@ -59,4 +59,6 @@ export type DataSourceDetailsProps = {
   createdAt: number;
   type: CloudAccountType;
   config: ConfigMap;
+  lastImportSourceId?: string | null;
+  lastImportSourceAccountId?: string | null;
 };

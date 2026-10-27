@@ -26,18 +26,18 @@ const EditBIExport = ({ biExport, onSubmit, onCancel, isLoadingProps }) => {
             </Link>,
             <Link key={3} to={getBIExportUrl(id)} component={RouterLink}>
               {name}
-            </Link>
+            </Link>,
           ],
           title: {
             messageId: "editBIExportTitle",
-            dataTestId: "lbl_edit_bi_export_title"
-          }
+            dataTestId: "lbl_edit_bi_export_title",
+          },
         }}
       />
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <BIExportForm

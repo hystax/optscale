@@ -29,8 +29,8 @@ const ReapplyRulesetForm = ({ onSubmit, managedPools, closeSideModal, isSubmitLo
   const methods = useForm({
     defaultValues: {
       [POOL_ID]: "",
-      [INCLUDE_CHILDREN]: false
-    }
+      [INCLUDE_CHILDREN]: false,
+    },
   });
 
   const { handleSubmit, watch } = methods;
@@ -63,8 +63,8 @@ const ReapplyRulesetForm = ({ onSubmit, managedPools, closeSideModal, isSubmitLo
             dataTestId: "btn_apply_rule_type_whole_organization",
             action: () => {
               setIsSpecificPool(false);
-            }
-          }
+            },
+          },
         ]
       : []),
     {
@@ -73,8 +73,8 @@ const ReapplyRulesetForm = ({ onSubmit, managedPools, closeSideModal, isSubmitLo
       dataTestId: "btn_apply_rule_type_specific_pool",
       action: () => {
         setIsSpecificPool(true);
-      }
-    }
+      },
+    },
   ];
 
   return (
@@ -119,7 +119,7 @@ const ReapplyRulesetForm = ({ onSubmit, managedPools, closeSideModal, isSubmitLo
               disabled={isRestricted}
               tooltip={{
                 show: isRestricted,
-                value: restrictionReasonMessage
+                value: restrictionReasonMessage,
               }}
             />
             <Button dataTestId="cancel_btn" messageId="cancel" variant="outlined" onClick={closeSideModal} />

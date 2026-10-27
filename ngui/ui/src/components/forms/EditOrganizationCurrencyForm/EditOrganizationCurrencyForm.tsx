@@ -11,10 +11,10 @@ const EditOrganizationCurrencyForm = ({
   defaultCurrency,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: EditOrganizationCurrencyFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues({ currency: defaultCurrency })
+    defaultValues: getDefaultValues({ currency: defaultCurrency }),
   });
   const { handleSubmit } = methods;
 
@@ -22,7 +22,7 @@ const EditOrganizationCurrencyForm = ({
     <FormProvider {...methods}>
       <Box
         sx={{
-          width: { md: "50%" }
+          width: { md: "50%" },
         }}
       >
         <form onSubmit={handleSubmit(onSubmit)} noValidate>

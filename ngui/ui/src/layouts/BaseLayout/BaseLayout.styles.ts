@@ -5,28 +5,28 @@ export const DRAWER_WIDTH = 205;
 
 const useStyles = makeStyles()((theme) => ({
   appBar: {
-    boxShadow: "none"
+    boxShadow: "none",
   },
   toolbar: {
     display: "flex",
     height: theme.spacing(7),
     justifyContent: "space-between",
-    backgroundColor: theme.palette.info.header
+    backgroundColor: theme.palette.info.header,
   },
   logo: {
     [theme.breakpoints.down("md")]: {
-      flex: 1
-    }
+      flex: 1,
+    },
   },
   marginRight1: {
-    marginRight: theme.spacing(SPACING_1)
+    marginRight: theme.spacing(SPACING_1),
   },
   marginLeft1: {
-    marginLeft: theme.spacing(SPACING_1)
+    marginLeft: theme.spacing(SPACING_1),
   },
   drawerPaper: {
     position: "relative",
-    width: DRAWER_WIDTH
+    width: DRAWER_WIDTH,
   },
   content: {
     overflowY: "auto",
@@ -35,41 +35,41 @@ const useStyles = makeStyles()((theme) => ({
     maxWidth: "none",
     // that way PageContentWrapper will fill whole page height
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   mobileRegisterButton: {
     backgroundColor: theme.palette.success.main,
-    color: "inherit"
+    color: "inherit",
   },
   layoutWrapper: {
     display: "flex",
     flexDirection: "column",
-    height: "100vh"
+    height: "100vh",
   },
   menuAndContentWrapper: {
     overflow: "hidden",
     flexGrow: 1,
-    display: "flex"
+    display: "flex",
   },
   wrapper: {
     overflow: "hidden",
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) 0",
     [theme.breakpoints.up("md")]: {
-      transition: "grid-template-columns 0.2s ease-in"
-    }
+      transition: "grid-template-columns 0.2s ease-in",
+    },
   },
   wrapperWithDocsOpened: {
     [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: `minmax(0, 1fr) 400px`
+      gridTemplateColumns: `minmax(0, 1fr) 400px`,
     },
-    gridTemplateColumns: `0 minmax(0, 1fr)`
+    gridTemplateColumns: `0 minmax(0, 1fr)`,
   },
   hideableLayoutWrapper: {
     [theme.breakpoints.down("md")]: {
-      visibility: "hidden"
-    }
-  }
+      visibility: "hidden",
+    },
+  },
 }));
 
 export default useStyles;

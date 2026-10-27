@@ -14,20 +14,20 @@ class WithViolatedConstraintsFilter extends Filter {
 
   // TODO: Use ajv TS integration to create schema based on types def
   static filterItemSchema = {
-    type: "boolean"
+    type: "boolean",
   };
 
   // TODO: Use ajv TS integration to create schema based on types def
   static appliedFilterSchema = {
-    type: "boolean"
+    type: "boolean",
   };
 
   suggestions = [
     {
       name: this.constructor.filterName,
       value: true,
-      label: <FormattedMessage id="withViolatedConstraints" />
-    }
+      label: <FormattedMessage id="withViolatedConstraints" />,
+    },
   ];
 
   static _getValue(filterItem) {
@@ -46,7 +46,7 @@ class WithViolatedConstraintsFilter extends Filter {
     return {
       value: appliedFilter,
       displayedValue: this.constructor.getDisplayedValueRenderer(filterItem),
-      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem),
     };
   }
 }

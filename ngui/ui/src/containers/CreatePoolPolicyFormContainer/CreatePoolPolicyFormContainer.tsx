@@ -28,11 +28,11 @@ const CreatePoolPolicyFormContainer = () => {
         poolId,
         params: {
           limit,
-          type
-        }
+          type,
+        },
       },
       {
-        onSuccess: () => redirect()
+        onSuccess: () => redirect(),
       }
     );
   };
@@ -48,7 +48,7 @@ const CreatePoolPolicyFormContainer = () => {
     dispatch((_, getState) => {
       dispatch(
         getAvailablePools(organizationId, {
-          permission: ["MANAGE_POOLS"]
+          permission: ["MANAGE_POOLS"],
         })
       )
         .then(() => checkError(GET_AVAILABLE_POOLS, getState()))

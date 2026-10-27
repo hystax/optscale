@@ -16,11 +16,11 @@ const DataSourceMultiSelect = ({
   helperText,
   name,
   onBlur,
-  inputRef
+  inputRef,
 }) => {
   const handleChange = (event) => {
     const {
-      target: { value }
+      target: { value },
     } = event;
 
     onChange(
@@ -77,17 +77,17 @@ const DataSourceMultiSelect = ({
         MenuProps={{
           PaperProps: {
             style: {
-              minWidth: menuPaperMinWidth
-            }
+              minWidth: menuPaperMinWidth,
+            },
           },
           anchorOrigin: {
             vertical: "bottom",
-            horizontal: "left"
+            horizontal: "left",
           },
           transformOrigin: {
             vertical: "top",
-            horizontal: "left"
-          }
+            horizontal: "left",
+          },
         }}
         error={error}
         input={<OutlinedInput notched={displayEmpty ? true : undefined} label={dataSourcesMessage} />}

@@ -4,5 +4,5 @@ export const FIELD_NAMES = Object.freeze({
   UNIT: "unit",
   TENDENCY: "tendency",
   TARGET_VALUE: "target_value",
-  FUNCTION: "function"
+  FUNCTION: "function",
 });

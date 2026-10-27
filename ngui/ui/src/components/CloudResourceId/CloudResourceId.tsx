@@ -12,10 +12,10 @@ const CloudResourceIdString = ({
   resourceType,
   dataTestId,
   disableLink = false,
-  tooltip
+  tooltip,
 }) => {
   const {
-    classes: { longNamesBreak }
+    classes: { longNamesBreak },
   } = useStyles();
 
   const content =

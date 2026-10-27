@@ -12,16 +12,16 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_im_resource"
+    headerDataTestId: "lbl_im_resource",
   }),
   resourceLocation({
     headerDataTestId: "lbl_im_location",
     locationAccessors: {
-      region: "current_region"
-    }
+      region: "current_region",
+    },
   }),
   size({
-    headerDataTestId: "lbl_im_size"
+    headerDataTestId: "lbl_im_size",
   }),
   {
     header: (
@@ -32,13 +32,13 @@ const columns = [
     accessorKey: "recommended_region",
     cell: ({ row: { original } }) => (
       <IconLabel icon={<CloudTypeIcon fontSize="small" type={original.cloud_type} />} label={original.recommended_region} />
-    )
+    ),
   },
   detectedAt({ headerDataTestId: "lbl_im_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_im_possible_monthly_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class InstancesMigration extends BaseRecommendation {
@@ -71,16 +71,16 @@ class InstancesMigration extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-region`,
-        value: <RecommendationListItemFlavorLabel item={item} />
+        value: <RecommendationListItemFlavorLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

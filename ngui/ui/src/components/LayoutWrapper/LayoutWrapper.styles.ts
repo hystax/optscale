@@ -6,8 +6,8 @@ const useStyles = makeStyles()(() => ({
     paddingLeft: "0",
     paddingRight: "0",
     margin: "auto",
-    maxWidth: "none"
-  }
+    maxWidth: "none",
+  },
 }));
 
 export default useStyles;

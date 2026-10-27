@@ -18,7 +18,7 @@ const PowerScheduleDetailsMocked = () => (
         { action: "power_on", time: "08:00" },
         { action: "power_off", time: "10:00" },
         { action: "power_on", time: "12:00" },
-        { action: "power_off", time: "14:00" }
+        { action: "power_off", time: "14:00" },
       ],
       last_run: 0,
       last_run_error: null,
@@ -44,23 +44,23 @@ const PowerScheduleDetailsMocked = () => (
             {
               id: "f7743a69-878e-49e6-854a-c1ba2ad37be4",
               name: "Rule for Environment_1680762725",
-              pool_id: "24d45f81-6b73-4f66-a876-0bc15e1077a3"
-            }
+              pool_id: "24d45f81-6b73-4f66-a876-0bc15e1077a3",
+            },
           ],
           first_seen: 1680739200,
           last_seen: 1697068799,
           tags: {
-            purpose: "dev"
+            purpose: "dev",
           },
           last_expense: {
             date: 1696982400,
-            cost: 0.052057672081999996
+            cost: 0.052057672081999996,
           },
           total_cost: 46.908893672082,
           constraint_violated: true,
           id: "665bc613-2421-4812-8fee-e204e363af9f",
           meta: {
-            flavor: "xlarge"
+            flavor: "xlarge",
           },
           sub_resources: [],
           recommendations: {},
@@ -70,9 +70,9 @@ const PowerScheduleDetailsMocked = () => (
           cloud_account_type: "aws_cnr",
           owner_name: "Sally wong",
           pool_name: "Environment",
-          pool_purpose: "budget"
-        }
-      ]
+          pool_purpose: "budget",
+        },
+      ],
     }}
     onActivate={() => {}}
     onDeactivate={() => {}}

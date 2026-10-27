@@ -6,7 +6,7 @@ const IntegrationsGoogleCalendarContainer = () => {
 
   const {
     isLoading,
-    organizationCalendar: { service_account: serviceAccount, calendar_synchronization: calendarSynchronization = {} }
+    organizationCalendar: { service_account: serviceAccount, calendar_synchronization: calendarSynchronization = {} },
   } = useGet();
 
   return (

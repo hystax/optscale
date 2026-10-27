@@ -14,7 +14,7 @@ const totalExpenses = ({ totalTotalCostWithOffer }) => ({
   accessorKey: "total_cost_with_offer",
   cell: ({ cell }) => <CellValue expenses={cell.getValue()} />,
   footer: () => <CellValue expenses={totalTotalCostWithOffer} />,
-  defaultSort: "desc"
+  defaultSort: "desc",
 });
 
 export default totalExpenses;

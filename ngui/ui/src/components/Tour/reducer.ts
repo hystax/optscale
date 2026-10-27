@@ -7,12 +7,12 @@ export const ENVIRONMENTS_TOUR = "environmentsTour";
 const INITIAL_STATE = {
   [PRODUCT_TOUR]: {
     isOpen: false,
-    isFinished: false
+    isFinished: false,
   },
   [ENVIRONMENTS_TOUR]: {
     isOpen: false,
-    isFinished: false
-  }
+    isFinished: false,
+  },
 };
 
 const reducer = (state = INITIAL_STATE, action) => {
@@ -24,8 +24,8 @@ const reducer = (state = INITIAL_STATE, action) => {
         [action.label]: {
           isOpen: true,
           isFinished: false,
-          stepId: action.payload
-        }
+          stepId: action.payload,
+        },
       };
     }
     case FINISH_TOUR: {
@@ -33,8 +33,8 @@ const reducer = (state = INITIAL_STATE, action) => {
         ...state,
         [action.label]: {
           isOpen: false,
-          isFinished: true
-        }
+          isFinished: true,
+        },
       };
     }
     default:

@@ -9,7 +9,7 @@ const biExportExportedDays = () => ({
     />
   ),
   accessorKey: "days",
-  enableSorting: false
+  enableSorting: false,
 });
 
 export default biExportExportedDays;

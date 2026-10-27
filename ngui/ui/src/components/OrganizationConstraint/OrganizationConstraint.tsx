@@ -26,7 +26,7 @@ import {
   QUOTA_POLICY,
   RECURRING_BUDGET_POLICY,
   TAGGING_POLICY,
-  TAGGING_POLICY_TYPES
+  TAGGING_POLICY_TYPES,
 } from "utils/constants";
 import { EN_FULL_FORMAT, format, secondsToMilliseconds } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
@@ -53,7 +53,7 @@ const ConstraintName = ({ id, name }) => {
         keyMessageId="name"
         value={<SlicedText limit={80} text={name} />}
         sx={{
-          marginRight: 1
+          marginRight: 1,
         }}
       />
       {id && name && isAllowed ? (
@@ -64,7 +64,7 @@ const ConstraintName = ({ id, name }) => {
           disabled={isRestricted}
           tooltip={{
             show: true,
-            value: isRestricted ? restrictionReasonMessage : <FormattedMessage id="edit" />
+            value: isRestricted ? restrictionReasonMessage : <FormattedMessage id="edit" />,
           }}
         />
       ) : null}
@@ -86,7 +86,7 @@ const ConstraintProperties = ({ id, name, type, definition = {} }) => {
     monthly_budget: monthlyBudget,
     total_budget: totalBudget,
     start_date: startDate,
-    conditions
+    conditions,
   } = definition;
 
   return (
@@ -152,7 +152,7 @@ const OrganizationConstraint = ({
   actionBarTitleDefinition,
   constraint,
   limitHits,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const { anomalyId } = useParams();
 
@@ -180,7 +180,7 @@ const OrganizationConstraint = ({
         action: () => {
           const link = getResourcesLink(constraint);
           navigate(link);
-        }
+        },
       },
       {
         key: "delete",
@@ -190,9 +190,9 @@ const OrganizationConstraint = ({
         isLoading: isGetConstraintLoading,
         show: isAllowed,
         dataTestId: "btn_delete",
-        action: () => openSideModal(DeleteOrganizationConstraintModal, { id, name, type })
-      }
-    ]
+        action: () => openSideModal(DeleteOrganizationConstraintModal, { id, name, type }),
+      },
+    ],
   };
 
   const renderFiltersSection = () => {

@@ -9,7 +9,7 @@ const FIELD_NAME = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.THRESHOLD;
 const ThresholdInput = () => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -24,18 +24,18 @@ const ThresholdInput = () => {
       {...register(FIELD_NAME, {
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         validate: {
-          positiveIntegerOrZero
+          positiveIntegerOrZero,
         },
         max: {
           value: 1000,
-          message: intl.formatMessage({ id: "lessOrEqual" }, { max: 1000 })
-        }
+          message: intl.formatMessage({ id: "lessOrEqual" }, { max: 1000 }),
+        },
       })}
       InputProps={{
-        endAdornment: "%"
+        endAdornment: "%",
       }}
     />
   );

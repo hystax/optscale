@@ -8,7 +8,7 @@ import { useApiState } from "hooks/useApiState";
 
 const OrganizationsOverviewContainer = () => {
   const {
-    apiData: { organizations = [] }
+    apiData: { organizations = [] },
   } = useApiData(GET_ORGANIZATIONS_OVERVIEW);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ORGANIZATIONS_OVERVIEW, { details: true });

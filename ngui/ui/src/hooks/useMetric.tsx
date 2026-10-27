@@ -10,8 +10,8 @@ const useMetric = (type, metrics) => {
     title: <FormattedMessage id={getTitleMessageIdByMetricType(type)} />,
     chartProps,
     cardDataTestIds: {
-      wrapper: `block_${type}`
-    }
+      wrapper: `block_${type}`,
+    },
   };
 };
 

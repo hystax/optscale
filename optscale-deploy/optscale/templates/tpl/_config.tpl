@@ -27,6 +27,7 @@ etcd:
   release: {{ .Values.release }}
   katara_scheduler_timeout: {{ .Values.katara_scheduler_timeout }}
   bumi_scheduler_timeout: {{ .Values.bumi_scheduler_timeout }}
+  product_tracking_id: {{ .Values.product_tracking_id }}
   bumi_worker:
     max_retries: {{ .Values.bumi_worker.max_retries }}
     wait_timeout: {{ .Values.bumi_worker.wait_timeout }}
@@ -52,6 +53,10 @@ etcd:
         {{ $key }}: {{ $value | quote }}
     {{- end }}
   domains_blacklists:
+    marketing:
+      {{- range .Values.domains_blacklists.marketing }}
+        - {{ . | quote }}
+      {{- end}}
     new_employee_email:
       {{- range .Values.domains_blacklists.new_employee_email }}
         - {{ . | quote }}
@@ -92,9 +97,26 @@ etcd:
     report_imports:
       not_processed_threshold_secs: {{ .Values.import_reports.not_processed_threshold_secs }}
       message_expiration_secs: {{ .Values.import_reports.message_expiration_secs }}
+    opentelemetry:
+      enable_asyncio: true
+      enable_threading: true
+      enable_tornado: true
+      enable_urllib3: true
+      enable_requests: true
+      enable_sqlalchemy: true
+      enable_mongo: true
+      enable_kombu: true
+      enable_clickhouse: true
   auth:
     host: {{ .Values.auth.service.name }}
     port: {{ .Values.auth.service.externalPort }}
+    opentelemetry:
+      enable_asyncio: true
+      enable_threading: true
+      enable_tornado: true
+      enable_urllib3: true
+      enable_requests: true
+      enable_sqlalchemy: true
   katara:
     host: {{ .Values.katara_service.service.name }}
     port: {{ .Values.katara_service.service.externalPort }}
@@ -271,6 +293,13 @@ etcd:
     demo_org_lifetime_hrs: {{ .Values.demo_org_cleanup.demo_org_lifetime_hrs }}
   diworker:
     max_report_imports_workers: {{ .Values.import_reports.max_workers }}
+    csv_rewrite_days: {{ .Values.import_reports.csv_rewrite_days }}
+    opentelemetry:
+      enable_threading: true
+      enable_urllib3: true
+      enable_requests: true
+      enable_kombu: true
+      enable_clickhouse: true
   exchange_rates:
     {{- range $currency, $rate := .Values.exchange_rates }}
       {{ $currency }}: {{ $rate }}
@@ -279,4 +308,13 @@ etcd:
     api_key: {{ .Values.stripe.api_key }}
     webhook_secret: {{ .Values.stripe.webhook_secret }}
     enabled: {{ .Values.stripe.enabled }}
+  opentelemetry:
+    enabled: {{ .Values.opentelemetry.enabled }}
+    {{- if .Values.opentelemetry.enabled }}
+    exporter:
+      type: {{ .Values.opentelemetry.exporter.type }}
+      {{- if or (eq .Values.opentelemetry.exporter.type "otlp") (eq .Values.opentelemetry.exporter.type "azure_monitor") }}
+      connection_string: {{ .Values.opentelemetry.exporter.connection_string }}
+      {{- end }}
+    {{- end }}
 {{- end }}

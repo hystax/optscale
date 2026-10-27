@@ -185,7 +185,7 @@ export const currencyCodes = [
   "YER",
   "ZAR",
   "ZMW",
-  "ZWL"
+  "ZWL",
 ] as const;
 
 export type CurrencyCode = (typeof currencyCodes)[number];

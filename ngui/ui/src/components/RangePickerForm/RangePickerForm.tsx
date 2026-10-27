@@ -15,7 +15,7 @@ const RangePickerForm = ({
   minDate,
   maxDate,
   notSetMessageId,
-  fullWidth
+  fullWidth,
 }) => {
   const intl = useIntl();
 
@@ -26,12 +26,12 @@ const RangePickerForm = ({
     watch,
     getValues,
     clearErrors,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
     defaultValues: {
       [START_DATE]: initialStartDateValue,
-      [END_DATE]: initialEndDateValue
-    }
+      [END_DATE]: initialEndDateValue,
+    },
   });
 
   const onSubmit = ({ [START_DATE]: startDate, [END_DATE]: endDate }) => {
@@ -43,16 +43,16 @@ const RangePickerForm = ({
   const { startDateValidationRules, endDateValidationRules } = useRangePickerValidationRules({
     startDatePickerName: START_DATE,
     endDatePickerName: END_DATE,
-    formValuesGetter: getValues
+    formValuesGetter: getValues,
   });
 
   useEffect(() => {
     register(START_DATE, {
-      validate: startDateValidationRules
+      validate: startDateValidationRules,
     });
 
     register(END_DATE, {
-      validate: endDateValidationRules
+      validate: endDateValidationRules,
     });
   }, [register, intl, startDateValidationRules, endDateValidationRules]);
 
@@ -62,14 +62,15 @@ const RangePickerForm = ({
     <form
       onSubmit={submit}
       style={{
-        width: fullWidth ? "100%" : undefined
+        width: fullWidth ? "100%" : undefined,
       }}
     >
       <RangePicker
         initialDateRange={{ startDate, endDate }}
         validation={{
           error: !!errors[START_DATE] || !!errors[END_DATE],
-          helperText: (errors[START_DATE] && errors[START_DATE].message) || (errors[END_DATE] && errors[END_DATE].message) || ""
+          helperText:
+            (errors[START_DATE] && errors[START_DATE].message) || (errors[END_DATE] && errors[END_DATE].message) || "",
         }}
         onChange={(dateRange) => {
           setValue(START_DATE, dateRange.startDate);

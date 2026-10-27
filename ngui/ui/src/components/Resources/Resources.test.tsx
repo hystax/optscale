@@ -24,14 +24,14 @@ it("renders without crashing", () => {
         requestParams={{}}
         activeBreakdown={{
           name: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
-          value: "expenses"
+          value: "expenses",
         }}
         expensesBreakdownPageState={{
           breakdownBy: [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID, null],
-          groupBy: [{}, null]
+          groupBy: [{}, null],
         }}
         resourceCountBreakdownPageState={{
-          breakdownBy: [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID, null]
+          breakdownBy: [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID, null],
         }}
         perspectives={{}}
         onBreakdownChange={vi.fn}

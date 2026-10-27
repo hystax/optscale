@@ -16,8 +16,8 @@ class DeleteSshKeyModal extends BaseSideModal {
       formattedMessageValues: { value: keyName },
       dataTestIds: {
         title: "lbl_delete_cluster_type",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

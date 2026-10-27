@@ -18,7 +18,7 @@ const DownloadHistoryDropdownContainer = ({ environmentId }) => {
   const downloadPropsHistory = (format) => {
     fetchAndDownload({
       url: `${getApiUrl(RESTAPI)}/cloud_resources/${environmentId}/env_properties_history?format=${format}`,
-      fallbackFilename: `${environmentId}.${format}`
+      fallbackFilename: `${environmentId}.${format}`,
     });
   };
 

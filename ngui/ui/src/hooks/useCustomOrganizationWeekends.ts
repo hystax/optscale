@@ -20,6 +20,6 @@ export const useCustomOrganizationWeekends = () => {
 
   return {
     names: customWeekendNames,
-    indexes: customWeekendNames.map((name) => SHORT_WEEK_DAYS.indexOf(name))
+    indexes: customWeekendNames.map((name) => SHORT_WEEK_DAYS.indexOf(name)),
   };
 };

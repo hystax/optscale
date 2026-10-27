@@ -18,13 +18,13 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: "unset",
       "&.Mui-focusVisible": { background: "unset" },
       "&:hover": {
-        backgroundColor: "unset"
-      }
-    }
+        backgroundColor: "unset",
+      },
+    },
   },
   checkbox: {
-    padding: `0 ${theme.spacing(1)} 0 0`
-  }
+    padding: `0 ${theme.spacing(1)} 0 0`,
+  },
 }));
 
 const CloudProviderField = () => {
@@ -33,7 +33,7 @@ const CloudProviderField = () => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const isNebiusConnectionEnabled = useIsNebiusConnectionEnabled();
@@ -45,7 +45,7 @@ const CloudProviderField = () => {
     return true;
   }).map(({ name, type }) => ({
     name: intl.formatMessage({ id: name }),
-    type
+    type,
   }));
 
   return (

@@ -22,8 +22,8 @@ const SetupOrganization = ({ userEmail, refetchOrganizations }: SetupOrganizatio
   const setupOrganization = useCallback(async () => {
     const { data } = await createOrganization({
       variables: {
-        organizationName: getOrganizationName(userEmail)
-      }
+        organizationName: getOrganizationName(userEmail),
+      },
     });
 
     const organization = data?.createOrganization;
@@ -56,7 +56,7 @@ const SetupOrganization = ({ userEmail, refetchOrganizations }: SetupOrganizatio
             <FormattedMessage
               id="pleaseSignInAgainAndIfTheProblemPersists"
               values={{
-                email: <MailTo email={EMAIL_SUPPORT} text={EMAIL_SUPPORT} dataTestId="p_organization_creation_failed_email" />
+                email: <MailTo email={EMAIL_SUPPORT} text={EMAIL_SUPPORT} dataTestId="p_organization_creation_failed_email" />,
               }}
             />
           </Typography>

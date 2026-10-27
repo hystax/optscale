@@ -22,10 +22,10 @@ const tableActionBar = {
         messageId: "manageMetricsLibrary",
         variant: "text",
         type: "button",
-        link: ML_METRICS
-      }
-    ]
-  }
+        link: ML_METRICS,
+      },
+    ],
+  },
 };
 
 const MlTaskMetricsTable = ({ metrics, onAttachChange, isLoading }) => {
@@ -49,14 +49,14 @@ const MlTaskMetricsTable = ({ metrics, onAttachChange, isLoading }) => {
                   const action = event.target.checked ? "attach" : "detach";
 
                   onAttachChange({
-                    [action]: [original.id]
+                    [action]: [original.id],
                   });
                 }}
                 checked={original.is_attached}
               />
             </div>
           </Tooltip>
-        )
+        ),
       },
       {
         header: (
@@ -65,7 +65,7 @@ const MlTaskMetricsTable = ({ metrics, onAttachChange, isLoading }) => {
           </TextWithDataTestId>
         ),
         accessorKey: "name",
-        cell: ({ cell }) => <Typography>{cell.getValue()}</Typography>
+        cell: ({ cell }) => <Typography>{cell.getValue()}</Typography>,
       },
       text({ headerMessageId: "key", headerDataTestId: "lbl_key", accessorKey: "key", copy: true }),
       tendency(),
@@ -77,8 +77,8 @@ const MlTaskMetricsTable = ({ metrics, onAttachChange, isLoading }) => {
             <FormattedMessage id="targetValue" />
           </TextWithDataTestId>
         ),
-        accessorKey: "target_value"
-      }
+        accessorKey: "target_value",
+      },
     ],
     [isRestricted, onAttachChange, restrictionReasonMessage]
   );
@@ -91,7 +91,7 @@ const MlTaskMetricsTable = ({ metrics, onAttachChange, isLoading }) => {
       data={metrics}
       columns={columns}
       localization={{
-        emptyMessageId: "noMetrics"
+        emptyMessageId: "noMetrics",
       }}
       pageSize={50}
     />

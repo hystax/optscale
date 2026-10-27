@@ -28,21 +28,21 @@ const useForceCheck = () => {
   const dispatch = useDispatch();
   const { apiData: optimizations } = useApiData(GET_OPTIMIZATIONS_OVERVIEW, {});
   const isManageChecklistsAllowed = useIsAllowed({
-    requiredActions: ["MANAGE_CHECKLISTS"]
+    requiredActions: ["MANAGE_CHECKLISTS"],
   });
 
   const { isRestricted } = useOrganizationActionRestrictions();
 
   return {
     forceCheck: () => dispatch(updateOptimizations(optimizations.id, { nextRun: 1 })),
-    isForceCheckAvailable: isManageChecklistsAllowed && !isRestricted
+    isForceCheckAvailable: isManageChecklistsAllowed && !isRestricted,
   };
 };
 
 function RecommendationsOverviewService() {
   return {
     useGetOptimizationsOverview,
-    useForceCheck
+    useForceCheck,
   };
 }
 

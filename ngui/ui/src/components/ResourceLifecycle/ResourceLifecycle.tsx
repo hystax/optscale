@@ -9,13 +9,13 @@ import ResourceLifecycleGlobalResourceConstraintsContainer from "containers/Reso
 const actionBarDefinition = {
   title: {
     messageId: "resourceLifecycleTitle",
-    dataTestId: "lbl_resource_lifecycle_detection"
-  }
+    dataTestId: "lbl_resource_lifecycle_detection",
+  },
 };
 
 export const TABS = Object.freeze({
   POOL_POLICIES: "poolPolicies",
-  RESOURCE_CONSTRAINTS: "resourceConstraints"
+  RESOURCE_CONSTRAINTS: "resourceConstraints",
 });
 
 const tabs = [
@@ -26,13 +26,13 @@ const tabs = [
         <ResourceLifecycleGlobalPoolPoliciesContainer />
       </Mocked>
     ),
-    dataTestId: "btn_tab_pool_policies"
+    dataTestId: "btn_tab_pool_policies",
   },
   {
     title: TABS.RESOURCE_CONSTRAINTS,
     node: <ResourceLifecycleGlobalResourceConstraintsContainer />,
-    dataTestId: "btn_tab_resource_constraints"
-  }
+    dataTestId: "btn_tab_resource_constraints",
+  },
 ];
 
 const ResourceLifecycle = () => (
@@ -44,7 +44,7 @@ const ResourceLifecycle = () => (
           tabs,
           defaultTab: TABS.POOL_POLICIES,
           name: "resource-lifecycle",
-          queryParamsOnChangeBlacklist: ["search"]
+          queryParamsOnChangeBlacklist: ["search"],
         }}
       />
     </PageContentWrapper>

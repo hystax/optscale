@@ -4,7 +4,7 @@ import {
   QUOTA_POLICY,
   RECURRING_BUDGET_POLICY,
   RESOURCE_COUNT_ANOMALY,
-  TAGGING_POLICY
+  TAGGING_POLICY,
 } from "utils/constants";
 import {
   subDays,
@@ -15,7 +15,7 @@ import {
   getRangeToToday,
   millisecondsToSeconds,
   subYears,
-  getLast30DaysRange
+  getLast30DaysRange,
 } from "utils/datetime";
 
 const getAnomalyDateRange = (constraint) => {
@@ -25,7 +25,7 @@ const getAnomalyDateRange = (constraint) => {
 
   return {
     startDate: getStartOfDayInUTCinSeconds(subDays(today, thresholdDays)),
-    endDate: getEndOfDayInUTCinSeconds(today)
+    endDate: getEndOfDayInUTCinSeconds(today),
   };
 };
 
@@ -46,7 +46,7 @@ const getRangeFn = (constraint) =>
     [QUOTA_POLICY]: () => getResourceQuotaDateRange(),
     [RECURRING_BUDGET_POLICY]: () => getRecurrenceBudgetDateRange(),
     [EXPIRING_BUDGET_POLICY]: () => getExpiringBudgetDateRange(constraint),
-    [TAGGING_POLICY]: () => getTaggingPolicyDateRange(constraint)
+    [TAGGING_POLICY]: () => getTaggingPolicyDateRange(constraint),
   })[constraint.type];
 
 export const getResourcesDateRange = (constraint) => getRangeFn(constraint)();

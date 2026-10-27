@@ -15,7 +15,7 @@ dependencies = [
     "requests==2.32.4",
     "restapi-client",
     "sqlalchemy==1.4.23",
-    "tornado==6.5",
+    "tornado===6.5.5",
 ]
 
 [tool.uv.sources]

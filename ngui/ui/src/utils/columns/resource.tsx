@@ -38,7 +38,7 @@ const resource = ({ headerDataTestId, id = "cloudResourceIdentifier" }: Resource
   ),
   id,
   style: RESOURCE_ID_COLUMN_CELL_STYLE,
-  cell: ({ row: { original } }: { row: { original: CellRowData } }) => <CellContent rowData={original} />
+  cell: ({ row: { original } }: { row: { original: CellRowData } }) => <CellContent rowData={original} />,
 });
 
 export default resource;

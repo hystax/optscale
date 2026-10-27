@@ -11,8 +11,5 @@ class BasePriceProcessor(object):
     def prices(self):
         raise NotImplementedError()
 
-    def get_last_discovery(self):
-        raise NotImplementedError()
-
-    def process_prices(self):
+    def process_prices(self, last_discovery_ts):
         raise NotImplementedError()

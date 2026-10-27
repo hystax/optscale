@@ -6,9 +6,9 @@ export const useInvitations = () => {
 
   const { data: { invitations = [] } = {} } = useInvitationsQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    fetchPolicy: "cache-only"
+    fetchPolicy: "cache-only",
   });
 
   return invitations;

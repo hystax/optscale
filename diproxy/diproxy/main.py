@@ -11,7 +11,7 @@ from tornado.web import (Application, HTTPError as ResponseHttpError,
 
 from async_lru import alru_cache
 from requests.exceptions import HTTPError
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestApiClient
 
@@ -40,9 +40,17 @@ define('debug', default=DEFAULT_DEBUG_ENABLED,
 
 @alru_cache
 async def get_cloud_account(rest_cl: RestApiClient, cloud_account_id: str,
-                            ttl_hash: float) -> Dict:
-    _, cloud_account = await IOLoop.current().run_in_executor(
-        None, rest_cl.cloud_account_get, cloud_account_id)
+                            ttl_hash: float) -> Optional[Dict]:
+    try:
+        _, cloud_account = await IOLoop.current().run_in_executor(
+            None, rest_cl.cloud_account_get, cloud_account_id)
+    except HTTPError as ex:
+        # cache "not found" too, so a misconfigured client hammering us
+        # with a bogus/placeholder cloud_account_id (e.g. retry storm
+        # without backoff) doesn't hit restapi on every single request
+        if ex.response is not None and ex.response.status_code == 404:
+            return None
+        raise
     return cloud_account
 
 
@@ -141,6 +149,9 @@ class ProxyHandler(RequestHandler):
                 get_ttl_hash(CA_CACHE_SECONDS))
         except HTTPError as ex:
             LOG.warning('Failed to get cloud account - %s', str(ex))
+            raise ResponseHttpError(422)
+        if cloud_account is None:
+            LOG.warning('Cloud account not found: %s', cloud_account_id)
             raise ResponseHttpError(422)
 
         credentials = cloud_account.get('config', {}).get('credentials')

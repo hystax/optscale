@@ -14,7 +14,7 @@ const AccordionTitle = ({ name, count, totalExpenses }) => (
   <Typography component="div" style={{ justifyContent: "center", display: "flex", alignItems: "center" }}>
     <strong
       style={{
-        display: "inline-flex"
+        display: "inline-flex",
       }}
     >
       {name}
@@ -31,14 +31,14 @@ const GroupedTables = ({
   onAccordionChange,
   getGroupHeaderDataTestId,
   startDateTimestamp,
-  endDateTimestamp
+  endDateTimestamp,
 }) => {
   const [expanded, setExpanded] = useState({});
   const toggleExpanded = (groupValue, state) => {
     const closeAll = (currentState) => Object.fromEntries(Object.keys(currentState).map((name) => [name, false]));
     setExpanded((currentState) => ({
       ...closeAll(currentState),
-      [groupValue]: state
+      [groupValue]: state,
     }));
   };
 
@@ -89,7 +89,7 @@ const GroupedTables = ({
             // override query param on open
             if (expandedAccordionState) {
               updateSearchParams({
-                [GROUP_VALUE_QUERY_PARAM_NAME]: groupValue
+                [GROUP_VALUE_QUERY_PARAM_NAME]: groupValue,
               });
             } else {
               // remove query param on close

@@ -36,7 +36,7 @@ const FinOpsChecklist = ({ items, update, isLoading = false }) => {
       5: createPoolsForAllTheDepartments,
       6: inviteTeammates,
       7: setTTLRulesForAllTheResources,
-      8: tagAllTheResources
+      8: tagAllTheResources,
     }[id];
 
     return (
@@ -56,7 +56,7 @@ const FinOpsChecklist = ({ items, update, isLoading = false }) => {
                     {text}
                   </Link>
                 );
-              }
+              },
             }}
           />
         }

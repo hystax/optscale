@@ -36,7 +36,7 @@ const LabelLink = forwardRef<HTMLButtonElement, LabelLinkProps>(
         onClick={() =>
           updateScope({
             newScopeId: organizationId,
-            redirectTo: HOME
+            redirectTo: HOME,
           })
         }
         {...rest}
@@ -53,7 +53,7 @@ const OrganizationLabel = ({ id, name, dataTestId, disableLink = false, isInacti
   const { displayName, isNameLong, originalName } = getOrganizationDisplayName({
     name,
     isInactive,
-    maxLength: MAX_ORGANIZATION_NAME_LENGTH
+    maxLength: MAX_ORGANIZATION_NAME_LENGTH,
   });
 
   return (

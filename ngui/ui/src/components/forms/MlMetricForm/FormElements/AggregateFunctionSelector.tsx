@@ -21,7 +21,7 @@ const AggregateFunctionSelector = ({ isLoading = false }) => {
       isLoading={isLoading}
       items={Object.values(AGGREGATE_FUNCTION).map((aggregateFunction) => ({
         value: aggregateFunction,
-        content: <ItemContent>{intl.formatMessage({ id: AGGREGATE_FUNCTION_MESSAGE_ID[aggregateFunction] })}</ItemContent>
+        content: <ItemContent>{intl.formatMessage({ id: AGGREGATE_FUNCTION_MESSAGE_ID[aggregateFunction] })}</ItemContent>,
       }))}
     />
   );

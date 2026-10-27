@@ -5,7 +5,7 @@ const STATIC_RAW_EXPENSES_COLUMNS = Object.freeze([
   "lineItem/LineItemDescription",
   "lineItem/BlendedRate",
   "meter_details",
-  "usage_quantity"
+  "usage_quantity",
 ]);
 
 export { STATIC_RAW_EXPENSES_COLUMNS };

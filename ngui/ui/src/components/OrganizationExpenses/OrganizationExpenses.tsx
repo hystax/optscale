@@ -18,7 +18,7 @@ import { isEmptyObject, idx } from "utils/objects";
 const getOrderedExpenses = (expenses) => ({
   [LAST_MONTH]: expenses[LAST_MONTH],
   [THIS_MONTH]: expenses[THIS_MONTH],
-  [THIS_MONTH_FORECAST]: expenses[THIS_MONTH_FORECAST]
+  [THIS_MONTH_FORECAST]: expenses[THIS_MONTH_FORECAST],
 });
 
 const HEIGHT = 35;
@@ -30,7 +30,7 @@ const getChartData = (expenses) =>
     return {
       ...expensesData,
       expensesPeriod: EXPENSES_PERIOD[periodName],
-      index: periodName === THIS_MONTH_FORECAST ? intl.formatMessage({ id: "monthNameForecast" }, { monthName }) : monthName
+      index: periodName === THIS_MONTH_FORECAST ? intl.formatMessage({ id: "monthNameForecast" }, { monthName }) : monthName,
     };
   });
 
@@ -62,18 +62,18 @@ const OrganizationExpenses = ({ data, isLoading }) => {
       titleButton={{
         type: "icon",
         tooltip: {
-          title: <FormattedMessage id="goToOrganizationExpenses" />
+          title: <FormattedMessage id="goToOrganizationExpenses" />,
         },
         buttonProps: {
           icon: <ExitToAppOutlinedIcon />,
           isLoading,
           onClick: goToExpensesByPool,
-          dataTestId: "btn_go_to_org_expenses"
-        }
+          dataTestId: "btn_go_to_org_expenses",
+        },
       }}
       dataTestIds={{
         wrapper: "block_org_expenses",
-        title: "lbl_org_expenses"
+        title: "lbl_org_expenses",
       }}
       elevation={0}
     >
@@ -92,7 +92,7 @@ const OrganizationExpenses = ({ data, isLoading }) => {
         maxValue={total}
         thresholdMarker={{
           value: total,
-          format: (value) => intl.formatNumber(value, { format: currency })
+          format: (value) => intl.formatNumber(value, { format: currency }),
         }}
         emptyMessageId="noOrganizationExpensesMessage"
       />

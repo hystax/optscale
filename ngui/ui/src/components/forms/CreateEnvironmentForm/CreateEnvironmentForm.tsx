@@ -14,17 +14,17 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={ENVIRONMENTS} component={RouterLink}>
       <FormattedMessage id="environments" />
-    </Link>
+    </Link>,
   ],
   title: {
     text: <FormattedMessage id="addEnvironment" />,
-    dataTestId: "lbl_add_environment"
-  }
+    dataTestId: "lbl_add_environment",
+  },
 };
 
 const CreateEnvironmentForm = ({ onSubmit, onCancel, isSubmitLoading = false }: CreateEnvironmentFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;

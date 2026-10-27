@@ -8,7 +8,7 @@ import { LAYOUT_TYPES } from "utils/constants";
 export const GRID_TYPES = Object.freeze({
   ONE_COLUMN: 0,
   TWO_COLUMN: 1,
-  THREE_COLUMNS: 2
+  THREE_COLUMNS: 2,
 });
 
 export const DEFAULT_DASHBOARD = {
@@ -19,13 +19,13 @@ export const DEFAULT_DASHBOARD = {
       {
         id: 1,
         name: "Report 1",
-        breakdowns: ["host_ram", "host_cpu", "process_cpu", "process_ram", "gpu_load", "gpu_memory_used"]
-      }
+        breakdowns: ["host_ram", "host_cpu", "process_cpu", "process_ram", "gpu_load", "gpu_memory_used"],
+      },
     ],
     show_milestones: true,
     sync_tooltips: true,
-    grid_type: GRID_TYPES.ONE_COLUMN
-  }
+    grid_type: GRID_TYPES.ONE_COLUMN,
+  },
 };
 
 export const isDefaultDashboard = (dashboardId) => dashboardId === DEFAULT_DASHBOARD.id;
@@ -39,7 +39,7 @@ const useBreakdownChartActions = ({ charts, implementedMetricsBreakdownNames, se
     (id) => ({
       id,
       name: `${intl.formatMessage({ id: "report" })} ${id}`,
-      breakdowns: implementedMetricsBreakdownNames
+      breakdowns: implementedMetricsBreakdownNames,
     }),
     [implementedMetricsBreakdownNames, intl]
   );
@@ -49,8 +49,8 @@ const useBreakdownChartActions = ({ charts, implementedMetricsBreakdownNames, se
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        charts: [...currentDashboard.data.charts, createChart(maxChartId + 1)]
-      }
+        charts: [...currentDashboard.data.charts, createChart(maxChartId + 1)],
+      },
     }));
     setSaved(false);
   };
@@ -60,8 +60,8 @@ const useBreakdownChartActions = ({ charts, implementedMetricsBreakdownNames, se
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        charts: currentDashboard.data.charts.filter(({ id }) => id !== idToRemove)
-      }
+        charts: currentDashboard.data.charts.filter(({ id }) => id !== idToRemove),
+      },
     }));
     setSaved(false);
   };
@@ -77,8 +77,8 @@ const useBreakdownChartActions = ({ charts, implementedMetricsBreakdownNames, se
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        charts: [...currentDashboard.data.charts, getChartCopy(id)]
-      }
+        charts: [...currentDashboard.data.charts, getChartCopy(id)],
+      },
     }));
     setSaved(false);
   };
@@ -93,8 +93,8 @@ const useBreakdownChartActions = ({ charts, implementedMetricsBreakdownNames, se
             return { ...chart, name };
           }
           return chart;
-        })
-      }
+        }),
+      },
     }));
     setSaved(false);
   };
@@ -109,8 +109,8 @@ const useBreakdownChartActions = ({ charts, implementedMetricsBreakdownNames, se
             return { ...chart, breakdowns };
           }
           return chart;
-        })
-      }
+        }),
+      },
     }));
     setSaved(false);
   };
@@ -120,7 +120,7 @@ const useBreakdownChartActions = ({ charts, implementedMetricsBreakdownNames, se
     removeChart,
     cloneChart,
     updateChartName,
-    updateChartBreakdowns
+    updateChartBreakdowns,
   };
 };
 
@@ -131,8 +131,8 @@ const useMilestoneActions = ({ setSaved, setDashboard }) => {
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        show_milestones: true
-      }
+        show_milestones: true,
+      },
     }));
   };
 
@@ -142,14 +142,14 @@ const useMilestoneActions = ({ setSaved, setDashboard }) => {
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        show_milestones: false
-      }
+        show_milestones: false,
+      },
     }));
   };
 
   return {
     enableMilestones,
-    disableMilestones
+    disableMilestones,
   };
 };
 
@@ -160,8 +160,8 @@ const useTooltipSyncActions = ({ setSaved, setDashboard }) => {
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        sync_tooltips: true
-      }
+        sync_tooltips: true,
+      },
     }));
   };
 
@@ -171,14 +171,14 @@ const useTooltipSyncActions = ({ setSaved, setDashboard }) => {
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        sync_tooltips: false
-      }
+        sync_tooltips: false,
+      },
     }));
   };
 
   return {
     enableTooltipSync,
-    disableTooltipSync
+    disableTooltipSync,
   };
 };
 
@@ -189,8 +189,8 @@ const useGridTypeActions = ({ setSaved, setDashboard }) => {
       ...currentDashboard,
       data: {
         ...currentDashboard.data,
-        grid_type: gridType
-      }
+        grid_type: gridType,
+      },
     }));
   };
 
@@ -203,7 +203,7 @@ export const useTaskRunChartState = ({
   taskId,
   implementedMetricsBreakdownNames,
   breakdownNames,
-  isPublicRun = false
+  isPublicRun = false,
 }) => {
   const { dashboardId: selectedDashboardId, setDashboardId: setSelectedDashboardId } = useTaskRunsDashboardState(taskId);
 
@@ -238,9 +238,9 @@ export const useTaskRunChartState = ({
           charts:
             data?.charts?.map((chart) => ({
               ...chart,
-              breakdowns: getIntersection(breakdownNames, chart.breakdowns)
-            })) ?? []
-        }
+              breakdowns: getIntersection(breakdownNames, chart.breakdowns),
+            })) ?? [],
+        },
       };
     },
     [breakdownNames]
@@ -259,7 +259,7 @@ export const useTaskRunChartState = ({
       arceeToken,
       layoutType: LAYOUT_TYPES.ML_RUN_CHARTS_DASHBOARD,
       entityId: taskId,
-      includeShared: true
+      includeShared: true,
     }),
     [arceeToken, organizationId, taskId]
   );
@@ -271,7 +271,7 @@ export const useTaskRunChartState = ({
       }
       if (apiLayouts.find(({ id }) => id === selectedDashboardId)) {
         onGet(organizationId, selectedDashboardId, {
-          arceeToken
+          arceeToken,
         }).then((dashboardInfo) => {
           setDashboard(initializeDashboardState(dashboardInfo));
         });
@@ -290,7 +290,7 @@ export const useTaskRunChartState = ({
       setSelectedDashboardId(newDashboardId);
     } else {
       onGet(organizationId, newDashboardId, {
-        arceeToken
+        arceeToken,
       }).then((dashboardInfo) => {
         setDashboard(initializeDashboardState(dashboardInfo));
         setSelectedDashboardId(newDashboardId);
@@ -304,7 +304,7 @@ export const useTaskRunChartState = ({
       shared,
       data: JSON.stringify(dashboard.data),
       entityId: taskId,
-      type: LAYOUT_TYPES.ML_RUN_CHARTS_DASHBOARD
+      type: LAYOUT_TYPES.ML_RUN_CHARTS_DASHBOARD,
     }).then((apiData) => {
       setSaved(true);
       setSelectedDashboardId(apiData.id);
@@ -314,7 +314,7 @@ export const useTaskRunChartState = ({
     onUpdate(dashboard.id, {
       name,
       shared,
-      data: JSON.stringify(dashboard.data)
+      data: JSON.stringify(dashboard.data),
     }).then(() => {
       setSaved(true);
     });
@@ -329,7 +329,7 @@ export const useTaskRunChartState = ({
     charts: dashboard.data.charts,
     implementedMetricsBreakdownNames,
     setDashboard,
-    setSaved
+    setSaved,
   });
 
   const { enableMilestones, disableMilestones } = useMilestoneActions({ setDashboard, setSaved });
@@ -344,8 +344,8 @@ export const useTaskRunChartState = ({
       ...dashboard,
       data: {
         ...DEFAULT_DASHBOARD.data,
-        ...dashboard.data
-      }
+        ...dashboard.data,
+      },
     },
     dashboards: [DEFAULT_DASHBOARD, ...layouts],
     onDashboardChange,
@@ -372,7 +372,7 @@ export const useTaskRunChartState = ({
     //
     isLoadingProps: {
       isSetupLoading: isGetAllLoading,
-      isSelectNewLoading: isGetOneLoading
-    }
+      isSelectNewLoading: isGetOneLoading,
+    },
   };
 };

@@ -63,7 +63,7 @@ class Filter {
     return this._sortFilterValues().map((filterValue) => ({
       name: this.constructor.getName(filterValue),
       value: this.constructor.getValue(filterValue),
-      label: this.constructor.getDisplayedValueRenderer(filterValue)
+      label: this.constructor.getDisplayedValueRenderer(filterValue),
     }));
   }
 
@@ -80,7 +80,7 @@ class Filter {
     const commonData = {
       name: this.constructor.filterName,
       displayedName: this.constructor.displayedName,
-      displayedNameString: this.constructor.displayedNameString
+      displayedNameString: this.constructor.displayedNameString,
     };
 
     if (filterItem === undefined) {
@@ -88,13 +88,13 @@ class Filter {
         ...commonData,
         value: appliedFilter,
         displayedValue: intl.formatMessage({ id: "notFound" }),
-        displayedValueString: intl.formatMessage({ id: "notFound" })
+        displayedValueString: intl.formatMessage({ id: "notFound" }),
       };
     }
 
     return {
       ...commonData,
-      ...this._getAppliedFilterItem(appliedFilter, filterItem)
+      ...this._getAppliedFilterItem(appliedFilter, filterItem),
     };
   }
 

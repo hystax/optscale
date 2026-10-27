@@ -14,14 +14,14 @@ const powerScheduleValidityPeriod = ({ startDateAccessor, endDateAccessor }) => 
 
     return stringifiedPowerScheduleValidityPeriod({
       startDate,
-      endDate
+      endDate,
     });
   },
   cell: ({ row: { original } }) => {
     const { [startDateAccessor]: startDate, [endDateAccessor]: endDate } = original;
 
     return <PowerScheduleValidityPeriod startDate={startDate} endDate={endDate} iconFontSize="small" />;
-  }
+  },
 });
 
 export default powerScheduleValidityPeriod;

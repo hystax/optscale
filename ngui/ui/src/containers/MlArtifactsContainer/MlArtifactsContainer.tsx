@@ -15,7 +15,7 @@ import {
   getStartOfTodayInUTCinSeconds,
   millisecondsToSeconds,
   secondsToMilliseconds,
-  subYears
+  subYears,
 } from "utils/datetime";
 import { getSearchParams, updateSearchParams } from "utils/network";
 
@@ -107,7 +107,7 @@ const MlArtifactsContainer = ({
   tasks = [],
   arceeToken,
   isLoading = false,
-  render
+  render,
 }: MlArtifactsContainerProps) => {
   const { useGet } = MlArtifactsService();
 
@@ -123,14 +123,14 @@ const MlArtifactsContainer = ({
     setPageIndex(DEFAULT_PAGE_INDEX);
   }, []);
   const debouncedRange = useDebouncedValue(range, {
-    onDebouncedValueChange: onDebouncedRangeChange
+    onDebouncedValueChange: onDebouncedRangeChange,
   });
 
   const filterValues = {
     [TASKS_BE_FILTER]: tasks.map(({ id, name }) => ({
       value: id,
-      name
-    }))
+      name,
+    })),
   };
 
   const [appliedFilters, setAppliedFilters] = useState<Record<string, string | string[] | undefined>>(() => {
@@ -139,7 +139,7 @@ const MlArtifactsContainer = ({
     return ML_ARTIFACTS_FILTERS_NAMES.reduce(
       (params, queryKey) => ({
         ...params,
-        [queryKey]: queryParams[queryKey]
+        [queryKey]: queryParams[queryKey],
       }),
       {}
     );
@@ -159,7 +159,7 @@ const MlArtifactsContainer = ({
       createdAtGt: debouncedRange[0],
       createdAtLt: debouncedRange[1],
       taskId: appliedFilters[TASKS_FILTER],
-      arceeToken
+      arceeToken,
     }),
     [pageIndex, runId, searchValue, debouncedRange, appliedFilters, arceeToken]
   );
@@ -183,7 +183,7 @@ const MlArtifactsContainer = ({
       [PAGE_QUERY_PARAM_NAME]: pageIndex + 1,
       [START_DATE_QUERY_PARAM_NAME]: debouncedRange[0],
       [END_DATE_QUERY_PARAM_NAME]: debouncedRange[1],
-      [TASKS_FILTER]: appliedFilters[TASKS_FILTER]
+      [TASKS_FILTER]: appliedFilters[TASKS_FILTER],
     });
   }, [pageIndex, debouncedRange, searchValue, appliedFilters]);
 
@@ -203,11 +203,11 @@ const MlArtifactsContainer = ({
         pageIndex,
         onPageIndexChange,
         totalRows: totalArtifactsCount,
-        pageSize: PAGE_SIZE
+        pageSize: PAGE_SIZE,
       },
       search: {
         value: searchValue,
-        onChange: onSearchChange
+        onChange: onSearchChange,
       },
       rangeFilter: {
         filterComponentProps: {
@@ -220,21 +220,21 @@ const MlArtifactsContainer = ({
               id="timerange"
               values={{
                 from: formatUTC(currentRange[0], EN_FULL_FORMAT),
-                to: formatUTC(currentRange[1], EN_FULL_FORMAT)
+                to: formatUTC(currentRange[1], EN_FULL_FORMAT),
               }}
             />
-          )
+          ),
         },
         manualFilterDefinition: {
           onChange: onRangeChange,
-          range
-        }
+          range,
+        },
       },
       tasksFilter: {
         definition: new Filters({
           filters: ML_ARTIFACTS_FILTERS,
           filterValues,
-          appliedFilters
+          appliedFilters,
         }),
         onChange: ({ name, value }) => {
           onAppliedFiltersChange((currentlyAppliedFilters) => ({ ...currentlyAppliedFilters, [name]: value }));
@@ -248,7 +248,7 @@ const MlArtifactsContainer = ({
               ...currentlyAppliedFilters,
               [filterToDelete.filterName]: isArrayFilterValues
                 ? currentFilterValues.filter((val) => val !== filterToDelete.filterValue)
-                : undefined
+                : undefined,
             };
           });
         },
@@ -257,13 +257,13 @@ const MlArtifactsContainer = ({
             Object.entries(currentlyAppliedFilters).reduce(
               (newRequestParams, [filterName]) => ({
                 ...newRequestParams,
-                [filterName]: undefined
+                [filterName]: undefined,
               }),
               {}
             )
           );
-        }
-      }
+        },
+      },
     })
   );
 };

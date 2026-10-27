@@ -24,14 +24,14 @@ const Flavor = ({ flavor }) => {
     <>
       <div
         style={{
-          position: "relative"
+          position: "relative",
         }}
       >
         <Typography
           color={isFlavorSelected ? "secondary" : undefined}
           component="span"
           sx={{
-            whiteSpace: "nowrap"
+            whiteSpace: "nowrap",
           }}
         >
           <strong>
@@ -39,7 +39,7 @@ const Flavor = ({ flavor }) => {
               id="value / value"
               values={{
                 value1: name,
-                value2: location
+                value2: location,
               }}
             />
           </strong>
@@ -58,7 +58,7 @@ const Flavor = ({ flavor }) => {
             icon={isFlavorSelected ? <PlaylistRemoveOutlinedIcon /> : <PlaylistAddOutlinedIcon />}
             sx={{
               position: "absolute",
-              top: "-9px"
+              top: "-9px",
             }}
           />
         </Tooltip>
@@ -68,7 +68,9 @@ const Flavor = ({ flavor }) => {
         <FormattedMessage
           id="valuePerHour"
           values={{
-            value: <FormattedMoney value={cost} format={currency} type={FORMATTED_MONEY_TYPES.TINY} maximumFractionDigits={4} />
+            value: (
+              <FormattedMoney value={cost} format={currency} type={FORMATTED_MONEY_TYPES.TINY} maximumFractionDigits={4} />
+            ),
           }}
         />
       </div>
@@ -83,8 +85,8 @@ const FlavorsCell = ({ flavors }) => (
         key={flavor.id}
         sx={{
           "&:not(:last-child)": {
-            marginBottom: 1
-          }
+            marginBottom: 1,
+          },
         }}
       >
         <Flavor flavor={flavor} />
@@ -103,7 +105,7 @@ const Header = ({ cloudType, error }) => {
     [AZURE_CNR]: <CloudLabel name={intl.formatMessage({ id: "azure" })} type={AZURE_CNR} disableLink />,
     [GCP_CNR]: <CloudLabel name={intl.formatMessage({ id: "gcp" })} type={GCP_CNR} disableLink />,
     [ALIBABA_CNR]: <CloudLabel name={intl.formatMessage({ id: "alibaba" })} type={ALIBABA_CNR} disableLink />,
-    [NEBIUS]: <CloudLabel name={intl.formatMessage({ id: "nebius" })} type={NEBIUS} disableLink />
+    [NEBIUS]: <CloudLabel name={intl.formatMessage({ id: "nebius" })} type={NEBIUS} disableLink />,
   }[cloudType];
 
   return (
@@ -120,11 +122,11 @@ export const flavors = ({ cloudType, error }) => ({
   enableSorting: false,
   style: {
     minWidth: "200px",
-    verticalAlign: "top"
+    verticalAlign: "top",
   },
   cell: ({
     row: {
-      original: { [cloudType]: cloudTypeFlavors }
-    }
-  }) => <FlavorsCell flavors={cloudTypeFlavors} />
+      original: { [cloudType]: cloudTypeFlavors },
+    },
+  }) => <FlavorsCell flavors={cloudTypeFlavors} />,
 });

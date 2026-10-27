@@ -10,6 +10,7 @@ from auth.auth_server.utils import ModelEncoder, run_task
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   UnauthorizedException)
 from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_telemetry import get_trace_headers
 
 LOG = logging.getLogger(__name__)
 
@@ -59,6 +60,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def options(self, *args, **kwargs):
         self.raise405()
+
+    def prepare(self):
+        for name, value in get_trace_headers().items():
+            self.set_header(name, value)
 
     def _get_request(self):
         return self.request
@@ -138,20 +143,21 @@ class BaseHandler(tornado.web.RequestHandler):
 class BaseAuthHandler(BaseHandler):
 
     @property
-    def token(self):
+    def _raw_token(self):
         auth_header = self.request.headers.get('Authorization')
         if not auth_header:
-            return {'token': None}
-        return {'token': auth_header[7:]}
+            return None
+        return auth_header[7:]
+
+    @property
+    def token(self):
+        return {'token': self._raw_token}
 
     async def check_token(self):
         try:
-            token = self.get_argument('access_token', None)
+            token = self._raw_token
             if not token:
-                auth_header = self.request.headers.get('Authorization', None)
-                if not auth_header:
-                    raise UnauthorizedException(Err.OA0062, [])
-                token = auth_header[7:]
+                raise UnauthorizedException(Err.OA0062, [])
             await self.controller.check_token_valid(token)
         except UnauthorizedException as ex:
             raise OptHTTPError.from_opt_exception(401, ex)

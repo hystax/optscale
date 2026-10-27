@@ -17,13 +17,13 @@ const EnvironmentProperties = ({ environmentId, properties }) => {
     <div
       style={{
         marginBottom: "1rem",
-        width: isUpLg ? "50%" : "100%"
+        width: isUpLg ? "50%" : "100%",
       }}
     >
       <div
         style={{
           alignItems: "center",
-          display: "flex"
+          display: "flex",
         }}
       >
         <SubTitle>
@@ -40,7 +40,7 @@ const EnvironmentProperties = ({ environmentId, properties }) => {
           <div
             key={propertyName}
             style={{
-              marginBottom: index === array.length - 1 ? 0 : "1rem"
+              marginBottom: index === array.length - 1 ? 0 : "1rem",
             }}
           >
             <EnvironmentProperty

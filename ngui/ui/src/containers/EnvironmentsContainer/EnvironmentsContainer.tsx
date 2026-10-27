@@ -18,7 +18,7 @@ const EnvironmentsContainer = () => {
   const dispatch = useDispatch();
 
   const {
-    rootData: { [ENVIRONMENTS_TOUR]: { isOpen, isFinished } = {} }
+    rootData: { [ENVIRONMENTS_TOUR]: { isOpen, isFinished } = {} },
   } = useRootData(TOURS);
 
   const isMobile = useIsDownMediaQuery("sm");

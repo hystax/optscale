@@ -8,7 +8,7 @@ import {
   LOGIN,
   NEXT_QUERY_PARAMETER_NAME,
   OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME,
-  USER_EMAIL_QUERY_PARAMETER_NAME
+  USER_EMAIL_QUERY_PARAMETER_NAME,
 } from "urls";
 import mainMenu from "utils/menus";
 import { stringifySearchParams, getPathname, getSearchParams } from "utils/network";

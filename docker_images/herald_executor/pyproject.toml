@@ -1,0 +1,26 @@
+[project]
+name = "herald-executor"
+version = "0.1.0"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "kombu==5.3.4",
+    "currency-symbols==2.0.3",
+    "config-client",
+    "restapi-client",
+    "herald-client",
+    "auth-client",
+    "optscale-time",
+]
+
+[tool.uv.sources]
+config-client = { path = "../../optscale_client/config_client", editable = true }
+restapi-client = { path = "../../optscale_client/rest_api_client", editable = true }
+herald-client = { path = "../../optscale_client/herald_client", editable = true }
+auth-client = { path = "../../optscale_client/auth_client", editable = true }
+optscale-time = { path = "../../tools/optscale_time", editable = true }
+
+[dependency-groups]
+dev = [
+    "pycodestyle==2.11.1",
+    "pylint==3.0.2",
+]

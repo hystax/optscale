@@ -14,7 +14,7 @@ const PerspectiveDescription = ({ perspective }) => {
   const {
     breakdownBy,
     breakdownData,
-    filters: { filterValues, appliedFilters }
+    filters: { filterValues, appliedFilters },
   } = perspective;
 
   return (
@@ -53,7 +53,7 @@ const ApplyResourcePerspective = ({ perspectives, appliedPerspectiveName, onAppl
               <Link to={RESOURCE_PERSPECTIVES} component={RouterLink}>
                 <FormattedMessage id="seeAllPerspectives" />
               </Link>
-            )
+            ),
           }}
         />
       </Typography>

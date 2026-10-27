@@ -24,9 +24,9 @@ const Duration = ({ duration }: DurationProps) => {
           INTERVAL_DURATION_VALUE_TYPES.WEEKS,
           INTERVAL_DURATION_VALUE_TYPES.DAYS,
           INTERVAL_DURATION_VALUE_TYPES.HOURS,
-          INTERVAL_DURATION_VALUE_TYPES.MINUTES
+          INTERVAL_DURATION_VALUE_TYPES.MINUTES,
         ],
-        duration
+        duration,
       })}
     />
   );

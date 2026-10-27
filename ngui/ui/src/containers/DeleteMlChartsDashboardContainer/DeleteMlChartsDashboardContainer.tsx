@@ -15,16 +15,16 @@ const DeleteMlChartsDashboardContainer = ({ dashboard, removeDashboard, onCancel
       deleteButtonProps={{
         color: "error",
         variant: "contained",
-        onDelete
+        onDelete,
       }}
       dataTestIds={{
         text: "p_delete_dashboard",
         deleteButton: "btn_delete_dashboard_delete",
-        cancelButton: "btn_delete_dashboard_cancel"
+        cancelButton: "btn_delete_dashboard_cancel",
       }}
       message={{
         messageId: "deleteDashboardQuestion",
-        values: { name: dashboard.name, strong: (chunks) => <strong>{chunks}</strong> }
+        values: { name: dashboard.name, strong: (chunks) => <strong>{chunks}</strong> },
       }}
     />
   );

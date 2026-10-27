@@ -6,13 +6,13 @@ const Day = ({ disabled, highlighted, outlined, filled, onClick, onHover, value 
   return (
     <div
       className={cx(classes.buttonContainer, {
-        [classes.highlighted]: !disabled && highlighted
+        [classes.highlighted]: !disabled && highlighted,
       })}
     >
       <IconButton
         className={cx(classes.button, {
           [classes.outlined]: !disabled && outlined,
-          [classes.filled]: !disabled && filled
+          [classes.filled]: !disabled && filled,
         })}
         disabled={disabled}
         onClick={onClick}
@@ -20,7 +20,7 @@ const Day = ({ disabled, highlighted, outlined, filled, onClick, onHover, value 
       >
         <Typography
           className={cx(classes.buttonText, {
-            [classes.contrast]: !disabled && filled
+            [classes.contrast]: !disabled && filled,
           })}
           disabled={disabled}
         >

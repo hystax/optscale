@@ -48,7 +48,7 @@ const getBuildedTabs = ({ tabs, name, activeTab, keepTabContentMounted = false }
               data-test-id={item.dataTestId}
               style={{ fontWeight: item.isBold && "bold" }}
             />
-          ) : null
+          ) : null,
         ],
         tabContents: [
           ...result.tabContents,
@@ -62,8 +62,8 @@ const getBuildedTabs = ({ tabs, name, activeTab, keepTabContentMounted = false }
             >
               {activeTab === item.title || keepTabContentMounted ? item.node : null}
             </TabContent>
-          ) : null
-        ]
+          ) : null,
+        ],
       };
     },
     { tabHeaders: [], tabContents: [] }
@@ -79,7 +79,7 @@ const Tabs = ({ tabsProps, headerAdornment, headerSx }) => {
     queryTabName,
     queryParamsOnChangeBlacklist = [],
     keepTabContentMounted = false,
-    shouldhaveQueryParam = true
+    shouldhaveQueryParam = true,
   } = tabsProps;
 
   const tabName = queryTabName || TAB_QUERY_PARAM_NAME;

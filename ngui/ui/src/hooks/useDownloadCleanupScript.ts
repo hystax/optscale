@@ -9,9 +9,9 @@ export const useDownloadCleanupScript = ({ type }) => {
   return {
     download: (cloudAccount) => {
       fetchAndDownloadCleanupScripts({
-        url: `${getApiUrl(RESTAPI)}/cloud_accounts/${cloudAccount}/cleanup_${type}.sh`
+        url: `${getApiUrl(RESTAPI)}/cloud_accounts/${cloudAccount}/cleanup_${type}.sh`,
       });
     },
-    isLoading: isDownloadingCleanupScript
+    isLoading: isDownloadingCleanupScript,
   };
 };

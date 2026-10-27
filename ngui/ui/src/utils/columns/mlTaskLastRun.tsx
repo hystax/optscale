@@ -26,7 +26,7 @@ const mlTaskLastRun = ({ id = "last_run", columnSelector } = {}) => ({
       <FormattedMessage id="never" />
     ) : (
       <LastRunStatus lastRun={original.last_run} status={original.status} />
-    )
+    ),
 });
 
 export default mlTaskLastRun;

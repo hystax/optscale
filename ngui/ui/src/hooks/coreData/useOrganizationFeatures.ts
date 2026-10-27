@@ -7,8 +7,8 @@ export const useOrganizationFeatures = () => {
   const { data: { organizationFeatures = {} } = {} } = useOrganizationFeaturesQuery({
     fetchPolicy: "cache-only",
     variables: {
-      organizationId
-    }
+      organizationId,
+    },
   });
 
   return organizationFeatures;

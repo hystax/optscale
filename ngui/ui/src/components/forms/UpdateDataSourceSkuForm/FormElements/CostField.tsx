@@ -19,11 +19,11 @@ const CostField = () => {
       required
       valueAsNumber
       InputProps={{
-        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>
+        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
       }}
       validate={{
         isPositiveNumberOrZero: (value) =>
-          isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumberOrZero" })
+          isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumberOrZero" }),
       }}
     />
   );

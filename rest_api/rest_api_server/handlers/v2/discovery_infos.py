@@ -118,7 +118,7 @@ class DiscoveryInfosAsyncItemHandler(BaseAsyncItemHandler,
                 val = kwargs.get(param)
                 if val is not None:
                     if param in string_param:
-                        check_string_attribute(param, val)
+                        check_string_attribute(param, val, max_length=1024)
                     else:
                         check_int_attribute(param, val)
         except WrongArgumentsException as ex:

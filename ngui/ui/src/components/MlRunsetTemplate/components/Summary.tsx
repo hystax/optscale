@@ -22,9 +22,9 @@ const Summary = ({ runsCount, lastRunsetExpenses, totalExpenses, isLoading = fal
           color: "primary",
           captionMessageId: "runs",
           dataTestIds: {
-            cardTestId: "card_runs"
+            cardTestId: "card_runs",
           },
-          isLoading
+          isLoading,
         },
         ...(isFinOpsEnabled
           ? [
@@ -32,30 +32,30 @@ const Summary = ({ runsCount, lastRunsetExpenses, totalExpenses, isLoading = fal
                 key: "lastRunsetExpenses",
                 valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
                 valueComponentProps: {
-                  value: lastRunsetExpenses
+                  value: lastRunsetExpenses,
                 },
                 color: "primary",
                 captionMessageId: "lastRunsetExpenses",
                 dataTestIds: {
-                  cardTestId: "card_last_run_expenses"
+                  cardTestId: "card_last_run_expenses",
                 },
-                isLoading
+                isLoading,
               },
               {
                 key: "totalExpenses",
                 valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
                 valueComponentProps: {
-                  value: totalExpenses
+                  value: totalExpenses,
                 },
                 color: "primary",
                 captionMessageId: "totalExpenses",
                 dataTestIds: {
-                  cardTestId: "card_last_total_expenses"
+                  cardTestId: "card_last_total_expenses",
                 },
-                isLoading
-              }
+                isLoading,
+              },
             ]
-          : [])
+          : []),
       ]}
     />
   );

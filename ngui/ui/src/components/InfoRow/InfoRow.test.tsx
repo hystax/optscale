@@ -7,7 +7,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <InfoRow title={"test title"} value={"test value"} />
+      <InfoRow title="test title" value="test value" />
     </TestProvider>
   );
   root.unmount();

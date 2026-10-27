@@ -34,16 +34,16 @@ const RecentModelsTable = ({ models }: RecentModelsTableProps) => {
         getId: (rowOriginal) => rowOriginal.id,
         headerMessageId: "name",
         headerDataTestId: "lbl_model",
-        enableSorting: false
+        enableSorting: false,
       }),
       mlModelVersion({
         headerMessageId: "version",
         headerDataTestId: "lbl_latest_versions",
         id: "latestVersion",
         accessorFn: (originalRow) => originalRow.last_version?.version,
-        enableSorting: false
+        enableSorting: false,
       }),
-      mlModelUsedAliases()
+      mlModelUsedAliases(),
     ],
     []
   );
@@ -55,7 +55,7 @@ const RecentModelsTable = ({ models }: RecentModelsTableProps) => {
       pageSize={5}
       enablePaginationQueryParam={false}
       localization={{
-        emptyMessageId: "noTasks"
+        emptyMessageId: "noTasks",
       }}
     />
   );
@@ -79,7 +79,7 @@ const RecentModelsCard = ({ models, isLoading = false }: RecentModelsCardProps) 
               icon={<ExitToAppOutlinedIcon />}
               tooltip={{
                 show: true,
-                messageId: "goToModels"
+                messageId: "goToModels",
               }}
               onClick={goToTasks}
               isLoading={isLoading}
@@ -91,7 +91,7 @@ const RecentModelsCard = ({ models, isLoading = false }: RecentModelsCardProps) 
       dataTestIds={{
         wrapper: "block_recent_models",
         title: "lbl_recent_models",
-        titleCaption: "p_recent_models"
+        titleCaption: "p_recent_models",
       }}
       elevation={0}
     >

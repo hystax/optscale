@@ -22,7 +22,7 @@ import {
   SHOW_POLICY_QUERY_PARAM,
   USER_EMAIL_QUERY_PARAMETER_NAME,
   NEXT_QUERY_PARAMETER_NAME,
-  OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME
+  OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME,
 } from "urls";
 import { GA_EVENT_CATEGORIES, trackEvent } from "utils/analytics";
 import { processGraphQLErrorData } from "utils/apollo";
@@ -31,6 +31,7 @@ import { ERROR_CODES } from "utils/errorCodes";
 import { SPACING_4 } from "utils/layouts";
 import macaroon from "utils/macaroons";
 import { stringifySearchParams, getSearchParams } from "utils/network";
+import { consumeUtmParams } from "utils/utm";
 
 const AuthorizationContainer = () => {
   const { pathname } = useLocation();
@@ -72,7 +73,7 @@ const AuthorizationContainer = () => {
   };
 
   const handleRegister = async ({ email, password, name }: { email: string; password: string; name: string }) => {
-    const { data } = await createUser({ variables: { email, password, name } });
+    const { data } = await consumeUtmParams((utm) => createUser({ variables: { email, password, name, utm } }));
 
     trackEvent({ category: GA_EVENT_CATEGORIES.USER, action: "Registered", label: "optscale" });
 
@@ -88,27 +89,40 @@ const AuthorizationContainer = () => {
     await sendEmailVerificationCode(email, {
       [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: Object.values(OPTSCALE_CAPABILITY).includes(capability)
         ? capability
-        : undefined
+        : undefined,
     });
 
     return navigate(
       `${EMAIL_VERIFICATION}?${stringifySearchParams({
         email,
-        [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability
+        [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability,
       })}`
     );
   };
 
   const handleThirdPartySignIn = async ({ provider, token: thirdPartyToken, tenantId, redirectUri }) => {
-    const { data } = await signIn({
-      variables: { provider, token: thirdPartyToken, tenantId, redirectUri }
-    });
+    const { data, caveats } = await consumeUtmParams(
+      async (utm) => {
+        const { data: signInData } = await signIn({
+          variables: { provider, token: thirdPartyToken, tenantId, redirectUri, utm },
+        });
+        const signInToken = signInData?.signIn?.token;
+        return {
+          data: signInData,
+          caveats: signInToken ? macaroon.processCaveats(macaroon.deserialize(signInToken).getCaveats()) : {},
+        };
+      },
+      // Attribution is consumed by a registration; a plain sign-in must keep the stored
+      // set available for a future registration attempt.
+      { shouldClear: ({ caveats: signInCaveats }) => Boolean(signInCaveats.register) }
+    );
 
-    const caveats = macaroon.processCaveats(macaroon.deserialize(data.signIn.token).getCaveats());
     if (caveats.register) {
       trackEvent({ category: GA_EVENT_CATEGORIES.USER, action: "Registered", label: caveats.provider });
     }
-    dispatch(initialize({ ...data.signIn, caveats }));
+    if (data?.signIn?.token) {
+      dispatch(initialize({ ...data.signIn, caveats }));
+    }
   };
 
   const isInvited = queryInvited !== undefined;
@@ -130,7 +144,7 @@ const AuthorizationContainer = () => {
           disabled={loginLoading || signInLoading || isSendEmailVerificationCodeLoading}
           isInvited={isInvited}
         />
-      )
+      ),
     }[pathname] || (() => null);
 
   // TODO: get back to the force redirect
@@ -143,7 +157,7 @@ const AuthorizationContainer = () => {
       [NEXT_QUERY_PARAMETER_NAME]: next,
       [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability,
       [USER_EMAIL_QUERY_PARAMETER_NAME]: email,
-      [SHOW_POLICY_QUERY_PARAM]: showPolicy
+      [SHOW_POLICY_QUERY_PARAM]: showPolicy,
     } = getSearchParams() as {
       [NEXT_QUERY_PARAMETER_NAME]: string;
       [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: string;
@@ -155,7 +169,7 @@ const AuthorizationContainer = () => {
       [NEXT_QUERY_PARAMETER_NAME]: next,
       [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability,
       [USER_EMAIL_QUERY_PARAMETER_NAME]: email,
-      [SHOW_POLICY_QUERY_PARAM]: showPolicy
+      [SHOW_POLICY_QUERY_PARAM]: showPolicy,
     })}`;
   };
 

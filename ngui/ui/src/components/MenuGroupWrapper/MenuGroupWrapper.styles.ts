@@ -8,19 +8,19 @@ const useStyles = makeStyles()((theme) => ({
       justifyContent: "flex-start",
       "& .MuiAccordionSummary-expandIconWrapper": {
         transform: "rotate(0deg)",
-        color: theme.palette.info.main
+        color: theme.palette.info.main,
       },
       "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-        transform: "rotate(-180deg)"
+        transform: "rotate(-180deg)",
       },
       "& .MuiAccordionSummary-content": {
-        flexGrow: 0
-      }
+        flexGrow: 0,
+      },
     },
     "& .MuiAccordionDetails-root": {
-      padding: 0
-    }
-  }
+      padding: 0,
+    },
+  },
 }));
 
 export default useStyles;

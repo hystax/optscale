@@ -23,7 +23,7 @@ const portsMap = INSECURE_PORTS_MAP;
 
 const filter = createFilterOptions({
   matchFrom: "any",
-  stringify: (option) => `${option?.[0]} ${option?.[1]}`
+  stringify: (option) => `${option?.[0]} ${option?.[1]}`,
 });
 
 const InsecurePorts = ({ insecurePorts = [], setData, isLoading, isChangeSettingsAllowed }) => {
@@ -31,7 +31,7 @@ const InsecurePorts = ({ insecurePorts = [], setData, isLoading, isChangeSetting
     selectedProtocol: "tcp",
     selectedPort: "",
     highlightedPort: "",
-    portError: null
+    portError: null,
   });
 
   const onDelete = (protocol, port) => {
@@ -71,8 +71,8 @@ const InsecurePorts = ({ insecurePorts = [], setData, isLoading, isChangeSetting
         ...insecurePorts,
         {
           protocol: ruleParams.selectedProtocol,
-          port: portNumber
-        }
+          port: portNumber,
+        },
       ]);
       setRuleParams({ ...ruleParams, selectedPort: "", highlightedPort: "" });
     } else {
@@ -175,7 +175,7 @@ const InsecurePorts = ({ insecurePorts = [], setData, isLoading, isChangeSetting
             <FormattedMessage
               id="allInboundsPortsNote"
               values={{
-                strong: (chunks) => <strong>{chunks}</strong>
+                strong: (chunks) => <strong>{chunks}</strong>,
               }}
             />
           </Typography>

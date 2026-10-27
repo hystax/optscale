@@ -14,8 +14,8 @@ import { getEnvironmentVariable } from "utils/env";
 
 const actionBarDefinition = {
   title: {
-    messageId: "settings"
-  }
+    messageId: "settings",
+  },
 };
 
 const TAB_SEARCH_PARAM_NAME = "tab";
@@ -33,7 +33,7 @@ const Settings = () => {
     {
       title: SETTINGS_TABS.ORGANIZATION,
       dataTestId: `tab_${SETTINGS_TABS.ORGANIZATION}`,
-      node: <OrganizationSettings />
+      node: <OrganizationSettings />,
     },
     ...(isDemo || !isBillingIntegrationEnabled
       ? []
@@ -41,28 +41,28 @@ const Settings = () => {
           {
             title: SETTINGS_TABS.SUBSCRIPTION,
             dataTestId: `tab_${SETTINGS_TABS.SUBSCRIPTION}`,
-            node: <BillingSubscription />
-          }
+            node: <BillingSubscription />,
+          },
         ]),
     {
       title: SETTINGS_TABS.INVITATIONS,
       dataTestId: `tab_${SETTINGS_TABS.INVITATIONS}`,
-      node: <InvitationsContainer />
+      node: <InvitationsContainer />,
     },
     ...(isFinOpsCapabilityEnabled
       ? [
           {
             title: SETTINGS_TABS.SSH,
             dataTestId: `tab_${SETTINGS_TABS.SSH}`,
-            node: <SshSettingsContainer />
-          }
+            node: <SshSettingsContainer />,
+          },
         ]
       : []),
     {
       title: SETTINGS_TABS.EMAIL_NOTIFICATIONS,
       dataTestId: `tab_${SETTINGS_TABS.EMAIL_NOTIFICATIONS}`,
-      node: <UserEmailNotificationSettingsContainer />
-    }
+      node: <UserEmailNotificationSettingsContainer />,
+    },
   ];
 
   return (
@@ -77,7 +77,7 @@ const Settings = () => {
             activeTab: searchParams.get(TAB_SEARCH_PARAM_NAME),
             handleChange: (event, value) => {
               setSearchParams({ [TAB_SEARCH_PARAM_NAME]: value });
-            }
+            },
           }}
         />
       </PageContentWrapper>

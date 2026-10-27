@@ -10,7 +10,7 @@ const reducer = (state = {}, action) => {
       const { tableUID, hiddenColumnsArray } = action.payload;
       return {
         ...state,
-        [tableUID]: hiddenColumnsArray
+        [tableUID]: hiddenColumnsArray,
       };
     }
     default:

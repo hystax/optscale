@@ -8,12 +8,12 @@ import {
   endOfDay,
   startOfDay,
   millisecondsToSeconds,
-  performDateTimeFunction
+  performDateTimeFunction,
 } from "utils/datetime";
 
 export const getCustomRange = (args) => ({
   key: uuidv4(),
-  ...args
+  ...args,
 });
 
 const getBasicRangesSetRawMS = (isUtc) => {
@@ -28,26 +28,26 @@ const getBasicRangesSetRawMS = (isUtc) => {
       messageId: "thisMonth",
       startDate: performDateTimeFunction(startOfMonth, isUtc, date),
       endDate: endOfToday,
-      dataTestId: "btn_this_month"
+      dataTestId: "btn_this_month",
     },
     {
       messageId: "lastMonth",
       startDate: performDateTimeFunction(startOfMonth, isUtc, monthSubstracted),
       endDate: performDateTimeFunction(endOfMonth, isUtc, monthSubstracted),
-      dataTestId: "btn_last_month"
+      dataTestId: "btn_last_month",
     },
     {
       messageId: "last7Days",
       startDate: performDateTimeFunction(subDays, isUtc, startOfToday, 6),
       endDate: endOfToday,
-      dataTestId: "btn_last_7_days"
+      dataTestId: "btn_last_7_days",
     },
     {
       messageId: "last30Days",
       startDate: performDateTimeFunction(subDays, isUtc, startOfToday, 29),
       endDate: endOfToday,
-      dataTestId: "btn_last_30_days"
-    }
+      dataTestId: "btn_last_30_days",
+    },
   ];
 };
 
@@ -56,6 +56,6 @@ export const getBasicRangesSet = (isUtc = true) =>
     .map(({ startDate, endDate, ...rest }) => ({
       startDate: millisecondsToSeconds(startDate),
       endDate: millisecondsToSeconds(endDate),
-      ...rest
+      ...rest,
     }))
     .map((range) => getCustomRange(range));

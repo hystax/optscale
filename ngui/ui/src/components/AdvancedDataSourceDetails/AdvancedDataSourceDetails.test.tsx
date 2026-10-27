@@ -10,7 +10,7 @@ it("renders without crashing", () => {
       <AdvancedDataSourceDetails
         lastImportAt={0}
         lastImportAttemptAt={0}
-        lastImportAttemptError={""}
+        lastImportAttemptError=""
         lastMetricsRetrieval={0}
         lastMetricsRetrievalAttempt={0}
         lastGettingMetricAttemptError={0}

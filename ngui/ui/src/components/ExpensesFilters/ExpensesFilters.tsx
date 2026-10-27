@@ -13,7 +13,7 @@ const ExpensesFilters = ({ items, appliedValues, onFilterAdd, onFilterDelete, on
       onChange={({ name: filterName, value, checked }) => {
         if ([POOL_ID_FILTER].includes(filterName)) {
           onFilterAdd({
-            [filterName]: checked ? getPoolIdWithSubPools(value) : value
+            [filterName]: checked ? getPoolIdWithSubPools(value) : value,
           });
         } else {
           onFilterAdd({ [filterName]: value });
@@ -21,7 +21,7 @@ const ExpensesFilters = ({ items, appliedValues, onFilterAdd, onFilterDelete, on
       }}
       onApply={({ name, value }) => {
         onFilterAdd({
-          [name]: value
+          [name]: value,
         });
       }}
       onClear={({ filterName, filterValue }) => {

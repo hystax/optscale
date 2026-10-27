@@ -5,35 +5,35 @@ const useStyles = makeStyles()((theme) => ({
   bar: {
     backgroundColor: "white",
     color: "inherit",
-    boxShadow: "none"
+    boxShadow: "none",
   },
   isPage: {
     paddingRight: theme.spacing(SPACING_2),
-    paddingLeft: theme.spacing(SPACING_2)
+    paddingLeft: theme.spacing(SPACING_2),
   },
   itemsWrapper: {
     whiteSpace: "nowrap",
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
   },
   margin: {
     "& > *": {
       marginRight: theme.spacing(2),
       "&:last-child": {
-        marginRight: 0
-      }
-    }
+        marginRight: 0,
+      },
+    },
   },
   actions: {
-    display: "inline-flex"
+    display: "inline-flex",
   },
   link: {
     textDecoration: "none",
     "&:hover": {
-      textDecoration: "none"
+      textDecoration: "none",
     },
-    color: "inherit"
-  }
+    color: "inherit",
+  },
 }));
 
 export default useStyles;

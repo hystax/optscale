@@ -16,7 +16,7 @@ const Toolbar = ({ onNavigate, onView, localizer, label, views, view }) => {
     const buttonsDefinition = views.map((viewName) => ({
       id: viewName,
       messageText: messages[viewName],
-      action: () => onView(viewName)
+      action: () => onView(viewName),
     }));
 
     return (

@@ -9,7 +9,7 @@ const mlDataTransferred = ({ headerDataTestId = "lbl_data_transferred", accessor
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: ({ cell }) => <FormattedDigitalUnit value={cell.getValue()} />
+  cell: ({ cell }) => <FormattedDigitalUnit value={cell.getValue()} />,
 });
 
 export default mlDataTransferred;

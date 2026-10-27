@@ -8,7 +8,7 @@ const savings = ({
   headerMessageId = "possibleMonthlySavings",
   defaultSort = "desc",
   accessorKey = "saving",
-  options = {}
+  options = {},
 }) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -18,7 +18,7 @@ const savings = ({
   accessorKey,
   cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
   defaultSort,
-  ...options
+  ...options,
 });
 
 export default savings;

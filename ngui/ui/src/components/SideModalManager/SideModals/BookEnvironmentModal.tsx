@@ -13,12 +13,12 @@ class BookEnvironmentModal extends BaseSideModal {
     return {
       messageId: "bookEnvironment",
       formattedMessageValues: {
-        environmentName
+        environmentName,
       },
       dataTestIds: {
         title: "lbl_add_booking",
-        closeButton: "bnt_close"
-      }
+        closeButton: "bnt_close",
+      },
     };
   }
 
@@ -48,7 +48,7 @@ class BookEnvironmentModal extends BaseSideModal {
                 acquired_by: { name } = {},
                 id: bookingId,
                 acquired_since: acquiredSince,
-                released_at: releasedAt
+                released_at: releasedAt,
               } = upcomingBooking;
               return (
                 <div key={bookingId} style={{ marginBottom: 8 }}>

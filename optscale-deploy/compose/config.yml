@@ -1,0 +1,282 @@
+# Rendered equivalent of the Helm _config.tpl for Docker Compose quickstart.
+# Values mirror optscale-deploy/optscale/values.yaml defaults, with
+# hostnames changed to Compose service names.
+
+skip_config_update: false
+drop_tasks_db: false
+databases:
+  - "auth-db"
+  - "my-db"
+  - "tasks"
+  - "herald"
+  - "katara"
+  - "slacker"
+  - "jira-bus"
+  - "subspector"
+
+etcd:
+  public_ip: ""
+  company_name: Hystax
+  product_name: OptScale
+  encryption_key: ""
+  release: compose
+  katara_scheduler_timeout: 3600
+  bumi_scheduler_timeout: 300
+  bumi_worker:
+    max_retries: 5
+    wait_timeout: 7200
+    task_timeout: 3600
+    run_period: 10800
+  optscale_service_emails:
+    recipient: ""
+    enabled: false
+  optscale_error_emails:
+    recipient: ""
+    enabled: false
+  # skip sending messages by template parameter value; must stay null
+  # so the configurator creates the /skip_email_filters etcd key that herald
+  # reads unconditionally on every email send.
+  # example:
+  #  skip_email_filters:
+  #    anomaly_detection_alert:
+  #      texts.organization.name: ^aqa-(.*)$
+  skip_email_filters:
+  google_calendar_service:
+    enabled: false
+    access_key:
+      type: ""
+      project_id: ""
+      private_key_id: ""
+      private_key: ""
+      client_email: ""
+      client_id: ""
+      auth_uri: ""
+      token_uri: ""
+      auth_provider_x509_cert_url: ""
+      client_x509_cert_url: ""
+  domains_blacklists:
+    marketing: []
+    new_employee_email: []
+    registration: []
+    failed_import_email: []
+  domains_whitelists:
+    new_employee_email: []
+    registration: []
+    failed_import_email: []
+  secret:
+    cluster: change-me-in-production
+    agent: ""
+  images_source:
+    host: ""
+    tag: ""
+  restapi:
+    invite_expiration_days: 30
+    host: restapi
+    port: 8999
+    demo:
+      multiplier: 2
+    report_imports:
+      not_processed_threshold_secs: 10800
+      message_expiration_secs: 10800
+  auth:
+    host: auth
+    port: 8905
+  katara:
+    host: katara
+    port: 8935
+  herald:
+    host: herald-api
+    port: 8906
+  keeper:
+    host: keeper
+    port: 8973
+  insider:
+    host: insider-api
+    port: 8945
+  slacker:
+    host: slacker
+    port: 80
+  jirabus:
+    host: jira-bus
+    port: 8977
+  metroculus:
+    host: metroculusapi
+    port: 8969
+  thanos_query:
+    host: thanos-query
+    port: 10902
+  thanos_receive:
+    host: thanos-receive
+    port: 19291
+    path: api/v1/receive
+  authdb:
+    host: mariadb
+    user: root
+    password: my-password-01
+    db: auth-db
+  heralddb:
+    host: mariadb
+    user: root
+    password: my-password-01
+    db: herald
+  restdb:
+    host: mariadb
+    user: root
+    password: my-password-01
+    db: my-db
+    port: 3306
+  kataradb:
+    host: mariadb
+    user: root
+    password: my-password-01
+    db: katara
+  slackerdb:
+    host: mariadb
+    user: root
+    password: my-password-01
+    db: slacker
+    port: 3306
+  jirabusdb:
+    host: mariadb
+    user: root
+    password: my-password-01
+    db: jira-bus
+    port: 3306
+  subspectordb:
+    host: mariadb
+    user: root
+    password: my-password-01
+    db: subspector
+    port: 3306
+  mongo:
+    url: mongodb://root:SecurePassword-01-02@mongo:27017
+    database: keeper
+  influxdb:
+    host: influxdb
+    port: 8086
+    user: ""
+    pass: ""
+    database: metrics
+  rabbit:
+    user: optscale
+    pass: secure-password-here
+    host: rabbitmq
+    port: 5672
+  minio:
+    host: minio
+    port: 9000
+    access: optscale-minio
+    secret: secret_password
+  clickhouse:
+    host: clickhouse
+    port: 8123
+    user: default
+    password: secure-password-1-clk
+    db: default
+  cleanmongodb:
+    chunk_size: 500
+    rows_limit: 10000
+    archive_enable: ""
+    file_max_rows: 10000
+  disable_email_verification: True
+  force_aws_edp_strip: ""
+  encryption_salt: ""
+  encryption_salt_auth: ""
+  certificates: {}
+  logstash_port: ""
+  events_queue: events_queue
+  resources_discovery_cache_time: ""
+  overlay_list: ""
+  token_expiration: 168
+  users_dataset_generator:
+    enable: false
+    bucket: ""
+    s3_path: ""
+    filename: ""
+    aws_access_key_id: ""
+    aws_secret_access_key: ""
+  # Service credentials used by insider for cloud pricing information.
+  # Compose config is written to etcd from this file, so copy the same
+  # credential structure from optscale-deploy/overlay/user_template.yml here,
+  # but keep it nested under the top-level "etcd:" section.
+  #
+  # Example:
+  # service_credentials:
+  #   aws:
+  #     access_key_id: accesskeyid
+  #     secret_access_key: secretaccesskey
+  #   azure:
+  #     client_id: clientid
+  #     tenant: tenant
+  #     secret: secret
+  #     subscription_id: subscriptionid
+  #   alibaba:
+  #     access_key_id: accesskeyid
+  #     secret_access_key: secretaccesskey
+  #   gcp:
+  #     credentials:
+  #       # Service account with permissions for pricing export:
+  #       # - bigquery.jobs.create
+  #       # - bigquery.tables.getData
+  #       # - compute.machineTypes.list
+  #       type: service_account
+  #       project_id: yourprojectid
+  #       private_key_id: yourprivatekeyid
+  #       private_key: |
+  #         -----BEGIN PRIVATE KEY-----
+  #         -----END PRIVATE KEY-----
+  #       client_email: optscale-service-credentials@yourproject.iam.gserviceaccount.com
+  #       client_id: "111111111"
+  #       auth_uri: https://accounts.google.com/o/oauth2/auth
+  #       token_uri: https://oauth2.googleapis.com/token
+  #       auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+  #       client_x509_cert_url: >-
+  #         https://www.googleapis.com/robot/v1/metadata/x509/optscale-service-credentials%40yourproject.iam.gserviceaccount.com
+  #     pricing_data:
+  #       dataset_name: pricing_dataset
+  #       table_name: cloud_pricing_export
+  #     project_id: yourprojectid
+  service_credentials: {}
+  smtp:
+    server: ""
+    email: ""
+    login: ""
+    port: ""
+    password: ""
+    protocol: SSL
+  resource_discovery_settings:
+    discover_size: 10000
+    timeout: ""
+    writing_timeout: 60
+    observe_timeout: 7200
+    debug: ""
+  bi_settings:
+    exporter_run_period: 86400
+    encryption_key: 5t3X3PkQqF5edqW9_c8znow7k7GraZOpBLHhF1kFFvE=
+    task_wait_timeout: 259200
+  failed_imports_dataset_generator:
+    enable: false
+    bucket: ""
+    s3_path: ""
+    filename: ""
+    aws_access_key_id: ""
+    aws_secret_access_key: ""
+  subspector:
+    host: subspector
+    port: 8800
+  password_strength_settings:
+    min_length: ""
+    min_lowercase: ""
+    min_uppercase: ""
+    min_digits: ""
+    min_special_chars: ""
+  demo_org_cleanup:
+    demo_org_lifetime_hrs: ""
+  diworker:
+    max_report_imports_workers: 10
+  exchange_rates: {}
+  stripe:
+    api_key: ""
+    webhook_secret: ""
+    enabled: false
+  product_tracking_id: optscale_tracking_id

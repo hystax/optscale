@@ -2,33 +2,33 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()((theme) => ({
   listItem: {
-    padding: "0"
+    padding: "0",
   },
   warning: {
-    backgroundColor: theme.palette.warning.main
+    backgroundColor: theme.palette.warning.main,
   },
   error: {
-    backgroundColor: theme.palette.error.main
+    backgroundColor: theme.palette.error.main,
   },
   success: {
-    backgroundColor: theme.palette.success.main
+    backgroundColor: theme.palette.success.main,
   },
   info: {
-    backgroundColor: theme.palette.info.main
+    backgroundColor: theme.palette.info.main,
   },
   level: {
     width: ".5rem",
-    minHeight: "100%"
+    minHeight: "100%",
   },
   title: {
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   timeAgo: {
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   description: {
-    wordBreak: "break-word"
-  }
+    wordBreak: "break-word",
+  },
 }));
 
 export default useStyles;

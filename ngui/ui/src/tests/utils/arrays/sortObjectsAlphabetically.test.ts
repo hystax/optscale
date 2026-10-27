@@ -21,7 +21,7 @@ describe("Sort array of object alphabetically by provided key", () => {
       { name: "1984" },
       { name: "A" },
       { name: "B" },
-      { name: "C" }
+      { name: "C" },
     ];
     const sortedArray = sortObjectsAlphabetically({ array: sourceArray, field: "name" });
 
@@ -32,7 +32,7 @@ describe("Sort array of object alphabetically by provided key", () => {
       { name: "b" },
       { name: "B" },
       { name: "c" },
-      { name: "C" }
+      { name: "C" },
     ]);
   });
   test("Should respect locale", () => {

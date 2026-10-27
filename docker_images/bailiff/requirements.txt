@@ -1,7 +1,0 @@
-aio-pika==9.5.5
-tenacity==9.1.2
-
-# OptScale packages
--e optscale_client/config_client
--e optscale_client/rest_api_client
--e optscale_client/subspector_async_client

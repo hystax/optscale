@@ -30,7 +30,7 @@ const CopyText = ({
   dynamicCopyIcon = false,
   copyMessageId = "copy",
   copiedMessageId = "copied",
-  sx = {}
+  sx = {},
 }: CopyTextProps) => {
   const { text: textDataTestId, button: buttonDataTestId } = dataTestIds;
   const [titleMessageId, setTitleMessageId] = useState(copyMessageId);
@@ -48,7 +48,7 @@ const CopyText = ({
       sx={{
         display: "inline-flex",
         alignItems: "center",
-        ...sx
+        ...sx,
       }}
       data-test-id={textDataTestId}
       onMouseEnter={() => setIsHovered(true)}
@@ -64,7 +64,7 @@ const CopyText = ({
           display: "inline-flex",
           pointerEvents: dynamicCopyIcon && !isHovered ? "none" : "auto",
           visibility: dynamicCopyIcon && !isHovered ? "hidden" : "visible",
-          paddingLeft: children ? theme.spacing(0.5) : 0
+          paddingLeft: children ? theme.spacing(0.5) : 0,
         })}
       >
         <CopyToClipboard

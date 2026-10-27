@@ -38,7 +38,7 @@ const ProSubscriptionCard = ({
   limits,
   quantity,
   price,
-  currency
+  currency,
 }: ProSubscriptionCardProps) => {
   const intl = useIntl();
 
@@ -107,7 +107,7 @@ const ProSubscriptionCard = ({
                       values={{
                         price: <FormattedMoney value={price} type={FORMATTED_MONEY_TYPES.COMMON} format={currency} />,
                         quantity,
-                        strong: (chunks) => <strong>{chunks}</strong>
+                        strong: (chunks) => <strong>{chunks}</strong>,
                       }}
                     />
                   </Typography>

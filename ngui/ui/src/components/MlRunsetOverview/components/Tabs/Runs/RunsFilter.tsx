@@ -8,7 +8,7 @@ const RunsFilter = ({ filterValues, appliedFilters, onChange: onChangeHandler, i
   const mlRunsFilters = new Filters({
     filters: ML_RUNS_FILTERS,
     filterValues,
-    appliedFilters
+    appliedFilters,
   });
 
   const onChange = ({ name, value }) => {
@@ -24,7 +24,7 @@ const RunsFilter = ({ filterValues, appliedFilters, onChange: onChangeHandler, i
       Object.entries(currentlyAppliedFilters).reduce(
         (newRequestParams, [filterName]) => ({
           ...newRequestParams,
-          [filterName]: undefined
+          [filterName]: undefined,
         }),
         {}
       )

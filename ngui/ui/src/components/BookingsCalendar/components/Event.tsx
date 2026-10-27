@@ -18,7 +18,7 @@ const Event = ({ event }) => {
   const {
     environment,
     booking,
-    props: { linkedTitle = true }
+    props: { linkedTitle = true },
   } = event;
   const {
     name: environmentName,
@@ -26,10 +26,10 @@ const Event = ({ event }) => {
     pool_id: poolId,
     pool_name: poolName,
     pool_purpose: poolPurpose,
-    id: environmentId
+    id: environmentId,
   } = environment;
   const {
-    acquired_by: { name: employeeName }
+    acquired_by: { name: employeeName },
   } = booking;
 
   const getTimeLabel = () => {

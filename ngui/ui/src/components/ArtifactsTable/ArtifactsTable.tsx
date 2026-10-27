@@ -33,7 +33,7 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
   const tableData = useMemo(() => artifacts, [artifacts]);
 
   const isManageArtifactsAllowed = useIsAllowed({
-    requiredActions: ["EDIT_PARTNER"]
+    requiredActions: ["EDIT_PARTNER"],
   });
 
   const navigate = useNavigate();
@@ -49,8 +49,8 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
       id: "actions",
       cell: ({
         row: {
-          original: { id: artifactId, name, index }
-        }
+          original: { id: artifactId, name, index },
+        },
       }) => (
         <TableCellActions
           items={[
@@ -60,7 +60,7 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
               icon: <EditOutlinedIcon />,
               requiredActions: ["EDIT_PARTNER"],
               dataTestId: `btn_edit_${index}`,
-              action: () => navigate(getEditMlArtifactUrl(artifactId))
+              action: () => navigate(getEditMlArtifactUrl(artifactId)),
             },
             {
               key: "delete",
@@ -79,12 +79,12 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
                     if (isLastArtifactOnPage) {
                       pagination.onPageIndexChange(Math.max(pagination.pageIndex - 1, 0));
                     }
-                  }
-                })
-            }
+                  },
+                }),
+            },
           ]}
         />
-      )
+      ),
     });
 
     return [
@@ -93,7 +93,7 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
         headerDataTestId: "lbl_name",
         accessorKey: "name",
         maxTextLength: 70,
-        enableSorting: false
+        enableSorting: false,
       }),
       slicedText({
         headerMessageId: "path",
@@ -101,14 +101,14 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
         accessorKey: "path",
         maxTextLength: 70,
         copy: true,
-        enableSorting: false
+        enableSorting: false,
       }),
       markdown({
         id: "description",
         accessorFn: (originalRow) => originalRow.description,
         headerMessageId: "description",
         headerDataTestId: "lbl_description",
-        enableSorting: false
+        enableSorting: false,
       }),
       run({
         id: "run",
@@ -121,15 +121,15 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
         headerDataTestId: "lbl_run",
         enableSorting: false,
         runDetailsUrlOptions: {
-          [TAB_QUERY_PARAM_NAME]: TABS.ARTIFACTS
-        }
+          [TAB_QUERY_PARAM_NAME]: TABS.ARTIFACTS,
+        },
       }),
       utcTime({
         id: "createdAt",
         accessorFn: (originalRow) => originalRow.created_at,
         headerMessageId: "createdAt",
         headerDataTestId: "lbl_created_at",
-        enableSorting: false
+        enableSorting: false,
       }),
       tags({
         id: "tags",
@@ -138,9 +138,9 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
         getTags: (originalRow) => originalRow.tags,
-        enableSorting: false
+        enableSorting: false,
       }),
-      ...(isManageArtifactsAllowed ? [getActionsColumn()] : [])
+      ...(isManageArtifactsAllowed ? [getActionsColumn()] : []),
     ];
   }, [artifacts.length, isManageArtifactsAllowed, navigate, openSideModal, pagination]);
 
@@ -167,7 +167,7 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
           rangeFilter={rangeFilter?.filterComponentProps}
           manualGlobalFiltering={{
             search,
-            rangeFilter: rangeFilter?.manualFilterDefinition
+            rangeFilter: rangeFilter?.manualFilterDefinition,
           }}
         />
       </div>

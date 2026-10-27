@@ -7,6 +7,7 @@ import {
   deleteOrganizationOption,
   updateDataSource,
   getPool,
+  getPoolExpensesRange,
   createAssignmentRule,
   createPool,
   getOrganizationsOverview,
@@ -200,7 +201,7 @@ import {
   getMlDatasetLabels,
   getMlTaskTags,
   restorePassword,
-  verifyEmail
+  verifyEmail,
 } from "./actionCreators";
 
 export {
@@ -211,6 +212,7 @@ export {
   createOrganizationOption,
   deleteOrganizationOption,
   getPool,
+  getPoolExpensesRange,
   createAssignmentRule,
   updateDataSource,
   createPool,
@@ -405,5 +407,5 @@ export {
   getMlDatasetLabels,
   getMlTaskTags,
   restorePassword,
-  verifyEmail
+  verifyEmail,
 };

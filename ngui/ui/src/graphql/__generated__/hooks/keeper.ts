@@ -136,6 +136,13 @@ export function useEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Eve
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
 }
+// @ts-ignore
+export function useEventsSuspenseQuery(
+  baseOptions?: Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>
+): Apollo.UseSuspenseQueryResult<EventsQuery, EventsQueryVariables>;
+export function useEventsSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>
+): Apollo.UseSuspenseQueryResult<EventsQuery | undefined, EventsQueryVariables>;
 export function useEventsSuspenseQuery(
   baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>
 ) {

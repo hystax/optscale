@@ -25,7 +25,7 @@ const MAX_TRIGGERS = 8;
 const TimeField = ({ index, timeFieldsCount }: { index: number; timeFieldsCount: number }) => {
   const {
     formState: { isSubmitted },
-    trigger
+    trigger,
   } = useFormContext();
 
   const intl = useIntl();
@@ -59,11 +59,11 @@ const TimeField = ({ index, timeFieldsCount }: { index: number; timeFieldsCount:
             isTriggerUnique ||
             intl.formatMessage({ id: "entitiesMustBeUnique" }, { name: intl.formatMessage({ id: "triggerTimes" }) })
           );
-        }
+        },
       }}
       items={TIME_VALUES.map((timeValue) => ({
         value: timeValue,
-        content: <ItemContent>{timeValue}</ItemContent>
+        content: <ItemContent>{timeValue}</ItemContent>,
       }))}
     />
   );
@@ -73,7 +73,7 @@ const MeridiemField = ({ index, timeFieldsCount }: { index: number; timeFieldsCo
   const {
     control,
     formState: { isSubmitted },
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   return (
@@ -121,12 +121,12 @@ const ActionField = ({ index }: { index: number }) => {
       items={[
         {
           value: POWER_SCHEDULE_ACTIONS.POWER_ON,
-          content: <ItemContent>{intl.formatMessage({ id: "on" })}</ItemContent>
+          content: <ItemContent>{intl.formatMessage({ id: "on" })}</ItemContent>,
         },
         {
           value: POWER_SCHEDULE_ACTIONS.POWER_OFF,
-          content: <ItemContent>{intl.formatMessage({ id: "off" })}</ItemContent>
-        }
+          content: <ItemContent>{intl.formatMessage({ id: "off" })}</ItemContent>,
+        },
       ]}
     />
   );
@@ -137,14 +137,14 @@ const FieldArray = () => {
 
   const { fields, append, remove } = useFieldArray<FormValues>({
     control,
-    name: FIELD_NAME
+    name: FIELD_NAME,
   });
 
   const onAppend = () =>
     append({
       time: "",
       action: POWER_SCHEDULE_ACTIONS.POWER_ON,
-      meridiem: MERIDIEM_NAMES.AM
+      meridiem: MERIDIEM_NAMES.AM,
     });
 
   return (
@@ -168,7 +168,7 @@ const FieldArray = () => {
                   disabled={fields.length === 1}
                   tooltip={{
                     show: true,
-                    value: <FormattedMessage id="delete" />
+                    value: <FormattedMessage id="delete" />,
                   }}
                   color="error"
                   type="button"

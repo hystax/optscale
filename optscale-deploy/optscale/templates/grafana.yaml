@@ -74,6 +74,9 @@ spec:
           value: "true"
         - name: GF_AUTH_BASIC_ENABLED
           value: "false"
+        volumeMounts:
+          - name: grafana-dashboards
+            mountPath: /var/lib/grafana/dashboards
       - name: "{{ $config.grafana_nginx.name }}"
         image: "{{ $config.grafana_nginx.image.repository }}:{{ $config.grafana_nginx.image.tag }}"
         imagePullPolicy: {{ $config.grafana_nginx.image.pullPolicy }}
@@ -87,4 +90,6 @@ spec:
 {{ include "ready_probe" $config | indent 8 }}
       volumes:
       - name: shared
+        emptyDir: {}
+      - name: grafana-dashboards
         emptyDir: {}

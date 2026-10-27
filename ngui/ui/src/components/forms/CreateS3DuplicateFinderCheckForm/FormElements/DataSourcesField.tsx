@@ -13,7 +13,7 @@ const DataSourcesField = ({ dataSources }) => {
   const {
     control,
     formState: { errors },
-    resetField
+    resetField,
   } = useFormContext<FormValues>();
 
   return (
@@ -22,8 +22,8 @@ const DataSourcesField = ({ dataSources }) => {
       control={control}
       rules={{
         validate: {
-          required: (value) => (isEmptyArray(value) ? intl.formatMessage({ id: "thisFieldIsRequired" }) : true)
-        }
+          required: (value) => (isEmptyArray(value) ? intl.formatMessage({ id: "thisFieldIsRequired" }) : true),
+        },
       }}
       render={({ field: { name, onBlur, onChange, ref, value } }) => (
         <DataSourceMultiSelect

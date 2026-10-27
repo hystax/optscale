@@ -18,7 +18,7 @@ const TtlLimitInput = ({ name, defaultValue }) => {
         dateInPastValidation: (value) => {
           const isValidDate = value === 0 || value === undefined || !isPast(value);
           return isValidDate || intl.formatMessage({ id: "dateMustNotBeInThePast" });
-        }
+        },
       }}
       margin="none"
       onChange={() => {
@@ -26,7 +26,7 @@ const TtlLimitInput = ({ name, defaultValue }) => {
       }}
       quickValues={{
         values: ["3h", "1d", "3d"],
-        orValues: ["noLimit"]
+        orValues: ["noLimit"],
       }}
       intervalMinutes={INTERVAL_TTL_CONSTRAINT}
       withTimePicker

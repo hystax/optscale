@@ -65,7 +65,7 @@ export const useOptscaleRecommendations = ({ withDeprecated = false }: { withDep
       SnapshotsWithNonUsedImages,
       AbandonedImages,
       ...(isNebiusConnectionEnabled ? NEBIUS_RECOMMENDATIONS : []),
-      ...(withDeprecated ? DEPRECATED_RECOMMENDATIONS : [])
+      ...(withDeprecated ? DEPRECATED_RECOMMENDATIONS : []),
     ];
 
     return Object.fromEntries(recommendations.map((Rec) => [new Rec().type, Rec]));

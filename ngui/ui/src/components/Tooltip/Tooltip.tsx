@@ -7,8 +7,8 @@ const StyledTooltip = withStyles(MuiTooltip, (theme) => ({
     color: "inherit",
     fontSize: theme.typography.pxToRem(12),
     border: "1px solid",
-    borderColor: theme.palette.info.main
-  }
+    borderColor: theme.palette.info.main,
+  },
 }));
 
 const Tooltip = ({ enterTouchDelay = 0, children, placement = "right", title, ...rest }: TooltipProps) => {

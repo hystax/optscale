@@ -11,7 +11,7 @@ import {
   RECURRING_BUDGET_POLICY,
   RESOURCE_COUNT_ANOMALY,
   START_DATE_FILTER,
-  TAGGING_POLICY
+  TAGGING_POLICY,
 } from "utils/constants";
 import { stringifySearchParams } from "utils/network";
 import { getFilterValues } from "./getFilterValues";
@@ -22,7 +22,7 @@ const constraintTypeToResourcesBreakdownMap = {
   [QUOTA_POLICY]: CLEAN_EXPENSES_BREAKDOWN_TYPES.RESOURCE_COUNT,
   [RECURRING_BUDGET_POLICY]: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
   [EXPIRING_BUDGET_POLICY]: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
-  [TAGGING_POLICY]: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES
+  [TAGGING_POLICY]: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
 } as const;
 
 const getResourcesBreakdown = (
@@ -59,7 +59,7 @@ const getFiltersParams = (constraint) => {
 
       return [
         [config.fromName, from],
-        [config.toName, to]
+        [config.toName, to],
       ];
     }
     return [];

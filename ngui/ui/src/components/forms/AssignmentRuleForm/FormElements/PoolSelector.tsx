@@ -9,7 +9,7 @@ const PoolSelector = ({
   ownerSelectorName = FIELD_NAMES.OWNER_ID,
   pools,
   onPoolChange,
-  isLoading = false
+  isLoading = false,
 }: PoolSelectorProps) => {
   const { setValue, getValues } = useFormContext();
 
@@ -18,7 +18,7 @@ const PoolSelector = ({
       name={name}
       items={pools.map(({ id: poolId, name: poolName, pool_purpose: poolPurpose }) => ({
         value: poolId,
-        content: <ItemContentWithPoolIcon poolType={poolPurpose} label={poolName} />
+        content: <ItemContentWithPoolIcon poolType={poolPurpose} label={poolName} />,
       }))}
       id="target-pool-selector"
       fullWidth

@@ -8,7 +8,7 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { mapCleanExpensesFilterParamsToApiParams } from "./CleanExpensesService";
 
 const getParams = (filterParams) => ({
-  ...mapCleanExpensesFilterParamsToApiParams(filterParams)
+  ...mapCleanExpensesFilterParamsToApiParams(filterParams),
 });
 
 export const useGet = (params) => {
@@ -18,7 +18,7 @@ export const useGet = (params) => {
 
   const { isLoading, shouldInvoke } = useApiState(GET_TAGS_BREAKDOWN, {
     organizationId,
-    ...getParams(params)
+    ...getParams(params),
   });
 
   useEffect(() => {

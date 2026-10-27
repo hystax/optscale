@@ -20,7 +20,7 @@ import useGetRowStyle from "./hooks/useGetRowStyle";
 import useHoverableRows from "./hooks/useHoverableRows";
 import { EXPANDED_POOL_ROWS } from "./reducer";
 
-const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
+const PoolsTable = ({ rootPool, isLoadingProps = {}, startDateTimestamp, endDateTimestamp }) => {
   const dispatch = useDispatch();
 
   const openSideModal = useOpenSideModal();
@@ -71,20 +71,20 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
               </DashedTypography>
             </span>
           </Tooltip>
-        )
-      }
+        ),
+      },
     ],
-    poolId: rootPoolId
+    poolId: rootPoolId,
   };
 
   const columns = useMemo(
     () => [
       poolName({
         onExpensesExportClick: (id) => openEditModal(POOL_TABS.SHARE, id),
-        onConstraintsClick: (id) => openEditModal(POOL_TABS.CONSTRAINTS, id)
+        onConstraintsClick: (id) => openEditModal(POOL_TABS.CONSTRAINTS, id),
       }),
       poolLimit(),
-      expenses({ defaultSort: "desc" }),
+      expenses({ defaultSort: "desc", startDateTimestamp, endDateTimestamp }),
       poolForecast(),
       text({
         headerMessageId: "owner",
@@ -94,13 +94,13 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
           columnSelector: {
             accessor: "default_owner_name",
             messageId: "owner",
-            dataTestId: "btn_toggle_default_owner_name"
-          }
-        }
+            dataTestId: "btn_toggle_default_owner_name",
+          },
+        },
       }),
-      poolActions()
+      poolActions(),
     ],
-    [openEditModal]
+    [openEditModal, startDateTimestamp, endDateTimestamp]
   );
 
   const root = useMemo(() => [rootPool], [rootPool]);
@@ -113,7 +113,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
   const { isSelectedRow, handleRowClick } = useHoverableRows({
     onClick: (selectedPool) => openEditModal(POOL_TABS.GENERAL, selectedPool),
     rootPool,
-    isGetPoolDataReady
+    isGetPoolDataReady,
   });
 
   const getRowStyle = useGetRowStyle(rootPool);
@@ -128,7 +128,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
           columns={columns}
           actionBar={{
             show: true,
-            definition: actionBarDefinition
+            definition: actionBarDefinition,
           }}
           withExpanded
           getSubRows={getSubRows}
@@ -136,7 +136,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
           expanded={expanded}
           onExpandedChange={onExpandedChange}
           localization={{
-            emptyMessageId: "noPools"
+            emptyMessageId: "noPools",
           }}
           columnsSelectorUID="poolsTable"
           getRowStyle={getRowStyle}

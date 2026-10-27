@@ -7,7 +7,7 @@ import {
   getResourceAllowedActions,
   signIn,
   updateUser,
-  API_URL
+  API_URL,
 } from "./actionCreators";
 
 export {
@@ -19,5 +19,5 @@ export {
   getResourceAllowedActions,
   signIn,
   updateUser,
-  API_URL
+  API_URL,
 };

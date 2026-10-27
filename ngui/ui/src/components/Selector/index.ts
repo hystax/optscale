@@ -5,7 +5,7 @@ import {
   Item,
   ItemContent,
   ItemContentWithDataSourceIcon,
-  ItemContentWithPoolIcon
+  ItemContentWithPoolIcon,
 } from "./components";
 import Selector from "./Selector";
 

@@ -19,39 +19,39 @@ import { SLACK_INTEGRATION } from "./Slack/Slack";
 
 const actionBarDefinition = {
   title: {
-    messageId: "integrations"
-  }
+    messageId: "integrations",
+  },
 };
 
 const integrationsGridItems = [
   {
     node: <IntegrationsSlackContainer />,
-    key: SLACK_INTEGRATION
+    key: SLACK_INTEGRATION,
   },
   {
     node: <IntegrationsGoogleCalendarContainer />,
-    key: GOOGLE_CALENDAR
+    key: GOOGLE_CALENDAR,
   },
   {
     node: <IntegrationJiraContainer />,
-    key: JIRA
+    key: JIRA,
   },
   {
     node: <IntegrationsBIExportContainer />,
-    key: BI_EXPORT
+    key: BI_EXPORT,
   },
   {
     node: <GitLab />,
-    key: GITLAB
+    key: GITLAB,
   },
   {
     node: <GitHub />,
-    key: GITHUB
+    key: GITHUB,
   },
   {
     node: <Jenkins />,
-    key: JENKINS
-  }
+    key: JENKINS,
+  },
 ];
 
 const Integrations = () => (

@@ -16,7 +16,7 @@ const data = {
           data_location: "eu-west-2",
           data_transferred: 2545 * 9 * 100000000,
           estimated_expenses: 2545 * 0.09 * 17,
-          last_run: millisecondsToSeconds(+new Date() - 15 * 60 * 1000)
+          last_run: millisecondsToSeconds(+new Date() - 15 * 60 * 1000),
         },
         {
           run: "#2_relaxed_antonelli",
@@ -28,7 +28,7 @@ const data = {
           data_location: "eu-west-2",
           data_transferred: 1000 * 9 * 100000000,
           estimated_expenses: 1997 * 0.09 * 17,
-          last_run: millisecondsToSeconds(+new Date() - 30 * 60 * 1000)
+          last_run: millisecondsToSeconds(+new Date() - 30 * 60 * 1000),
         },
         {
           run: "#3_strange_bassi",
@@ -40,9 +40,9 @@ const data = {
           data_location: "eu-west-2",
           data_transferred: 1997 * 9 * 100000000,
           estimated_expenses: 1000 * 0.09 * 17,
-          last_run: millisecondsToSeconds(+new Date() - 45 * 60 * 1000)
-        }
-      ]
+          last_run: millisecondsToSeconds(+new Date() - 45 * 60 * 1000),
+        },
+      ],
     },
     executors_upgrade: {
       count: 11,
@@ -55,7 +55,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 2 * 24 * 3600 * 1000),
-          recommended_size: "t3.small"
+          recommended_size: "t3.small",
         },
         {
           name: "compute-1a24cdq251",
@@ -65,7 +65,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 2 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-5849239483",
@@ -75,7 +75,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 5 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-491094001",
@@ -85,7 +85,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 15 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-194918885",
@@ -95,7 +95,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 1 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-4910582010",
@@ -105,7 +105,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 20 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-4819481905",
@@ -115,7 +115,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 1 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-103847104",
@@ -125,7 +125,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 3 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-491805727",
@@ -135,7 +135,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 4 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-983285982",
@@ -145,7 +145,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 1 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
+          recommended_size: "t4.2xlarge",
         },
         {
           name: "compute-130845917",
@@ -155,14 +155,14 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           last_used: millisecondsToSeconds(+new Date() - 18 * 24 * 3600 * 1000),
-          recommended_size: "t4.2xlarge"
-        }
-      ]
+          recommended_size: "t4.2xlarge",
+        },
+      ],
     },
     executors_reservation: {
       count: 0,
       saving: 0,
-      items: []
+      items: [],
     },
     spot_instances_usage: {
       count: 3,
@@ -175,7 +175,7 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           runs_count: 44,
-          average_lifetime: 1040
+          average_lifetime: 1040,
         },
         {
           name: "compute-983285982",
@@ -185,7 +185,7 @@ const data = {
           cloud_name: "Azure QA",
           cloud_type: "azure_cnr",
           runs_count: 24,
-          average_lifetime: 800
+          average_lifetime: 800,
         },
         {
           name: "compute-491805727",
@@ -195,9 +195,9 @@ const data = {
           cloud_name: "GCP dev",
           cloud_type: "gcp_cnr",
           runs_count: 67,
-          average_lifetime: 970
-        }
-      ]
+          average_lifetime: 970,
+        },
+      ],
     },
     local_storage_bottleneck: {
       count: 1,
@@ -213,9 +213,9 @@ const data = {
           io: 250,
           rw: 23000000,
           duration: 3 * 60 * 60 + 15 * 60,
-          duration_threshold: 4 * 60 * 60
-        }
-      ]
+          duration_threshold: 4 * 60 * 60,
+        },
+      ],
     },
     gpu_memory: {
       count: 1,
@@ -228,17 +228,17 @@ const data = {
           cloud_name: "AWS HQ",
           cloud_type: "aws_cnr",
           size: "g4ad.4xlarge",
-          gpu_memory_usage: 0.98
-        }
-      ]
-    }
-  }
+          gpu_memory_usage: 0.98,
+        },
+      ],
+    },
+  },
 };
 
 const getTaskRecommendations = () => ({
   ...data,
   total_count: Object.values(data.optimizations).reduce((acc, { count = 0 }) => acc + count, 0),
-  total_saving: Object.values(data.optimizations).reduce((acc, { saving = 0 }) => acc + saving, 0)
+  total_saving: Object.values(data.optimizations).reduce((acc, { saving = 0 }) => acc + saving, 0),
 });
 
 const taskRecommendations = getTaskRecommendations();

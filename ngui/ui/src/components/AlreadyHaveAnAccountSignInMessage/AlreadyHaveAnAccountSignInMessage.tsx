@@ -11,7 +11,7 @@ const AlreadyHaveAnAccountSignInMessage = () => {
   };
 
   const to = `${LOGIN}?${stringifySearchParams({
-    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability
+    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability,
   })}`;
 
   return (

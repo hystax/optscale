@@ -25,7 +25,7 @@ const Item = (props: ItemProps) => {
             return theme.spacing(PADDING_SPACING + depth * PADDING_SPACING);
           }
           return theme.spacing(PADDING_SPACING);
-        }
+        },
       }}
     />
   );

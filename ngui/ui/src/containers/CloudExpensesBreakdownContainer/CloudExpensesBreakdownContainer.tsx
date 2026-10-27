@@ -19,13 +19,13 @@ const CloudExpensesBreakdownContainer = ({ type, entityId: cloudAccountId }) => 
     total,
     previousTotal,
     filteredBreakdown,
-    dataSourceType
+    dataSourceType,
   } = useExpensesData(GET_CLOUDS_EXPENSES);
 
   const [requestParams, applyFilter, updateFilter] = useExpensesBreakdownRequestParams({
     filterBy,
     startDateTimestamp,
-    endDateTimestamp
+    endDateTimestamp,
   });
 
   const { isLoading, shouldInvoke } = useApiState(GET_CLOUDS_EXPENSES, { ...requestParams, cloudAccountId });

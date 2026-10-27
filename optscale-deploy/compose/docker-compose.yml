@@ -1,0 +1,1163 @@
+# OptScale quickstart / try-mode deployment
+# Usage:
+#   cp .env.example .env   # adjust if needed
+#   ./pull.sh              # optional: pull images one-by-one (avoids Docker Hub rate limits)
+#   docker compose up -d
+#
+# NOT intended for production — use the Ansible/K8s path described in the
+# root README for that.
+
+x-etcd-env: &etcd-env
+  HX_ETCD_HOST: etcd-client
+  HX_ETCD_PORT: "2379"
+
+x-restart: &restart
+  restart: unless-stopped
+
+x-healthcheck-tcp: &healthcheck-tcp
+  interval: 5s
+  timeout: 3s
+  retries: 30
+  start_period: 15s
+
+services:
+  # ───────────────────── Data plane ─────────────────────
+
+  etcd-client:
+    image: ${COMPANY:-hystax}/etcd:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    command:
+      - /usr/local/bin/etcd
+      - -listen-client-urls
+      - http://0.0.0.0:2379
+      - -advertise-client-urls
+      - http://etcd-client:2379
+    volumes:
+      - etcd-data:/default.etcd
+    environment:
+      ETCD_HEARTBEAT_INTERVAL: "500"
+      ETCD_ELECTION_TIMEOUT: "5000"
+    healthcheck:
+      test: ["CMD", "etcdctl", "--endpoints=http://127.0.0.1:2379", "cluster-health"]
+      <<: *healthcheck-tcp
+
+  mariadb:
+    image: ${COMPANY:-hystax}/mariadb:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MARIADB_ROOT_PASSWORD}"]
+      <<: *healthcheck-tcp
+
+  mongo:
+    image: ${COMPANY:-hystax}/mongo:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+    command: ["mongod", "--auth", "--bind_ip_all"]
+    healthcheck:
+      test: ["CMD", "mongo", "-u", "${MONGO_ROOT_USER}", "-p", "${MONGO_ROOT_PASSWORD}", "--authenticationDatabase", "admin", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      <<: *healthcheck-tcp
+
+  rabbitmq:
+    image: rabbitmq:4.1.4-management-alpine
+    <<: *restart
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      <<: *healthcheck-tcp
+
+  redis:
+    image: ${COMPANY:-hystax}/redis:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      <<: *healthcheck-tcp
+
+  influxdb:
+    image: ${COMPANY:-hystax}/influxdb:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    healthcheck:
+      test: ["CMD", "influx", "-execute", "SHOW DATABASES"]
+      <<: *healthcheck-tcp
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.12
+    <<: *restart
+    environment:
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --password '${CLICKHOUSE_PASSWORD}' -q 'SELECT 1'"]
+      <<: *healthcheck-tcp
+
+  minio:
+    image: hystax/minio:local@sha256:d146037cf1c5475a896c35ff41b88b8c1f084361180fd7541d375cc8c1c21adb
+    <<: *restart
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    command: server /data
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live"]
+      <<: *healthcheck-tcp
+
+  # ───────────────────── Thanos metrics ─────────────────────
+
+  thanos-receive:
+    image: thanosio/thanos:v0.39.1
+    <<: *restart
+    user: "0"
+    command:
+      - receive
+      - --grpc-address=0.0.0.0:10901
+      - --http-address=0.0.0.0:10902
+      - --remote-write.address=0.0.0.0:19291
+      - --objstore.config-file=/etc/thanos/thanos_conf.yaml
+      - --tsdb.path=/var/thanos/receive
+      - --tsdb.retention=4h
+      - --label=receive_replica="0"
+    volumes:
+      - thanos-receive-data:/var/thanos/receive
+      - ./thanos_conf.yaml:/etc/thanos/thanos_conf.yaml:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:10902/-/healthy || exit 1"]
+      <<: *healthcheck-tcp
+
+  thanos-storegateway:
+    image: thanosio/thanos:v0.39.1
+    <<: *restart
+    user: "0"
+    command:
+      - store
+      - --grpc-address=0.0.0.0:10901
+      - --http-address=0.0.0.0:10902
+      - --data-dir=/var/thanos/store
+      - --objstore.config-file=/etc/thanos/thanos_conf.yaml
+      - --ignore-deletion-marks-delay=3h
+    volumes:
+      - thanos-store-data:/var/thanos/store
+      - ./thanos_conf.yaml:/etc/thanos/thanos_conf.yaml:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:10902/-/healthy || exit 1"]
+      <<: *healthcheck-tcp
+
+  thanos-query:
+    image: thanosio/thanos:v0.39.1
+    <<: *restart
+    command:
+      - query
+      - --grpc-address=0.0.0.0:10901
+      - --http-address=0.0.0.0:10902
+      - --endpoint=thanos-receive:10901
+      - --endpoint=thanos-storegateway:10901
+    depends_on:
+      thanos-receive:
+        condition: service_healthy
+      thanos-storegateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:10902/-/healthy || exit 1"]
+      <<: *healthcheck-tcp
+
+  # ───────────────────── Bootstrap ─────────────────────
+
+  configurator:
+    image: ${COMPANY:-hystax}/configurator:${OPTSCALE_VERSION:-latest}
+    environment:
+      <<: *etcd-env
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        uv --project docker_images/configurator run python - <<'PY'
+        import os
+        import etcd
+        from optscale_client.config_client.client import Client
+
+        client = Client(
+            host=os.environ["HX_ETCD_HOST"],
+            port=int(os.environ["HX_ETCD_PORT"]),
+        )
+        for key in (
+            "/opentelemetry",
+            "/auth/opentelemetry",
+            "/restapi/opentelemetry",
+            "/diworker/opentelemetry",
+        ):
+            try:
+                client.delete(key, recursive=True)
+            except etcd.EtcdKeyNotFound:
+                pass
+        PY
+        uv --project docker_images/configurator run python3 docker_images/configurator/configurator.py /config/config
+        uv --project docker_images/configurator run python - <<'PY'
+        import os
+        from optscale_client.config_client.client import Client
+
+        client = Client(
+            host=os.environ["HX_ETCD_HOST"],
+            port=int(os.environ["HX_ETCD_PORT"]),
+        )
+        client.write_branch("/", {
+            "opentelemetry": {
+                "enabled": "false",
+                "exporter": {
+                    "type": "console",
+                },
+            },
+            "auth": {
+                "opentelemetry": {
+                    "enable_asyncio": "false",
+                    "enable_threading": "false",
+                    "enable_tornado": "false",
+                    "enable_urllib3": "false",
+                    "enable_requests": "false",
+                    "enable_sqlalchemy": "false",
+                    "enable_kombu": "false",
+                    "enable_clickhouse": "false",
+                },
+            },
+            "restapi": {
+                "opentelemetry": {
+                    "enable_asyncio": "false",
+                    "enable_threading": "false",
+                    "enable_tornado": "false",
+                    "enable_urllib3": "false",
+                    "enable_requests": "false",
+                    "enable_sqlalchemy": "false",
+                    "enable_mongo": "false",
+                    "enable_kombu": "false",
+                    "enable_clickhouse": "false",
+                },
+            },
+            "diworker": {
+                "opentelemetry": {
+                    "enable_threading": "false",
+                    "enable_urllib3": "false",
+                    "enable_requests": "false",
+                    "enable_kombu": "false",
+                    "enable_clickhouse": "false",
+                },
+            },
+        })
+        PY
+    volumes:
+      - ./config.yml:/config/config:ro
+    depends_on:
+      etcd-client:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: "no"
+
+  # ───────────────────── App services ─────────────────────
+
+  restapi:
+    image: ${COMPANY:-hystax}/rest_api:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+      herald-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python - <<'PY'\nimport urllib.error\nimport urllib.request\ntry:\n    urllib.request.urlopen('http://127.0.0.1:8999/restapi/v2/live_demo', timeout=2)\nexcept urllib.error.HTTPError as exc:\n    raise SystemExit(0 if exc.code < 500 else 1)\nexcept Exception:\n    raise SystemExit(1)\nPY"]
+      <<: *healthcheck-tcp
+
+  auth:
+    image: ${COMPANY:-hystax}/auth:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      MICROSOFT_OAUTH_CLIENT_ID: ${MICROSOFT_OAUTH_CLIENT_ID:-}
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  keeper:
+    image: ${COMPANY:-hystax}/keeper:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  herald-api:
+    image: ${COMPANY:-hystax}/herald:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      HERALD_SERVICE: api
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python - <<'PY'\nimport urllib.error\nimport urllib.request\ntry:\n    urllib.request.urlopen('http://127.0.0.1:8906/', timeout=2)\nexcept urllib.error.HTTPError as exc:\n    raise SystemExit(0 if exc.code < 500 else 1)\nexcept Exception:\n    raise SystemExit(1)\nPY"]
+      <<: *healthcheck-tcp
+
+  herald-engine:
+    image: ${COMPANY:-hystax}/herald:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      HERALD_SERVICE: engine
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+
+  katara:
+    image: ${COMPANY:-hystax}/katara_service:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      HX_KATARA_ROLE: api
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  insider-api:
+    image: ${COMPANY:-hystax}/insider_api:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  slacker:
+    image: ${COMPANY:-hystax}/slacker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET:-}
+      SLACK_CLIENT_ID: ${SLACK_CLIENT_ID:-}
+      SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET:-}
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      auth:
+        condition: service_started
+
+  jira-bus:
+    image: ${COMPANY:-hystax}/jira_bus:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      auth:
+        condition: service_started
+
+  jira-ui:
+    image: ${COMPANY:-hystax}/jira_ui:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      UI_BUILD_PATH: /usr/src/app/ui
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      jira-bus:
+        condition: service_started
+
+  metroculusapi:
+    image: ${COMPANY:-hystax}/metroculus_api:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      clickhouse:
+        condition: service_healthy
+
+  diproxy:
+    image: ${COMPANY:-hystax}/diproxy:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      thanos-receive:
+        condition: service_healthy
+
+  subspector:
+    image: ${COMPANY:-hystax}/subspector:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  # ───────────────────── UI ─────────────────────
+
+  ngui:
+    image: ${COMPANY:-hystax}/ngui:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      UI_BUILD_PATH: /usr/src/app/ui
+      PROXY_URL: http://edge:80
+      KEEPER_ENDPOINT: http://keeper:8973
+      SLACKER_ENDPOINT: http://slacker:80
+      RESTAPI_ENDPOINT: http://restapi:8999
+      AUTH_ENDPOINT: http://auth:8905
+      VITE_GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      VITE_MICROSOFT_OAUTH_CLIENT_ID: ${MICROSOFT_OAUTH_CLIENT_ID:-}
+      VITE_GOOGLE_MAP_API_KEY: ${GOOGLE_MAP_API_KEY:-}
+    depends_on:
+      restapi:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      keeper:
+        condition: service_started
+      slacker:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      herald-api:
+        condition: service_healthy
+      jira-bus:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4000/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      <<: *healthcheck-tcp
+
+  # ───────────────────── Edge proxy (replaces k8s Ingress) ─────────────────────
+
+  edge:
+    image: nginx:1.27-alpine
+    <<: *restart
+    ports:
+      - "${EDGE_PORT:-80}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      ngui:
+        condition: service_healthy
+      restapi:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      keeper:
+        condition: service_started
+      herald-api:
+        condition: service_started
+      katara:
+        condition: service_started
+      insider-api:
+        condition: service_started
+      slacker:
+        condition: service_started
+      metroculusapi:
+        condition: service_started
+      jira-bus:
+        condition: service_started
+      jira-ui:
+        condition: service_started
+      diproxy:
+        condition: service_started
+      subspector:
+        condition: service_started
+
+  # ───────────────────── Workers (long-running) ─────────────────────
+
+  diworker:
+    image: ${COMPANY:-hystax}/diworker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/diworker-orchestrator-ready"]
+      <<: *healthcheck-tcp
+
+  diworker-raw:
+    image: ${COMPANY:-hystax}/diworker:${OPTSCALE_VERSION:-latest}
+    command: ["uv", "run", "--project", "diworker", "python", "-u", "/src/diworker/diworker/raw_worker.py"]
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      diworker:
+        condition: service_healthy
+
+  diworker-clean:
+    image: ${COMPANY:-hystax}/diworker:${OPTSCALE_VERSION:-latest}
+    command: ["uv", "run", "--project", "diworker", "python", "-u", "/src/diworker/diworker/clean_worker.py"]
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      diworker:
+        condition: service_healthy
+
+  katara-worker:
+    image: ${COMPANY:-hystax}/katara_worker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      katara:
+        condition: service_started
+
+  insider-worker:
+    image: ${COMPANY:-hystax}/insider_worker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  metroculus-worker:
+    image: ${COMPANY:-hystax}/metroculus_worker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+  bumiworker:
+    image: ${COMPANY:-hystax}/bumiworker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  trapper-worker:
+    image: ${COMPANY:-hystax}/trapper_worker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+  risp-worker:
+    image: ${COMPANY:-hystax}/risp_worker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+  gemini-worker:
+    image: ${COMPANY:-hystax}/gemini_worker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  gemini-data-worker:
+    image: ${COMPANY:-hystax}/gemini_data_worker:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  bi-exporter:
+    image: ${COMPANY:-hystax}/bi_exporter:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+  resource-discovery-worker:
+    image: ${COMPANY:-hystax}/resource_discovery:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  resource-observer-worker:
+    image: ${COMPANY:-hystax}/resource_observer:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  resource-violations-worker:
+    image: ${COMPANY:-hystax}/resource_violations:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  booking-observer-worker:
+    image: ${COMPANY:-hystax}/booking_observer:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  calendar-observer-worker:
+    image: ${COMPANY:-hystax}/calendar_observer:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  organization-violations-worker:
+    image: ${COMPANY:-hystax}/organization_violations:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  power-schedule-worker:
+    image: ${COMPANY:-hystax}/power_schedule:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  live-demo-generator-worker:
+    image: ${COMPANY:-hystax}/live_demo_generator:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      diworker:
+        condition: service_healthy
+
+  # ───────────────────── Executors ─────────────────────
+
+  webhook-executor:
+    image: ${COMPANY:-hystax}/webhook_executor:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  herald-executor:
+    image: ${COMPANY:-hystax}/herald_executor:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  slacker-executor:
+    image: ${COMPANY:-hystax}/slacker_executor:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      slacker:
+        condition: service_started
+
+  keeper-executor:
+    image: ${COMPANY:-hystax}/keeper_executor:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+
+  # ───────────────────── Schedulers (cron-style, loop-wrapped) ────
+  # K8s runs these as CronJobs. In Compose we loop: run → sleep → repeat.
+
+  bumischeduler:
+    image: ${COMPANY:-hystax}/bumischeduler:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 5 min
+  resource-discovery-scheduler:
+    image: ${COMPANY:-hystax}/resource_discovery:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/resource_discovery run python3 docker_images/resource_discovery/scheduler.py; sleep 300; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 5 min
+  resource-observer-scheduler:
+    image: ${COMPANY:-hystax}/resource_observer:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/resource_observer run python3 docker_images/resource_observer/scheduler.py; sleep 300; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 5 min
+  resource-violations-scheduler:
+    image: ${COMPANY:-hystax}/resource_violations:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/resource_violations run python3 docker_images/resource_violations/scheduler.py; sleep 300; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 1 min
+  booking-observer-scheduler:
+    image: ${COMPANY:-hystax}/booking_observer:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/booking_observer run python3 docker_images/booking_observer/scheduler.py; sleep 60; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every hour
+  calendar-observer-scheduler:
+    image: ${COMPANY:-hystax}/calendar_observer:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/calendar_observer run python3 docker_images/calendar_observer/scheduler.py; sleep 3600; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 5 min
+  organization-violations-scheduler:
+    image: ${COMPANY:-hystax}/organization_violations:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/organization_violations run python3 docker_images/organization_violations/scheduler.py; sleep 300; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 5 min
+  power-schedule-scheduler:
+    image: ${COMPANY:-hystax}/power_schedule:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/power_schedule run python3 docker_images/power_schedule/scheduler.py; sleep 300; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every hour
+  live-demo-generator-scheduler:
+    image: ${COMPANY:-hystax}/live_demo_generator:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/live_demo_generator run python3 docker_images/live_demo_generator/scheduler.py; sleep 3600; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      diworker:
+        condition: service_healthy
+
+  # every hour — uses default CMD, wraps in loop
+  trapper-scheduler:
+    image: ${COMPANY:-hystax}/trapper_scheduler:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv run --project trapper/trapper_scheduler python -u /usr/src/app/trapper/trapper_scheduler/main.py; sleep 3600; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every hour
+  risp-scheduler:
+    image: ${COMPANY:-hystax}/risp_scheduler:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv run --project risp/risp_scheduler python -u /usr/src/app/risp/risp_scheduler/scheduler.py; sleep 3600; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # daily
+  insider-scheduler:
+    image: ${COMPANY:-hystax}/insider_scheduler:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv run --project insider/insider_scheduler python -u /usr/src/app/insider/insider_scheduler/main.py; sleep 86400; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 30 min
+  metroculus-scheduler:
+    image: ${COMPANY:-hystax}/metroculus_scheduler:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv run --project metroculus/metroculus_scheduler python -u /usr/src/app/metroculus/metroculus_scheduler/main.py; sleep 1800; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 5 min
+  gemini-scheduler:
+    image: ${COMPANY:-hystax}/gemini_scheduler:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv run --project gemini/gemini_scheduler python -u /usr/src/app/gemini/gemini_scheduler/main.py; sleep 300; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 5 min
+  bi-scheduler:
+    image: ${COMPANY:-hystax}/bi_scheduler:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/bi_scheduler run python3 docker_images/bi_scheduler/scheduler.py; sleep 300; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # ───────────────────── Report-import schedulers (curl-based) ─────────
+  # These hit the restapi to trigger data imports on different cadences.
+
+  # every 15 min — period 0 (most frequent reconciliation)
+  report-import-scheduler-0:
+    image: curlimages/curl:latest
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do curl -sS -X POST -f -H 'Content-Type: application/json' -H \"Secret: $CLUSTER_SECRET\" -d '{\"period\": 0}' http://restapi:8999/restapi/v2/schedule_imports || true; sleep 900; done"]
+    environment:
+      CLUSTER_SECRET: ${CLUSTER_SECRET:-change-me-in-production}
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every hour — period 1
+  report-import-scheduler-1:
+    image: curlimages/curl:latest
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do curl -sS -X POST -f -H 'Content-Type: application/json' -H \"Secret: $CLUSTER_SECRET\" -d '{\"period\": 1}' http://restapi:8999/restapi/v2/schedule_imports || true; sleep 3600; done"]
+    environment:
+      CLUSTER_SECRET: ${CLUSTER_SECRET:-change-me-in-production}
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # every 6 hours — period 6
+  report-import-scheduler-6:
+    image: curlimages/curl:latest
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do curl -sS -X POST -f -H 'Content-Type: application/json' -H \"Secret: $CLUSTER_SECRET\" -d '{\"period\": 6}' http://restapi:8999/restapi/v2/schedule_imports || true; sleep 21600; done"]
+    environment:
+      CLUSTER_SECRET: ${CLUSTER_SECRET:-change-me-in-production}
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # daily — period 24
+  report-import-scheduler-24:
+    image: curlimages/curl:latest
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do curl -sS -X POST -f -H 'Content-Type: application/json' -H \"Secret: $CLUSTER_SECRET\" -d '{\"period\": 24}' http://restapi:8999/restapi/v2/schedule_imports || true; sleep 86400; done"]
+    environment:
+      CLUSTER_SECRET: ${CLUSTER_SECRET:-change-me-in-production}
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # ───────────────────── Maintenance jobs (cron-style, loop-wrapped) ────
+
+  # every 3 min
+  cleanmongodb:
+    image: ${COMPANY:-hystax}/cleanmongodb:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/cleanmongodb run python3 docker_images/cleanmongodb/clean-mongo-db.py; sleep 180; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # weekly
+  cleaninfluxdb:
+    image: ${COMPANY:-hystax}/cleaninfluxdb:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/cleaninfluxdb run python3 docker_images/cleaninfluxdb/clean-influx-db.py; sleep 604800; done"]
+    environment:
+      HX_INFLUXDB_HOST: influxdb
+      HX_INFLUXDB_PORT: "8086"
+      HX_DAYS_TO_STORE: "90"
+    depends_on:
+      influxdb:
+        condition: service_healthy
+      restapi:
+        condition: service_healthy
+
+  # daily at 03:00 — just runs daily in loop
+  layout-cleaner:
+    image: ${COMPANY:-hystax}/layout_cleaner:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/layout_cleaner run python3 docker_images/layout_cleaner/worker.py; sleep 86400; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # daily
+  demo-org-cleanup:
+    image: ${COMPANY:-hystax}/demo_org_cleanup:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/demo_org_cleanup run python3 docker_images/demo_org_cleanup/cleanup.py; sleep 86400; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # daily
+  failed-imports-dataset-generator:
+    image: ${COMPANY:-hystax}/failed_imports_dataset_generator:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/failed_imports_dataset_generator run python3 docker_images/failed_imports_dataset_generator/failed_imports_dataset_generator.py; sleep 86400; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+
+  # daily
+  users-dataset-generator:
+    image: ${COMPANY:-hystax}/users_dataset_generator:${OPTSCALE_VERSION:-latest}
+    <<: *restart
+    entrypoint: ["sh", "-c", "while true; do uv --project docker_images/users_dataset_generator run python3 docker_images/users_dataset_generator/users_dataset_generator.py; sleep 86400; done"]
+    environment:
+      <<: *etcd-env
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      restapi:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+volumes:
+  etcd-data:
+  mariadb-data:
+  mongo-data:
+  rabbitmq-data:
+  influxdb-data:
+  clickhouse-data:
+  minio-data:
+  thanos-receive-data:
+  thanos-store-data:

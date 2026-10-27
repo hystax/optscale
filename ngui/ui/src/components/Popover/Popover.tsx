@@ -15,7 +15,7 @@ const Popover = ({
   dataTestIds = {},
   rightLabelPosition = false,
   disabled = false,
-  fullWidth
+  fullWidth,
 }) => {
   const { cx, classes } = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -79,13 +79,13 @@ const Popover = ({
         anchorOrigin={
           anchorOrigin || {
             vertical: "bottom",
-            horizontal: "right"
+            horizontal: "right",
           }
         }
         transformOrigin={
           transformOrigin || {
             vertical: "top",
-            horizontal: "right"
+            horizontal: "right",
           }
         }
         PaperProps={{ "data-test-id": popOverDataTestId }}

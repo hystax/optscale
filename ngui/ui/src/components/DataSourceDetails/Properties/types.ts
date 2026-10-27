@@ -45,11 +45,14 @@ export type AlibabaPropertiesProps = BasePropertiesProps & {
 };
 
 export type AwsPropertiesProps = BasePropertiesProps & {
+  lastImportSourceId?: string | null;
+  lastImportSourceAccountId?: string | null;
   config: {
     createdAt: number;
     access_key_id: string;
     assume_role_account_id: string;
     assume_role_name: string;
+    assume_role_external_id?: string;
     bucket_name: string;
     bucket_prefix: string;
     linked: boolean;
@@ -58,6 +61,8 @@ export type AwsPropertiesProps = BasePropertiesProps & {
     region_name?: string;
     cur_version?: 1 | 2;
     use_edp_discount?: boolean;
+    included_regions?: string[];
+    excluded_regions?: string[];
   };
 };
 

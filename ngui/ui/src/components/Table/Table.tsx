@@ -22,7 +22,7 @@ import {
   usePaginationTableSettings,
   useRowSelectionTableSettings,
   useSortingTableSettings,
-  useSticky
+  useSticky,
 } from "./hooks";
 import useStyles from "./Table.styles";
 import { getRowsCount } from "./utils";
@@ -89,7 +89,7 @@ const Table = ({
   enableSearchQueryParam,
   enablePaginationQueryParam,
   manualPagination,
-  manualGlobalFiltering
+  manualGlobalFiltering,
 }) => {
   const headerRef = useRef();
 
@@ -97,7 +97,7 @@ const Table = ({
 
   const { stickyHeaderCellStyles, stickyTableStyles } = useSticky({
     headerRef,
-    stickySettings
+    stickySettings,
   });
 
   const getRowHoverProperties = (row) => {
@@ -108,7 +108,7 @@ const Table = ({
       onClick: () => onRowClick(row.original),
       hover: true,
       selected: isSelectedRow(row.original),
-      className: classes.hoverableRow
+      className: classes.hoverableRow,
     };
   };
 
@@ -118,13 +118,13 @@ const Table = ({
     state: globalFilterState,
     tableOptions: globalFilterTableOptions,
     onSearchChange,
-    onRangeChange
+    onRangeChange,
   } = useGlobalFilterTableSettings({
     withSearch,
     queryParamPrefix,
     enableSearchQueryParam,
     rangeFilter,
-    columns: columnsProperty
+    columns: columnsProperty,
   });
 
   const { state: columnsVisibilityState, tableOptions: columnsVisibilityTableOptions } =
@@ -132,36 +132,36 @@ const Table = ({
 
   const totalRowsCount = getRowsCount(data, {
     withExpanded,
-    getSubRows
+    getSubRows,
   });
 
   const { state: paginationState, tableOptions: paginationTableOptions } = usePaginationTableSettings({
     pageSize,
     rowsCount: totalRowsCount,
     queryParamPrefix,
-    enablePaginationQueryParam
+    enablePaginationQueryParam,
   });
 
   const columns = useColumns(columnsProperty, {
-    withSelection
+    withSelection,
   });
 
   const { state: expandedState, tableOptions: expandedTableOptions } = useExpandedTableSettings({
     withExpanded,
     getSubRows,
     expanded,
-    onExpandedChange
+    onExpandedChange,
   });
 
   const { state: columnOrderState, tableOptions: columnOrderTableOptions } = useColumnOrderTableSettings({
     columnOrder,
-    onColumnOrderChange
+    onColumnOrderChange,
   });
 
   const { state: rowSelectionState, tableOptions: rowSelectionTableOptions } = useRowSelectionTableSettings({
     withSelection,
     rowSelection,
-    onRowSelectionChange
+    onRowSelectionChange,
   });
 
   const initialSortingState = useInitialSortingState(columns);
@@ -175,7 +175,7 @@ const Table = ({
     ...expandedState,
     ...columnOrderState,
     ...rowSelectionState,
-    ...columnsVisibilityState
+    ...columnsVisibilityState,
   };
 
   const tableOptions = {
@@ -185,7 +185,7 @@ const Table = ({
     ...columnsVisibilityTableOptions,
     ...columnOrderTableOptions,
     ...rowSelectionTableOptions,
-    ...sortingTableOptions
+    ...sortingTableOptions,
   };
 
   const table = useReactTable({
@@ -193,18 +193,18 @@ const Table = ({
     columns,
     getRowId,
     initialState: {
-      sorting: initialSortingState
+      sorting: initialSortingState,
     },
     defaultColumn: {
       sortDescFirst: false,
       /**
        * TODO: Check sorting of a columns with all equal values. The 8th version doesn't invert the rows order
        */
-      sortingFn: "basic"
+      sortingFn: "basic",
     },
     getCoreRowModel: getCoreRowModel(),
     state: tableState,
-    ...tableOptions
+    ...tableOptions,
   });
 
   const selectedRowsCount = withSelection ? table.getSelectedRowModel().flatRows.length : 0;
@@ -218,7 +218,7 @@ const Table = ({
         pageIndex: manualPagination.pageIndex,
         pageSize: manualPagination.pageSize,
         onPageIndexChange: manualPagination.onPageIndexChange,
-        totalRows: manualPagination.totalRows
+        totalRows: manualPagination.totalRows,
       };
     }
 
@@ -227,7 +227,7 @@ const Table = ({
       pageIndex: table.getState().pagination.pageIndex,
       pageSize: table.getState().pagination.pageSize,
       onPageIndexChange: table.setPageIndex,
-      totalRows: totalRowsCount
+      totalRows: totalRowsCount,
     };
   };
 
@@ -241,7 +241,7 @@ const Table = ({
         searchValue: withSearch ? manualGlobalFiltering.search.value : undefined,
         rangeFilter,
         rangeValue: rangeFilter ? manualGlobalFiltering.rangeFilter.range : undefined,
-        onRangeChange: rangeFilter ? manualGlobalFiltering.rangeFilter.onChange : undefined
+        onRangeChange: rangeFilter ? manualGlobalFiltering.rangeFilter.onChange : undefined,
       };
     }
 
@@ -251,7 +251,7 @@ const Table = ({
       onSearchChange: withSearch ? (newSearchValue) => onSearchChange(newSearchValue, { tableContext: table }) : null,
       rangeFilter,
       rangeValue: rangeFilter ? globalFilterState.globalFilter.range : undefined,
-      onRangeChange: rangeFilter ? (newRangeValue) => onRangeChange(newRangeValue, { tableContext: table }) : null
+      onRangeChange: rangeFilter ? (newRangeValue) => onRangeChange(newRangeValue, { tableContext: table }) : null,
     };
   };
 
@@ -276,7 +276,7 @@ const Table = ({
       <Box
         className={classes.tableContainer}
         sx={{
-          overflowX
+          overflowX,
         }}
       >
         {isLoading ? (
@@ -284,10 +284,10 @@ const Table = ({
         ) : (
           <MuiTable
             sx={{
-              tableLayout
+              tableLayout,
             }}
             style={{
-              ...stickyTableStyles
+              ...stickyTableStyles,
             }}
           >
             {withHeader && (
@@ -313,8 +313,8 @@ const Table = ({
                     disableBottomBorderForLastRow
                       ? {
                           "&:last-child > td": {
-                            borderBottom: "none"
-                          }
+                            borderBottom: "none",
+                          },
                         }
                       : {}
                   }
@@ -337,8 +337,8 @@ const Table = ({
                         disableBottomBorderForLastRow
                           ? {
                               "&:last-child > td": {
-                                borderBottom: "none"
-                              }
+                                borderBottom: "none",
+                              },
                             }
                           : {}
                       }
@@ -385,7 +385,7 @@ const Table = ({
           paddingTop: SPACING_1,
           flexWrap: "wrap",
           flexDirection: { xs: "column-reverse", md: "row" },
-          ":empty": { display: "none" }
+          ":empty": { display: "none" },
         }}
       >
         <InfoArea

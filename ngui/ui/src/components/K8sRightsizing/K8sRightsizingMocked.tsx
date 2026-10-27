@@ -32,7 +32,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -65,7 +65,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -98,7 +98,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -131,7 +131,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -164,7 +164,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -197,7 +197,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -230,7 +230,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -263,7 +263,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -296,7 +296,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5944524-387e-4017-b5de-faeecab0f30a",
@@ -329,7 +329,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -362,7 +362,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -395,7 +395,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -428,7 +428,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -461,7 +461,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -494,7 +494,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -527,7 +527,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -560,7 +560,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -593,7 +593,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -626,7 +626,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -659,7 +659,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -692,7 +692,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -725,7 +725,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -758,7 +758,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -791,7 +791,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "c5599567-3582-4824-a72f-24d19edc6e27",
@@ -824,7 +824,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "1293fca8-d363-4d1e-999f-74723a843676",
@@ -857,7 +857,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "1293fca8-d363-4d1e-999f-74723a843676",
@@ -890,7 +890,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "1293fca8-d363-4d1e-999f-74723a843676",
@@ -923,7 +923,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "1293fca8-d363-4d1e-999f-74723a843676",
@@ -956,7 +956,7 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
+    namespace_quota_memory_requests_low: 0.0,
   },
   {
     cloud_account_id: "1293fca8-d363-4d1e-999f-74723a843676",
@@ -989,8 +989,8 @@ const namespacesMockData = [
     namespace_quota_cpu_requests_medium: 0.0,
     namespace_quota_memory_requests_medium: 0.0,
     namespace_quota_cpu_requests_low: 0.0,
-    namespace_quota_memory_requests_low: 0.0
-  }
+    namespace_quota_memory_requests_low: 0.0,
+  },
 ];
 
 const K8sRightsizingMocked = ({ actionBarDefinition }) => (

@@ -12,8 +12,8 @@ const CostModelForm = ({ cpuHour, memoryMbHour, onSubmit, onCancel, isLoading = 
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
       cpuHour,
-      memoryMbHour
-    })
+      memoryMbHour,
+    }),
   });
 
   const { handleSubmit } = methods;

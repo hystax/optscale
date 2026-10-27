@@ -38,11 +38,11 @@ const PopoverWrapper = ({ menuBody, buttons, label, labelDataTestId, handleClose
   <Popover
     anchorOrigin={{
       vertical: "bottom",
-      horizontal: "left"
+      horizontal: "left",
     }}
     transformOrigin={{
       vertical: "top",
-      horizontal: "left"
+      horizontal: "left",
     }}
     label={label}
     buttons={buttons}
@@ -54,14 +54,14 @@ const PopoverWrapper = ({ menuBody, buttons, label, labelDataTestId, handleClose
           maxHeight: "350px",
           paddingTop: "8px",
           paddingBottom: "8px",
-          minWidth: "100px"
+          minWidth: "100px",
         }}
       >
         {menuBody}
       </div>
     }
     dataTestIds={{
-      label: labelDataTestId
+      label: labelDataTestId,
     }}
   />
 );
@@ -123,8 +123,8 @@ const MultiPopoverItem = ({ name, items, label, handleApply, values }) => {
           variant: "contained",
           onClick: () => handleApply({ name, value: selectedItems }),
           closable: true,
-          dataTestId: "apply_multi_popover_button"
-        }
+          dataTestId: "apply_multi_popover_button",
+        },
       ]}
       handleClose={() => setSelectedItems(values)}
       menuBody={
@@ -167,7 +167,7 @@ const Item = ({
   items,
   dataTestId,
   displayedName,
-  values
+  values,
 }) => {
   const Component = {
     [LINEAR_SELECTOR_ITEMS_TYPES.MULTISELECT_POPOVER]: () => (
@@ -196,7 +196,7 @@ const Item = ({
         handleChange={() => handleChange({ name, value })}
         dataTestId={dataTestId}
       />
-    )
+    ),
   }[type];
 
   return <Component />;
@@ -216,7 +216,7 @@ const PickedItem = ({ name, dataTestId = name, value, type, onDelete, displayedN
         dataTestIds={{
           typography: `chip_${dataTestId}_typography`,
           key: `chip_${dataTestId}_key`,
-          value: `chip_${dataTestId}_value`
+          value: `chip_${dataTestId}_value`,
         }}
       />
     ) : (
@@ -230,7 +230,7 @@ const PickedItem = ({ name, dataTestId = name, value, type, onDelete, displayedN
       label={getChipLabel()}
       dataTestIds={{
         chip: `chip_${dataTestId}`,
-        deleteIcon: `btn_${dataTestId}_close`
+        deleteIcon: `btn_${dataTestId}_close`,
       }}
       color="info"
       size="medium"
@@ -287,7 +287,7 @@ const SelectorItems = ({ items, values, onChange, onApply }) =>
           handleApply={onApply}
           values={values}
         />
-      </Box>
+      </Box>,
     ];
   }, []);
 
@@ -303,7 +303,7 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
       const {
         type: itemType,
         displayedName: itemDisplayedName,
-        dataTestId
+        dataTestId,
       } = items.find((item) => item.name === pickedValue.name);
 
       return {
@@ -312,7 +312,7 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
         displayedName: pickedValue.displayedName || itemDisplayedName,
         displayedValue: pickedValue.displayedValue,
         type: itemType,
-        dataTestId
+        dataTestId,
       };
     });
   };
@@ -342,7 +342,7 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
               displayedValue: itemDisplayedValue,
               type: itemType,
               displayedName,
-              dataTestId
+              dataTestId,
             } = pickedValue;
 
             return (

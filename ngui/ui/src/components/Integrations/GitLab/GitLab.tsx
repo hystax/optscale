@@ -31,7 +31,7 @@ const GitLab = () => (
             <Link to={ENVIRONMENTS} component={RouterLink}>
               {chunks}
             </Link>
-          )
+          ),
         }}
       />,
       <TextBlock key="description2" messageId="integrationsGitLabDescription2" additionalCharactersAfterText=":" />,
@@ -40,9 +40,9 @@ const GitLab = () => (
         key="description3"
         messageId="integrationsGitLabDescription3"
         values={{
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         }}
-      />
+      />,
     ]}
   />
 );

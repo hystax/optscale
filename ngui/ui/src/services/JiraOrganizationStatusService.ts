@@ -14,7 +14,7 @@ export const useGet = () => {
   const { shouldInvoke, isLoading } = useApiState(GET_JIRA_ORGANIZATION_STATUS, organizationId);
 
   const {
-    apiData: { connected_tenants: connectedTenants = [] }
+    apiData: { connected_tenants: connectedTenants = [] },
   } = useApiData(GET_JIRA_ORGANIZATION_STATUS);
 
   useEffect(() => {

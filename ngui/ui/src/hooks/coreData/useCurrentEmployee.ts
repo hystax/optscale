@@ -6,9 +6,9 @@ export const useCurrentEmployee = () => {
 
   const { data } = useCurrentEmployeeQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    fetchPolicy: "cache-only"
+    fetchPolicy: "cache-only",
   });
 
   // The current user is not always returned by the API in some corner test cases

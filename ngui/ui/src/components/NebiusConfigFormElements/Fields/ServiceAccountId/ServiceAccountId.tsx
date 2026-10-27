@@ -14,16 +14,16 @@ const ServiceAccountId = () => (
         <QuestionMark
           messageId="nebiusServiceAccountIdTooltip"
           messageValues={{
-            i: (chunks) => <i>{chunks}</i>
+            i: (chunks) => <i>{chunks}</i>,
           }}
           dataTestId="qmark_service_account_id"
         />
-      )
+      ),
     }}
     label={<FormattedMessage id="serviceAccountId" />}
     autoComplete="off"
     sx={{
-      marginBottom: (theme) => theme.spacing(1)
+      marginBottom: (theme) => theme.spacing(1),
     }}
   />
 );

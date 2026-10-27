@@ -20,14 +20,14 @@ const MlCreateModelFormContainer = () => {
           name: formData.name,
           key: formData.key,
           description: formData.description,
-          tags: Object.fromEntries(formData.tags.map(({ key, value }) => [key, value]))
+          tags: Object.fromEntries(formData.tags.map(({ key, value }) => [key, value])),
         };
 
         return onCreate(params).then(() => redirect());
       }}
       onCancel={onCancel}
       isLoadingProps={{
-        isSubmitLoading: isLoading
+        isSubmitLoading: isLoading,
       }}
     />
   );

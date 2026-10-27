@@ -8,7 +8,7 @@ const useDemoOrganizationRestrictions = () => {
 
   return {
     isRestricted: isDemo,
-    restrictionReasonMessage: intl.formatMessage({ id: "notAvailableInLiveDemo" })
+    restrictionReasonMessage: intl.formatMessage({ id: "notAvailableInLiveDemo" }),
   };
 };
 
@@ -18,7 +18,7 @@ const useInactiveOrganizationRestrictions = () => {
 
   return {
     isRestricted: isInactive,
-    restrictionReasonMessage: intl.formatMessage({ id: "notAvailableForInactiveOrganization" })
+    restrictionReasonMessage: intl.formatMessage({ id: "notAvailableForInactiveOrganization" }),
   };
 };
 
@@ -38,11 +38,11 @@ export const useOrganizationActionRestrictions = () => {
     demoRestrictions.isRestricted,
     demoRestrictions.restrictionReasonMessage,
     inactiveRestrictions.isRestricted,
-    inactiveRestrictions.restrictionReasonMessage
+    inactiveRestrictions.restrictionReasonMessage,
   ]);
 
   return {
     isRestricted: demoRestrictions.isRestricted || inactiveRestrictions.isRestricted,
-    restrictionReasonMessage
+    restrictionReasonMessage,
   };
 };

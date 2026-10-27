@@ -1,6 +1,6 @@
 import json
 
-from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 from auth.auth_server.exceptions import Err
 from auth.auth_server.handlers.v1.base import BaseHandler as BaseHandler_v1
@@ -17,13 +17,13 @@ class BaseHandler(BaseHandler_v1):
                     if type_ == bool and isinstance(arg, str):
                         lowered = arg.lower()
                         if lowered not in ['true', 'false']:
-                            raise WrongArgumentsException(Err.OA0063, [name])
+                            raise OptHTTPError(400, Err.OA0063, [name])
                         return lowered == 'true'
                     return type_(arg)
                 else:
                     return arg
         except ValueError:
-            raise WrongArgumentsException(Err.OA0060, [name])
+            raise OptHTTPError(400, Err.OA0060, [name])
 
     def parse_url_params_into_payload(self, payload_map_params):
         data = {}

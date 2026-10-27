@@ -14,7 +14,7 @@ const EmailField = () => (
     label={<FormattedMessage id="userLogin" />}
     required
     InputProps={{
-      readOnly: true
+      readOnly: true,
     }}
     type="email"
     autoComplete="email"

@@ -6,20 +6,20 @@ import { BreakdownTypeSelectorProps } from "./types";
 const items = [
   {
     value: BREAKDOWN_TYPE.EXPENSES,
-    name: <FormattedMessage id="expenses" />
+    name: <FormattedMessage id="expenses" />,
   },
   {
     value: BREAKDOWN_TYPE.EXPENSES_PERCENT,
-    name: <FormattedMessage id="expensesPercentage" />
+    name: <FormattedMessage id="expensesPercentage" />,
   },
   {
     value: BREAKDOWN_TYPE.COUNT,
-    name: <FormattedMessage id="count" />
+    name: <FormattedMessage id="count" />,
   },
   {
     value: BREAKDOWN_TYPE.COUNT_PERCENT,
-    name: <FormattedMessage id="countPercentage" />
-  }
+    name: <FormattedMessage id="countPercentage" />,
+  },
 ];
 
 const BreakdownTypeSelector = ({ value, onChange }: BreakdownTypeSelectorProps) => (

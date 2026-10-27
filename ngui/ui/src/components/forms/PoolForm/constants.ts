@@ -3,5 +3,5 @@ export const FIELD_NAMES = Object.freeze({
   LIMIT: "limit",
   OWNER: "defaultOwnerId",
   TYPE: "type",
-  AUTO_EXTENSION: "autoExtension"
+  AUTO_EXTENSION: "autoExtension",
 });

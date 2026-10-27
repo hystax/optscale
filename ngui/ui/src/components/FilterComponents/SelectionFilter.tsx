@@ -9,7 +9,7 @@ import {
   Popover,
   TextField,
   Typography,
-  Divider
+  Divider,
 } from "@mui/material";
 import Button from "@mui/material/Button";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -78,7 +78,7 @@ const SelectionFilter = <T extends FilterItem>({
   searchPredicate,
   onChange,
   appliedItems,
-  settings = []
+  settings = [],
 }: FiltersProps<T>) => {
   const intl = useIntl();
 
@@ -122,14 +122,14 @@ const SelectionFilter = <T extends FilterItem>({
 
     onChange?.({
       values: selectedValues,
-      settings: selectedSettings
+      settings: selectedSettings,
     });
   };
 
   const handleSettingChange = (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedSettings((prev) => ({
       ...prev,
-      [name]: event.target.checked
+      [name]: event.target.checked,
     }));
   };
 
@@ -243,7 +243,7 @@ const SelectionFilter = <T extends FilterItem>({
                 <InputAdornment position="start">
                   <SearchIcon fontSize="small" />
                 </InputAdornment>
-              )
+              ),
             }}
           />
         </Box>
@@ -276,7 +276,7 @@ const SelectionFilter = <T extends FilterItem>({
                     sx={{
                       px: 2,
                       width: "100%",
-                      overflowWrap: "anywhere"
+                      overflowWrap: "anywhere",
                     }}
                   />
                 ))}
@@ -329,7 +329,7 @@ const SelectionFilter = <T extends FilterItem>({
         onClose={handleCancel}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "left"
+          horizontal: "left",
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", width: "300px" }}>

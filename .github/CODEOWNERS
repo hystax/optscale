@@ -1,7 +1,8 @@
-# Frontend only for ngui
+# Frontend
 ngui/             @hystax/ui
+jira_ui/          @hystax/ui
 
-# Backend for other directories
+# Backend
 auth/             @hystax/backend
 bi_exporter/      @hystax/backend
 bumischeduler/    @hystax/backend
@@ -13,7 +14,6 @@ gemini/           @hystax/backend
 herald/           @hystax/backend
 insider/          @hystax/backend
 jira_bus/         @hystax/backend
-jira_ui/          @hystax/backend
 katara/           @hystax/backend
 keeper/           @hystax/backend
 metroculus/       @hystax/backend

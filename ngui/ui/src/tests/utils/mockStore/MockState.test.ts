@@ -12,32 +12,17 @@ describe("mockPoolPermissions method testing", () => {
       auth: {
         [GET_POOL_ALLOWED_ACTIONS]: {
           allowedActions: {
-            [POOL_ID]: ["manage_something"]
-          }
-        }
-      }
+            [POOL_ID]: ["manage_something"],
+          },
+        },
+      },
     });
   });
   describe("extracting existed state", () => {
     test("merge states", () => {
       const mockState = MockState({
         someKey: {
-          data: {}
-        },
-        auth: {
-          someAuthKey: "randomString",
-          [GET_POOL_ALLOWED_ACTIONS]: {
-            allowedActions: {
-              pool1: ["p1", "p2"],
-              pool2: []
-            }
-          }
-        }
-      });
-      mockState.mockPoolPermissions(POOL_ID, ["manage_something"]);
-      expect(mockState.state).toEqual({
-        someKey: {
-          data: {}
+          data: {},
         },
         auth: {
           someAuthKey: "randomString",
@@ -45,10 +30,25 @@ describe("mockPoolPermissions method testing", () => {
             allowedActions: {
               pool1: ["p1", "p2"],
               pool2: [],
-              [POOL_ID]: ["manage_something"]
-            }
-          }
-        }
+            },
+          },
+        },
+      });
+      mockState.mockPoolPermissions(POOL_ID, ["manage_something"]);
+      expect(mockState.state).toEqual({
+        someKey: {
+          data: {},
+        },
+        auth: {
+          someAuthKey: "randomString",
+          [GET_POOL_ALLOWED_ACTIONS]: {
+            allowedActions: {
+              pool1: ["p1", "p2"],
+              pool2: [],
+              [POOL_ID]: ["manage_something"],
+            },
+          },
+        },
       });
     });
     test("extend permissions", () => {
@@ -56,20 +56,20 @@ describe("mockPoolPermissions method testing", () => {
         auth: {
           [GET_POOL_ALLOWED_ACTIONS]: {
             allowedActions: {
-              [POOL_ID]: ["existed_permission"]
-            }
-          }
-        }
+              [POOL_ID]: ["existed_permission"],
+            },
+          },
+        },
       });
       mockState.mockPoolPermissions(POOL_ID, ["manage_something"]);
       expect(mockState.state).toEqual({
         auth: {
           [GET_POOL_ALLOWED_ACTIONS]: {
             allowedActions: {
-              [POOL_ID]: ["existed_permission", "manage_something"]
-            }
-          }
-        }
+              [POOL_ID]: ["existed_permission", "manage_something"],
+            },
+          },
+        },
       });
     });
   });
@@ -80,7 +80,7 @@ describe("mockOrganizationPermissions method testing", () => {
     const mockState = MockState();
     mockState.mockOrganizationPermissions(ORGANIZATION_ID, ["manage_something"]);
     expect(mockState.state).toEqual({
-      organizationId: ORGANIZATION_ID
+      organizationId: ORGANIZATION_ID,
     });
   });
   describe("extracting existed state", () => {
@@ -88,39 +88,39 @@ describe("mockOrganizationPermissions method testing", () => {
       const mockState = MockState({
         organizationId: "existedOrganizationId",
         someKey: {
-          data: {}
+          data: {},
         },
         restapi: {
-          someRestApiKey: "randomString"
-        }
+          someRestApiKey: "randomString",
+        },
       });
       mockState.mockOrganizationPermissions(ORGANIZATION_ID, ["manage_something"]);
       expect(mockState.state).toEqual({
         organizationId: "existedOrganizationId",
         someKey: {
-          data: {}
+          data: {},
         },
         restapi: {
-          someRestApiKey: "randomString"
-        }
+          someRestApiKey: "randomString",
+        },
       });
     });
     test("organization is defined already", () => {
       const mockState = MockState({
-        organizationId: "existedOrganizationId"
+        organizationId: "existedOrganizationId",
       });
       mockState.mockOrganizationPermissions(ORGANIZATION_ID, ["manage_something"]);
       expect(mockState.state).toEqual({
-        organizationId: "existedOrganizationId"
+        organizationId: "existedOrganizationId",
       });
     });
     test("extend permissions", () => {
       const mockState = MockState({
-        organizationId: "existedOrganizationId"
+        organizationId: "existedOrganizationId",
       });
       mockState.mockOrganizationPermissions(ORGANIZATION_ID, ["manage_something"]);
       expect(mockState.state).toEqual({
-        organizationId: "existedOrganizationId"
+        organizationId: "existedOrganizationId",
       });
     });
   });

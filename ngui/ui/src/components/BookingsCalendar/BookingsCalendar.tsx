@@ -15,7 +15,7 @@ import ShowMore from "./components/ShowMore";
 import Toolbar from "./components/Toolbar";
 
 const locales = {
-  "en-US": enUsLocale
+  "en-US": enUsLocale,
 };
 
 const localizer = dateFnsLocalizer({
@@ -23,7 +23,7 @@ const localizer = dateFnsLocalizer({
   parse,
   startOfWeek,
   getDay,
-  locales
+  locales,
 });
 
 const getBookingEvents = (environments, eventProps) =>
@@ -41,7 +41,7 @@ const getBookingEvents = (environments, eventProps) =>
           end: bookedUntil === 0 ? new Date(MAX_UTC_DATE_TIMESTAMP) : new Date(secondsToMilliseconds(bookedUntil)),
           environment: environmentWithBookings,
           booking,
-          props: eventProps
+          props: eventProps,
         };
       });
     });
@@ -68,14 +68,14 @@ const BookingsCalendar = ({ environments, isLoadingProps = {}, eventProps = {} }
       onShowMore={(events) => setShowMoreEvents(events)}
       scrollToTime={new Date()}
       eventPropGetter={() => ({
-        className: classes.event
+        className: classes.event,
       })}
       messages={{
-        showMore: (count) => <ShowMore count={count} events={showMoreEvents} />
+        showMore: (count) => <ShowMore count={count} events={showMoreEvents} />,
       }}
       components={{
         event: Event,
-        toolbar: Toolbar
+        toolbar: Toolbar,
       }}
     />
   );

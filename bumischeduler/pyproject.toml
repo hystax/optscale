@@ -7,7 +7,7 @@ dependencies = [
     "kombu==5.5.4",
     "optscale-time",
     "restapi-client",
-    "tornado==6.5",
+    "tornado===6.5.5",
 ]
 
 [tool.uv.sources]

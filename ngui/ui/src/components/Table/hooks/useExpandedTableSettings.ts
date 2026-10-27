@@ -6,7 +6,7 @@ export const useExpandedTableSettings = ({ withExpanded, getSubRows, expanded, o
   if (withExpanded) {
     const defaultExpandedTableOptions = {
       getExpandedRowModel: getExpandedRowModel(),
-      getSubRows
+      getSubRows,
     };
 
     const isControlled = !!expanded && isObject(expanded) && typeof onExpandedChange === "function";
@@ -14,23 +14,23 @@ export const useExpandedTableSettings = ({ withExpanded, getSubRows, expanded, o
     if (isControlled) {
       return {
         state: {
-          expanded
+          expanded,
         },
         tableOptions: {
           ...defaultExpandedTableOptions,
-          onExpandedChange: handleChange(expanded, onExpandedChange)
-        }
+          onExpandedChange: handleChange(expanded, onExpandedChange),
+        },
       };
     }
 
     return {
       state: {},
-      tableOptions: defaultExpandedTableOptions
+      tableOptions: defaultExpandedTableOptions,
     };
   }
 
   return {
     state: {},
-    tableOptions: {}
+    tableOptions: {},
   };
 };

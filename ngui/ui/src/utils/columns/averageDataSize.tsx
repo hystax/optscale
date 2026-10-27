@@ -9,7 +9,7 @@ const averageDataSize = ({ headerDataTestId, accessorKey }) => ({
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: ({ cell }) => <FormattedDigitalUnit value={cell.getValue()} baseUnit={SI_UNITS.MEGABYTE} maximumFractionDigits={2} />
+  cell: ({ cell }) => <FormattedDigitalUnit value={cell.getValue()} baseUnit={SI_UNITS.MEGABYTE} maximumFractionDigits={2} />,
 });
 
 export default averageDataSize;

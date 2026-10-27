@@ -10,8 +10,8 @@ const useStyles = makeStyles<Params>()((theme, { columnsCount }) => ({
     justifyContent: "space-between",
     display: "grid",
     gridTemplateColumns: `repeat(${columnsCount}, auto)`,
-    gap: theme.spacing(SPACING_1)
-  }
+    gap: theme.spacing(SPACING_1),
+  },
 }));
 
 export default useStyles;

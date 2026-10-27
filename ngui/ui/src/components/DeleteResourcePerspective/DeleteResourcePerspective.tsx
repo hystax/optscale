@@ -4,10 +4,10 @@ const DeleteResourcePerspective = ({ perspectiveName, onDelete, onCancel, isLoad
   <DeleteEntity
     message={{
       messageId: "deletePerspectiveQuestion",
-      values: { perspectiveName, strong: (chunks) => <strong>{chunks}</strong> }
+      values: { perspectiveName, strong: (chunks) => <strong>{chunks}</strong> },
     }}
     deleteButtonProps={{
-      onDelete
+      onDelete,
     }}
     onCancel={onCancel}
     isLoading={isLoading}

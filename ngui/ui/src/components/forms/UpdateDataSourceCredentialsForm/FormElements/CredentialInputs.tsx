@@ -17,18 +17,19 @@ import {
   AwsRootCredentials,
   AwsBillingBucket,
   AwsExportType,
+  AwsRegionScope,
   AwsUseAwsEdpDiscount,
   GcpTenantCredentials,
   GCP_TENANT_CREDENTIALS_FIELD_NAMES,
   AwsAssumedRoleInputs,
-  AWS_ROLE_CREDENTIALS_FIELD_NAMES
+  AWS_ROLE_CREDENTIALS_FIELD_NAMES,
 } from "components/DataSourceCredentialFields";
 import { Switch } from "components/forms/common/fields";
 import {
   BillingReportBucketTitle,
   CloudName,
   ReportBucketName,
-  ReportBucketPathPrefix
+  ReportBucketPathPrefix,
 } from "components/NebiusConfigFormElements";
 import UpdateServiceAccountCredentialsDescription from "components/NebiusConfigFormElements/UpdateServiceAccountCredentialsDescription";
 import {
@@ -40,7 +41,7 @@ import {
   GCP_CNR,
   DATABRICKS,
   KUBERNETES_CNR,
-  GCP_TENANT
+  GCP_TENANT,
 } from "utils/constants";
 
 export const AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS = "updateDataExportParameters";
@@ -73,21 +74,36 @@ const CostAndUsageReport = () => {
 const CredentialInputs = ({ type, config }) => {
   const getAwsInputs = (config) => {
     if (config.assume_role_account_id && config.assume_role_name) {
+      // Legacy assumed-role data sources were connected before the external ID existed, so they
+      // never have one set. Hide the field entirely in that case rather than showing an empty,
+      // read-only, required input the user could never satisfy.
+      const isLegacyWithoutExternalId = !config.assume_role_external_id;
+
       return (
         <AwsAssumedRoleInputs
-          readOnlyFields={[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID]}
+          readOnlyFields={[
+            AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID,
+            AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_EXTERNAL_ID,
+          ]}
+          hiddenFields={isLegacyWithoutExternalId ? [AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_EXTERNAL_ID] : []}
           showAdvancedOptions={!config.linked}
         />
       );
     }
 
     if (config.linked) {
-      return <AwsLinkedCredentials />;
+      return (
+        <>
+          <AwsLinkedCredentials />
+          <AwsRegionScope />
+        </>
+      );
     }
 
     return (
       <>
         <AwsRootCredentials />
+        <AwsRegionScope />
         <AwsUseAwsEdpDiscount />
         <CostAndUsageReport />
       </>
@@ -118,7 +134,7 @@ const CredentialInputs = ({ type, config }) => {
           hidden={[
             GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET,
             GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE,
-            GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_PROJECT_ID
+            GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_PROJECT_ID,
           ]}
         />
       );
@@ -127,7 +143,7 @@ const CredentialInputs = ({ type, config }) => {
         <GcpTenantCredentials
           hidden={[
             GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET,
-            GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE
+            GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE,
           ]}
         />
       );

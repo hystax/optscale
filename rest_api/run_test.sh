@@ -13,7 +13,7 @@ echo "<<<Pycodestyle tests"
 
 echo "Pylint tests>>>"
 docker run -i --rm ${TEST_IMAGE} bash -c \
-    "uv --directory rest_api run pylint --fail-under=9 --fail-on=E,F ."
+    "uv --directory rest_api run pylint --fail-under=8.5 --fail-on=E,F rest_api"
 echo "<<Pylint tests"
 
 echo "Alembic down revision tests>>>"

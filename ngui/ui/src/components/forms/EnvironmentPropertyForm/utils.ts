@@ -3,11 +3,11 @@ import { FormValues } from "./types";
 
 export const getDefaultValues = ({
   propertyName,
-  propertyValue
+  propertyValue,
 }: {
   propertyName: string;
   propertyValue: string;
 }): FormValues => ({
   [FIELD_NAMES.PROPERTY_NAME]: propertyName,
-  [FIELD_NAMES.PROPERTY_VALUE]: propertyValue
+  [FIELD_NAMES.PROPERTY_VALUE]: propertyValue,
 });

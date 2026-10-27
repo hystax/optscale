@@ -17,26 +17,26 @@ const ResourceMetrics = ({ metrics, isLoading = false }) => {
   const memoryMetric = useMetric(METRIC_TYPES.MEMORY, { memoryMetricData: metrics.ram });
   const diskOperationsMetric = useMetric(METRIC_TYPES.DISK_IO, {
     readMetricData: metrics.disk_read_io,
-    writeMetricData: metrics.disk_write_io
+    writeMetricData: metrics.disk_write_io,
   });
   const networkMetric = useMetric(METRIC_TYPES.NETWORK, {
     memoryInMetricData: metrics.network_in_io,
-    memoryOutMetricData: metrics.network_out_io
+    memoryOutMetricData: metrics.network_out_io,
   });
   const bytesSentMetric = useMetric(METRIC_TYPES.BYTES_SENT, {
-    bytesSentMetricData: metrics.bytes_sent
+    bytesSentMetricData: metrics.bytes_sent,
   });
   const packetsSentMetric = useMetric(METRIC_TYPES.PACKETS_SENT, {
-    packetsSentMetricData: metrics.packets_sent
+    packetsSentMetricData: metrics.packets_sent,
   });
   const diskIOUsageMetric = useMetric(METRIC_TYPES.DISK_IO_USAGE, {
-    diskIOUsageMetricData: metrics.disk_io_usage
+    diskIOUsageMetricData: metrics.disk_io_usage,
   });
   const consolidatedDiskIOMetric = useMetric(METRIC_TYPES.CONSOLIDATED_DISK_IO, {
-    consolidatedDiskIOMetricData: metrics.disk_io
+    consolidatedDiskIOMetricData: metrics.disk_io,
   });
   const requestsMetric = useMetric(METRIC_TYPES.REQUESTS, {
-    requestsMetricData: metrics.requests
+    requestsMetricData: metrics.requests,
   });
 
   return (
@@ -59,7 +59,7 @@ const ResourceMetrics = ({ metrics, isLoading = false }) => {
           packetsSentMetric,
           diskIOUsageMetric,
           consolidatedDiskIOMetric,
-          requestsMetric
+          requestsMetric,
         ]
           .filter((metric) => !isEmptyArray(metric.chartProps.lines))
           .map((metric) => (

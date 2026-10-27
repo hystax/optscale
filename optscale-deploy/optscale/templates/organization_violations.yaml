@@ -70,6 +70,10 @@ spec:
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
+            - "uv"
+            - "--project"
+            - "docker_images/organization_violations"
+            - "run"
             - "python3"
             - "docker_images/organization_violations/scheduler.py"
             env:

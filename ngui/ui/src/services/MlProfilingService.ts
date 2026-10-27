@@ -12,7 +12,7 @@ const useGetToken = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { token = "", md5_token: md5Token = "" }
+    apiData: { token = "", md5_token: md5Token = "" },
   } = useApiData(GET_PROFILING_TOKEN);
 
   const { isLoading, shouldInvoke } = useApiState(GET_PROFILING_TOKEN, { organizationId });

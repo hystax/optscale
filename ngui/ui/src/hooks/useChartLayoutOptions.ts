@@ -18,7 +18,7 @@ export const useChartLayoutOptions = ({
   axisLeft: axisLeftOption = {},
   axisRight: axisRightOption = null,
   minValue,
-  maxValue
+  maxValue,
 }) => {
   let axisLeft;
   let axisBottom;
@@ -32,7 +32,7 @@ export const useChartLayoutOptions = ({
 
   const font = {
     fontSize: chartTheme.axis.ticks.text.fontSize,
-    fontFamily: chartTheme.axis.ticks.text.fontFamily
+    fontFamily: chartTheme.axis.ticks.text.fontFamily,
   };
 
   if (layout === "vertical") {
@@ -44,7 +44,7 @@ export const useChartLayoutOptions = ({
             tickSize: 0,
             tickPadding: 5,
             ...axisLeftOption,
-            format: axisLeftOption.format ?? formatValueAxis
+            format: axisLeftOption.format ?? formatValueAxis,
           };
 
     axisRight =
@@ -54,7 +54,7 @@ export const useChartLayoutOptions = ({
             tickSize: 0,
             tickPadding: 5,
             ...axisRightOption,
-            format: axisRightOption.format ?? formatValueAxis
+            format: axisRightOption.format ?? formatValueAxis,
           };
 
     axisBottom =
@@ -73,8 +73,8 @@ export const useChartLayoutOptions = ({
                 format: axisBottomOption.format,
                 padding,
                 font,
-                innerWidth
-              })
+                innerWidth,
+              }),
           };
 
     enableGridX = enableGridYOption ?? false;
@@ -90,7 +90,7 @@ export const useChartLayoutOptions = ({
         : {
             tickSize: 0,
             tickPadding: 5,
-            ...axisLeftOption
+            ...axisLeftOption,
           };
 
     axisRight =
@@ -99,7 +99,7 @@ export const useChartLayoutOptions = ({
         : {
             tickSize: 0,
             tickPadding: 5,
-            ...axisRightOption
+            ...axisRightOption,
           };
 
     axisBottom =
@@ -116,8 +116,8 @@ export const useChartLayoutOptions = ({
                 tickValues: axisBottomOption.tickValues ?? valueTickValues,
                 format: axisBottomOption.format ?? formatValueAxis,
                 font,
-                innerWidth
-              })
+                innerWidth,
+              }),
           };
 
     enableGridX = enableGridYOption ?? true;
@@ -133,6 +133,6 @@ export const useChartLayoutOptions = ({
     axisBottom,
     enableGridX,
     enableGridY,
-    gridXValues
+    gridXValues,
   };
 };

@@ -193,43 +193,42 @@ class BaseController(object):
         return self.session.query(Type).filter(
             Type.deleted.is_(False)).all()
 
-    def render(self, action_resources, action_set, hierarchy):
-        types = self.get_types()
-        ordered_types = [x.name for x in sorted(types, key=lambda x: x.id)]
-        # map of any hierarchy id <> related hierarchy part
-        id_item_hierarchy_map = {}
-        for i, type_ in enumerate(ordered_types):
-            # todo: create common approach without hardcode
-            # in root case id will be "null"
-            if i == 0:
-                id_item_hierarchy_map[None] = hierarchy[type_]['null']
-            elif i == len(ordered_types) - 1:
-                # last type doesn't have children
-                continue
-            else:
-                for _id in id_item_hierarchy_map.copy():
-                    if type_ in id_item_hierarchy_map[_id]:
-                        id_item_hierarchy_map.update(
-                            id_item_hierarchy_map[_id][type_])
+    def render(self, action_resources, aset, hierarchy):
+        def render_item(node, action, collect=False):
+            if isinstance(node, dict):
+                for entity_type, entities in node.items():
+                    if isinstance(entities, dict):
+                        for entity_id, children in entities.items():
+                            start_collect = collect or entity_id == target_id
+                            if start_collect:
+                                aset.add((entity_id, entity_type, action))
+                            render_item(children, action, start_collect)
+                    elif isinstance(entities, list):
+                        for entity_id in entities:
+                            aset.add((entity_id, entity_type, action))
 
-        def render_item(res_id, res_type, action):
-            if res_type == ordered_types[-1]:
-                return
-            down_hierarchy = id_item_hierarchy_map.get(res_id, {})
-            next_type = ordered_types[ordered_types.index(res_type) + 1]
-            for child_id in down_hierarchy.get(next_type, []):
-                action_set.add((child_id, next_type, action))
-                render_item(child_id, next_type, action)
-
-        for res_id, res_type, action in action_resources:
-            render_item(res_id, res_type, action)
+        for target_id, target_type, action in action_resources:
+            render_item(hierarchy, action)
 
     def format_user_action_resources(self, action_resources, action_list):
-        response = self.get_downward_hierarchy('root', None)
-        aset = OrderedSet(action_resources)
+        resource_set = set()
+        aset = OrderedSet()
+        for id_, res_type, _ in action_resources:
+            resource_set.add((id_, res_type))
 
-        self.render(action_resources, aset, response)
-
+        ordered_set = sorted(resource_set, key=self.get_type_sorter())
+        for id_, res_type in ordered_set:
+            if id_ in [x[0] for x in aset]:
+                # downward hierarchy was derived from a higher entity
+                continue
+            try:
+                response = self.get_downward_hierarchy(res_type, id_)
+            except requests.exceptions.HTTPError as exc:
+                if exc.response.status_code == 404:
+                    # resource is deleted
+                    continue
+                raise
+            self.render(action_resources, aset, response)
         result = dict(map(lambda k: (k, list()), action_list))
         for i in aset:
             res_id, res_type, action = i

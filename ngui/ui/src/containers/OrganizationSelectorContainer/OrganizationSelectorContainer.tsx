@@ -6,7 +6,7 @@ import { HOME } from "urls";
 
 const OrganizationSelectorContainer = ({ isLoading = false }) => {
   const { data: { organizations = [] } = {} } = useOrganizationsQuery({
-    fetchPolicy: "cache-only"
+    fetchPolicy: "cache-only",
   });
 
   const { organizationId } = useOrganizationInfo();
@@ -16,7 +16,7 @@ const OrganizationSelectorContainer = ({ isLoading = false }) => {
   const handleScopeChange = (scopeId: string) => {
     updateScope({
       newScopeId: scopeId,
-      redirectTo: HOME
+      redirectTo: HOME,
     });
   };
 

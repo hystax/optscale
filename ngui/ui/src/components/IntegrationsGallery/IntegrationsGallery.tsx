@@ -16,48 +16,48 @@ import useStyles from "./IntegrationsGallery.styles";
 const integrationsLogos = [
   {
     src: slack,
-    altMessageId: "slack"
+    altMessageId: "slack",
   },
   {
     src: jenkins,
-    altMessageId: "jenkins"
+    altMessageId: "jenkins",
   },
   {
     src: jira,
-    altMessageId: "jira"
+    altMessageId: "jira",
   },
   {
     src: gitlab,
-    altMessageId: "gitLab"
+    altMessageId: "gitLab",
   },
   {
     src: github,
-    altMessageId: "gitHub"
+    altMessageId: "gitHub",
   },
   {
     src: terraform,
-    altMessageId: "terraform"
+    altMessageId: "terraform",
   },
   {
     src: dataBricks,
-    altMessageId: "databricks"
+    altMessageId: "databricks",
   },
   {
     src: pytorch,
-    altMessageId: "pytorch"
+    altMessageId: "pytorch",
   },
   {
     src: kubeflow,
-    altMessageId: "kubeflow"
+    altMessageId: "kubeflow",
   },
   {
     src: spark,
-    altMessageId: "spark"
+    altMessageId: "spark",
   },
   {
     src: tensorflow,
-    altMessageId: "tensorflow"
-  }
+    altMessageId: "tensorflow",
+  },
 ];
 
 const IntegrationsGallery = () => {

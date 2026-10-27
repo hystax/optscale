@@ -8,7 +8,7 @@ import {
   AlibabaCredentials,
   DatabricksCredentials,
   KubernetesCredentials,
-  NebiusCredentials
+  NebiusCredentials,
 } from "components/DataSourceCredentialFields";
 import {
   BillingReportBucketDescription,
@@ -16,7 +16,7 @@ import {
   CloudName,
   ReportBucketName,
   ReportBucketPathPrefix,
-  ServiceAccountCredentialsDescription
+  ServiceAccountCredentialsDescription,
 } from "components/NebiusConfigFormElements";
 import { CONNECTION_TYPES } from "utils/constants";
 import { ObjectValues } from "utils/types";
@@ -44,7 +44,7 @@ const renderAwsInputs = (connectionType: ConnectionType, authenticationType: Aut
   const showAdvancedOptions = connectionType !== CONNECTION_TYPES.AWS_MEMBER;
 
   return authenticationType === AUTHENTICATION_TYPES.ASSUMED_ROLE ? (
-    <AwsAssumedRoleInputs showAssumedRoleCredentialsInModal showAdvancedOptions={showAdvancedOptions} />
+    <AwsAssumedRoleInputs showAssumedRoleCredentialsInModal showAdvancedOptions={showAdvancedOptions} showExternalIdToggle />
   ) : (
     <AwsConnectionAccessKeyInputs showAdvancesOptions={showAdvancedOptions} />
   );
@@ -52,7 +52,7 @@ const renderAwsInputs = (connectionType: ConnectionType, authenticationType: Aut
 
 const ConnectionInputs = ({
   connectionType,
-  authenticationType
+  authenticationType,
 }: {
   connectionType: ConnectionType;
   authenticationType: AuthenticationType | null;

@@ -18,7 +18,7 @@ const Expander = ({ row }) => {
     <IconButton
       className={cx(classes.expand, {
         [classes.expandOpen]: isExpanded, // todo: figure out how we can save previous state of expander to apply animations (each expander click changes rows completely)
-        [classes.visibilityHidden]: !row.getCanExpand()
+        [classes.visibilityHidden]: !row.getCanExpand(),
       })}
       onClick={(e) => {
         row.getToggleExpandedHandler()();

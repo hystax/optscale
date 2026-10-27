@@ -15,7 +15,7 @@ const Runs = ({ runs, isLoading = false }) => {
     return ML_RUNS_FILTERS_NAMES.reduce(
       (params, queryKey) => ({
         ...params,
-        [queryKey]: queryParams[queryKey]
+        [queryKey]: queryParams[queryKey],
       }),
       {}
     );
@@ -27,21 +27,21 @@ const Runs = ({ runs, isLoading = false }) => {
         runs.map(({ status }) => [
           status,
           {
-            name: status
-          }
+            name: status,
+          },
         ])
-      ).values()
+      ).values(),
     ],
     [GOALS_BE_FILTER]: [
       {
         name: GOAL_STATUS.MET,
-        value: true
+        value: true,
       },
       {
         name: GOAL_STATUS.NOT_MET,
-        value: false
-      }
-    ]
+        value: false,
+      },
+    ],
   };
 
   useEffect(() => {

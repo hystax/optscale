@@ -45,3 +45,7 @@ spec:
           value: {{ .Values.etcd.service.externalPort | quote }}
         - name: FAKE_CAD_ENABLED
           value: {{ .Values.fake_cad_enabled | quote }}
+        - name: OTEL_SERVICE_NAME
+          value: {{ $config.name }}
+        - name: OTEL_SERVICE_VERSION
+          value: {{ $config.image.tag }}

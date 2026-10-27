@@ -17,7 +17,7 @@ const ArchivedRecommendationsContainer = () => {
 
   const [dateRange, setDateRange] = useState({
     startDate: startDateTimestamp,
-    endDate: endDateTimestamp
+    endDate: endDateTimestamp,
   });
 
   const [breakdownDateRange, setBreakdownDateRange] = useState(dateRange);
@@ -31,7 +31,7 @@ const ArchivedRecommendationsContainer = () => {
 
   const {
     isLoading,
-    data: { breakdown: archivedRecommendationsBreakdown = [] }
+    data: { breakdown: archivedRecommendationsBreakdown = [] },
   } = useGetArchivedOptimizationsBreakdown(breakdownDateRange);
 
   const { isLoading: isDownloading, onDownload } = useDownloadArchivedOptimizations();
@@ -39,11 +39,11 @@ const ArchivedRecommendationsContainer = () => {
   const onTimeRangeChange = ({ startDate, endDate }) => {
     setDateRange({
       startDate,
-      endDate
+      endDate,
     });
     setBreakdownDateRange({
       startDate,
-      endDate
+      endDate,
     });
   };
 

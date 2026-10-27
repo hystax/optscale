@@ -6,7 +6,7 @@ const dataSource = ({
   accessorKey = "cloud_account_name",
   dataSourceNameAccessor = "cloud_account_name",
   dataSourceIdAccessor = "cloud_account_id",
-  dataSourceTypeAccessor = "cloud_account_type"
+  dataSourceTypeAccessor = "cloud_account_type",
 } = {}) => ({
   header: (
     <TextWithDataTestId dataTestId="lbl_data_source">
@@ -16,10 +16,10 @@ const dataSource = ({
   accessorKey,
   cell: ({
     row: {
-      original: { [dataSourceIdAccessor]: id, [dataSourceNameAccessor]: name, [dataSourceTypeAccessor]: type }
-    }
+      original: { [dataSourceIdAccessor]: id, [dataSourceNameAccessor]: name, [dataSourceTypeAccessor]: type },
+    },
   }) => <CloudLabel id={id} name={name} type={type} />,
-  footer: () => <FormattedMessage id="total" />
+  footer: () => <FormattedMessage id="total" />,
 });
 
 export default dataSource;

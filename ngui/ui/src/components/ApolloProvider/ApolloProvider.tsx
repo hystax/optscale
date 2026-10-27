@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ApolloClient, ApolloProvider, InMemoryCache, split, HttpLink, from } from "@apollo/client";
 import { onError, type ErrorResponse } from "@apollo/client/link/error";
 import { RetryLink } from "@apollo/client/link/retry";
@@ -10,10 +11,14 @@ import { useSignOut } from "hooks/useSignOut";
 import { processGraphQLErrorData } from "utils/apollo";
 import { getEnvironmentVariable } from "utils/env";
 
+type ApolloClientProviderProps = {
+  children: ReactNode;
+};
+
 const httpBase = getEnvironmentVariable("VITE_APOLLO_HTTP_BASE");
 const wsBase = getEnvironmentVariable("VITE_APOLLO_WS_BASE");
 
-const ApolloClientProvider = ({ children }) => {
+const ApolloClientProvider = ({ children }: ApolloClientProviderProps) => {
   const { token } = useGetToken();
 
   const signOut = useSignOut();
@@ -21,21 +26,21 @@ const ApolloClientProvider = ({ children }) => {
   const cache = new InMemoryCache();
 
   const httpLink = new HttpLink({
-    uri: `${httpBase}/api`,
+    uri: (operation) => `${httpBase}/api?op=${operation.operationName}`,
     headers: {
-      "x-optscale-token": token
-    }
+      "x-optscale-token": token,
+    },
   });
 
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: `${wsBase}/subscriptions`
+      url: `${wsBase}/subscriptions`,
     })
   );
 
   const retryLink = new RetryLink({
     attempts: { max: 3 },
-    delay: { initial: 300, max: 2000, jitter: true }
+    delay: { initial: 300, max: 2000, jitter: true },
   });
 
   const errorLink = onError(({ graphQLErrors, networkError, operation }: ErrorResponse) => {
@@ -82,7 +87,7 @@ const ApolloClientProvider = ({ children }) => {
 
   const client = new ApolloClient({
     cache,
-    link
+    link,
   });
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;

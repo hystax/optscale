@@ -2,6 +2,7 @@ import json
 
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_telemetry import get_trace_headers
 
 from auth.auth_server.controllers.user import UserAsyncController
 from auth.auth_server.handlers.v1 import tokens as tokens_v1
@@ -12,7 +13,8 @@ from auth.auth_server.utils import run_task, ModelEncoder
 class TokenAsyncCollectionHandler(tokens_v1.TokenAsyncCollectionHandler,
                                   BaseSecretHandler):
     def prepare(self):
-        pass
+        for name, value in get_trace_headers().items():
+            self.set_header(name, value)
 
     async def post(self, **url_params):
         """

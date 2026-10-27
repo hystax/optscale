@@ -3,5 +3,5 @@ export const FIELD_NAMES = Object.freeze({
   DESCRIPTION: "description",
   KEY: "key",
   OWNER: "owner_id",
-  METRICS: "metrics"
+  METRICS: "metrics",
 });

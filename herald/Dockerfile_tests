@@ -12,4 +12,5 @@ COPY optscale_client/herald_client optscale_client/herald_client
 RUN uv --project herald sync --locked
 
 COPY herald/herald_server/tests herald/herald_server/tests
+COPY herald/modules/__init__.py herald/modules/__init__.py
 COPY herald/modules/tests herald/modules/tests

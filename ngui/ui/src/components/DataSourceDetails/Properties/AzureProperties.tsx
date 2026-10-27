@@ -25,7 +25,7 @@ const AzureProperties = ({ config, createdAt, parentId }: AzurePropertiesProps) 
     subscription_id: subscriptionId,
     export_name: exportName,
     container,
-    directory
+    directory,
   } = config;
 
   return (
@@ -35,7 +35,7 @@ const AzureProperties = ({ config, createdAt, parentId }: AzurePropertiesProps) 
         value={createdAt}
         dataTestIds={{
           key: `p_connected_at_id`,
-          value: `p_connected_at_value`
+          value: `p_connected_at_value`,
         }}
       />
       {parentId && <ParentDataSource parentDataSourceId={parentId} />}
@@ -45,7 +45,7 @@ const AzureProperties = ({ config, createdAt, parentId }: AzurePropertiesProps) 
           value={subscriptionId}
           dataTestIds={{
             key: `p_${AZURE_CNR}_id`,
-            value: `p_${AZURE_CNR}_value`
+            value: `p_${AZURE_CNR}_value`,
           }}
         />
       )}

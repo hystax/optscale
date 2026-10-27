@@ -42,7 +42,7 @@ const useGetArchivedOptimizationsBreakdown = (params) => {
 
   return {
     isLoading,
-    data
+    data,
   };
 };
 
@@ -54,9 +54,9 @@ const useDownloadArchivedOptimizations = () => {
     fetchAndDownload({
       url: `${getApiUrl(RESTAPI)}/organizations/${organizationId}/archived_recommendations_details?${stringifySearchParams({
         start_date: params.startDate,
-        end_date: params.endDate
+        end_date: params.endDate,
       })}`,
-      fallbackFilename: `recommendations_archive_${formatUTC(params.startDate)}__${formatUTC(params.endDate)}.${DOWNLOAD_FILE_FORMATS.JSON}`
+      fallbackFilename: `recommendations_archive_${formatUTC(params.startDate)}__${formatUTC(params.endDate)}.${DOWNLOAD_FILE_FORMATS.JSON}`,
     });
 
   return { isLoading, onDownload };
@@ -66,7 +66,7 @@ function ArchivedRecommendationService() {
   return {
     useGetArchivedOptimizationsCount,
     useGetArchivedOptimizationsBreakdown,
-    useDownloadArchivedOptimizations
+    useDownloadArchivedOptimizations,
   };
 }
 

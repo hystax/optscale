@@ -12,7 +12,7 @@ import type {
   RecommendationsProps,
   RecommendationsContainerProps,
   MlRecommendationsContainerProps,
-  RecommendationDetailsProps
+  RecommendationDetailsProps,
 } from "./types";
 
 const QUERY_TAB_NAME = "recommendationDetailsTab";
@@ -61,7 +61,7 @@ const RecommendationDetails = ({
   limit,
   mlTaskId,
   dismissible = false,
-  withExclusions = false
+  withExclusions = false,
 }: RecommendationDetailsProps) => {
   useEffect(
     () => () => {
@@ -78,7 +78,7 @@ const RecommendationDetails = ({
         <MlRecommendationsContainer type={type} limit={limit} status={name} taskId={mlTaskId} />
       ) : (
         <RecommendationsContainer type={type} dataSourceIds={dataSourceIds} limit={limit} status={name} />
-      )
+      ),
     }));
 
   return (
@@ -94,7 +94,7 @@ const RecommendationDetails = ({
           queryTabName: QUERY_TAB_NAME,
           tabs,
           defaultTab: STATUS.ACTIVE,
-          name: "recommendations-data"
+          name: "recommendations-data",
         }}
       />
     </>

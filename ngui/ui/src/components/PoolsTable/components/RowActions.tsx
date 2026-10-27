@@ -13,8 +13,8 @@ import { SCOPE_TYPES } from "utils/constants";
 const RowActions = ({
   row: {
     original: { parent_id: parentId, id, name, unallocated_limit: unallocatedLimit },
-    subRows
-  }
+    subRows,
+  },
 }) => {
   const navigate = useNavigate();
   const openSideModal = useOpenSideModal();
@@ -41,7 +41,7 @@ const RowActions = ({
         openSideModal(AddPoolModal, { parentId: id, parentPoolName: name, unallocatedLimit });
       },
       requiredActions: ["MANAGE_POOLS"],
-      dataTestId: "btn_add"
+      dataTestId: "btn_add",
     },
     {
       key: "seeResourceList",
@@ -51,7 +51,7 @@ const RowActions = ({
         e.stopPropagation();
         navigate(getThisMonthResourcesByPoolUrl(id));
       },
-      dataTestId: "btn_see_rl"
+      dataTestId: "btn_see_rl",
     },
     {
       key: "seeInCostExplorer",
@@ -61,7 +61,7 @@ const RowActions = ({
         e.stopPropagation();
         navigate(getThisMonthPoolExpensesUrl(id));
       },
-      dataTestId: `btn_see_in_ce_${id}`
+      dataTestId: `btn_see_in_ce_${id}`,
     },
     {
       key: "delete",
@@ -74,8 +74,8 @@ const RowActions = ({
         openSideModal(DeletePoolModal, { poolId: id });
       },
       dataTestId: `btn_delete_${id}`,
-      requiredActions: ["MANAGE_POOLS"]
-    }
+      requiredActions: ["MANAGE_POOLS"],
+    },
   ];
 
   return <TableCellActions entityType={SCOPE_TYPES.POOL} entityId={id} items={tableActions} />;

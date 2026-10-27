@@ -20,14 +20,14 @@ export const getDefaultValues = (biExport = {}): FormValues => {
           [FIELD_NAMES.AWS_STORAGE.AWS_ACCESS_KEY_ID_FIELD_NAME]: accessKeyId,
           [FIELD_NAMES.AWS_STORAGE.AWS_SECRET_ACCESS_KEY_FIELD_NAME]: "",
           [FIELD_NAMES.AWS_STORAGE.BUCKET_NAME_FIELD_NAME]: bucket,
-          [FIELD_NAMES.AWS_STORAGE.S3_PATH_FIELD_NAME]: s3Prefix
+          [FIELD_NAMES.AWS_STORAGE.S3_PATH_FIELD_NAME]: s3Prefix,
         }
       : {}),
     ...(type === BI_EXPORT_STORAGE_TYPE.AZURE_RAW_EXPORT
       ? {
           [FIELD_NAMES.AZURE_STORAGE.CONNECTION_STRING_FIELD_NAME]: "",
-          [FIELD_NAMES.AZURE_STORAGE.CONTAINER_FIELD_NAME]: container
+          [FIELD_NAMES.AZURE_STORAGE.CONTAINER_FIELD_NAME]: container,
         }
-      : {})
+      : {}),
   };
 };

@@ -12,7 +12,7 @@ const RegionExpensesMocked = () => (
           previous_total: 0,
           longitude: 113.987274,
           latitude: 22.3526629,
-          type: "alibaba_cnr"
+          type: "alibaba_cnr",
         },
         {
           name: "Singapore",
@@ -21,7 +21,7 @@ const RegionExpensesMocked = () => (
           previous_total: 0,
           longitude: 103.7038234,
           latitude: 1.3139961,
-          type: "alibaba_cnr"
+          type: "alibaba_cnr",
         },
         {
           name: "Indonesia (Jakarta)",
@@ -30,7 +30,7 @@ const RegionExpensesMocked = () => (
           previous_total: 0,
           longitude: 106.7593066,
           latitude: -6.2297419,
-          type: "alibaba_cnr"
+          type: "alibaba_cnr",
         },
         {
           name: "UAE (Dubai)",
@@ -39,7 +39,7 @@ const RegionExpensesMocked = () => (
           previous_total: 0,
           longitude: 55.087321,
           latitude: 25.0759564,
-          type: "alibaba_cnr"
+          type: "alibaba_cnr",
         },
         {
           name: "Germany (Frankfurt)",
@@ -48,7 +48,7 @@ const RegionExpensesMocked = () => (
           previous_total: 0,
           longitude: 8.5663531,
           latitude: 50.1211908,
-          type: "alibaba_cnr"
+          type: "alibaba_cnr",
         },
         {
           type: "azure_cnr",
@@ -57,7 +57,7 @@ const RegionExpensesMocked = () => (
           id: "koreasouth",
           longitude: 129.0756,
           total: 0,
-          name: "Korea South"
+          name: "Korea South",
         },
         {
           type: "azure_cnr",
@@ -66,7 +66,7 @@ const RegionExpensesMocked = () => (
           id: "germanywestcentral",
           longitude: 8.682127,
           total: 14.749990683655554,
-          name: "Germany West Central"
+          name: "Germany West Central",
         },
         {
           type: "azure_cnr",
@@ -75,7 +75,7 @@ const RegionExpensesMocked = () => (
           id: "westus2",
           longitude: -119.852,
           total: 0,
-          name: "West US 2"
+          name: "West US 2",
         },
         {
           type: "azure_cnr",
@@ -84,7 +84,7 @@ const RegionExpensesMocked = () => (
           id: "westcentralus",
           longitude: -110.234,
           total: 0.000374184,
-          name: "West Central US"
+          name: "West Central US",
         },
         {
           type: "azure_cnr",
@@ -93,7 +93,7 @@ const RegionExpensesMocked = () => (
           id: "australiacentral",
           longitude: 149.1244,
           total: 0,
-          name: "Australia Central"
+          name: "Australia Central",
         },
         {
           type: "azure_cnr",
@@ -102,7 +102,7 @@ const RegionExpensesMocked = () => (
           id: "japaneast",
           longitude: 139.77,
           total: 0,
-          name: "Japan East"
+          name: "Japan East",
         },
         {
           type: "aws_cnr",
@@ -111,7 +111,7 @@ const RegionExpensesMocked = () => (
           id: "cn-north-1",
           longitude: 116.3857,
           total: 0,
-          name: "cn-north-1"
+          name: "cn-north-1",
         },
         {
           type: "aws_cnr",
@@ -120,7 +120,7 @@ const RegionExpensesMocked = () => (
           id: "ap-southeast-2",
           longitude: 151.2,
           total: 195.77215367999995,
-          name: "ap-southeast-2"
+          name: "ap-southeast-2",
         },
         {
           type: "azure_cnr",
@@ -129,7 +129,7 @@ const RegionExpensesMocked = () => (
           id: "westeurope",
           longitude: 4.9,
           total: 0,
-          name: "West Europe"
+          name: "West Europe",
         },
         {
           type: "azure_cnr",
@@ -138,7 +138,7 @@ const RegionExpensesMocked = () => (
           id: "canadaeast",
           longitude: -71.217,
           total: 0,
-          name: "Canada East"
+          name: "Canada East",
         },
         {
           type: "azure_cnr",
@@ -147,7 +147,7 @@ const RegionExpensesMocked = () => (
           id: "francecentral",
           longitude: 2.373,
           total: 0,
-          name: "France Central"
+          name: "France Central",
         },
         {
           type: "azure_cnr",
@@ -156,7 +156,7 @@ const RegionExpensesMocked = () => (
           id: "northeurope",
           longitude: -6.2597,
           total: 0,
-          name: "North Europe"
+          name: "North Europe",
         },
         {
           type: "azure_cnr",
@@ -165,7 +165,7 @@ const RegionExpensesMocked = () => (
           id: "eastasia",
           longitude: 114.188,
           total: 0,
-          name: "East Asia"
+          name: "East Asia",
         },
         {
           type: "aws_cnr",
@@ -174,7 +174,7 @@ const RegionExpensesMocked = () => (
           id: "ap-northeast-2",
           longitude: 126.99272,
           total: 1280.9649869892003,
-          name: "ap-northeast-2"
+          name: "ap-northeast-2",
         },
         {
           type: "aws_cnr",
@@ -183,7 +183,7 @@ const RegionExpensesMocked = () => (
           id: "us-gov-west-1",
           longitude: -97.09434,
           total: 0,
-          name: "us-gov-west-1"
+          name: "us-gov-west-1",
         },
         {
           type: "aws_cnr",
@@ -192,7 +192,7 @@ const RegionExpensesMocked = () => (
           id: "us-east-2",
           longitude: -83,
           total: 1504.055617722001,
-          name: "us-east-2"
+          name: "us-east-2",
         },
         {
           type: "azure_cnr",
@@ -201,7 +201,7 @@ const RegionExpensesMocked = () => (
           id: "norwayeast",
           longitude: 10.752245,
           total: 0,
-          name: "Norway East"
+          name: "Norway East",
         },
         {
           type: "aws_cnr",
@@ -210,7 +210,7 @@ const RegionExpensesMocked = () => (
           id: "ap-southeast-1",
           longitude: 103.851959,
           total: 629.0815152312,
-          name: "ap-southeast-1"
+          name: "ap-southeast-1",
         },
         {
           type: "azure_cnr",
@@ -219,7 +219,7 @@ const RegionExpensesMocked = () => (
           id: "chinanorth2",
           longitude: 116.383,
           total: 0,
-          name: "China North 2"
+          name: "China North 2",
         },
         {
           type: "azure_cnr",
@@ -228,7 +228,7 @@ const RegionExpensesMocked = () => (
           id: "uaenorth",
           longitude: 55.316666,
           total: 0,
-          name: "UAE North"
+          name: "UAE North",
         },
         {
           type: "azure_cnr",
@@ -237,7 +237,7 @@ const RegionExpensesMocked = () => (
           id: "southeastasia",
           longitude: 103.833,
           total: 0,
-          name: "Southeast Asia"
+          name: "Southeast Asia",
         },
         {
           type: "aws_cnr",
@@ -246,7 +246,7 @@ const RegionExpensesMocked = () => (
           id: "ap-east-1",
           longitude: 114.13624,
           total: 0,
-          name: "ap-east-1"
+          name: "ap-east-1",
         },
         {
           type: "azure_cnr",
@@ -255,7 +255,7 @@ const RegionExpensesMocked = () => (
           id: "usgovvirginia",
           longitude: -78.39411,
           total: 0,
-          name: "US Gov Virginia"
+          name: "US Gov Virginia",
         },
         {
           type: "aws_cnr",
@@ -264,7 +264,7 @@ const RegionExpensesMocked = () => (
           id: "eu-central-1",
           longitude: 8.65399,
           total: 58858.9825857804,
-          name: "eu-central-1"
+          name: "eu-central-1",
         },
         {
           type: "aws_cnr",
@@ -273,7 +273,7 @@ const RegionExpensesMocked = () => (
           id: "eu-west-3",
           longitude: 2.34293,
           total: 0,
-          name: "eu-west-3"
+          name: "eu-west-3",
         },
         {
           type: "azure_cnr",
@@ -282,7 +282,7 @@ const RegionExpensesMocked = () => (
           id: "francesouth",
           longitude: 2.1972,
           total: 0,
-          name: "France South"
+          name: "France South",
         },
         {
           type: "azure_cnr",
@@ -291,7 +291,7 @@ const RegionExpensesMocked = () => (
           id: "australiacentral2",
           longitude: 149.1244,
           total: 0,
-          name: "Australia Central 2"
+          name: "Australia Central 2",
         },
         {
           type: "azure_cnr",
@@ -300,7 +300,7 @@ const RegionExpensesMocked = () => (
           id: "koreacentral",
           longitude: 126.978,
           total: 0,
-          name: "Korea Central"
+          name: "Korea Central",
         },
         {
           type: "azure_cnr",
@@ -309,7 +309,7 @@ const RegionExpensesMocked = () => (
           id: "usgovarizona",
           longitude: -111.7046,
           total: 0,
-          name: "US Gov Arizona"
+          name: "US Gov Arizona",
         },
         {
           type: "aws_cnr",
@@ -318,7 +318,7 @@ const RegionExpensesMocked = () => (
           id: "ca-central-1",
           longitude: -73.6,
           total: 0,
-          name: "ca-central-1"
+          name: "ca-central-1",
         },
         {
           type: "aws_cnr",
@@ -327,7 +327,7 @@ const RegionExpensesMocked = () => (
           id: "eu-west-1",
           longitude: -6.266155,
           total: 1929.5802080757005,
-          name: "eu-west-1"
+          name: "eu-west-1",
         },
         {
           type: "aws_cnr",
@@ -336,7 +336,7 @@ const RegionExpensesMocked = () => (
           id: "me-south-1",
           longitude: 50.6377716,
           total: 0,
-          name: "me-south-1"
+          name: "me-south-1",
         },
         {
           type: "azure_cnr",
@@ -345,7 +345,7 @@ const RegionExpensesMocked = () => (
           id: "uaecentral",
           longitude: 54.366669,
           total: 0,
-          name: "UAE Central"
+          name: "UAE Central",
         },
         {
           type: "aws_cnr",
@@ -354,7 +354,7 @@ const RegionExpensesMocked = () => (
           id: "eu-west-2",
           longitude: -0.11362,
           total: 599.7906845478003,
-          name: "eu-west-2"
+          name: "eu-west-2",
         },
         {
           type: "azure_cnr",
@@ -363,7 +363,7 @@ const RegionExpensesMocked = () => (
           id: "chinaeast",
           longitude: 121.474,
           total: 0,
-          name: "China East"
+          name: "China East",
         },
         {
           type: "azure_cnr",
@@ -372,7 +372,7 @@ const RegionExpensesMocked = () => (
           id: "eastus2",
           longitude: -78.3889,
           total: 0,
-          name: "East US 2"
+          name: "East US 2",
         },
         {
           type: "aws_cnr",
@@ -381,7 +381,7 @@ const RegionExpensesMocked = () => (
           id: "ap-northeast-1",
           longitude: 139.42,
           total: 0,
-          name: "ap-northeast-1"
+          name: "ap-northeast-1",
         },
         {
           type: "azure_cnr",
@@ -390,7 +390,7 @@ const RegionExpensesMocked = () => (
           id: "brazilsouth",
           longitude: -46.633,
           total: 0,
-          name: "Brazil South"
+          name: "Brazil South",
         },
         {
           type: "aws_cnr",
@@ -399,7 +399,7 @@ const RegionExpensesMocked = () => (
           id: "ap-south-1",
           longitude: 72.8673,
           total: 0,
-          name: "ap-south-1"
+          name: "ap-south-1",
         },
         {
           type: "azure_cnr",
@@ -408,7 +408,7 @@ const RegionExpensesMocked = () => (
           id: "chinaeast2",
           longitude: 121.474,
           total: 0,
-          name: "China East 2"
+          name: "China East 2",
         },
         {
           type: "azure_cnr",
@@ -417,7 +417,7 @@ const RegionExpensesMocked = () => (
           id: "eastus",
           longitude: -79.8164,
           total: 0,
-          name: "East US"
+          name: "East US",
         },
         {
           type: "aws_cnr",
@@ -426,7 +426,7 @@ const RegionExpensesMocked = () => (
           id: "cn-northwest-1",
           longitude: 103.73,
           total: 0,
-          name: "cn-northwest-1"
+          name: "cn-northwest-1",
         },
         {
           type: "azure_cnr",
@@ -435,7 +435,7 @@ const RegionExpensesMocked = () => (
           id: "ukwest",
           longitude: -3.084,
           total: 0,
-          name: "UK West"
+          name: "UK West",
         },
         {
           type: "azure_cnr",
@@ -444,7 +444,7 @@ const RegionExpensesMocked = () => (
           id: "brazilsoutheast",
           longitude: -43.2075,
           total: 0,
-          name: "Brazil Southeast"
+          name: "Brazil Southeast",
         },
         {
           type: "azure_cnr",
@@ -453,7 +453,7 @@ const RegionExpensesMocked = () => (
           id: "westus",
           longitude: -122.417,
           total: 0,
-          name: "West US"
+          name: "West US",
         },
         {
           type: "azure_cnr",
@@ -462,7 +462,7 @@ const RegionExpensesMocked = () => (
           id: "usgovtexas",
           longitude: -99.208076,
           total: 0,
-          name: "US Gov Texas"
+          name: "US Gov Texas",
         },
         {
           type: "azure_cnr",
@@ -471,7 +471,7 @@ const RegionExpensesMocked = () => (
           id: "germanycentral",
           longitude: 8.6833,
           total: 0,
-          name: "Germany Central"
+          name: "Germany Central",
         },
         {
           type: "azure_cnr",
@@ -480,7 +480,7 @@ const RegionExpensesMocked = () => (
           id: "southcentralus",
           longitude: -98.5,
           total: 0,
-          name: "South Central US"
+          name: "South Central US",
         },
         {
           type: "azure_cnr",
@@ -489,7 +489,7 @@ const RegionExpensesMocked = () => (
           id: "australiasoutheast",
           longitude: 144.9631,
           total: 0,
-          name: "Australia Southeast"
+          name: "Australia Southeast",
         },
         {
           type: "azure_cnr",
@@ -498,7 +498,7 @@ const RegionExpensesMocked = () => (
           id: "norwaywest",
           longitude: 5.733107,
           total: 0,
-          name: "Norway West"
+          name: "Norway West",
         },
         {
           type: "azure_cnr",
@@ -507,7 +507,7 @@ const RegionExpensesMocked = () => (
           id: "australiaeast",
           longitude: 151.2094,
           total: 0,
-          name: "Australia East"
+          name: "Australia East",
         },
         {
           type: "azure_cnr",
@@ -516,7 +516,7 @@ const RegionExpensesMocked = () => (
           id: "usdodcentral",
           longitude: -92.561731,
           total: 0,
-          name: "US DoD Central"
+          name: "US DoD Central",
         },
         {
           type: "azure_cnr",
@@ -525,7 +525,7 @@ const RegionExpensesMocked = () => (
           id: "germanynortheast",
           longitude: 11.616,
           total: 0,
-          name: "Germany Northeast"
+          name: "Germany Northeast",
         },
         {
           type: "azure_cnr",
@@ -534,7 +534,7 @@ const RegionExpensesMocked = () => (
           id: "canadacentral",
           longitude: -79.383,
           total: 0,
-          name: "Canada Central"
+          name: "Canada Central",
         },
         {
           type: "aws_cnr",
@@ -543,7 +543,7 @@ const RegionExpensesMocked = () => (
           id: "us-west-2",
           longitude: -123.88,
           total: 125.1266180184,
-          name: "us-west-2"
+          name: "us-west-2",
         },
         {
           type: "aws_cnr",
@@ -552,7 +552,7 @@ const RegionExpensesMocked = () => (
           id: "sa-east-1",
           longitude: -46.8754,
           total: 241.25487509700002,
-          name: "sa-east-1"
+          name: "sa-east-1",
         },
         {
           type: "aws_cnr",
@@ -561,7 +561,7 @@ const RegionExpensesMocked = () => (
           id: "ap-northeast-3",
           longitude: 135.50674,
           total: 0,
-          name: "ap-northeast-3"
+          name: "ap-northeast-3",
         },
         {
           type: "azure_cnr",
@@ -570,7 +570,7 @@ const RegionExpensesMocked = () => (
           id: "usdodeast",
           longitude: -77.84588,
           total: 0,
-          name: "US DoD East"
+          name: "US DoD East",
         },
         {
           type: "aws_cnr",
@@ -579,7 +579,7 @@ const RegionExpensesMocked = () => (
           id: "af-south-1",
           longitude: 18.417396,
           total: 0,
-          name: "af-south-1"
+          name: "af-south-1",
         },
         {
           type: "azure_cnr",
@@ -588,7 +588,7 @@ const RegionExpensesMocked = () => (
           id: "northcentralus",
           longitude: -87.6278,
           total: 0,
-          name: "North Central US"
+          name: "North Central US",
         },
         {
           type: "azure_cnr",
@@ -597,7 +597,7 @@ const RegionExpensesMocked = () => (
           id: "southafricawest",
           longitude: 18.843266,
           total: 0,
-          name: "South Africa West"
+          name: "South Africa West",
         },
         {
           type: "azure_cnr",
@@ -606,7 +606,7 @@ const RegionExpensesMocked = () => (
           id: "germanynorth",
           longitude: 8.806422,
           total: 0,
-          name: "Germany North"
+          name: "Germany North",
         },
         {
           type: "azure_cnr",
@@ -615,7 +615,7 @@ const RegionExpensesMocked = () => (
           id: "switzerlandwest",
           longitude: 6.143158,
           total: 0,
-          name: "Switzerland West"
+          name: "Switzerland West",
         },
         {
           type: "aws_cnr",
@@ -624,7 +624,7 @@ const RegionExpensesMocked = () => (
           id: "us-west-1",
           longitude: -121.96,
           total: 1879.1553467852998,
-          name: "us-west-1"
+          name: "us-west-1",
         },
         {
           type: "azure_cnr",
@@ -633,7 +633,7 @@ const RegionExpensesMocked = () => (
           id: "uksouth",
           longitude: -0.799,
           total: 0,
-          name: "UK South"
+          name: "UK South",
         },
         {
           type: "azure_cnr",
@@ -642,7 +642,7 @@ const RegionExpensesMocked = () => (
           id: "centralus",
           longitude: -93.6208,
           total: 0,
-          name: "Central US"
+          name: "Central US",
         },
         {
           type: "azure_cnr",
@@ -651,7 +651,7 @@ const RegionExpensesMocked = () => (
           id: "southindia",
           longitude: 80.1636,
           total: 0,
-          name: "South India"
+          name: "South India",
         },
         {
           type: "azure_cnr",
@@ -660,7 +660,7 @@ const RegionExpensesMocked = () => (
           id: "westindia",
           longitude: 72.868,
           total: 0,
-          name: "West India"
+          name: "West India",
         },
         {
           type: "aws_cnr",
@@ -669,7 +669,7 @@ const RegionExpensesMocked = () => (
           id: "eu-north-1",
           longitude: 18.04856,
           total: 0,
-          name: "eu-north-1"
+          name: "eu-north-1",
         },
         {
           type: "azure_cnr",
@@ -678,7 +678,7 @@ const RegionExpensesMocked = () => (
           id: "switzerlandnorth",
           longitude: 8.564572,
           total: 0,
-          name: "Switzerland North"
+          name: "Switzerland North",
         },
         {
           type: "azure_cnr",
@@ -687,7 +687,7 @@ const RegionExpensesMocked = () => (
           id: "chinanorth",
           longitude: 116.383,
           total: 0,
-          name: "China North"
+          name: "China North",
         },
         {
           type: "azure_cnr",
@@ -696,7 +696,7 @@ const RegionExpensesMocked = () => (
           id: "southafricanorth",
           longitude: 28.21837,
           total: 0,
-          name: "South Africa North"
+          name: "South Africa North",
         },
         {
           type: "aws_cnr",
@@ -705,7 +705,7 @@ const RegionExpensesMocked = () => (
           id: "us-east-1",
           longitude: -78.45,
           total: 36136.0079320788,
-          name: "us-east-1"
+          name: "us-east-1",
         },
         {
           type: "aws_cnr",
@@ -714,7 +714,7 @@ const RegionExpensesMocked = () => (
           id: "eu-south-1",
           longitude: 9.1905,
           total: 41.293080234899996,
-          name: "eu-south-1"
+          name: "eu-south-1",
         },
         {
           type: "azure_cnr",
@@ -723,7 +723,7 @@ const RegionExpensesMocked = () => (
           id: "usseceast",
           longitude: -78.536422,
           total: 0,
-          name: "US Sec East"
+          name: "US Sec East",
         },
         {
           type: "azure_cnr",
@@ -732,7 +732,7 @@ const RegionExpensesMocked = () => (
           id: "ussecwest",
           longitude: -122.481734,
           total: 0,
-          name: "US Sec West"
+          name: "US Sec West",
         },
         {
           type: "azure_cnr",
@@ -741,7 +741,7 @@ const RegionExpensesMocked = () => (
           id: "centralindia",
           longitude: 73.9197,
           total: 0,
-          name: "Central India"
+          name: "Central India",
         },
         {
           type: "aws_cnr",
@@ -750,7 +750,7 @@ const RegionExpensesMocked = () => (
           id: "us-gov-east-1",
           longitude: -83.0235,
           total: 0,
-          name: "us-gov-east-1"
+          name: "us-gov-east-1",
         },
         {
           type: "azure_cnr",
@@ -759,12 +759,12 @@ const RegionExpensesMocked = () => (
           id: "japanwest",
           longitude: 135.5022,
           total: 0,
-          name: "Japan West"
-        }
+          name: "Japan West",
+        },
       ],
       total: 103639.415385108,
       previous_total: 83559.3877584106,
-      previous_range_start: 1596326400
+      previous_range_start: 1596326400,
     }}
     applyFilter={() => console.log("apply")}
     startDateTimestamp={getStartOfTodayInUTCinSeconds()}

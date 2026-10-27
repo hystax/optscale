@@ -15,7 +15,7 @@ const powerScheduleInstance = ({
   powerScheduleAccessor,
   activeAccessor,
   headerDataTestId,
-  titleMessageId
+  titleMessageId,
 }) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -30,7 +30,7 @@ const powerScheduleInstance = ({
       caption={[
         {
           key: "name",
-          node: original[nameAccessor]
+          node: original[nameAccessor],
         },
         ...(activeAccessor && original[activeAccessor]
           ? [
@@ -46,23 +46,23 @@ const powerScheduleInstance = ({
                       </Typography>
                     }
                   />
-                )
-              }
+                ),
+              },
             ]
           : []),
         ...(powerScheduleAccessor && original[powerScheduleAccessor]
           ? [
               {
                 key: "powerSchedule",
-                node: <OnScheduleLabel powerScheduleId={original[powerScheduleAccessor]} />
-              }
+                node: <OnScheduleLabel powerScheduleId={original[powerScheduleAccessor]} />,
+              },
             ]
-          : [])
+          : []),
       ]}
     >
       <ResourceLabel resourceId={original[idAccessor]} cloudResourceIdentifier={getCloudResourceIdentifier(original)} />
     </CaptionedCell>
-  )
+  ),
 });
 
 export default powerScheduleInstance;

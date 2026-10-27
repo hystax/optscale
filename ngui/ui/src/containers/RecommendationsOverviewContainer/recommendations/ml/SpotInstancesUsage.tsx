@@ -18,14 +18,14 @@ const columns = [
     headerDataTestId: "lbl_location",
     idAccessor: "cloud_id",
     typeAccessor: "cloud_type",
-    accessorKey: "cloud_name"
+    accessorKey: "cloud_name",
   }),
   size({
     accessorKey: "size",
-    headerDataTestId: "lbl_size"
+    headerDataTestId: "lbl_size",
   }),
   mlRunsCount(),
-  mlAverageLifetime()
+  mlAverageLifetime(),
 ];
 
 class SpotInstancesUsage extends BaseRecommendation {
@@ -53,7 +53,7 @@ class SpotInstancesUsage extends BaseRecommendation {
               icon={<CloudTypeIcon type={cloudType} hasRightMargin />}
               label={<CloudResourceId resourceId={cloudResourceId} cloudResourceIdentifier={id} />}
             />
-          )
+          ),
         },
         {
           key: "averageLifetime",
@@ -61,8 +61,8 @@ class SpotInstancesUsage extends BaseRecommendation {
             <strong>
               <FormattedApproximateAverageLifetime lifetime={item.average_lifetime} />
             </strong>
-          )
-        }
+          ),
+        },
       ];
     });
   }

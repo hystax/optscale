@@ -1,0 +1,10 @@
+ARG BUILDTAG=build
+FROM gemini_data_worker:${BUILDTAG}
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /usr/src/app/
+
+COPY gemini/.pylintrc gemini/.coveragerc ./gemini/
+COPY gemini/gemini_data_worker/pyproject.toml gemini/gemini_data_worker/uv.lock ./gemini/gemini_data_worker/
+
+RUN uv --project gemini/gemini_data_worker sync --locked

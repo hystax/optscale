@@ -3,7 +3,7 @@ import RecommendationsCard from "components/RecommendationsCard";
 import {
   STATUS,
   CATEGORY,
-  RECOMMENDATION_COLOR
+  RECOMMENDATION_COLOR,
 } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
 import { useAllRecommendations } from "hooks/useAllRecommendations";
 import ExpensesService from "services/ExpensesService";
@@ -32,7 +32,7 @@ const RecommendationsCardContainer = () => {
     const countingCriteria = {
       costRecommendationsCount: (recommendation) => recommendation.hasCategory(CATEGORY.COST),
       securityRecommendationsCount: (recommendation) => recommendation.hasCategory(CATEGORY.SECURITY),
-      criticalRecommendationsCount: (recommendation) => recommendation.color === RECOMMENDATION_COLOR.ERROR
+      criticalRecommendationsCount: (recommendation) => recommendation.color === RECOMMENDATION_COLOR.ERROR,
     };
 
     const counts = Object.fromEntries(

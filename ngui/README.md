@@ -122,7 +122,7 @@ pnpm start
 Required versions (defined in root package.json):
 
 - Node.js: 22.16.0
-- pnpm: 10.12.1
+- pnpm: 10.33.0
 
 ### Environment Variables
 

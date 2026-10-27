@@ -42,11 +42,11 @@ const Selector = ({
   endAdornment,
   validate,
   helperText,
-  shouldUnregister
+  shouldUnregister,
 }: SelectorProps) => {
   const {
     formState: { errors },
-    control
+    control,
   } = useFormContext();
 
   const intl = useIntl();
@@ -62,9 +62,9 @@ const Selector = ({
       rules={{
         required: {
           value: required,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
-        validate
+        validate,
       }}
       render={({ field }) => (
         <SelectorComponent

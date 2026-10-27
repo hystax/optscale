@@ -1,0 +1,20 @@
+[project]
+name = "subsyncer"
+version = "0.1.0"
+requires-python = ">=3.12.11,<3.13"
+dependencies = [
+    "config-client",
+    "subspector-async-client",
+    "stripe-client",
+]
+
+[tool.uv.sources]
+config-client = { path = "../../optscale_client/config_client", editable = true }
+subspector-async-client = { path = "../../optscale_client/subspector_async_client", editable = true }
+stripe-client = { path = "../../tools/stripe_client", editable = true }
+
+[dependency-groups]
+dev = [
+    "pycodestyle==2.11.1",
+    "pylint==3.0.2",
+]

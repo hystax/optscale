@@ -36,7 +36,7 @@ export const SliceTooltipLayer = ({
   pointColor,
   pointBorderColor,
   enableSlices,
-  layerProps
+  layerProps,
 }) => {
   const { outerHeight, outerWidth, linesAreaRectangle } = layerProps;
   const theme = useChartTheme();
@@ -52,14 +52,14 @@ export const SliceTooltipLayer = ({
     getPointColor,
     getPointBorderColor,
     formatX,
-    formatY
+    formatY,
   });
 
   const slices = useSlices({
     enableSlices,
     points,
     width: linesAreaRectangle.width,
-    height: linesAreaRectangle.height
+    height: linesAreaRectangle.height,
   });
 
   const canvasRef = useRef();
@@ -85,10 +85,10 @@ export const SliceTooltipLayer = ({
           tooltipSettings: {
             position: {
               x,
-              y
+              y,
             },
-            anchor: cursorXRelativeToLinesAres > linesAreaRectangle.width / 2 ? TOOLTIP_ANCHOR.LEFT : TOOLTIP_ANCHOR.RIGHT
-          }
+            anchor: cursorXRelativeToLinesAres > linesAreaRectangle.width / 2 ? TOOLTIP_ANCHOR.LEFT : TOOLTIP_ANCHOR.RIGHT,
+          },
         };
       }
     }
@@ -98,10 +98,10 @@ export const SliceTooltipLayer = ({
       tooltipSettings: {
         position: {
           x: 0,
-          y: 0
+          y: 0,
         },
-        anchor: "right"
-      }
+        anchor: "right",
+      },
     };
   };
 
@@ -116,7 +116,7 @@ export const SliceTooltipLayer = ({
 
       setMousePosition({
         x: cursorX,
-        y: cursorY
+        y: cursorY,
       });
     }
 
@@ -157,7 +157,7 @@ export const SliceTooltipLayer = ({
       ref={containerRef}
       style={{
         position: "absolute",
-        zIndex: 3
+        zIndex: 3,
       }}
     >
       {slice && (
@@ -167,7 +167,7 @@ export const SliceTooltipLayer = ({
           anchor={tooltipSettings.anchor}
         >
           {sliceTooltip({
-            slice
+            slice,
           })}
         </SliceTooltip>
       )}

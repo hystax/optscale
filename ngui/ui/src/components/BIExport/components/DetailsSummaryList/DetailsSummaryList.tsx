@@ -32,7 +32,7 @@ const DetailsSummaryList = ({
   status,
   nextRun,
   lastStatusError,
-  isLoading = false
+  isLoading = false,
 }) => (
   <SummaryList
     titleMessage={<FormattedMessage id="details" />}
@@ -45,7 +45,7 @@ const DetailsSummaryList = ({
           <CopyText
             text={id}
             sx={{
-              fontWeight: "inherit"
+              fontWeight: "inherit",
             }}
           >
             {id}
@@ -65,7 +65,7 @@ const DetailsSummaryList = ({
             <FormattedMessage
               id="valueAgo"
               values={{
-                value: getTimeDistance(lastRun)
+                value: getTimeDistance(lastRun),
               }}
             />
           )
@@ -81,7 +81,7 @@ const DetailsSummaryList = ({
             <FormattedMessage
               id="valueAgo"
               values={{
-                value: getTimeDistance(lastCompleted)
+                value: getTimeDistance(lastCompleted),
               }}
             />
           )
@@ -99,11 +99,11 @@ const DetailsSummaryList = ({
           keyMessageId="reason"
           value={lastStatusError}
           sx={{
-            maxWidth: "600px"
+            maxWidth: "600px",
           }}
         />
       ) : undefined,
-      <KeyValueLabel key="activity" keyMessageId="activity" value={<FormattedMessage id={activity} />} />
+      <KeyValueLabel key="activity" keyMessageId="activity" value={<FormattedMessage id={activity} />} />,
     ].filter(Boolean)}
   />
 );

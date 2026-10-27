@@ -10,8 +10,8 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(({ cssColor, ...re
     ? {
         color: cssColor,
         "&.Mui-checked": {
-          color: cssColor
-        }
+          color: cssColor,
+        },
       }
     : undefined;
 

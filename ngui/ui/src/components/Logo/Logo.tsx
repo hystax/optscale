@@ -19,7 +19,7 @@ const logosMap = {
   logoShortDemo,
   logoFullWhiteDemo,
   logoShortWhiteDemo,
-  logo
+  logo,
 };
 
 const getLogo = (demo, white, size) => {
@@ -49,7 +49,7 @@ const Logo = ({
   white = false,
   width = "auto",
   height = "auto",
-  size = LOGO_SIZE.FULL
+  size = LOGO_SIZE.FULL,
 }: LogoProps) => {
   const intl = useIntl();
 

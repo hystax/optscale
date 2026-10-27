@@ -11,7 +11,7 @@ const OutlinedDiv = ({ children, label, endAdornment, dataTestId, margin = "none
     InputProps={{
       inputComponent: InputComponent,
       endAdornment,
-      "data-test-id": dataTestId
+      "data-test-id": dataTestId,
     }}
     inputProps={{ children }}
     margin={margin}

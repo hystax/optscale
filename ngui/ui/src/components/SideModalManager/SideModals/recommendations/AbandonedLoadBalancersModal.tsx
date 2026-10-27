@@ -12,7 +12,7 @@ const VALUE_KEYS = Object.freeze({
   [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
   [THRESHOLD_INPUT_NAMES.BYTES_SENT_THRESHOLD]: "bytes_sent_threshold",
   [THRESHOLD_INPUT_NAMES.PACKETS_SENT_THRESHOLD]: "packets_sent_threshold",
-  [THRESHOLD_INPUT_NAMES.REQUESTS_THRESHOLD]: "requests_threshold"
+  [THRESHOLD_INPUT_NAMES.REQUESTS_THRESHOLD]: "requests_threshold",
 });
 
 const AbandonedLoadBalancersThresholds = ({ recommendationType, onSuccess }) => {
@@ -70,8 +70,8 @@ class AbandonedLoadBalancersModal extends BaseSideModal {
     messageId: "abandonedLoadBalancers",
     dataTestIds: {
       title: "lbl_abandoned_load_balancers_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_abandoned_load_balancers";

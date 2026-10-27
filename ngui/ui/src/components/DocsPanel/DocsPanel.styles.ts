@@ -6,7 +6,7 @@ const BORDER_ALPHA = 0.8;
 const useStyles = makeStyles()((theme) => ({
   wrapper: {
     height: "100%",
-    position: "relative"
+    position: "relative",
   },
   content: {
     borderLeft: `1px solid ${lighten(theme.palette.info.main, BORDER_ALPHA)}`,
@@ -14,17 +14,17 @@ const useStyles = makeStyles()((theme) => ({
     overflow: "auto",
     height: `calc(100% - ${theme.spacing(7)})`,
     top: theme.spacing(7),
-    left: 0
+    left: 0,
   },
   loader: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%"
+    height: "100%",
   },
   toolbar: {
-    height: theme.spacing(7)
-  }
+    height: theme.spacing(7),
+  },
 }));
 
 export default useStyles;

@@ -19,7 +19,7 @@ const TextWithInlineInput = ({
 
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const error = errors[name] ?? {};
@@ -48,15 +48,15 @@ const TextWithInlineInput = ({
       },
       required: {
         value: true,
-        message: intl.formatMessage({ id: "thisFieldIsRequired" })
+        message: intl.formatMessage({ id: "thisFieldIsRequired" }),
       },
       validate: {
         whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
         moreOrEqualZero: (value) =>
           isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "moreOrEqual" }, { min: 0 }),
         lessOrEqualValidation,
-        notOnlyWhiteSpaces
-      }
+        notOnlyWhiteSpaces,
+      },
     });
     return (
       <Input
@@ -74,7 +74,7 @@ const TextWithInlineInput = ({
         id={messageId}
         values={{
           ...messageValues,
-          input: isLoading ? <Skeleton sx={{ display: "inline-flex" }}>{input}</Skeleton> : getInput()
+          input: isLoading ? <Skeleton sx={{ display: "inline-flex" }}>{input}</Skeleton> : getInput(),
         }}
       />
       {isError && <FormHelperText error>{error.message}</FormHelperText>}

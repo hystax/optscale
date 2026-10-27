@@ -11,8 +11,8 @@ import { getSearchParams, updateSearchParams } from "utils/network";
 const actionBarDefinition = {
   title: {
     messageId: "k8sRightsizingTitle",
-    dataTestId: "lbl_k8s_rightsizing"
-  }
+    dataTestId: "lbl_k8s_rightsizing",
+  },
 };
 
 const RELATIVE_PERIOD_QUERY_PARAMETER_NAME = "period";
@@ -31,19 +31,19 @@ const K8sRightsizingContainer = () => {
     return {
       startDate: defaultRequestParams.startDateFn(),
       endDate: defaultRequestParams.endDateFn(),
-      id: defaultRequestParams.id
+      id: defaultRequestParams.id,
     };
   });
 
   useEffect(() => {
     updateSearchParams({
-      [RELATIVE_PERIOD_QUERY_PARAMETER_NAME]: requestParams.id
+      [RELATIVE_PERIOD_QUERY_PARAMETER_NAME]: requestParams.id,
     });
   }, [requestParams.id]);
 
   const {
     isLoading,
-    k8sRightsizing: { k8s_app_rightsizing: namespaces = [] }
+    k8sRightsizing: { k8s_app_rightsizing: namespaces = [] },
   } = useGet({ startDate: requestParams.startDate, endDate: requestParams.endDate });
 
   const applyFilter = ({ startDateFn, endDateFn, id }) => {
@@ -51,7 +51,7 @@ const K8sRightsizingContainer = () => {
       ...prevState,
       id,
       startDate: startDateFn(),
-      endDate: endDateFn()
+      endDate: endDateFn(),
     }));
   };
 
@@ -76,10 +76,10 @@ const K8sRightsizingContainer = () => {
               }}
             />
           ),
-          type: "custom"
-        })
-      ]
-    }
+          type: "custom",
+        }),
+      ],
+    },
   };
 
   return (

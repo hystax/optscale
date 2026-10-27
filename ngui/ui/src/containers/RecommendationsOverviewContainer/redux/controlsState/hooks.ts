@@ -8,7 +8,7 @@ export const useControlState = ({ redux: { stateAccessor, actionCreator }, query
   const dispatch = useDispatch();
 
   const {
-    rootData: { [stateAccessor]: reduxState }
+    rootData: { [stateAccessor]: reduxState },
   } = useRootData(RECOMMENDATIONS_CONTROLS_STATE);
 
   const [stateValue, setStateValue] = useState(() => {

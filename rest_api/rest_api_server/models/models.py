@@ -279,9 +279,6 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
                            nullable=False, info=ColumnPermissions.none)
     last_import_at = Column(NullableInt('last_import_at'), default=0,
                             nullable=False, info=ColumnPermissions.update_only)
-    last_import_modified_at = Column(NullableInt('last_import_modified_at'),
-                                     default=0, nullable=False,
-                                     info=ColumnPermissions.update_only)
     account_id = Column(NullableString('account_id'), nullable=True,
                         info=ColumnPermissions.none)
     process_recommendations = Column(
@@ -292,6 +289,12 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         info=ColumnPermissions.update_only)
     last_import_attempt_error = Column(
         NullableText('last_import_attempt_error'),
+        nullable=True, info=ColumnPermissions.update_only)
+    last_import_source_id = Column(
+        NullableUuid('last_import_source_id'),
+        nullable=True, info=ColumnPermissions.update_only)
+    last_import_source_account_id = Column(
+        NullableString('last_import_source_account_id'),
         nullable=True, info=ColumnPermissions.update_only)
     last_getting_metrics_at = Column(
         NullableInt('last_getting_metrics_at'), default=0,
@@ -317,7 +320,8 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
 
     @validates('name', 'type', 'organization_id', 'config', 'auto_import',
                'import_period', 'last_import_at', 'account_id', 'parent_id',
-               'last_import_modified_at', 'process_recommendations')
+               'process_recommendations', 'last_import_source_id',
+               'last_import_source_account_id')
     def _validate_params(self, key, param):
         return self.get_validator(key, param)
 
@@ -332,16 +336,21 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
 
     @hybrid_property
     def decoded_config(self):
-        return decode_config(self.config)
+        cached = self.__dict__.get('_decoded_config_cache')
+        if cached is not None and cached[0] == self.config:
+            return cached[1]
+        decoded = decode_config(self.config)
+        self.__dict__['_decoded_config_cache'] = (self.config, decoded)
+        return decoded
 
     def to_dict(self, secure=False):
         cloud_acc_dict = super().to_dict()
         cloud_acc_dict['type'] = cloud_acc_dict['type'].value
         if self.parent_id and self.parent and self.parent.deleted_at == 0:
-            config = self.parent.decoded_config
+            config = dict(self.parent.decoded_config)
             config.update(self.decoded_config)
         else:
-            config = self.decoded_config
+            config = dict(self.decoded_config)
         if cloud_acc_dict.pop('cost_model_id', None):
             config['cost_model'] = self.cost_model.loaded_value
         if secure:
@@ -1640,6 +1649,29 @@ class OrganizationGemini(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         res["filters"] = json.loads(res.pop("filters"))
         res["stats"] = json.loads(res.pop("stats"))
         return res
+
+
+class GeminiData(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
+    __tablename__ = "gemini_data"
+
+    gemini_id = Column(
+        Uuid("gemini_id"), ForeignKey("organization_gemini.id"),
+        nullable=False, info=ColumnPermissions.create_only, index=True)
+    organization_gemini = relationship(
+        "OrganizationGemini", foreign_keys=[gemini_id])
+    buckets = Column(BaseString("buckets"), nullable=False,
+                     info=ColumnPermissions.create_only)
+    status = Column(GeminiStatus, default=GeminiStatuses.QUEUED,
+                    nullable=False, info=ColumnPermissions.update_only)
+    url = Column(NullableString('url'), nullable=True,
+                 info=ColumnPermissions.update_only)
+    valid_until = Column(
+        NullableInt('valid_until'), default=0, nullable=False,
+        info=ColumnPermissions.update_only)
+
+    @validates("gemini_id", "buckets", "status", "url", "valid_until")
+    def _validate(self, key, value):
+        return self.get_validator(key, value)
 
 
 class PowerSchedule(Base, CreatedMixin, MutableMixin, ValidatorMixin):

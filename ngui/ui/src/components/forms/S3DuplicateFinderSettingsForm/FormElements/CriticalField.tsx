@@ -14,7 +14,7 @@ const CriticalField = ({ isLoading = false }) => {
   const {
     formState: { isSubmitted },
     watch,
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   const intl = useIntl();
@@ -41,7 +41,7 @@ const CriticalField = ({ isLoading = false }) => {
             dataTestId="qmark_requiring_attention_duplicates_saving_threshold_description"
           />
         ),
-        startAdornment: <InputAdornment position="start">$</InputAdornment>
+        startAdornment: <InputAdornment position="start">$</InputAdornment>,
       }}
       validate={{
         positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumberOrZero" })),
@@ -52,9 +52,9 @@ const CriticalField = ({ isLoading = false }) => {
                 { id: "fieldMoreThanOrEqualToField" },
                 {
                   fieldName1: intl.formatMessage({ id: "critical" }),
-                  fieldName2: intl.formatMessage({ id: "requiringAttention" })
+                  fieldName2: intl.formatMessage({ id: "requiringAttention" }),
                 }
-              )
+              ),
       }}
     />
   );

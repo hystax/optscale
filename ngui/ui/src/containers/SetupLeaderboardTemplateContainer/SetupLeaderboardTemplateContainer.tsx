@@ -33,7 +33,7 @@ const SetupLeaderboardTemplateContainer = () => {
         isGetTaskLoading,
         isGetTaskTagsLoading,
         isGetDatasetLabelsLoading,
-        isSetupLoading: isCreateLeaderboardLoading
+        isSetupLoading: isCreateLeaderboardLoading,
       }}
     />
   );

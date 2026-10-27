@@ -27,7 +27,7 @@ const text = ({ id, accessorFn, headerMessageId, headerDataTestId, accessorKey, 
       value
     );
   },
-  ...options
+  ...options,
 });
 
 export default text;

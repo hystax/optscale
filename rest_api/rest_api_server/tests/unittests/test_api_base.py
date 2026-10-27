@@ -35,6 +35,10 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         return make_app(DBType.Test, '127.0.0.1', 80)
 
     def setUp(self, version='v2'):
+        patch(
+            'optscale_client.config_client.client.Client.read_branch',
+            return_value=None,
+        ).start()
         super().setUp()
         os.environ['ASYNC_TEST_TIMEOUT'] = '30'
         patch(
@@ -432,7 +436,8 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         # https://github.com/mongomock/mongomock/commit/c32b94a7691cb882cbd415eb90f71ad2982b0780
         # also mongomock cannot add to set False value
         last_recommend_run = kwargs['last_recommend_run']
-        match_query['$and'].append({'cluster_id': None})
+        for part in match_query['$or']:
+            part['$and'].append({'cluster_id': None})
         collected_filters = [
             'service_name', 'pool_id', 'employee_id', 'k8s_node', 'region',
             'resource_type', 'k8s_namespace', 'k8s_service', 'cloud_account_id'

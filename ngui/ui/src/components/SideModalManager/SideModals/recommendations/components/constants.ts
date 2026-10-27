@@ -13,5 +13,5 @@ export const THRESHOLD_INPUT_NAMES = Object.freeze({
   PUT_REQUEST_QUANTITY_THRESHOLD: "putRequestQuantityThreshold",
   HEAD_REQUEST_QUANTITY_THRESHOLD: "headRequestQuantityThreshold",
   OPTIONS_REQUEST_QUANTITY_THRESHOLD: "optionsRequestQuantityThreshold",
-  DELETE_REQUEST_QUANTITY_THRESHOLD: "deleteRequestQuantityThreshold"
+  DELETE_REQUEST_QUANTITY_THRESHOLD: "deleteRequestQuantityThreshold",
 });

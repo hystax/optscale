@@ -1,7 +1,7 @@
 import ContentBackdropLoader from "components/ContentBackdropLoader";
 import {
   OrganizationThemeSettingsDocument,
-  useUpdateOrganizationThemeSettingsMutation
+  useUpdateOrganizationThemeSettingsMutation,
 } from "graphql/__generated__/hooks/restapi";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 
@@ -14,18 +14,18 @@ const OrganizationThemeSettingsContainer = ({ children }) => {
         query: OrganizationThemeSettingsDocument,
         variables: { organizationId },
         data: {
-          organizationThemeSettings: updateOrganizationThemeSettings
-        }
+          organizationThemeSettings: updateOrganizationThemeSettings,
+        },
       });
-    }
+    },
   });
 
   const onUpdate = (data) =>
     updateOrganizationThemeSettingsMutation({
       variables: {
         organizationId,
-        value: data
-      }
+        value: data,
+      },
     });
 
   return <ContentBackdropLoader isLoading={loading}>{children(onUpdate)}</ContentBackdropLoader>;
