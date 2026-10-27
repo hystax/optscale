@@ -281,6 +281,7 @@ diworker:
 diworker_raw:
   name: diworker-raw
   replicaCount: 1
+  cache_ttl_days: 2
   image:
     id:
     repository: *diworker_name
