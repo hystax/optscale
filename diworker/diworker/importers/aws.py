@@ -11,6 +11,7 @@ from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 from functools import cached_property
 
+from diworker.diworker.cache.aws_report_cache import AWSReportCache
 from diworker.diworker.importers.base import CSVBaseReportImporter
 import tools.optscale_time as opttime
 import pyarrow.parquet as pq
@@ -79,6 +80,10 @@ class AWSReportImporter(CSVBaseReportImporter):
         self.import_start_ts = int(opttime.utcnow().timestamp())
 
     @cached_property
+    def report_cache(self):
+        return AWSReportCache()
+
+    @cached_property
     def strip_edp(self):
         result = self.config_cl.get("/force_aws_edp_strip").value
         return result if result == "True" else False
@@ -129,8 +134,45 @@ class AWSReportImporter(CSVBaseReportImporter):
     def to_lower_case(snake_str):
         return snake_str[0].lower() + snake_str[1:]
 
+    def prepare_one_file(self, date, report):
+        target_path = self.get_new_report_path(date)
+        cloud_key = self._get_file_key(report)
+
+        try:
+            cached_path = self.report_cache.get_or_download(
+                self.cloud_acc['config'].get('bucket_name', ''), cloud_key,
+                self._get_file_etag(report),
+                lambda destination: self.cloud_adapter.download_report_file(
+                    cloud_key, destination))
+            self.report_cache.link(cached_path, target_path)
+        except Exception as exc:
+            LOG.warning('AWS CUR cache unavailable for %s: %s', cloud_key, exc)
+            return super().prepare_one_file(date, report)
+
+        self.report_files[date].append(target_path)
+        self.report_file_keys[target_path] = cloud_key
+        self.report_cloud_etags[cloud_key] = self._get_file_etag(report)
+        self.unpack_report_files()
+        return self.report_files[date][-1]
+
     def unpack_report(self, report_file, date):
         dest_dir = self.get_new_report_path(date)
+        if os.path.islink(report_file):
+            cached_path = os.path.realpath(report_file)
+            try:
+                unpacked_path = self.report_cache.get_or_unpack(
+                    cached_path,
+                    lambda directory: self.unzip_report(cached_path, directory)
+                    if zipfile.is_zipfile(cached_path) else self.gunzip_report(
+                        cached_path, directory))
+                report_path = os.path.join(dest_dir, os.path.basename(unpacked_path))
+                self.report_cache.link(unpacked_path, report_path)
+                os.remove(report_file)
+                return report_path
+            except Exception as exc:
+                LOG.warning('AWS CUR unpack cache unavailable for %s: %s',
+                            report_file, exc)
+
         os.makedirs(dest_dir, exist_ok=True)
         if zipfile.is_zipfile(report_file):
             new_report_path = self.unzip_report(report_file, dest_dir)
@@ -139,8 +181,7 @@ class AWSReportImporter(CSVBaseReportImporter):
         if new_report_path:
             os.remove(report_file)
             return new_report_path
-        else:
-            return report_file
+        return report_file
 
     def unpack_report_files(self):
         for date, reports in self.report_files.items():
