@@ -119,7 +119,7 @@ spec:
       containers:
       - name: {{ $config.name }}
         image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ $config.image.pullPolicy }}
         command:
           - "/usr/local/bin/etcd"
           - "-listen-client-urls"
@@ -195,7 +195,7 @@ spec:
       containers:
       - name: configurator
         image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" "configurator" "tag" "local" "dockerTag" .Values.docker_tag) }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ $config.image.pullPolicy }}
         volumeMounts:
         - name: config-volume
           mountPath: /config

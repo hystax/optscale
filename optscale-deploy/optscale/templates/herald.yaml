@@ -48,7 +48,7 @@ spec:
       containers:
       - name: {{ $config.name }}{{ $config.api.role }}
         image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
         env:
@@ -91,7 +91,7 @@ spec:
       containers:
       - name: {{ $config.name }}{{ $config.engine.role }}
         image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ $config.image.pullPolicy }}
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}

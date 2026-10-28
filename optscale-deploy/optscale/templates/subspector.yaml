@@ -50,7 +50,7 @@ spec:
 {{ include "wait_for_service" .Values.rabbitmq | indent 8 }}
         - name: migrations
           image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ $config.image.pullPolicy }}
           command: [ "uv", "run", "--project", "subspector", "python", "subspector/migrate.py" ]
           env:
             - name: HX_ETCD_HOST
@@ -60,7 +60,7 @@ spec:
       containers:
       - name: {{ $config.name }}
         image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
         env:

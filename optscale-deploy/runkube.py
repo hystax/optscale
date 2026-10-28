@@ -7,6 +7,9 @@ import logging
 
 import os
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import yaml
 import subprocess
@@ -214,6 +217,44 @@ class Runkube:
         LOG.debug("Image ids map: %s", images)
         return images
 
+
+    def get_remote_image_id_map(self):
+        """Fetch manifest digests from remote registry for IMAGE_ID."""
+        registry = urlsplit('//{}'.format(self.dregistry))
+        netloc = registry.netloc
+        if netloc in ('index.docker.io', 'docker.io'):
+            netloc = 'registry-1.docker.io'
+        prefix = registry.path.strip('/')
+        accept = 'application/vnd.docker.distribution.manifest.v2+json'
+        images = {}
+        for name in self.versions_info['images']:
+            repo = '/'.join(filter(None, (prefix, name)))
+            url = 'https://{}/v2/{}/manifests/{}'.format(
+                netloc, repo, self.version)
+            req = urllib.request.Request(url, headers={'Accept': accept})
+            try:
+                with urllib.request.urlopen(req) as resp:
+                    digest = resp.headers.get('Docker-Content-Digest')
+            except urllib.error.HTTPError as exc:
+                challenge = exc.headers.get('WWW-Authenticate', '')
+                if exc.code != 401 or not challenge.startswith('Bearer '):
+                    raise
+                params = urllib.request.parse_keqv_list(
+                    urllib.request.parse_http_list(challenge[7:]))
+                token_url = '{}?{}'.format(
+                    params.pop('realm'),
+                    urllib.parse.urlencode(params))
+                with urllib.request.urlopen(token_url) as tresp:
+                    token = json.load(tresp).get('token')
+                req.add_header('Authorization', 'Bearer {}'.format(token))
+                with urllib.request.urlopen(req) as resp:
+                    digest = resp.headers.get('Docker-Content-Digest')
+            if not digest:
+                raise Exception(
+                    'No digest for {}/{}:{}'.format(
+                        self.dregistry, name, self.version))
+            images[name] = digest
+        return images
     def generate_base_overlay(self, update):
         LOG.info("Generating base overlay...")
         LOG.debug("Getting certificate from k8s cluster...")
@@ -225,7 +266,11 @@ class Runkube:
         if self.use_remote_registry:
             base_overlay['docker_registry'] = self.dregistry
             base_overlay['docker_tag'] = self.version
-            base_overlay['imagePullPolicy'] = 'Always'
+            image_ids = self.get_remote_image_id_map()
+            for name, image_id in image_ids.items():
+                base_overlay[name] = {
+                    'image': {'id': image_id, 'pullPolicy': 'IfNotPresent'}
+                }
         else:
             for name, image_id in self.get_image_id_map().items():
                 base_overlay[name] = {'image': {'id': image_id}}
@@ -360,6 +405,19 @@ class Runkube:
         self.check_releases(update)
         self.check_version()
         if self.use_remote_registry:
+            ignored = []
+            if self.no_pull:
+                ignored.append('--no-pull')
+            if self.dregistry_user:
+                ignored.append('--dregistry_user')
+            if self.dregistry_password:
+                ignored.append('--dregistry_password')
+            if self.use_socket:
+                ignored.append('--use-socket')
+            if ignored:
+                LOG.warning(
+                    '%s ignored in remote registry mode',
+                    ', '.join(ignored))
             LOG.info("Using images from remote registry %s with tag %s",
                      self.dregistry, self.version)
         else:

@@ -237,6 +237,8 @@ Push images to a registry by adding `--push`, registry, and credentials. Without
 ./build.sh auth --tag release --push -r registry.example -u username -p password
 ```
 
+Builds run sequentially by default. Use `--parallel count` to build multiple components concurrently, and `--platform platform` to specify the target architecture.
+
 #### Creating user overlay
 
 Edit file with overlay - [optscale-deploy/overlay/user_template.yml](optscale-deploy/overlay/user_template.yml); see comments in overlay file for guidance.
@@ -286,7 +288,7 @@ registry namespace, and `<version>` is used as the image tag:
   -o overlay/user_template.yml -- <deployment name> <version>
 ```
 
-Remote mode generates an overlay with `imagePullPolicy: Always` for
+Remote mode generates an overlay with `imagePullPolicy: IfNotPresent` for
 chart-managed containers.
 
 All first-party OptScale images are pulled by Kubernetes from the selected
@@ -301,11 +303,11 @@ imagePullSecrets:
   - name: registry-creds
 ```
 
-For Docker Hub, set `dockerhub_dockercfg` to the base64-encoded `.dockercfg`
-contents and reference the chart-created secret:
+For Docker Hub, set `dockerhub_dockercfg` to the base64-encoded Docker `config.json`
+contents (`kubernetes.io/dockerconfigjson`) and reference the chart-created secret:
 
 ```yaml
-dockerhub_dockercfg: <base64-encoded-dockercfg>
+dockerhub_dockercfg: <base64-encoded-docker-config-json>
 imagePullSecrets:
   - name: dockerhub-creds
 ```

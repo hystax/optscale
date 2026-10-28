@@ -49,7 +49,7 @@ spec:
       containers:
       - name: {{ $config.name }}
         image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.internalPort }}
         env:
@@ -80,7 +80,7 @@ spec:
             mountPath: /var/lib/grafana/dashboards
       - name: "{{ $config.grafana_nginx.name }}"
         image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.grafana_nginx.image.repository "tag" $config.grafana_nginx.image.tag "dockerTag" .Values.docker_tag) }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
         env:
