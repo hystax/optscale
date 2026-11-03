@@ -8,6 +8,7 @@ type ItemContentWithDataSourceIconProps = {
     | "azure_cnr"
     | "azure_tenant"
     | "databricks"
+    | "focus"
     | "kubernetes_cnr"
     | "alibaba_cnr"
     | "environment"

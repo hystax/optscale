@@ -13,6 +13,7 @@ export default gql`
     alibaba_cnr
     nebius
     databricks
+    focus
     kubernetes_cnr
     environment
   }
@@ -286,6 +287,34 @@ export default gql`
     config: DatabricksConfig
   }
 
+  # FOCUS data source
+  type FocusConfig {
+    # Bucket fields are empty for a manual upload data source
+    bucket_name: String
+    bucket_prefix: String
+    s3_endpoint: String
+    region_name: String
+    file_pattern: String
+    mapping: JSONObject
+  }
+
+  type FocusDataSource implements DataSourceInterface {
+    id: String!
+    created_at: Int
+    name: String!
+    type: DataSourceType!
+    parent_id: String
+    account_id: String!
+    last_import_at: Int!
+    last_import_attempt_at: Int!
+    last_import_attempt_error: String
+    last_getting_metrics_at: Int!
+    last_getting_metric_attempt_at: Int!
+    last_getting_metric_attempt_error: String
+    details: DataSourceDetails
+    config: FocusConfig
+  }
+
   # K8s data source
   type K8CostModelConfig {
     cpu_hourly_cost: Float!
@@ -444,6 +473,20 @@ export default gql`
     client_secret: String!
   }
 
+  input FocusCredentialsInput {
+    access_key_id: String!
+    secret_access_key: String!
+  }
+
+  input FocusConfigInput {
+    bucket_name: String
+    bucket_prefix: String
+    s3_endpoint: String
+    region_name: String
+    file_pattern: String
+    credentials: FocusCredentialsInput
+  }
+
   input CreateDataSourceInput {
     name: String
     type: String
@@ -457,7 +500,10 @@ export default gql`
     alibabaConfig: AlibabaConfigInput
     nebiusConfig: NebiusConfigInput
     databricksConfig: DatabricksConfigInput
+    focusConfig: FocusConfigInput
     k8sConfig: K8sConfigInput
+    # FOCUS field mapping, sent as a top-level parameter (not inside config). On update: omitted keeps the stored mapping, null resets it to defaults
+    mapping: JSONObject
   }
 
   input UpdateDataSourceInput {
@@ -473,7 +519,10 @@ export default gql`
     alibabaConfig: AlibabaConfigInput
     nebiusConfig: NebiusConfigInput
     databricksConfig: DatabricksConfigInput
+    focusConfig: FocusConfigInput
     k8sConfig: K8sConfigInput
+    # FOCUS field mapping, sent as a top-level parameter (not inside config). On update: omitted keeps the stored mapping, null resets it to defaults
+    mapping: JSONObject
   }
 
   type EmployeeEmail {

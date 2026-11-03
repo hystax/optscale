@@ -330,9 +330,11 @@ export type CreateDataSourceInput = {
   azureSubscriptionConfig?: InputMaybe<AzureSubscriptionConfigInput>;
   azureTenantConfig?: InputMaybe<AzureTenantConfigInput>;
   databricksConfig?: InputMaybe<DatabricksConfigInput>;
+  focusConfig?: InputMaybe<FocusConfigInput>;
   gcpConfig?: InputMaybe<GcpConfigInput>;
   gcpTenantConfig?: InputMaybe<GcpTenantConfigInput>;
   k8sConfig?: InputMaybe<K8sConfigInput>;
+  mapping?: InputMaybe<Scalars["JSONObject"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
   nebiusConfig?: InputMaybe<NebiusConfigInput>;
   type?: InputMaybe<Scalars["String"]["input"]>;
@@ -392,6 +394,7 @@ export type DataSourceType =
   | "azure_tenant"
   | "databricks"
   | "environment"
+  | "focus"
   | "gcp_cnr"
   | "gcp_tenant"
   | "kubernetes_cnr"
@@ -469,6 +472,48 @@ export type ExpensesDailyBreakdown = {
   previous_total: Scalars["Int"]["output"];
   start_date: Scalars["Int"]["output"];
   total: Scalars["Int"]["output"];
+};
+
+export type FocusConfig = {
+  __typename?: "FocusConfig";
+  bucket_name?: Maybe<Scalars["String"]["output"]>;
+  bucket_prefix?: Maybe<Scalars["String"]["output"]>;
+  file_pattern?: Maybe<Scalars["String"]["output"]>;
+  mapping?: Maybe<Scalars["JSONObject"]["output"]>;
+  region_name?: Maybe<Scalars["String"]["output"]>;
+  s3_endpoint?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type FocusConfigInput = {
+  bucket_name?: InputMaybe<Scalars["String"]["input"]>;
+  bucket_prefix?: InputMaybe<Scalars["String"]["input"]>;
+  credentials?: InputMaybe<FocusCredentialsInput>;
+  file_pattern?: InputMaybe<Scalars["String"]["input"]>;
+  region_name?: InputMaybe<Scalars["String"]["input"]>;
+  s3_endpoint?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type FocusCredentialsInput = {
+  access_key_id: Scalars["String"]["input"];
+  secret_access_key: Scalars["String"]["input"];
+};
+
+export type FocusDataSource = DataSourceInterface & {
+  __typename?: "FocusDataSource";
+  account_id: Scalars["String"]["output"];
+  config?: Maybe<FocusConfig>;
+  created_at?: Maybe<Scalars["Int"]["output"]>;
+  details?: Maybe<DataSourceDetails>;
+  id: Scalars["String"]["output"];
+  last_getting_metric_attempt_at: Scalars["Int"]["output"];
+  last_getting_metric_attempt_error?: Maybe<Scalars["String"]["output"]>;
+  last_getting_metrics_at: Scalars["Int"]["output"];
+  last_import_at: Scalars["Int"]["output"];
+  last_import_attempt_at: Scalars["Int"]["output"];
+  last_import_attempt_error?: Maybe<Scalars["String"]["output"]>;
+  name: Scalars["String"]["output"];
+  parent_id?: Maybe<Scalars["String"]["output"]>;
+  type: DataSourceType;
 };
 
 export type GcpBillingDataConfig = {
@@ -1006,10 +1051,12 @@ export type UpdateDataSourceInput = {
   azureSubscriptionConfig?: InputMaybe<AzureSubscriptionConfigInput>;
   azureTenantConfig?: InputMaybe<AzureTenantConfigInput>;
   databricksConfig?: InputMaybe<DatabricksConfigInput>;
+  focusConfig?: InputMaybe<FocusConfigInput>;
   gcpConfig?: InputMaybe<GcpConfigInput>;
   gcpTenantConfig?: InputMaybe<GcpTenantConfigInput>;
   k8sConfig?: InputMaybe<K8sConfigInput>;
   lastImportAt?: InputMaybe<Scalars["Int"]["input"]>;
+  mapping?: InputMaybe<Scalars["JSONObject"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
   nebiusConfig?: InputMaybe<NebiusConfigInput>;
 };
@@ -1132,6 +1179,19 @@ export type NebiusDataSourceConfigFragmentFragment = {
 export type DatabricksDataSourceConfigFragmentFragment = {
   __typename?: "DatabricksDataSource";
   config?: { __typename?: "DatabricksConfig"; account_id?: string | null; client_id?: string | null } | null;
+};
+
+export type FocusDataSourceConfigFragmentFragment = {
+  __typename?: "FocusDataSource";
+  config?: {
+    __typename?: "FocusConfig";
+    bucket_name?: string | null;
+    bucket_prefix?: string | null;
+    s3_endpoint?: string | null;
+    region_name?: string | null;
+    file_pattern?: string | null;
+    mapping?: Record<string, unknown> | null;
+  } | null;
 };
 
 export type K8sDataSourceConfigFragmentFragment = {
@@ -1362,6 +1422,37 @@ export type DataSourcesQuery = {
           resources: number;
           forecast: number;
           last_month_cost?: number | null;
+        } | null;
+      }
+    | {
+        __typename?: "FocusDataSource";
+        account_id: string;
+        created_at?: number | null;
+        id: string;
+        last_getting_metric_attempt_at: number;
+        last_getting_metric_attempt_error?: string | null;
+        last_getting_metrics_at: number;
+        last_import_at: number;
+        last_import_attempt_at: number;
+        last_import_attempt_error?: string | null;
+        name: string;
+        parent_id?: string | null;
+        type: DataSourceType;
+        details?: {
+          __typename?: "DataSourceDetails";
+          cost: number;
+          resources: number;
+          forecast: number;
+          last_month_cost?: number | null;
+        } | null;
+        config?: {
+          __typename?: "FocusConfig";
+          bucket_name?: string | null;
+          bucket_prefix?: string | null;
+          s3_endpoint?: string | null;
+          region_name?: string | null;
+          file_pattern?: string | null;
+          mapping?: Record<string, unknown> | null;
         } | null;
       }
     | {
@@ -1752,6 +1843,50 @@ export type DataSourceQuery = {
         } | null;
       }
     | {
+        __typename?: "FocusDataSource";
+        account_id: string;
+        created_at?: number | null;
+        id: string;
+        last_getting_metric_attempt_at: number;
+        last_getting_metric_attempt_error?: string | null;
+        last_getting_metrics_at: number;
+        last_import_at: number;
+        last_import_attempt_at: number;
+        last_import_attempt_error?: string | null;
+        name: string;
+        parent_id?: string | null;
+        type: DataSourceType;
+        details?: {
+          __typename?: "DataSourceDetails";
+          cost: number;
+          forecast: number;
+          last_month_cost?: number | null;
+          resources: number;
+          discovery_infos?: Array<{
+            __typename?: "DataSourceDiscoveryInfos";
+            cloud_account_id: string;
+            created_at: number;
+            deleted_at: number;
+            enabled?: boolean | null;
+            id: string;
+            last_discovery_at: number;
+            last_error?: string | null;
+            last_error_at: number;
+            observe_time: number;
+            resource_type?: string | null;
+          } | null> | null;
+        } | null;
+        config?: {
+          __typename?: "FocusConfig";
+          bucket_name?: string | null;
+          bucket_prefix?: string | null;
+          s3_endpoint?: string | null;
+          region_name?: string | null;
+          file_pattern?: string | null;
+          mapping?: Record<string, unknown> | null;
+        } | null;
+      }
+    | {
         __typename?: "GcpDataSource";
         account_id: string;
         created_at?: number | null;
@@ -2022,6 +2157,7 @@ export type CreateDataSourceMutation = {
     | { __typename?: "AzureTenantDataSource"; id: string; name: string }
     | { __typename?: "DatabricksDataSource"; id: string; name: string }
     | { __typename?: "EnvironmentDataSource"; id: string; name: string }
+    | { __typename?: "FocusDataSource"; id: string; name: string }
     | { __typename?: "GcpDataSource"; id: string; name: string }
     | { __typename?: "GcpTenantDataSource"; id: string; name: string }
     | { __typename?: "K8sDataSource"; id: string; name: string }
@@ -2194,6 +2330,20 @@ export type UpdateDataSourceMutation = {
         config?: { __typename?: "DatabricksConfig"; account_id?: string | null; client_id?: string | null } | null;
       }
     | { __typename?: "EnvironmentDataSource"; id: string; name: string }
+    | {
+        __typename?: "FocusDataSource";
+        id: string;
+        name: string;
+        config?: {
+          __typename?: "FocusConfig";
+          bucket_name?: string | null;
+          bucket_prefix?: string | null;
+          s3_endpoint?: string | null;
+          region_name?: string | null;
+          file_pattern?: string | null;
+          mapping?: Record<string, unknown> | null;
+        } | null;
+      }
     | {
         __typename?: "GcpDataSource";
         id: string;
@@ -2539,6 +2689,18 @@ export const DatabricksDataSourceConfigFragmentFragmentDoc = gql`
     }
   }
 `;
+export const FocusDataSourceConfigFragmentFragmentDoc = gql`
+  fragment FocusDataSourceConfigFragment on FocusDataSource {
+    config {
+      bucket_name
+      bucket_prefix
+      s3_endpoint
+      region_name
+      file_pattern
+      mapping
+    }
+  }
+`;
 export const K8sDataSourceConfigFragmentFragmentDoc = gql`
   fragment K8sDataSourceConfigFragment on K8sDataSource {
     config {
@@ -2831,6 +2993,7 @@ export const DataSourcesDocument = gql`
       ...AlibabaDataSourceConfigFragment
       ...NebiusDataSourceConfigFragment
       ...DatabricksDataSourceConfigFragment
+      ...FocusDataSourceConfigFragment
       ...K8sDataSourceConfigFragment
     }
   }
@@ -2842,6 +3005,7 @@ export const DataSourcesDocument = gql`
   ${AlibabaDataSourceConfigFragmentFragmentDoc}
   ${NebiusDataSourceConfigFragmentFragmentDoc}
   ${DatabricksDataSourceConfigFragmentFragmentDoc}
+  ${FocusDataSourceConfigFragmentFragmentDoc}
   ${K8sDataSourceConfigFragmentFragmentDoc}
 `;
 
@@ -2935,6 +3099,7 @@ export const DataSourceDocument = gql`
       ...AlibabaDataSourceConfigFragment
       ...NebiusDataSourceConfigFragment
       ...DatabricksDataSourceConfigFragment
+      ...FocusDataSourceConfigFragment
       ...K8sDataSourceConfigFragment
     }
   }
@@ -2946,6 +3111,7 @@ export const DataSourceDocument = gql`
   ${AlibabaDataSourceConfigFragmentFragmentDoc}
   ${NebiusDataSourceConfigFragmentFragmentDoc}
   ${DatabricksDataSourceConfigFragmentFragmentDoc}
+  ${FocusDataSourceConfigFragmentFragmentDoc}
   ${K8sDataSourceConfigFragmentFragmentDoc}
 `;
 
@@ -3823,6 +3989,7 @@ export const UpdateDataSourceDocument = gql`
       ...AlibabaDataSourceConfigFragment
       ...NebiusDataSourceConfigFragment
       ...DatabricksDataSourceConfigFragment
+      ...FocusDataSourceConfigFragment
       ...K8sDataSourceConfigFragment
     }
   }
@@ -3833,6 +4000,7 @@ export const UpdateDataSourceDocument = gql`
   ${AlibabaDataSourceConfigFragmentFragmentDoc}
   ${NebiusDataSourceConfigFragmentFragmentDoc}
   ${DatabricksDataSourceConfigFragmentFragmentDoc}
+  ${FocusDataSourceConfigFragmentFragmentDoc}
   ${K8sDataSourceConfigFragmentFragmentDoc}
 `;
 export type UpdateDataSourceMutationFn = Apollo.MutationFunction<UpdateDataSourceMutation, UpdateDataSourceMutationVariables>;

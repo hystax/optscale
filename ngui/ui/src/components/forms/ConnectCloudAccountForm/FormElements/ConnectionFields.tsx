@@ -7,6 +7,7 @@ import {
   AwsAssumedRoleInputs,
   AlibabaCredentials,
   DatabricksCredentials,
+  FocusConnection,
   KubernetesCredentials,
   NebiusCredentials,
 } from "components/DataSourceCredentialFields";
@@ -75,6 +76,8 @@ const ConnectionInputs = ({
       return <NebiusInputs />;
     case CONNECTION_TYPES.DATABRICKS:
       return <DatabricksCredentials />;
+    case CONNECTION_TYPES.FOCUS:
+      return <FocusConnection />;
     case CONNECTION_TYPES.KUBERNETES:
       return <KubernetesCredentials />;
     default:

@@ -19,6 +19,7 @@ export const useIsDataSourceConnectionTypeEnabled = () => {
         [CONNECTION_TYPES.GCP_PROJECT]: true,
         [CONNECTION_TYPES.ALIBABA]: true,
         [CONNECTION_TYPES.DATABRICKS]: true,
+        [CONNECTION_TYPES.FOCUS]: true,
         [CONNECTION_TYPES.KUBERNETES]: true,
         [CONNECTION_TYPES.NEBIUS]: isNebiusConnectionEnabled,
       })[type] ?? false,

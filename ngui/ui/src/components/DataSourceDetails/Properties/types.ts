@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { FocusConfig } from "graphql/__generated__/hooks/restapi";
 
 export type K8sPropertiesProps = {
   id: string;
@@ -84,6 +85,10 @@ export type DatabricksPropertiesProps = BasePropertiesProps & {
   config: {
     client_id: string;
   };
+};
+
+export type FocusPropertiesProps = BasePropertiesProps & {
+  config: FocusConfig;
 };
 
 export type NebiusPropertiesProps = BasePropertiesProps & {

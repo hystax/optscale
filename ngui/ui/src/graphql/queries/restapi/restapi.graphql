@@ -92,6 +92,17 @@ fragment DatabricksDataSourceConfigFragment on DatabricksDataSource {
   }
 }
 
+fragment FocusDataSourceConfigFragment on FocusDataSource {
+  config {
+    bucket_name
+    bucket_prefix
+    s3_endpoint
+    region_name
+    file_pattern
+    mapping
+  }
+}
+
 fragment K8sDataSourceConfigFragment on K8sDataSource {
   config {
     cost_model {
@@ -169,6 +180,7 @@ query DataSources($organizationId: ID!) {
     ...AlibabaDataSourceConfigFragment
     ...NebiusDataSourceConfigFragment
     ...DatabricksDataSourceConfigFragment
+    ...FocusDataSourceConfigFragment
     ...K8sDataSourceConfigFragment
   }
 }
@@ -213,6 +225,7 @@ query DataSource($dataSourceId: ID!, $requestParams: DataSourceRequestParams) {
     ...AlibabaDataSourceConfigFragment
     ...NebiusDataSourceConfigFragment
     ...DatabricksDataSourceConfigFragment
+    ...FocusDataSourceConfigFragment
     ...K8sDataSourceConfigFragment
   }
 }
@@ -334,6 +347,7 @@ mutation UpdateDataSource($dataSourceId: ID!, $params: UpdateDataSourceInput!) {
     ...AlibabaDataSourceConfigFragment
     ...NebiusDataSourceConfigFragment
     ...DatabricksDataSourceConfigFragment
+    ...FocusDataSourceConfigFragment
     ...K8sDataSourceConfigFragment
   }
 }

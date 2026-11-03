@@ -31,6 +31,9 @@ const resolvers: Resolvers = {
         case "databricks": {
           return "DatabricksDataSource";
         }
+        case "focus": {
+          return "FocusDataSource";
+        }
         case "kubernetes_cnr": {
           return "K8sDataSource";
         }

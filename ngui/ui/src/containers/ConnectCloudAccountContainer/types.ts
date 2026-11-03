@@ -9,4 +9,6 @@ export type Params = {
   name: string;
   type: string;
   config: Config;
+  // FOCUS field mapping, a top-level parameter; absent when every field is left on defaults
+  mapping?: Record<string, unknown>;
 };

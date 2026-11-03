@@ -1,0 +1,26 @@
+import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon";
+
+// The cube mark of the official FinOps FOCUS logo (focus.finops.org), without the wordmark
+const FocusLogoIcon = (props: SvgIconProps) => (
+  <SvgIcon {...props} viewBox="-3.2151 0 48 48">
+    <path
+      d="M13.8555 19.9985V28.0016V36.0016V44.0016L20.7837 48.0001V40.0001V32.0001V24.0001L13.8555 19.9985Z"
+      fill="#0080AF"
+    />
+    <path d="M0 28.0016V19.9985L6.92821 24.0001V32.0001L0 28.0016Z" fill="#0080AF" />
+    <path d="M6.92969 40V32L13.8579 36.0015V44.0015L6.92969 40Z" fill="#FF6B00" />
+    <path d="M0 36.0016V28.0016L6.92821 32.0001V40.0001L0 36.0016Z" fill="#00C693" />
+    <path d="M6.92969 24V16L13.8579 19.9985V28.0015L6.92969 24Z" fill="#BD3BFD" />
+    <path d="M41.5698 36.0015V11.9984L20.7852 24V48L41.5698 36.0015Z" fill="#111920" />
+    <path d="M0 11.9985L6.92821 8L13.8564 11.9985L6.92821 16L0 11.9985Z" fill="#BD3BFD" />
+    <path d="M13.8555 11.9985L20.7837 8L27.7119 11.9985L20.7837 16L13.8555 11.9985Z" fill="#FFB700" />
+    <path
+      d="M34.6426 8L27.7143 11.9985L20.7861 16L13.8579 11.9985L6.92969 16L13.8579 19.9985L20.7861 24L27.7143 19.9985L34.6426 16L41.5708 11.9985L34.6426 8Z"
+      fill="#00C693"
+    />
+    <path d="M13.8555 3.99846L20.7837 0L27.7119 3.99846L20.7837 8L13.8555 3.99846Z" fill="#FFB700" />
+    <path d="M20.7852 8.00007L27.7134 3.99854L34.6416 8.00007L27.7134 11.9985L20.7852 8.00007Z" fill="#FF6B00" />
+  </SvgIcon>
+);
+
+export default FocusLogoIcon;

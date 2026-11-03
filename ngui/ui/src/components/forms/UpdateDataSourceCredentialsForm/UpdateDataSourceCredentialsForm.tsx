@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import Link from "@mui/material/Link";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
@@ -19,6 +19,10 @@ import {
   AWS_ROLE_CREDENTIALS_FIELD_NAMES,
   getRegionScopeDefaultValues,
   getRegionScopeConfigParams,
+  FOCUS_CONNECTION_FIELD_NAMES,
+  FOCUS_CONNECTION_MODES,
+  getFocusDefaultValues,
+  getFocusUpdateConfigParams,
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import FormContentDescription from "components/FormContentDescription";
@@ -45,6 +49,7 @@ import {
   NEBIUS,
   GCP_CNR,
   DATABRICKS,
+  FOCUS,
   KUBERNETES_CNR,
   AWS_ROOT_CONNECT_CUR_VERSION,
   GCP_TENANT,
@@ -215,6 +220,21 @@ const Description = ({ type, config }) => {
   }
 };
 
+// The keys are never returned by the API, so the warning only matters for a bucket
+const FocusUpdateCredentialsWarning = () => {
+  const { control } = useFormContext();
+
+  const connectionMode = useWatch({ control, name: FOCUS_CONNECTION_FIELD_NAMES.CONNECTION_MODE });
+
+  return connectionMode === FOCUS_CONNECTION_MODES.BUCKET ? (
+    <FormContentDescription
+      alertProps={{
+        messageId: "focusUpdateCredentialsWarning",
+      }}
+    />
+  ) : null;
+};
+
 const UpdateCredentialsWarning = ({ type }) => {
   const renderUpdateWarning = () => (
     <FormContentDescription
@@ -253,6 +273,8 @@ const UpdateCredentialsWarning = ({ type }) => {
       return renderUpdateWarning();
     case NEBIUS:
       return renderUpdateWarning();
+    case FOCUS:
+      return <FocusUpdateCredentialsWarning />;
     default:
       return null;
   }
@@ -551,6 +573,14 @@ const getConfig = (type, config) => {
             },
           };
         },
+      };
+    case FOCUS:
+      return {
+        getDefaultFormValues: () => getFocusDefaultValues(config),
+        // The mapping is edited separately, it is kept by the API when only the config is sent
+        parseFormDataToApiParams: (formData: Record<string, unknown>) => ({
+          config: getFocusUpdateConfigParams(formData),
+        }),
       };
     case NEBIUS:
       return {

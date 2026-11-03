@@ -8,6 +8,7 @@ import {
   AZURE_CNR,
   AZURE_TENANT,
   DATABRICKS,
+  FOCUS,
   GCP_CNR,
   GCP_TENANT,
   KUBERNETES_CNR,
@@ -47,6 +48,7 @@ const UpdateDataSourceCredentialsContainer = ({
       [ALIBABA_CNR]: "alibabaConfig",
       [NEBIUS]: "nebiusConfig",
       [DATABRICKS]: "databricksConfig",
+      [FOCUS]: "focusConfig",
       [KUBERNETES_CNR]: "k8sConfig",
     }[type];
 

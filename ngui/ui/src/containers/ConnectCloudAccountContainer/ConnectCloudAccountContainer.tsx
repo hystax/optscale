@@ -12,6 +12,7 @@ import {
   AZURE_CNR,
   AZURE_TENANT,
   DATABRICKS,
+  FOCUS,
   GCP_CNR,
   GCP_TENANT,
   KUBERNETES_CNR,
@@ -42,7 +43,7 @@ const ConnectCloudAccountContainer = () => {
     return "awsRootConfig";
   };
 
-  const onSubmit = ({ name, config, type }: Params) => {
+  const onSubmit = ({ name, config, type, mapping }: Params) => {
     const configName = {
       [AWS_CNR]: getAwsConfigName(config),
       [AZURE_TENANT]: "azureTenantConfig",
@@ -52,6 +53,7 @@ const ConnectCloudAccountContainer = () => {
       [ALIBABA_CNR]: "alibabaConfig",
       [NEBIUS]: "nebiusConfig",
       [DATABRICKS]: "databricksConfig",
+      [FOCUS]: "focusConfig",
       [KUBERNETES_CNR]: "k8sConfig",
     }[type];
 
@@ -64,6 +66,8 @@ const ConnectCloudAccountContainer = () => {
           name,
           type,
           [configName]: config,
+          // Absent unless the Connect form sent a FOCUS mapping (an undefined variable is not sent)
+          mapping,
         },
       },
       refetchQueries: [DataSourcesDocument],
