@@ -1,5 +1,6 @@
 import datetime
 import copy
+import json
 import uuid
 import tools.optscale_time as opttime
 from copy import deepcopy
@@ -14,7 +15,8 @@ from rest_api.rest_api_server.models.db_factory import DBType, DBFactory
 from rest_api.rest_api_server.utils import decode_config
 from rest_api.rest_api_server.controllers.cloud_account import (
     CloudAccountController)
-from tools.cloud_adapter.exceptions import ReportConfigurationException
+from tools.cloud_adapter.exceptions import (
+    InvalidParameterException, ReportConfigurationException)
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
 from rest_api.rest_api_server.models.enums import CloudTypes
 from tools.cloud_adapter.cloud import Cloud as CloudAdapter
@@ -143,6 +145,22 @@ class TestCloudAccountApi(TestApiBase):
                 "cloud_name": "cloud",
             }
         }
+        self.valid_focus_config = {
+            'bucket_name': 'finops-exports',
+            'bucket_prefix': 'azure/focus/',
+            's3_endpoint': 'https://minio.example.com',
+            'credentials': {
+                'access_key_id': 'key',
+                'secret_access_key': 'secret'
+            },
+        }
+        self.focus_mapping = {'cost': {'columns': ['EffectiveCost']}}
+        self.focus_endpoint_patcher = patch(
+            'tools.cloud_adapter.clouds.focus.validate_endpoint')
+        self.focus_endpoint_patcher.start()
+        self.p_focus_check_access = patch(
+            'tools.cloud_adapter.clouds.focus.Focus._check_access',
+            return_value=[]).start()
 
     @staticmethod
     def get_cloud_account_object(ca_id):
@@ -2753,3 +2771,289 @@ class TestCloudAccountApi(TestApiBase):
                 ca_obj = self.get_cloud_account_object(child_ca_id)
                 conf = decode_config(ca_obj.config)
                 self.assertEqual(conf, {'project_id': 'project_1'})
+
+    def _create_focus_cloud_acc(self, config, name='focus cloud_acc',
+                                mapping=None):
+        params = {'name': name, 'type': 'focus', 'config': config}
+        if mapping is not None:
+            params['mapping'] = mapping
+        return self.create_cloud_account(self.org_id, params)
+
+    def test_focus_create_s3(self):
+        code, ca = self._create_focus_cloud_acc(self.valid_focus_config,
+                                                mapping=self.focus_mapping)
+        self.assertEqual(code, 201)
+        self.assertEqual(ca['type'], 'focus')
+        self.assertEqual(ca['config']['credentials'], {'access_key_id': 'key'})
+        self.assertEqual(ca['config']['mapping'], self.focus_mapping)
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        config = ca_obj.decoded_config
+        account_id = ca_obj.account_id
+        self.assertEqual(
+            config['credentials'], self.valid_focus_config['credentials'])
+        self.assertEqual(len(account_id), 32)
+        self.p_focus_check_access.assert_called()
+
+    def test_focus_same_bucket_twice(self):
+        code, _ = self._create_focus_cloud_acc(self.valid_focus_config)
+        self.assertEqual(code, 201)
+        code, resp = self._create_focus_cloud_acc(
+            self.valid_focus_config, name='focus 2')
+        self.assertEqual(code, 409)
+        self.verify_error_code(resp, 'OE0402')
+
+    def test_focus_create_anonymous(self):
+        config = dict(self.valid_focus_config)
+        config.pop('credentials')
+        code, ca = self._create_focus_cloud_acc(config)
+        self.assertEqual(code, 201)
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        config = ca_obj.decoded_config
+        self.assertNotIn('credentials', config)
+
+    def test_focus_create_incomplete_credentials(self):
+        for credentials in [{}, {'access_key_id': 'key'},
+                            {'secret_access_key': 'secret'}]:
+            config = dict(self.valid_focus_config, credentials=credentials)
+            code, resp = self._create_focus_cloud_acc(config)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0216')
+
+    def test_focus_create_invalid_mapping(self):
+        for mapping in [{'cost': {'column': 'X'}},
+                        {'unknown': {'columns': ['X']}},
+                        {'tags': {'mode': 'prefixed_columns'}},
+                        {'resource_type': {'rules': [
+                            {'column': 'A', 'match': '(', 'type': 'B'}],
+                            'columns': ['ServiceName']}}]:
+            code, resp = self._create_focus_cloud_acc(
+                self.valid_focus_config, mapping=mapping)
+            self.assertEqual(code, 403)
+            self.verify_error_code(resp, 'OE0433')
+
+    def test_focus_mapping_wrong_type(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config)
+        for mapping in [[], False, '', 0]:
+            code, resp = self._create_focus_cloud_acc(
+                self.valid_focus_config, name='focus 2', mapping=mapping)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0344')
+            code, resp = self.client.cloud_account_verify(
+                {'type': 'focus', 'config': self.valid_focus_config,
+                 'mapping': mapping})
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0344')
+            for params in [{'mapping': mapping},
+                           {'mapping': mapping,
+                            'config': self.valid_focus_config}]:
+                code, resp = self.client.cloud_account_update(
+                    ca['id'], params)
+                self.assertEqual(code, 400)
+                self.verify_error_code(resp, 'OE0344')
+
+    def test_focus_create_mapping_in_config(self):
+        code, resp = self._create_focus_cloud_acc(
+            dict(self.valid_focus_config, mapping=self.focus_mapping))
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+    def test_create_mapping_not_focus(self):
+        code, resp = self.create_cloud_account(
+            self.org_id, dict(self.valid_aws_cloud_acc, mapping={}))
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+    def test_focus_create_private_endpoint(self):
+        self.focus_endpoint_patcher.stop()
+        for endpoint in ['https://127.0.0.1:9000', 'http://minio.example.com']:
+            config = dict(self.valid_focus_config, s3_endpoint=endpoint)
+            code, resp = self._create_focus_cloud_acc(config)
+            self.assertEqual(code, 403)
+            self.verify_error_code(resp, 'OE0433')
+
+    def test_focus_create_access_denied(self):
+        self.p_focus_check_access.side_effect = InvalidParameterException(
+            'Access to bucket finops-exports is denied (ListBucket)')
+        code, resp = self._create_focus_cloud_acc(self.valid_focus_config)
+        self.assertEqual(code, 403)
+        self.verify_error_code(resp, 'OE0433')
+
+    def test_focus_create_upload_only(self):
+        code, ca = self._create_focus_cloud_acc({})
+        self.assertEqual(code, 201)
+        self.p_focus_check_access.assert_not_called()
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        account_id = ca_obj.account_id
+        uuid.UUID(account_id)
+
+    def test_focus_edit_without_credentials_is_anonymous(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config,
+                                             mapping=self.focus_mapping)
+        new_config = dict(self.valid_focus_config)
+        new_config.pop('credentials')
+        code, _ = self.client.cloud_account_update(
+            ca['id'], {'config': new_config})
+        self.assertEqual(code, 200)
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        config = ca_obj.decoded_config
+        self.assertNotIn('credentials', config)
+        # a new config keeps the stored mapping
+        self.assertEqual(config['mapping'], self.focus_mapping)
+
+    def test_focus_edit_config_and_mapping(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config,
+                                             mapping=self.focus_mapping)
+        mapping = {'region': {'columns': ['RegionName']}}
+        code, _ = self.client.cloud_account_update(
+            ca['id'], {'config': dict(self.valid_focus_config,
+                                      bucket_prefix='aws/'),
+                       'mapping': mapping})
+        self.assertEqual(code, 200)
+        config = self.get_cloud_account_object(ca['id']).decoded_config
+        self.assertEqual(config['bucket_prefix'], 'aws/')
+        self.assertEqual(config['mapping'], mapping)
+
+    def test_focus_edit_mapping_in_config(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config)
+        code, resp = self.client.cloud_account_update(
+            ca['id'], {'config': dict(self.valid_focus_config,
+                                      mapping=self.focus_mapping)})
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+    def test_focus_edit_incomplete_credentials(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config)
+        code, resp = self.client.cloud_account_update(
+            ca['id'], {'config': dict(self.valid_focus_config, credentials={
+                'access_key_id': 'key'})})
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0216')
+
+    def test_focus_edit_replace_credentials(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config)
+        credentials = {'access_key_id': 'key2', 'secret_access_key': 's2'}
+        code, _ = self.client.cloud_account_update(
+            ca['id'], {'config': dict(self.valid_focus_config,
+                                      credentials=credentials)})
+        self.assertEqual(code, 200)
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        config = ca_obj.decoded_config
+        self.assertEqual(config['credentials'], credentials)
+
+    def test_focus_edit_upload_only_keeps_account_id(self):
+        _, ca = self._create_focus_cloud_acc({})
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        account_id = ca_obj.account_id
+        code, _ = self.client.cloud_account_update(
+            ca['id'], {'config': {'file_pattern': r'\.csv$'}})
+        self.assertEqual(code, 200)
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        new_account_id = ca_obj.account_id
+        self.assertEqual(account_id, new_account_id)
+
+    def test_focus_edit_remove_bucket(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config)
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        account_id = ca_obj.account_id
+        code, _ = self.client.cloud_account_update(
+            ca['id'], {'config': {'file_pattern': r'\.csv$'}})
+        self.assertEqual(code, 200)
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        new_account_id = ca_obj.account_id
+        self.assertNotEqual(account_id, new_account_id)
+        self.assertEqual(str(uuid.UUID(new_account_id)), new_account_id)
+        # the bucket can be connected again as another data source
+        code, _ = self._create_focus_cloud_acc(
+            self.valid_focus_config, name='focus 2')
+        self.assertEqual(code, 201)
+
+    def test_focus_edit_mapping_only(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config)
+        account_id = self.get_cloud_account_object(ca['id']).account_id
+        self.p_focus_check_access.reset_mock()
+        mapping = {'region': {'value': 'global'}}
+        with patch('tools.cloud_adapter.clouds.focus.Focus.'
+                   'validate_credentials') as p_validate:
+            code, resp = self.client.cloud_account_update(
+                ca['id'], {'mapping': mapping})
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['config']['mapping'], mapping)
+        # the cloud is not checked again
+        p_validate.assert_not_called()
+        self.p_focus_check_access.assert_not_called()
+        ca_obj = self.get_cloud_account_object(ca['id'])
+        self.assertEqual(ca_obj.account_id, account_id)
+        self.assertEqual(ca_obj.decoded_config, dict(
+            self.valid_focus_config, mapping=mapping))
+
+    def test_focus_edit_mapping_reset(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config,
+                                             mapping=self.focus_mapping)
+        code, _ = self.client.cloud_account_update(
+            ca['id'], {'mapping': None})
+        self.assertEqual(code, 200)
+        config = self.get_cloud_account_object(ca['id']).decoded_config
+        self.assertNotIn('mapping', config)
+        self.assertEqual(config['bucket_name'],
+                         self.valid_focus_config['bucket_name'])
+
+    def test_focus_edit_mapping_invalid(self):
+        _, ca = self._create_focus_cloud_acc(self.valid_focus_config,
+                                             mapping=self.focus_mapping)
+        code, resp = self.client.cloud_account_update(
+            ca['id'], {'mapping': {'unknown': {'value': 'x'}}})
+        self.assertEqual(code, 403)
+        self.verify_error_code(resp, 'OE0433')
+        config = self.get_cloud_account_object(ca['id']).decoded_config
+        self.assertEqual(config['mapping'], self.focus_mapping)
+
+    def test_edit_mapping_not_focus(self):
+        _, ca = self.create_cloud_account(self.org_id,
+                                          self.valid_aws_cloud_acc)
+        code, resp = self.client.cloud_account_update(
+            ca['id'], {'mapping': {}})
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+    def test_focus_verify_returns_warnings(self):
+        self.p_focus_check_access.return_value = ['some error']
+        code, resp = self.client.cloud_account_verify(
+            {'type': 'focus', 'config': self.valid_focus_config})
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['warnings'], ['some error'])
+
+    def test_focus_verify_invalid_mapping(self):
+        code, resp = self.client.cloud_account_verify(
+            {'type': 'focus', 'config': self.valid_focus_config,
+             'mapping': {'cost': {'value': True}}})
+        self.assertEqual(code, 403)
+        self.verify_error_code(resp, 'OE0433')
+
+    def test_focus_verify_mapping_in_config(self):
+        code, resp = self.client.cloud_account_verify(
+            {'type': 'focus', 'config': dict(
+                self.valid_focus_config, mapping=self.focus_mapping)})
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+    def test_focus_verify_config_not_object(self):
+        for config in [json.dumps(self.valid_focus_config), '', [], 0]:
+            code, resp = self.client.cloud_account_verify(
+                {'type': 'focus', 'config': config,
+                 'mapping': self.focus_mapping})
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0344')
+            code, resp = self._create_focus_cloud_acc(
+                config, mapping=self.focus_mapping)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0344')
+
+    def test_focus_null_config_with_mapping(self):
+        code, _ = self.client.cloud_account_verify(
+            {'type': 'focus', 'config': None, 'mapping': self.focus_mapping})
+        self.assertEqual(code, 200)
+        code, ca = self._create_focus_cloud_acc(
+            None, mapping=self.focus_mapping)
+        self.assertEqual(code, 201)
+        config = self.get_cloud_account_object(ca['id']).decoded_config
+        self.assertEqual(config, {'mapping': self.focus_mapping})

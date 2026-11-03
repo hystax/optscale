@@ -10,6 +10,7 @@ from tools.cloud_adapter.clouds.gcp import Gcp
 from tools.cloud_adapter.clouds.gcp_tenant import GcpTenant
 from tools.cloud_adapter.clouds.nebius import Nebius
 from tools.cloud_adapter.clouds.databricks import Databricks
+from tools.cloud_adapter.clouds.focus import Focus
 
 
 SUPPORTED_BILLING_TYPES = {
@@ -22,7 +23,8 @@ SUPPORTED_BILLING_TYPES = {
     'gcp_cnr': Gcp,
     'gcp_tenant': GcpTenant,
     'nebius': Nebius,
-    'databricks': Databricks
+    'databricks': Databricks,
+    'focus': Focus
 }
 
 

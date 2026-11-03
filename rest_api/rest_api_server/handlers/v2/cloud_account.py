@@ -60,7 +60,7 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         type: string
                         enum: [aws_cnr, azure_cnr, kubernetes_cnr, alibaba_cnr,
                                azure_tenant, gcp_cnr, nebius, databricks,
-                               gcp_tenant]
+                               gcp_tenant, focus]
                         description: Cloud account type
                         example: aws_cnr
                     config:
@@ -70,6 +70,11 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                             "bucket_name": "opt_bucket",
                             "access_key_id": "key_id",
                             "secret_access_key": "secret"}
+                    mapping:
+                        type: object
+                        description: |
+                            Focus cloud accounts only: field mapping, stored
+                            in config but not accepted inside it
                     auto_import:
                         type: boolean
                         description: Is automatic import enabled? Default is True
@@ -201,7 +206,8 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                         description: "cloud account type:
                                         ('aws_cnr','azure_cnr', 'kubernetes_cnr',
                                          'azure_tenant', 'alibaba_cnr', 'gcp_cnr',
-                                         'nebius', 'databricks', 'gcp_tenant')"}
+                                         'nebius', 'databricks', 'gcp_tenant',
+                                         'focus')"}
                                     config:
                                         type: object
                                         description: |
@@ -358,7 +364,8 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             description: "cloud account type:
                             ('aws_cnr','azure_cnr', 'alibaba_cnr',
                              'azure_tenant', 'kubernetes_cnr', 'gcp_cnr',
-                             'nebius', 'databricks', 'gcp_tenant')"}
+                             'nebius', 'databricks', 'gcp_tenant',
+                             'focus')"}
                         config: {type: object,
                             description:
                             "Object with credentials to access cloud"}
@@ -574,6 +581,14 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             Object with credentials to access
                             cloud. See https://datatrendstech.atlassian.net/wiki/x/OgBVPQ
                             for more info about cloud-specific parameters
+                    mapping:
+                        type: object
+                        description: |
+                            Focus cloud accounts only: new field mapping, not
+                            accepted inside config. A new config without it
+                            keeps the stored mapping; the mapping alone is
+                            saved without checking the cloud. null or {}
+                            resets it to defaults
                     auto_import:
                         type: boolean
                         description: Is automatic import enabled?

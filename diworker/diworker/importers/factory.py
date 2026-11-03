@@ -7,6 +7,7 @@ from diworker.diworker.importers.gcp import GcpReportImporter
 from diworker.diworker.importers.nebius import NebiusReportImporter
 from diworker.diworker.importers.environment import EnvironmentReportImporter
 from diworker.diworker.importers.databricks import DatabricksReportImporter
+from diworker.diworker.importers.focus import FocusReportImporter
 
 REPORT_IMPORTER_TYPES = {
     ('aws_cnr', None): AWSReportImporter,
@@ -20,7 +21,8 @@ REPORT_IMPORTER_TYPES = {
     ('gcp_cnr', None): GcpReportImporter,
     ('nebius', None): NebiusReportImporter,
     ('environment', None): EnvironmentReportImporter,
-    ('databricks', None): DatabricksReportImporter
+    ('databricks', None): DatabricksReportImporter,
+    ('focus', None): FocusReportImporter
 }
 
 
