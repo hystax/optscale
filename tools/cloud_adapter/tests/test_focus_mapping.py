@@ -117,6 +117,10 @@ class TestValidateMapping(unittest.TestCase):
         self.assertInvalid({'resource_id': {'columns': ['A'],
                                             'normalize': ['upper']}},
                            'normalize')
+        for normalize in ([{}], [['strip']], ['strip', None], 'strip'):
+            self.assertInvalid({'resource_id': {'columns': ['A'],
+                                                'normalize': normalize}},
+                               'normalize')
         self.assertInvalid({'resource_type': {'rules': [
             {'column': 'A', 'match': '(', 'type': 'X'}],
             'columns': ['B']}}, 'invalid regex')

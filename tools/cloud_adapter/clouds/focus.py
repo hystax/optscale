@@ -397,8 +397,11 @@ def validate_mapping(mapping):
                      'must be one of %s' % ', '.join(DECIMAL_SEPARATORS))
         if field == 'resource_id' and 'normalize' in rule:
             normalize = rule['normalize']
-            if (not isinstance(normalize, list) or
-                    not set(normalize) <= set(NORMALIZE_OPTIONS)):
+            if (
+                    not isinstance(normalize, list) or
+                    not all(isinstance(o, str) and o in NORMALIZE_OPTIONS
+                            for o in normalize)
+            ):
                 _err('resource_id.normalize', 'must be a list of %s' %
                      ', '.join(NORMALIZE_OPTIONS))
         if field == 'resource_type' and 'rules' in rule:
