@@ -1,4 +1,5 @@
 import { FormattedMessage, useIntl } from "react-intl";
+import { getFocusAccessKeyId } from "components/DataSourceCredentialFields";
 import { MAPPING_FIELDS } from "components/FocusMappingEditor";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { FocusPropertiesProps } from "./types";
@@ -15,6 +16,8 @@ const FocusProperties = ({ config, createdAt }: FocusPropertiesProps) => {
     file_pattern: filePattern,
     mapping,
   } = config;
+
+  const accessKeyId = getFocusAccessKeyId(config);
 
   // Fields overridden by the user mapping, in the order of the mapping editor
   const mappedFields = MAPPING_FIELDS.filter(({ apiName }) => mapping?.[apiName]).map(({ messageId }) =>
@@ -52,6 +55,17 @@ const FocusProperties = ({ config, createdAt }: FocusPropertiesProps) => {
             keyMessageId="region"
             value={regionName}
             dataTestIds={{ key: "p_key_region_name", value: "p_value_region_name" }}
+          />
+          <KeyValueLabel
+            keyMessageId="focusAccess"
+            value={
+              accessKeyId ? (
+                <FormattedMessage id="focusAccessKeys" values={{ accessKeyId }} />
+              ) : (
+                <FormattedMessage id="focusAnonymousAccess" />
+              )
+            }
+            dataTestIds={{ key: "p_key_access", value: "p_value_access" }}
           />
           <KeyValueLabel
             keyMessageId="focusFilePattern"

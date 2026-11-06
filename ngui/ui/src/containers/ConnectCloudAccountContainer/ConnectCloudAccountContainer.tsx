@@ -43,7 +43,7 @@ const ConnectCloudAccountContainer = () => {
     return "awsRootConfig";
   };
 
-  const onSubmit = ({ name, config, type, mapping }: Params) => {
+  const onSubmit = ({ name, config, type, mapping, autoImport }: Params) => {
     const configName = {
       [AWS_CNR]: getAwsConfigName(config),
       [AZURE_TENANT]: "azureTenantConfig",
@@ -68,6 +68,7 @@ const ConnectCloudAccountContainer = () => {
           [configName]: config,
           // Absent unless the Connect form sent a FOCUS mapping (an undefined variable is not sent)
           mapping,
+          autoImport,
         },
       },
       refetchQueries: [DataSourcesDocument],

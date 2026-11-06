@@ -24,6 +24,7 @@ import {
   GCP_CREDENTIALS_FIELD_NAMES,
   GCP_TENANT_CREDENTIALS_FIELD_NAMES,
   getFocusConfigParams,
+  isFocusAutoImport,
   getRegionScopeConfigParams,
   KUBERNETES_CREDENTIALS_FIELD_NAMES,
 } from "components/DataSourceCredentialFields";
@@ -364,6 +365,8 @@ const getFocusParameters = (formData: FieldValues) => {
     name: formData[DATA_SOURCE_NAME_FIELD_NAME],
     type: FOCUS,
     config: getFocusConfigParams(formData),
+    // Sent explicitly, the API turns the scheduled import on when it is omitted
+    autoImport: isFocusAutoImport(formData),
     // The mapping is a top-level parameter, not a part of the config; an all-default mapping is not sent
     ...(isEmptyApiMapping(mapping) ? {} : { mapping }),
   };

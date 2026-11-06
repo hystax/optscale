@@ -324,6 +324,7 @@ export type CloudPoliciesParams = {
 
 export type CreateDataSourceInput = {
   alibabaConfig?: InputMaybe<AlibabaConfigInput>;
+  autoImport?: InputMaybe<Scalars["Boolean"]["input"]>;
   awsAssumedRoleConfig?: InputMaybe<AwsAssumedRoleConfigInput>;
   awsLinkedConfig?: InputMaybe<AwsLinkedConfigInput>;
   awsRootConfig?: InputMaybe<AwsRootConfigInput>;
@@ -478,6 +479,7 @@ export type FocusConfig = {
   __typename?: "FocusConfig";
   bucket_name?: Maybe<Scalars["String"]["output"]>;
   bucket_prefix?: Maybe<Scalars["String"]["output"]>;
+  credentials?: Maybe<FocusCredentials>;
   file_pattern?: Maybe<Scalars["String"]["output"]>;
   mapping?: Maybe<Scalars["JSONObject"]["output"]>;
   region_name?: Maybe<Scalars["String"]["output"]>;
@@ -491,6 +493,11 @@ export type FocusConfigInput = {
   file_pattern?: InputMaybe<Scalars["String"]["input"]>;
   region_name?: InputMaybe<Scalars["String"]["input"]>;
   s3_endpoint?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type FocusCredentials = {
+  __typename?: "FocusCredentials";
+  access_key_id?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type FocusCredentialsInput = {
@@ -1045,6 +1052,7 @@ export type StripeSessionResult =
 
 export type UpdateDataSourceInput = {
   alibabaConfig?: InputMaybe<AlibabaConfigInput>;
+  autoImport?: InputMaybe<Scalars["Boolean"]["input"]>;
   awsAssumedRoleConfig?: InputMaybe<AwsAssumedRoleConfigInput>;
   awsLinkedConfig?: InputMaybe<AwsLinkedConfigInput>;
   awsRootConfig?: InputMaybe<AwsRootConfigInput>;
@@ -1191,6 +1199,7 @@ export type FocusDataSourceConfigFragmentFragment = {
     region_name?: string | null;
     file_pattern?: string | null;
     mapping?: Record<string, unknown> | null;
+    credentials?: { __typename?: "FocusCredentials"; access_key_id?: string | null } | null;
   } | null;
 };
 
@@ -1453,6 +1462,7 @@ export type DataSourcesQuery = {
           region_name?: string | null;
           file_pattern?: string | null;
           mapping?: Record<string, unknown> | null;
+          credentials?: { __typename?: "FocusCredentials"; access_key_id?: string | null } | null;
         } | null;
       }
     | {
@@ -1884,6 +1894,7 @@ export type DataSourceQuery = {
           region_name?: string | null;
           file_pattern?: string | null;
           mapping?: Record<string, unknown> | null;
+          credentials?: { __typename?: "FocusCredentials"; access_key_id?: string | null } | null;
         } | null;
       }
     | {
@@ -2342,6 +2353,7 @@ export type UpdateDataSourceMutation = {
           region_name?: string | null;
           file_pattern?: string | null;
           mapping?: Record<string, unknown> | null;
+          credentials?: { __typename?: "FocusCredentials"; access_key_id?: string | null } | null;
         } | null;
       }
     | {
@@ -2696,6 +2708,9 @@ export const FocusDataSourceConfigFragmentFragmentDoc = gql`
       bucket_prefix
       s3_endpoint
       region_name
+      credentials {
+        access_key_id
+      }
       file_pattern
       mapping
     }

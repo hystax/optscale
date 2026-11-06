@@ -98,6 +98,9 @@ fragment FocusDataSourceConfigFragment on FocusDataSource {
     bucket_prefix
     s3_endpoint
     region_name
+    credentials {
+      access_key_id
+    }
     file_pattern
     mapping
   }

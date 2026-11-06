@@ -38,7 +38,7 @@ const UpdateDataSourceCredentialsContainer = ({
     return "awsRootConfig";
   };
 
-  const onSubmit = (dataSourceId: string, { config: newConfig }: Params) => {
+  const onSubmit = (dataSourceId: string, { config: newConfig, autoImport }: Params) => {
     const configName = {
       [AWS_CNR]: getAwsConfigName(newConfig),
       [AZURE_TENANT]: "azureTenantConfig",
@@ -57,6 +57,7 @@ const UpdateDataSourceCredentialsContainer = ({
         dataSourceId,
         params: {
           [configName]: newConfig,
+          autoImport,
         },
       },
     }).then(() => {

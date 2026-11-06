@@ -23,6 +23,11 @@ export const isHttpsEndpoint = (value: string) => {
 export const isKeyPairConsistent = (accessKeyId: string, secretAccessKey: string) =>
   (accessKeyId.trim() === "") === (secretAccessKey.trim() === "");
 
+// Only a bucket has reports to import on schedule. Without it, an import would find no files and still complete,
+// so a manual upload data source has the scheduled import turned off
+export const isFocusAutoImport = (formData: Record<string, unknown>) =>
+  formData[FIELD_NAMES.CONNECTION_MODE] === CONNECTION_MODES.BUCKET;
+
 export const getFocusConfigParams = (formData: Record<string, unknown>) => {
   if (formData[FIELD_NAMES.CONNECTION_MODE] !== CONNECTION_MODES.BUCKET) {
     return {};
@@ -55,15 +60,18 @@ export const getFocusUpdateConfigParams = (formData: Record<string, unknown>) =>
     ? getFocusConfigParams(formData)
     : { file_pattern: DEFAULT_FILE_PATTERN };
 
-// The API never returns the keys, so they always start empty. The file pattern of a manual upload config
-// was sent by getFocusUpdateConfigParams, not entered by the user, so it is not prefilled.
+// The API returns the access key ID of a data source with keys, and no credentials for anonymous access
+export const getFocusAccessKeyId = (config: FocusConfig = {}) => config.credentials?.access_key_id || undefined;
+
+// The API never returns the secret access key, so it always starts empty. The file pattern of a manual upload
+// config was sent by getFocusUpdateConfigParams, not entered by the user, so it is not prefilled.
 export const getFocusDefaultValues = (config: FocusConfig = {}) => ({
   [FIELD_NAMES.CONNECTION_MODE]: config.bucket_name ? CONNECTION_MODES.BUCKET : CONNECTION_MODES.MANUAL_UPLOAD,
   [FIELD_NAMES.BUCKET_NAME]: config.bucket_name ?? "",
   [FIELD_NAMES.BUCKET_PREFIX]: config.bucket_prefix ?? "",
   [FIELD_NAMES.S3_ENDPOINT]: config.s3_endpoint ?? "",
   [FIELD_NAMES.REGION_NAME]: config.region_name ?? "",
-  [FIELD_NAMES.ACCESS_KEY_ID]: "",
+  [FIELD_NAMES.ACCESS_KEY_ID]: getFocusAccessKeyId(config) ?? "",
   [FIELD_NAMES.SECRET_ACCESS_KEY]: "",
   [FIELD_NAMES.FILE_PATTERN]: (config.bucket_name && config.file_pattern) || "",
 });

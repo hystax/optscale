@@ -112,6 +112,7 @@ describe("ConnectCloudAccountForm in FOCUS mode", () => {
       name: "My FOCUS exports",
       type: FOCUS,
       config: {},
+      autoImport: false,
       mapping: { cost: { columns: ["x_Cost"], decimal_separator: ",", fallback: { default: true } } },
     });
   });
@@ -153,7 +154,7 @@ describe("ConnectCloudAccountForm in FOCUS mode", () => {
     expect(container.textContent).toContain("Enter at least one column name");
   });
 
-  it("connects an upload-only FOCUS data source with only a name", async () => {
+  it("connects an upload-only FOCUS data source with only a name and no scheduled import", async () => {
     const onSubmit = vi.fn();
 
     await act(async () => {
@@ -180,6 +181,7 @@ describe("ConnectCloudAccountForm in FOCUS mode", () => {
       name: "My FOCUS exports",
       type: FOCUS,
       config: {},
+      autoImport: false,
     });
   });
 
@@ -257,6 +259,7 @@ describe("ConnectCloudAccountForm in FOCUS mode", () => {
           s3_endpoint: "https://minio.example.com",
           credentials: { access_key_id: "AKIAEXAMPLE", secret_access_key: "secret" },
         },
+        autoImport: true,
       });
     });
 
@@ -302,6 +305,7 @@ describe("ConnectCloudAccountForm in FOCUS mode", () => {
         name: "Public FOCUS bucket",
         type: FOCUS,
         config: { bucket_name: "public-reports" },
+        autoImport: true,
       });
     });
   });

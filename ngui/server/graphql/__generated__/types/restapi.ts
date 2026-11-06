@@ -324,6 +324,7 @@ export type CloudPoliciesParams = {
 
 export type CreateDataSourceInput = {
   alibabaConfig?: InputMaybe<AlibabaConfigInput>;
+  autoImport?: InputMaybe<Scalars["Boolean"]["input"]>;
   awsAssumedRoleConfig?: InputMaybe<AwsAssumedRoleConfigInput>;
   awsLinkedConfig?: InputMaybe<AwsLinkedConfigInput>;
   awsRootConfig?: InputMaybe<AwsRootConfigInput>;
@@ -478,6 +479,7 @@ export type FocusConfig = {
   __typename?: "FocusConfig";
   bucket_name?: Maybe<Scalars["String"]["output"]>;
   bucket_prefix?: Maybe<Scalars["String"]["output"]>;
+  credentials?: Maybe<FocusCredentials>;
   file_pattern?: Maybe<Scalars["String"]["output"]>;
   mapping?: Maybe<Scalars["JSONObject"]["output"]>;
   region_name?: Maybe<Scalars["String"]["output"]>;
@@ -491,6 +493,11 @@ export type FocusConfigInput = {
   file_pattern?: InputMaybe<Scalars["String"]["input"]>;
   region_name?: InputMaybe<Scalars["String"]["input"]>;
   s3_endpoint?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type FocusCredentials = {
+  __typename?: "FocusCredentials";
+  access_key_id?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type FocusCredentialsInput = {
@@ -1045,6 +1052,7 @@ export type StripeSessionResult =
 
 export type UpdateDataSourceInput = {
   alibabaConfig?: InputMaybe<AlibabaConfigInput>;
+  autoImport?: InputMaybe<Scalars["Boolean"]["input"]>;
   awsAssumedRoleConfig?: InputMaybe<AwsAssumedRoleConfigInput>;
   awsLinkedConfig?: InputMaybe<AwsLinkedConfigInput>;
   awsRootConfig?: InputMaybe<AwsRootConfigInput>;
@@ -1220,6 +1228,7 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars["Float"]["output"]>;
   FocusConfig: ResolverTypeWrapper<FocusConfig>;
   FocusConfigInput: FocusConfigInput;
+  FocusCredentials: ResolverTypeWrapper<FocusCredentials>;
   FocusCredentialsInput: FocusCredentialsInput;
   FocusDataSource: ResolverTypeWrapper<FocusDataSource>;
   GcpBillingDataConfig: ResolverTypeWrapper<GcpBillingDataConfig>;
@@ -1311,6 +1320,7 @@ export type ResolversParentTypes = {
   Float: Scalars["Float"]["output"];
   FocusConfig: FocusConfig;
   FocusConfigInput: FocusConfigInput;
+  FocusCredentials: FocusCredentials;
   FocusCredentialsInput: FocusCredentialsInput;
   FocusDataSource: FocusDataSource;
   GcpBillingDataConfig: GcpBillingDataConfig;
@@ -1661,10 +1671,18 @@ export type FocusConfigResolvers<
 > = {
   bucket_name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   bucket_prefix?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  credentials?: Resolver<Maybe<ResolversTypes["FocusCredentials"]>, ParentType, ContextType>;
   file_pattern?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   mapping?: Resolver<Maybe<ResolversTypes["JSONObject"]>, ParentType, ContextType>;
   region_name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   s3_endpoint?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+};
+
+export type FocusCredentialsResolvers<
+  ContextType = ContextValue,
+  ParentType extends ResolversParentTypes["FocusCredentials"] = ResolversParentTypes["FocusCredentials"],
+> = {
+  access_key_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
 };
 
 export type FocusDataSourceResolvers<
@@ -2246,6 +2264,7 @@ export type Resolvers<ContextType = ContextValue> = {
   EnvironmentDataSource?: EnvironmentDataSourceResolvers<ContextType>;
   ExpensesDailyBreakdown?: ExpensesDailyBreakdownResolvers<ContextType>;
   FocusConfig?: FocusConfigResolvers<ContextType>;
+  FocusCredentials?: FocusCredentialsResolvers<ContextType>;
   FocusDataSource?: FocusDataSourceResolvers<ContextType>;
   GcpBillingDataConfig?: GcpBillingDataConfigResolvers<ContextType>;
   GcpConfig?: GcpConfigResolvers<ContextType>;

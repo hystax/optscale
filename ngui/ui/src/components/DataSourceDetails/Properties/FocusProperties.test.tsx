@@ -35,6 +35,7 @@ describe("FocusProperties", () => {
     expect(container.textContent).toContain("10/28/2026 10:00 AM UTC");
     expect(container.textContent).toContain("No bucket, reports are uploaded manually");
     expect(container.querySelector('[data-test-id="p_value_bucket_name"]')).toBeNull();
+    expect(container.querySelector('[data-test-id="p_value_access"]')).toBeNull();
   });
 
   it("shows the bucket connection properties", () => {
@@ -61,6 +62,25 @@ describe("FocusProperties", () => {
     expect(container.querySelector('[data-test-id="p_value_bucket_name"]')?.textContent).toBe("focus-exports");
     expect(container.textContent).toContain("https://minio.example.com");
     expect(container.textContent).not.toContain("No bucket, reports are uploaded manually");
+    expect(container.querySelector('[data-test-id="p_value_access"]')?.textContent).toBe("Anonymous");
+  });
+
+  it("shows the stored access key ID of a bucket accessed with keys", () => {
+    act(() => {
+      root.render(
+        <MockedProvider>
+          <TestProvider>
+            <FocusProperties
+              accountId="account-id"
+              createdAt="10/28/2026 10:00 AM UTC"
+              config={{ bucket_name: "focus-exports", credentials: { access_key_id: "AKIAEXAMPLE" } }}
+            />
+          </TestProvider>
+        </MockedProvider>
+      );
+    });
+
+    expect(container.querySelector('[data-test-id="p_value_access"]')?.textContent).toBe("Access keys (AKIAEXAMPLE)");
   });
 
   it("lists the overridden mapping fields in the order of the editor", () => {

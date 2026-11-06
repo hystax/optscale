@@ -1,12 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { CONNECTION_MODES, DEFAULT_FILE_PATTERN, FIELD_NAMES } from "./constants";
 import {
+  getFocusAccessKeyId,
   getFocusConfigParams,
   getFocusDefaultValues,
   getFocusUpdateConfigParams,
+  isFocusAutoImport,
   isHttpsEndpoint,
   isKeyPairConsistent,
 } from "./utils";
+
+describe("isFocusAutoImport", () => {
+  it.each([
+    ["the bucket mode", CONNECTION_MODES.BUCKET, true],
+    ["the manual upload mode", CONNECTION_MODES.MANUAL_UPLOAD, false],
+    ["no mode", undefined, false],
+  ])("is %s -> %s", (_, connectionMode, expected) => {
+    expect(isFocusAutoImport({ [FIELD_NAMES.CONNECTION_MODE]: connectionMode })).toBe(expected);
+  });
+});
 
 describe("isHttpsEndpoint", () => {
   it.each([
@@ -134,6 +146,13 @@ describe("getFocusDefaultValues", () => {
     });
   });
 
+  it("prefills the stored access key ID and leaves the secret access key empty", () => {
+    expect(getFocusDefaultValues({ bucket_name: "reports", credentials: { access_key_id: "AKIAEXAMPLE" } })).toMatchObject({
+      [FIELD_NAMES.ACCESS_KEY_ID]: "AKIAEXAMPLE",
+      [FIELD_NAMES.SECRET_ACCESS_KEY]: "",
+    });
+  });
+
   it("prefills empty strings for the bucket fields the source does not have", () => {
     expect(getFocusDefaultValues({ bucket_name: "reports", bucket_prefix: null })).toEqual({
       [FIELD_NAMES.CONNECTION_MODE]: CONNECTION_MODES.BUCKET,
@@ -163,6 +182,22 @@ describe("getFocusDefaultValues", () => {
       [FIELD_NAMES.SECRET_ACCESS_KEY]: "",
       [FIELD_NAMES.FILE_PATTERN]: "",
     });
+  });
+});
+
+describe("getFocusAccessKeyId", () => {
+  it.each([
+    ["no config", undefined],
+    ["no credentials", { bucket_name: "reports" }],
+    ["null credentials", { bucket_name: "reports", credentials: null }],
+    ["empty credentials", { bucket_name: "reports", credentials: {} }],
+    ["an empty access key ID", { bucket_name: "reports", credentials: { access_key_id: "" } }],
+  ])("is undefined for anonymous access with %s", (_, config) => {
+    expect(getFocusAccessKeyId(config)).toBeUndefined();
+  });
+
+  it("returns the stored access key ID", () => {
+    expect(getFocusAccessKeyId({ credentials: { access_key_id: "AKIAEXAMPLE" } })).toBe("AKIAEXAMPLE");
   });
 });
 

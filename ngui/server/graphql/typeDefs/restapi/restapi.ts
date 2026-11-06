@@ -288,12 +288,19 @@ export default gql`
   }
 
   # FOCUS data source
+  # The API returns the access key ID only, never the secret access key
+  type FocusCredentials {
+    access_key_id: String
+  }
+
   type FocusConfig {
     # Bucket fields are empty for a manual upload data source
     bucket_name: String
     bucket_prefix: String
     s3_endpoint: String
     region_name: String
+    # Empty for anonymous access to the bucket
+    credentials: FocusCredentials
     file_pattern: String
     mapping: JSONObject
   }
@@ -504,6 +511,9 @@ export default gql`
     k8sConfig: K8sConfigInput
     # FOCUS field mapping, sent as a top-level parameter (not inside config). On update: omitted keeps the stored mapping, null resets it to defaults
     mapping: JSONObject
+    # Scheduled import from the cloud. Off for a FOCUS data source without a bucket, whose reports are uploaded manually.
+    # Omitted: on at creation, kept as stored on update
+    autoImport: Boolean
   }
 
   input UpdateDataSourceInput {
@@ -523,6 +533,9 @@ export default gql`
     k8sConfig: K8sConfigInput
     # FOCUS field mapping, sent as a top-level parameter (not inside config). On update: omitted keeps the stored mapping, null resets it to defaults
     mapping: JSONObject
+    # Scheduled import from the cloud. Off for a FOCUS data source without a bucket, whose reports are uploaded manually.
+    # Omitted: on at creation, kept as stored on update
+    autoImport: Boolean
   }
 
   type EmployeeEmail {

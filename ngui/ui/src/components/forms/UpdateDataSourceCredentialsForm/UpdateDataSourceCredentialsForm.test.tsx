@@ -37,6 +37,8 @@ describe("UpdateDataSourceCredentialsForm for a FOCUS data source", () => {
     mapping: { resource_id: { columns: ["ResourceId"] } },
   };
 
+  const KEYS_WARNING = "The secret access key is not shown after it is saved";
+
   let container: HTMLDivElement;
   let root: Root;
 
@@ -86,7 +88,7 @@ describe("UpdateDataSourceCredentialsForm for a FOCUS data source", () => {
     });
   };
 
-  it("prefills the stored bucket connection with empty keys and shows the anonymous access warning", async () => {
+  it("prefills the stored bucket connection of an anonymous source with empty keys and no warning", async () => {
     await renderForm(bucketConfig);
 
     expect(getInput("input_focus_bucket_name")?.value).toBe("reports");
@@ -96,7 +98,20 @@ describe("UpdateDataSourceCredentialsForm for a FOCUS data source", () => {
     expect(getInput("input_focus_file_pattern")?.value).toBe("\\.parquet$");
     expect(getInput("input_focus_access_key_id")?.value).toBe("");
     expect(getInput("input_focus_secret_access_key")?.value).toBe("");
-    expect(container.textContent).toContain("accessed anonymously");
+    expect(container.textContent).not.toContain(KEYS_WARNING);
+  });
+
+  it("prefills the stored access key ID of a source with keys and asks for the secret access key again", async () => {
+    const onSubmit = await renderForm({ ...bucketConfig, credentials: { access_key_id: "AKIAEXAMPLE" } });
+
+    expect(getInput("input_focus_access_key_id")?.value).toBe("AKIAEXAMPLE");
+    expect(getInput("input_focus_secret_access_key")?.value).toBe("");
+    expect(container.textContent).toContain(KEYS_WARNING);
+
+    await submit();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("Enter both the access key ID and the secret access key");
   });
 
   it("submits the connection config only, without the stored mapping", async () => {
@@ -112,26 +127,29 @@ describe("UpdateDataSourceCredentialsForm for a FOCUS data source", () => {
         region_name: "eu-central-1",
         file_pattern: "\\.parquet$",
       },
+      autoImport: true,
     });
   });
 
-  it("switches a bucket source to manual upload", async () => {
-    const onSubmit = await renderForm(bucketConfig);
+  it("switches a bucket source to manual upload and turns the scheduled import off", async () => {
+    const onSubmit = await renderForm({ ...bucketConfig, credentials: { access_key_id: "AKIAEXAMPLE" } });
+    expect(container.textContent).toContain(KEYS_WARNING);
 
     await clickButton("btn_focus_manual_upload");
 
     expect(getInput("input_focus_bucket_name")).toBeNull();
-    expect(container.textContent).not.toContain("accessed anonymously");
+    expect(container.textContent).not.toContain(KEYS_WARNING);
 
     await submit();
 
     const [, params] = onSubmit.mock.calls[0];
-    expect(Object.keys(params)).toEqual(["config"]);
+    expect(Object.keys(params)).toEqual(["config", "autoImport"]);
+    expect(params.autoImport).toBe(false);
     expect(params.config.bucket_name).toBeUndefined();
     expect(params.config.credentials).toBeUndefined();
   });
 
-  it("switches a manual upload source to a bucket", async () => {
+  it("switches a manual upload source to a bucket and turns the scheduled import on", async () => {
     const onSubmit = await renderForm({ mapping: { cost: { columns: ["BilledCost"] } } });
 
     expect(getInput("input_focus_bucket_name")).toBeNull();
@@ -148,6 +166,6 @@ describe("UpdateDataSourceCredentialsForm for a FOCUS data source", () => {
 
     await submit();
 
-    expect(onSubmit).toHaveBeenCalledWith("focus-id", { config: { bucket_name: "new-reports" } });
+    expect(onSubmit).toHaveBeenCalledWith("focus-id", { config: { bucket_name: "new-reports" }, autoImport: true });
   });
 });

@@ -21,12 +21,15 @@ import {
   getRegionScopeConfigParams,
   FOCUS_CONNECTION_FIELD_NAMES,
   FOCUS_CONNECTION_MODES,
+  getFocusAccessKeyId,
   getFocusDefaultValues,
   getFocusUpdateConfigParams,
+  isFocusAutoImport,
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import FormContentDescription from "components/FormContentDescription";
 import { FIELD_NAMES as NEBIUS_FIELD_NAMES } from "components/NebiusConfigFormElements";
+import type { FocusConfig } from "graphql/__generated__/hooks/restapi";
 import { useOrganizationActionRestrictions } from "hooks/useOrganizationActionRestrictions";
 import { intl } from "translations/react-intl-config";
 import {
@@ -220,13 +223,14 @@ const Description = ({ type, config }) => {
   }
 };
 
-// The keys are never returned by the API, so the warning only matters for a bucket
-const FocusUpdateCredentialsWarning = () => {
+// The secret access key is never returned by the API, so a data source with keys needs it entered again.
+// Anonymous access stays as it is with empty keys, so it needs no warning.
+const FocusUpdateCredentialsWarning = ({ config }: { config: FocusConfig }) => {
   const { control } = useFormContext();
 
   const connectionMode = useWatch({ control, name: FOCUS_CONNECTION_FIELD_NAMES.CONNECTION_MODE });
 
-  return connectionMode === FOCUS_CONNECTION_MODES.BUCKET ? (
+  return connectionMode === FOCUS_CONNECTION_MODES.BUCKET && getFocusAccessKeyId(config) ? (
     <FormContentDescription
       alertProps={{
         messageId: "focusUpdateCredentialsWarning",
@@ -235,7 +239,7 @@ const FocusUpdateCredentialsWarning = () => {
   ) : null;
 };
 
-const UpdateCredentialsWarning = ({ type }) => {
+const UpdateCredentialsWarning = ({ type, config }: Pick<UpdateDataSourceCredentialsFormProps, "type" | "config">) => {
   const renderUpdateWarning = () => (
     <FormContentDescription
       alertProps={{
@@ -274,7 +278,7 @@ const UpdateCredentialsWarning = ({ type }) => {
     case NEBIUS:
       return renderUpdateWarning();
     case FOCUS:
-      return <FocusUpdateCredentialsWarning />;
+      return <FocusUpdateCredentialsWarning config={config} />;
     default:
       return null;
   }
@@ -580,6 +584,8 @@ const getConfig = (type, config) => {
         // The mapping is edited separately, it is kept by the API when only the config is sent
         parseFormDataToApiParams: (formData: Record<string, unknown>) => ({
           config: getFocusUpdateConfigParams(formData),
+          // Switching between a bucket and manual upload turns the scheduled import on or off
+          autoImport: isFocusAutoImport(formData),
         }),
       };
     case NEBIUS:
@@ -642,7 +648,7 @@ const UpdateDataSourceCredentialsForm = ({
       >
         <Description type={type} config={config} />
         <CredentialInputs type={type} config={config} />
-        {!isAssumedRole && <UpdateCredentialsWarning type={type} />}
+        {!isAssumedRole && <UpdateCredentialsWarning type={type} config={config} />}
         <FormButtonsWrapper>
           <ButtonLoader
             dataTestId="btn_update_data_source_credentials"

@@ -100,6 +100,7 @@ class RestApiClient extends BaseClient {
         },
         // FOCUS mapping is a top-level parameter; undefined is dropped from the JSON body, null (reset) is sent
         mapping: params.mapping,
+        auto_import: params.autoImport,
       },
     });
 
@@ -132,6 +133,7 @@ class RestApiClient extends BaseClient {
         },
         // FOCUS mapping is a top-level parameter; undefined is dropped from the JSON body, null (reset) is sent
         mapping: params.mapping,
+        auto_import: params.autoImport,
       }),
     });
 
