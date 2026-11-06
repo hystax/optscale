@@ -17,6 +17,7 @@ import re2
 from botocore import UNSIGNED
 from botocore.config import Config as BotoConfig
 from botocore.exceptions import BotoCoreError, ClientError
+from botocore.parsers import ResponseParserError
 
 from tools.cloud_adapter.clouds.base import S3CloudMixin, new_core_session
 from tools.cloud_adapter.exceptions import (
@@ -32,6 +33,9 @@ AUTH_ERROR_CODES = {'AccessDenied', 'InvalidAccessKeyId',
 NO_BUCKET_ERROR_CODES = {'NoSuchBucket'}
 # connection errors of a custom endpoint are not shown to the user
 ENDPOINT_CONNECTION_ERROR = 'Cannot connect to s3_endpoint'
+INCOMPATIBLE_RESPONSE_ERROR = ('Invalid storage endpoint response. Retry '
+                               'or check S3 compatibility')
+CONNECTION_ERRORS = (BotoCoreError, ResponseParserError)
 
 
 def compile_user_regex(pattern, ignore_case=False):
@@ -79,7 +83,7 @@ def handle_connection_errors(func):
     def wrapper(self, *args, **kwargs):
         try:
             return func(self, *args, **kwargs)
-        except BotoCoreError as exc:
+        except CONNECTION_ERRORS as exc:
             raise CloudConnectionError(
                 self._connection_error_text(exc)) from exc
     return wrapper
@@ -923,6 +927,8 @@ class Focus(S3CloudMixin):
         return 'https://%s.%s%s' % (self.bucket_name, parsed.hostname, port)
 
     def _connection_error_text(self, exc):
+        if isinstance(exc, ResponseParserError):
+            return INCOMPATIBLE_RESPONSE_ERROR
         if not self.s3_endpoint:
             return str(exc)
         LOG.warning('Connection to s3_endpoint %s failed: %s',
@@ -956,7 +962,7 @@ class Focus(S3CloudMixin):
             except ClientError as exc:
                 errors.append((style, exc.response.get('Error', {}).get(
                     'Code', ''), str(exc)))
-            except BotoCoreError as exc:
+            except CONNECTION_ERRORS as exc:
                 errors.append((style, '', self._connection_error_text(exc)))
         codes = {code for _, code, _ in errors}
         message = '; '.join('%s style: %s' % (style, text)
