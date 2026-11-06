@@ -321,6 +321,8 @@ const Tabs = ({
           lastMetricsRetrievalAttempt={lastMetricsRetrievalAttempt}
           lastGettingMetricAttemptError={lastGettingMetricAttemptError}
           discoveryInfos={discoveryInfos}
+          // FOCUS data sources import billing reports only, monitoring metrics are not collected for them
+          withMonitoringMetricsImport={type !== FOCUS}
         />
       ),
       renderCondition: () => !isTenant,
