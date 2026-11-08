@@ -267,6 +267,16 @@ class BucketResource(CloudResource):
                  'it_status_bucket',
                  'tiers',
                  'last_checked',
+                 'access_tier',
+                 'kind',
+                 'sku_name',
+                 'sku_tier',
+                 'is_hns_enabled',
+                 'immutable_storage_with_versioning_enabled',
+                 'last_access_time_tracking_enabled',
+                 'is_versioning_enabled',
+                 'delete_retention_days',
+                 'lifecycle_policy_present',
                 )
 
     def __init__(self,
@@ -284,6 +294,16 @@ class BucketResource(CloudResource):
                 it_status_bucket=None,
                 tiers=None,
                 last_checked=None,
+                access_tier=None,
+                kind=None,
+                sku_name=None,
+                sku_tier=None,
+                is_hns_enabled=None,
+                immutable_storage_with_versioning_enabled=None,
+                last_access_time_tracking_enabled=None,
+                is_versioning_enabled=None,
+                delete_retention_days=None,
+                lifecycle_policy_present=None,
                 **kwargs
             ):
         """
@@ -308,6 +328,22 @@ class BucketResource(CloudResource):
         - it_status_bucket (str|None): 'enabled' if IT applies to whole bucket
         - tiers (list): list of [display_name, size_gb] per storage tier
         - last_checked (list): dates strings when object GETs were observed
+        - access_tier (str|None): Azure account-default access tier
+            ("Hot"|"Cool"|"Cold"|"Premium"); None for kinds that do not
+            expose tiering.
+        - kind (str|None): Azure account kind
+            ("StorageV2"|"BlobStorage"|"Storage"|"FileStorage"|"BlockBlobStorage")
+        - sku_name (str|None): Azure SKU name (e.g. "Standard_LRS")
+        - sku_tier (str|None): Azure SKU tier ("Standard"|"Premium")
+        - is_hns_enabled (bool|None): Hierarchical namespace flag (Data Lake Gen2)
+        - immutable_storage_with_versioning_enabled (bool|None): WORM gate
+        - last_access_time_tracking_enabled (bool|None): account-level
+            tracking policy flag; without it enabled, blobs have no
+            last-access timestamps so cold/archive forecasts are unreliable
+        - is_versioning_enabled (bool|None): blob versioning state
+        - delete_retention_days (int|None): soft-delete retention in days
+        - lifecycle_policy_present (bool|None): True if a default lifecycle
+            management policy exists on the account
         """
         super().__init__(**kwargs)
         self.name = name
@@ -325,6 +361,18 @@ class BucketResource(CloudResource):
         self.it_status_bucket = it_status_bucket
         self.tiers = tiers or []
         self.last_checked = last_checked or []
+        self.access_tier = access_tier
+        self.kind = kind
+        self.sku_name = sku_name
+        self.sku_tier = sku_tier
+        self.is_hns_enabled = is_hns_enabled
+        self.immutable_storage_with_versioning_enabled = (
+            immutable_storage_with_versioning_enabled
+        )
+        self.last_access_time_tracking_enabled = last_access_time_tracking_enabled
+        self.is_versioning_enabled = is_versioning_enabled
+        self.delete_retention_days = delete_retention_days
+        self.lifecycle_policy_present = lifecycle_policy_present
 
     def __repr__(self):
         return (
@@ -361,6 +409,18 @@ class BucketResource(CloudResource):
             'it_status_bucket': self.it_status_bucket,
             'tiers': self.tiers,
             'last_checked': self.last_checked,
+            'access_tier': self.access_tier,
+            'kind': self.kind,
+            'sku_name': self.sku_name,
+            'sku_tier': self.sku_tier,
+            'is_hns_enabled': self.is_hns_enabled,
+            'immutable_storage_with_versioning_enabled':
+                self.immutable_storage_with_versioning_enabled,
+            'last_access_time_tracking_enabled':
+                self.last_access_time_tracking_enabled,
+            'is_versioning_enabled': self.is_versioning_enabled,
+            'delete_retention_days': self.delete_retention_days,
+            'lifecycle_policy_present': self.lifecycle_policy_present,
         })
         return meta
 
