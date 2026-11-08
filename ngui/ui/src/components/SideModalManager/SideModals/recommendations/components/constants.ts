@@ -14,4 +14,8 @@ export const THRESHOLD_INPUT_NAMES = Object.freeze({
   HEAD_REQUEST_QUANTITY_THRESHOLD: "headRequestQuantityThreshold",
   OPTIONS_REQUEST_QUANTITY_THRESHOLD: "optionsRequestQuantityThreshold",
   DELETE_REQUEST_QUANTITY_THRESHOLD: "deleteRequestQuantityThreshold",
+  IDLE_DAYS_WINDOW: "idleDaysWindow",
+  IDLE_TRANSACTIONS_THRESHOLD: "idleTransactionsThreshold",
+  MIN_ACCOUNT_AGE_DAYS: "minAccountAgeDays",
+  MIN_USED_CAPACITY_GB: "minUsedCapacityGb",
 });
