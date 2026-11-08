@@ -1,3 +1,7 @@
+# IntellectIT fork-local Claude tooling — never commit upstream
+.claude/
+CLAUDE.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

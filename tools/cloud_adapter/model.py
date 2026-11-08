@@ -45,6 +45,7 @@ class ResourceTypes(Enum):
     reserved_instances = 'Reserved Instances'
     image = 'Image'
     load_balancer = 'Load Balancer'
+    storage_account = 'Storage Account'
 
     @classmethod
     def has_value(cls, value):
