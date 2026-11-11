@@ -16,4 +16,6 @@ export type Config = {
 
 export type Params = {
   config: Config;
+  // Sent for FOCUS only; absent, the API keeps the stored value
+  autoImport?: boolean;
 };

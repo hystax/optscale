@@ -12,3 +12,4 @@ class CloudTypes(Enum):
     NEBIUS = 'nebius'
     ENVIRONMENT = 'environment'
     DATABRICKS = 'databricks'
+    FOCUS = 'focus'

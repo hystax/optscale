@@ -12,6 +12,7 @@ import PageContentWrapper from "components/PageContentWrapper";
 import {
   DisconnectCloudAccountModal,
   UpdateDataSourceCredentialsModal,
+  EditFocusMappingModal,
   RenameDataSourceModal,
   KubernetesIntegrationModal,
   DataSourceBillingReimportModal,
@@ -35,6 +36,7 @@ import {
   ENVIRONMENT,
   AZURE_TENANT,
   DATABRICKS,
+  FOCUS,
   AZURE_CNR,
   GCP_CNR,
   ALIBABA_CNR,
@@ -134,6 +136,19 @@ const PageActionBar = ({ id, type, parentId, name, config, lastImportAt, isLoadi
             show: parentId,
             value: <FormattedMessage id="updateChildDataSourceCredentialsWarning" />,
           },
+        }),
+      },
+      {
+        show: type === FOCUS,
+        getItem: () => ({
+          key: "cloudAccountDetails-edit-focus-mapping",
+          icon: <SettingsIcon fontSize="small" />,
+          messageId: "editMapping",
+          dataTestId: "btn_edit_focus_mapping_modal",
+          type: "button",
+          isLoading,
+          action: () => openSideModal(EditFocusMappingModal, { name, id, config }),
+          requiredActions: ["MANAGE_CLOUD_CREDENTIALS"],
         }),
       },
       getBillingReimportButton(),
@@ -306,6 +321,8 @@ const Tabs = ({
           lastMetricsRetrievalAttempt={lastMetricsRetrievalAttempt}
           lastGettingMetricAttemptError={lastGettingMetricAttemptError}
           discoveryInfos={discoveryInfos}
+          // FOCUS data sources import billing reports only, monitoring metrics are not collected for them
+          withMonitoringMetricsImport={type !== FOCUS}
         />
       ),
       renderCondition: () => !isTenant,
@@ -313,8 +330,8 @@ const Tabs = ({
     {
       title: UPLOAD_TAB,
       dataTestId: "tab_upload",
-      node: !!id && <UploadCloudReportDataContainer cloudAccountId={id} />,
-      renderCondition: () => type === AWS_CNR && isAwsReportUploadEnabled,
+      node: !!id && <UploadCloudReportDataContainer cloudAccountId={id} dataSourceType={type} />,
+      renderCondition: () => (type === AWS_CNR && isAwsReportUploadEnabled) || type === FOCUS,
     },
     {
       title: NODES_TAB,

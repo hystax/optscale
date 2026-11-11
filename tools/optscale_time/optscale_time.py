@@ -14,6 +14,10 @@ def utcfromtimestamp(timestamp) -> datetime:
         timestamp, timezone.utc).replace(tzinfo=None)
 
 
+def utctimestamp(date) -> int:
+    return int(date.replace(tzinfo=timezone.utc).timestamp())
+
+
 def startday(date) -> datetime:
     return date.replace(hour=0, minute=0, second=0, microsecond=0)
 

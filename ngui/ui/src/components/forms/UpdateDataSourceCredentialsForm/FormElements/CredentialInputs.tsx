@@ -12,6 +12,7 @@ import {
   GCP_CREDENTIALS_FIELD_NAMES,
   DATABRICKS_CREDENTIALS_FIELD_NAMES,
   DatabricksCredentials,
+  FocusConnection,
   KubernetesCredentials,
   AwsLinkedCredentials,
   AwsRootCredentials,
@@ -40,6 +41,7 @@ import {
   NEBIUS,
   GCP_CNR,
   DATABRICKS,
+  FOCUS,
   KUBERNETES_CNR,
   GCP_TENANT,
 } from "utils/constants";
@@ -126,6 +128,8 @@ const CredentialInputs = ({ type, config }) => {
       return <AlibabaCredentials />;
     case DATABRICKS:
       return <DatabricksCredentials readOnlyFields={[DATABRICKS_CREDENTIALS_FIELD_NAMES.ACCOUNT_ID]} />;
+    case FOCUS:
+      return <FocusConnection />;
     case KUBERNETES_CNR:
       return <KubernetesCredentials />;
     case GCP_CNR:

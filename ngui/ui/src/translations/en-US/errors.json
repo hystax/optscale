@@ -89,6 +89,7 @@
   "OE0443": "Resource {0} is inactive",
   "OE0445": "Organization {0} ({1}) does not have connected cloud accounts",
   "OE0446": "{0} should be greater than {1}",
+  "OE0455": "Cloud connection error: {0}",
   "OE0457": "Unable to generate a report for the pool, please specify a TTL value",
   "OE0461": "Date must not be in the past",
   "OE0463": "Cluster type {0} already exists in the organization {1}",

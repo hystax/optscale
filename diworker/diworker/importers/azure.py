@@ -222,8 +222,9 @@ class AzureImporterBase(BaseReportImporter):
         else:
             raise Exception('Unknown usage kind for usage dict: {}'.format(u))
 
-        # some of the subscriptions contain meterId instead of meter_id
+        # some of the subscriptions contain camelCase instead of snake_case
         u['meter_id'] = u.get('meter_id') or u.pop('meterId', None)
+        u['charge_type'] = u.get('charge_type') or u.pop('chargeType', None)
 
         if u['meter_details'].get('meter_category', '') == 'Virtual Machines':
             u['box_usage'] = True
@@ -247,6 +248,9 @@ class AzureImporterBase(BaseReportImporter):
             else:
                 r_name = instance_id
                 r_type = expense.get('charge_type')
+                if not r_type:
+                    raise Exception(
+                        'Unable to detect resource type for %s' % instance_id)
             r_type = self.resource_type_map_lowered.get(
                 r_type.lower(), r_type)
             if r_type == 'Reserved Instances' and 'display_name' in expense:

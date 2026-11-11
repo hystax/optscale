@@ -33,6 +33,7 @@ REPORTS_PATH_PREFIX = 'reports'
 ETAG_STABLE_DAYS = 5
 DEFAULT_CSV_REWRITE_DAYS = 10
 RAW_SERVICE_FIELDS = {'report_identity', 'report_key', '_rec_n'}
+DELETE_CHUNK_SIZE = 10000
 
 
 def _get_throttle_semaphore(parent_id: str,
@@ -621,7 +622,7 @@ class BaseReportImporter:
 
     def clear_rudiments(self):
         for cloud_account_id, dates in self.imported_raw_dates_map.items():
-            result = self.mongo_raw.delete_many({
+            deleted_count = self.delete_raw_expenses({
                 'cloud_account_id': cloud_account_id,
                 'start_date': {
                     '$gte': dates.get('start_date'),
@@ -630,7 +631,20 @@ class BaseReportImporter:
                 'report_identity': {'$lt': self.report_identity}
             })
             LOG.info('Cleared %s rudiments for cloud_account %s' %
-                     (result.deleted_count, cloud_account_id))
+                     (deleted_count, cloud_account_id))
+
+    def delete_raw_expenses(self, query):
+        deleted = 0
+        while True:
+            ids = [
+                r['_id'] for r in self.mongo_raw.find(
+                    query, {'_id': 1}).limit(DELETE_CHUNK_SIZE)
+            ]
+            if ids:
+                deleted += self.mongo_raw.delete_many(
+                    {'_id': {'$in': ids}}).deleted_count
+            if len(ids) < DELETE_CHUNK_SIZE:
+                return deleted
 
 
 class CSVBaseReportImporter(BaseReportImporter):
@@ -888,8 +902,8 @@ class CSVBaseReportImporter(BaseReportImporter):
             'report_identity': {'$lt': self.report_identity},
             'start_date': {'$gte': self.min_date_import_threshold}
         }
-        result = self.mongo_raw.delete_many(query)
-        LOG.info('Cleared %s rudiments for %s', result.deleted_count, report_key)
+        deleted_count = self.delete_raw_expenses(query)
+        LOG.info('Cleared %s rudiments for %s', deleted_count, report_key)
 
     def _save_one_file_state(self, cloud_key):
         current_etag = self.report_cloud_etags.get(cloud_key, '')

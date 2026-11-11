@@ -1,6 +1,7 @@
 import { useFormContext, Controller } from "react-hook-form";
 import { MB } from "utils/constants";
 import Dropzone from "./Dropzone";
+import { isAcceptedFile } from "./utils";
 
 const FIELD_NAME = "upload";
 
@@ -22,7 +23,7 @@ const DropzoneArea = ({ acceptedFiles, name = FIELD_NAME, maxFileSizeMb = 512 })
           message: "selectFileToUpload",
         },
         validate: {
-          type: (value) => (!acceptedFiles.includes(value.type) ? "fileTypeNotSupported" : true),
+          type: (value) => (!isAcceptedFile(value, acceptedFiles) ? "fileTypeNotSupported" : true),
           size: (value) => (value.size > maxFileSizeMb * MB ? "fileIsTooBig" : true),
         },
       }}

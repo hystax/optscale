@@ -329,15 +329,14 @@ class KubernetesReportImporter(BaseReportImporter):
             '}[%sd:1h])[%sd:1d]' % (
                 self.cloud_acc_id, days, days), int(dt.timestamp()))
         info_timestamp_map = defaultdict(dict)
-        node_usage_map = defaultdict(dict)
         for info in infos:
             resource = info['metric']['resource']
             node_name = info['metric']['node']
             if node_name not in pod_nodes:
                 continue
             for timestamp, value in info.get('values', []):
-                node_usage_map[node_name].update({resource: float(value)})
-                info_timestamp_map[timestamp].update(node_usage_map)
+                info_timestamp_map[timestamp].setdefault(
+                    node_name, {})[resource] = float(value)
         return info_timestamp_map
 
     @staticmethod
@@ -478,6 +477,12 @@ class KubernetesReportImporter(BaseReportImporter):
                         node, value, total_metrics[dt_timestamp][node_name],
                         worked_hrs)
                     namespace = expense.get('namespace')
+                    node_capacity = {
+                        'cpu': node.cpu,
+                        'memory': node.memory * GB if node.memory else None,
+                    }
+                    node_capacity.update(
+                        node_info.get(dt_timestamp, {}).get(node_name) or {})
                     expense.update({
                         'metric': metric_name,
                         'value': value,
@@ -487,7 +492,7 @@ class KubernetesReportImporter(BaseReportImporter):
                         'cloud_account_id': self.cloud_acc_id,
                         'resource_id': resource_id,
                         'cost': cost,
-                        'node_info': node_info[dt_timestamp][node_name],
+                        'node_info': node_capacity,
                         'total_pods_value': total_metrics[dt_timestamp][node_name],
                         'service': pod_service_map.get(
                             (namespace, pod_name))
@@ -514,7 +519,10 @@ class KubernetesReportImporter(BaseReportImporter):
     def get_update_fields(self):
         return [
             'value',
-            'cost'
+            'cost',
+            'node_info',
+            'total_pods_value',
+            'end_date'
         ]
 
     def get_unique_field_list(self):

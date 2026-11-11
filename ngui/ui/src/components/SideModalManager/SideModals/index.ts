@@ -37,6 +37,7 @@ import DeleteSshKeyModal from "./DeleteSshKeyModal";
 import DeleteWebhookModal from "./DeleteWebhookModal";
 import DisconnectCloudAccountModal from "./DisconnectCloudAccountModal";
 import DisconnectGoogleCalendarModal from "./DisconnectGoogleCalendarModal";
+import EditFocusMappingModal from "./EditFocusMappingModal";
 import EditLeaderboardModal from "./EditLeaderboardModal";
 import EditModelPathModal from "./EditModelPathModal";
 import EditModelVersionAliasModal from "./EditModelVersionAliasModal";
@@ -100,6 +101,7 @@ export {
   CreateResourcePerspectiveModal,
   ApplyResourcePerspectiveModal,
   UpdateDataSourceCredentialsModal,
+  EditFocusMappingModal,
   RenameDataSourceModal,
   CreateOrganizationModal,
   DeleteMlMetricModal,

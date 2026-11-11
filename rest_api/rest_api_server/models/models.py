@@ -355,11 +355,18 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
             config['cost_model'] = self.cost_model.loaded_value
         if secure:
             adapter_cls = SUPPORTED_BILLING_TYPES.get(cloud_acc_dict['type'])
-            for p in adapter_cls.BILLING_CREDS:
-                if p.protected:
-                    config.pop(p.name, None)
+            self._remove_protected(config, adapter_cls.BILLING_CREDS)
         cloud_acc_dict['config'] = config
         return cloud_acc_dict
+
+    @classmethod
+    def _remove_protected(cls, config, params):
+        for p in params:
+            if p.protected:
+                config.pop(p.name, None)
+            elif p.dependencies and isinstance(config.get(p.name), dict):
+                config[p.name] = dict(config[p.name])
+                cls._remove_protected(config[p.name], p.dependencies)
 
     def to_json(self):
         return json.dumps(self.to_dict(secure=True), cls=ModelEncoder)

@@ -23,9 +23,17 @@ import {
   DATABRICKS_CREDENTIALS_FIELD_NAMES,
   GCP_CREDENTIALS_FIELD_NAMES,
   GCP_TENANT_CREDENTIALS_FIELD_NAMES,
+  getFocusConfigParams,
+  isFocusAutoImport,
   getRegionScopeConfigParams,
   KUBERNETES_CREDENTIALS_FIELD_NAMES,
 } from "components/DataSourceCredentialFields";
+import FocusMappingEditor, {
+  FOCUS_MAPPING_FIELD_NAME,
+  getDefaultFocusMappingFormValues,
+  isEmptyApiMapping,
+  mappingFormValuesToApi,
+} from "components/FocusMappingEditor";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import { FIELD_NAMES as NEBIUS_FIELD_NAMES } from "components/NebiusConfigFormElements";
 import { useIsDataSourceConnectionTypeEnabled } from "hooks/useIsDataSourceConnectionTypeEnabled";
@@ -34,6 +42,7 @@ import AlibabaLogoIcon from "icons/AlibabaLogoIcon";
 import AwsLogoIcon from "icons/AwsLogoIcon";
 import AzureLogoIcon from "icons/AzureLogoIcon";
 import DatabricksLogoIcon from "icons/DatabricksLogoIcon";
+import FocusLogoIcon from "icons/FocusLogoIcon";
 import GcpLogoIcon from "icons/GcpLogoIcon";
 import K8sLogoIcon from "icons/K8sLogoIcon";
 import NebiusLogoIcon from "icons/NebiusLogoIcon";
@@ -57,6 +66,7 @@ import {
   CLOUD_PROVIDERS,
   CONNECTION_TYPES,
   DATABRICKS,
+  FOCUS,
   GCP_CNR,
   GCP_TENANT,
   KUBERNETES_CNR,
@@ -92,6 +102,7 @@ type CloudType =
   | typeof ALIBABA_CNR
   | typeof NEBIUS
   | typeof DATABRICKS
+  | typeof FOCUS
   | typeof KUBERNETES_CNR;
 
 type CloudProviderTypes = Record<
@@ -123,6 +134,7 @@ const CLOUD_PROVIDER_TYPES: CloudProviderTypes = {
   [CLOUD_PROVIDERS.ALIBABA]: { connectionType: CONNECTION_TYPES.ALIBABA, cloudType: ALIBABA_CNR },
   [CLOUD_PROVIDERS.NEBIUS]: { connectionType: CONNECTION_TYPES.NEBIUS, cloudType: NEBIUS },
   [CLOUD_PROVIDERS.DATABRICKS]: { connectionType: CONNECTION_TYPES.DATABRICKS, cloudType: DATABRICKS },
+  [CLOUD_PROVIDERS.FOCUS]: { connectionType: CONNECTION_TYPES.FOCUS, cloudType: FOCUS },
   [CLOUD_PROVIDERS.KUBERNETES]: { connectionType: CONNECTION_TYPES.KUBERNETES, cloudType: KUBERNETES_CNR },
 };
 
@@ -346,6 +358,20 @@ const getDatabricksParameters = (formData: FieldValues) => ({
   },
 });
 
+const getFocusParameters = (formData: FieldValues) => {
+  const mapping = mappingFormValuesToApi(formData[FOCUS_MAPPING_FIELD_NAME]);
+
+  return {
+    name: formData[DATA_SOURCE_NAME_FIELD_NAME],
+    type: FOCUS,
+    config: getFocusConfigParams(formData),
+    // Sent explicitly, the API turns the scheduled import on when it is omitted
+    autoImport: isFocusAutoImport(formData),
+    // The mapping is a top-level parameter, not a part of the config; an all-default mapping is not sent
+    ...(isEmptyApiMapping(mapping) ? {} : { mapping }),
+  };
+};
+
 const renderConnectionTypeDescription = (settings) =>
   settings.map(({ key, messageId, values }, index) => (
     <Typography key={key} style={{ marginBottom: index !== settings.length - 1 ? "1rem" : "" }}>
@@ -475,6 +501,12 @@ const renderConnectionTypeInfoMessage = (connectionType: ConnectionType, authent
         },
       },
     ]),
+    [CONNECTION_TYPES.FOCUS]: renderConnectionTypeDescription([
+      {
+        key: "createFocusDocumentationReference",
+        messageId: "createFocusDocumentationReference",
+      },
+    ]),
     [CONNECTION_TYPES.NEBIUS]: null,
   })[connectionType];
 
@@ -505,6 +537,7 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
     defaultValues: {
       [AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_EXTERNAL_ID]: defaultAssumeRoleExternalId,
       [AWS_ROLE_CREDENTIALS_FIELD_NAMES.USE_EXTERNAL_ID]: true,
+      [FOCUS_MAPPING_FIELD_NAME]: getDefaultFocusMappingFormValues(),
     },
   });
 
@@ -577,6 +610,14 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
       messageId: "databricks",
       dataTestId: "btn_databricks_account",
       action: () => setConnectionType(CONNECTION_TYPES.DATABRICKS),
+      capability: OPTSCALE_CAPABILITY.FINOPS,
+    },
+    {
+      id: CLOUD_PROVIDERS.FOCUS,
+      icon: FocusLogoIcon,
+      messageId: "focus",
+      dataTestId: "btn_focus_account",
+      action: () => setConnectionType(CONNECTION_TYPES.FOCUS),
       capability: OPTSCALE_CAPABILITY.FINOPS,
     },
     {
@@ -675,6 +716,7 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
                       [NEBIUS]: getNebiusParameters,
                       [KUBERNETES_CNR]: getKubernetesParameters,
                       [DATABRICKS]: getDatabricksParameters,
+                      [FOCUS]: getFocusParameters,
                     }[cloudType];
 
                     onSubmit(await getParameters(formData));
@@ -684,6 +726,7 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
           >
             <DataSourceNameField />
             <ConnectionInputs connectionType={connectionType} authenticationType={authenticationType} />
+            {connectionType === CONNECTION_TYPES.FOCUS && <FocusMappingEditor name={FOCUS_MAPPING_FIELD_NAME} />}
             <FormButtonsWrapper justifyContent={!showCancel ? "center" : "left"}>
               <ButtonLoader
                 dataTestId="btn_connect_cloud_account"

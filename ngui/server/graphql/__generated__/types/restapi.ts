@@ -324,15 +324,18 @@ export type CloudPoliciesParams = {
 
 export type CreateDataSourceInput = {
   alibabaConfig?: InputMaybe<AlibabaConfigInput>;
+  autoImport?: InputMaybe<Scalars["Boolean"]["input"]>;
   awsAssumedRoleConfig?: InputMaybe<AwsAssumedRoleConfigInput>;
   awsLinkedConfig?: InputMaybe<AwsLinkedConfigInput>;
   awsRootConfig?: InputMaybe<AwsRootConfigInput>;
   azureSubscriptionConfig?: InputMaybe<AzureSubscriptionConfigInput>;
   azureTenantConfig?: InputMaybe<AzureTenantConfigInput>;
   databricksConfig?: InputMaybe<DatabricksConfigInput>;
+  focusConfig?: InputMaybe<FocusConfigInput>;
   gcpConfig?: InputMaybe<GcpConfigInput>;
   gcpTenantConfig?: InputMaybe<GcpTenantConfigInput>;
   k8sConfig?: InputMaybe<K8sConfigInput>;
+  mapping?: InputMaybe<Scalars["JSONObject"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
   nebiusConfig?: InputMaybe<NebiusConfigInput>;
   type?: InputMaybe<Scalars["String"]["input"]>;
@@ -392,6 +395,7 @@ export type DataSourceType =
   | "azure_tenant"
   | "databricks"
   | "environment"
+  | "focus"
   | "gcp_cnr"
   | "gcp_tenant"
   | "kubernetes_cnr"
@@ -469,6 +473,54 @@ export type ExpensesDailyBreakdown = {
   previous_total: Scalars["Int"]["output"];
   start_date: Scalars["Int"]["output"];
   total: Scalars["Int"]["output"];
+};
+
+export type FocusConfig = {
+  __typename?: "FocusConfig";
+  bucket_name?: Maybe<Scalars["String"]["output"]>;
+  bucket_prefix?: Maybe<Scalars["String"]["output"]>;
+  credentials?: Maybe<FocusCredentials>;
+  file_pattern?: Maybe<Scalars["String"]["output"]>;
+  mapping?: Maybe<Scalars["JSONObject"]["output"]>;
+  region_name?: Maybe<Scalars["String"]["output"]>;
+  s3_endpoint?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type FocusConfigInput = {
+  bucket_name?: InputMaybe<Scalars["String"]["input"]>;
+  bucket_prefix?: InputMaybe<Scalars["String"]["input"]>;
+  credentials?: InputMaybe<FocusCredentialsInput>;
+  file_pattern?: InputMaybe<Scalars["String"]["input"]>;
+  region_name?: InputMaybe<Scalars["String"]["input"]>;
+  s3_endpoint?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type FocusCredentials = {
+  __typename?: "FocusCredentials";
+  access_key_id?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type FocusCredentialsInput = {
+  access_key_id: Scalars["String"]["input"];
+  secret_access_key: Scalars["String"]["input"];
+};
+
+export type FocusDataSource = DataSourceInterface & {
+  __typename?: "FocusDataSource";
+  account_id: Scalars["String"]["output"];
+  config?: Maybe<FocusConfig>;
+  created_at?: Maybe<Scalars["Int"]["output"]>;
+  details?: Maybe<DataSourceDetails>;
+  id: Scalars["String"]["output"];
+  last_getting_metric_attempt_at: Scalars["Int"]["output"];
+  last_getting_metric_attempt_error?: Maybe<Scalars["String"]["output"]>;
+  last_getting_metrics_at: Scalars["Int"]["output"];
+  last_import_at: Scalars["Int"]["output"];
+  last_import_attempt_at: Scalars["Int"]["output"];
+  last_import_attempt_error?: Maybe<Scalars["String"]["output"]>;
+  name: Scalars["String"]["output"];
+  parent_id?: Maybe<Scalars["String"]["output"]>;
+  type: DataSourceType;
 };
 
 export type GcpBillingDataConfig = {
@@ -1000,16 +1052,19 @@ export type StripeSessionResult =
 
 export type UpdateDataSourceInput = {
   alibabaConfig?: InputMaybe<AlibabaConfigInput>;
+  autoImport?: InputMaybe<Scalars["Boolean"]["input"]>;
   awsAssumedRoleConfig?: InputMaybe<AwsAssumedRoleConfigInput>;
   awsLinkedConfig?: InputMaybe<AwsLinkedConfigInput>;
   awsRootConfig?: InputMaybe<AwsRootConfigInput>;
   azureSubscriptionConfig?: InputMaybe<AzureSubscriptionConfigInput>;
   azureTenantConfig?: InputMaybe<AzureTenantConfigInput>;
   databricksConfig?: InputMaybe<DatabricksConfigInput>;
+  focusConfig?: InputMaybe<FocusConfigInput>;
   gcpConfig?: InputMaybe<GcpConfigInput>;
   gcpTenantConfig?: InputMaybe<GcpTenantConfigInput>;
   k8sConfig?: InputMaybe<K8sConfigInput>;
   lastImportAt?: InputMaybe<Scalars["Int"]["input"]>;
+  mapping?: InputMaybe<Scalars["JSONObject"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
   nebiusConfig?: InputMaybe<NebiusConfigInput>;
 };
@@ -1124,6 +1179,7 @@ export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = 
     | AzureTenantDataSource
     | DatabricksDataSource
     | EnvironmentDataSource
+    | FocusDataSource
     | GcpDataSource
     | GcpTenantDataSource
     | K8sDataSource
@@ -1170,6 +1226,11 @@ export type ResolversTypes = {
   EnvironmentDataSource: ResolverTypeWrapper<EnvironmentDataSource>;
   ExpensesDailyBreakdown: ResolverTypeWrapper<ExpensesDailyBreakdown>;
   Float: ResolverTypeWrapper<Scalars["Float"]["output"]>;
+  FocusConfig: ResolverTypeWrapper<FocusConfig>;
+  FocusConfigInput: FocusConfigInput;
+  FocusCredentials: ResolverTypeWrapper<FocusCredentials>;
+  FocusCredentialsInput: FocusCredentialsInput;
+  FocusDataSource: ResolverTypeWrapper<FocusDataSource>;
   GcpBillingDataConfig: ResolverTypeWrapper<GcpBillingDataConfig>;
   GcpBillingDataConfigInput: GcpBillingDataConfigInput;
   GcpConfig: ResolverTypeWrapper<GcpConfig>;
@@ -1257,6 +1318,11 @@ export type ResolversParentTypes = {
   EnvironmentDataSource: EnvironmentDataSource;
   ExpensesDailyBreakdown: ExpensesDailyBreakdown;
   Float: Scalars["Float"]["output"];
+  FocusConfig: FocusConfig;
+  FocusConfigInput: FocusConfigInput;
+  FocusCredentials: FocusCredentials;
+  FocusCredentialsInput: FocusCredentialsInput;
+  FocusDataSource: FocusDataSource;
   GcpBillingDataConfig: GcpBillingDataConfig;
   GcpBillingDataConfigInput: GcpBillingDataConfigInput;
   GcpConfig: GcpConfig;
@@ -1507,6 +1573,7 @@ export type DataSourceInterfaceResolvers<
     | "AzureTenantDataSource"
     | "DatabricksDataSource"
     | "EnvironmentDataSource"
+    | "FocusDataSource"
     | "GcpDataSource"
     | "GcpTenantDataSource"
     | "K8sDataSource"
@@ -1596,6 +1663,47 @@ export type ExpensesDailyBreakdownResolvers<
   previous_total?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   start_date?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   total?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+};
+
+export type FocusConfigResolvers<
+  ContextType = ContextValue,
+  ParentType extends ResolversParentTypes["FocusConfig"] = ResolversParentTypes["FocusConfig"],
+> = {
+  bucket_name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  bucket_prefix?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  credentials?: Resolver<Maybe<ResolversTypes["FocusCredentials"]>, ParentType, ContextType>;
+  file_pattern?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  mapping?: Resolver<Maybe<ResolversTypes["JSONObject"]>, ParentType, ContextType>;
+  region_name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  s3_endpoint?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+};
+
+export type FocusCredentialsResolvers<
+  ContextType = ContextValue,
+  ParentType extends ResolversParentTypes["FocusCredentials"] = ResolversParentTypes["FocusCredentials"],
+> = {
+  access_key_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+};
+
+export type FocusDataSourceResolvers<
+  ContextType = ContextValue,
+  ParentType extends ResolversParentTypes["FocusDataSource"] = ResolversParentTypes["FocusDataSource"],
+> = {
+  account_id?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  config?: Resolver<Maybe<ResolversTypes["FocusConfig"]>, ParentType, ContextType>;
+  created_at?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
+  details?: Resolver<Maybe<ResolversTypes["DataSourceDetails"]>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  last_getting_metric_attempt_at?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  last_getting_metric_attempt_error?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  last_getting_metrics_at?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  last_import_at?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  last_import_attempt_at?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  last_import_attempt_error?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  parent_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes["DataSourceType"], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type GcpBillingDataConfigResolvers<
@@ -2155,6 +2263,9 @@ export type Resolvers<ContextType = ContextValue> = {
   EmployeeEmail?: EmployeeEmailResolvers<ContextType>;
   EnvironmentDataSource?: EnvironmentDataSourceResolvers<ContextType>;
   ExpensesDailyBreakdown?: ExpensesDailyBreakdownResolvers<ContextType>;
+  FocusConfig?: FocusConfigResolvers<ContextType>;
+  FocusCredentials?: FocusCredentialsResolvers<ContextType>;
+  FocusDataSource?: FocusDataSourceResolvers<ContextType>;
   GcpBillingDataConfig?: GcpBillingDataConfigResolvers<ContextType>;
   GcpConfig?: GcpConfigResolvers<ContextType>;
   GcpDataSource?: GcpDataSourceResolvers<ContextType>;

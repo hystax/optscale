@@ -31,15 +31,36 @@ class CloudAccountVerifyHandler(BaseAsyncCollectionHandler,
                 properties:
                     type:
                         type: string
-                        enum: [aws_cnr, azure_cnr]
+                        enum: [aws_cnr, azure_cnr, kubernetes_cnr,
+                               alibaba_cnr, azure_tenant, gcp_cnr, nebius,
+                               databricks, gcp_tenant, focus]
                         description: cloud account type
                     config:
-                        type: string
+                        type: object
                         description: >
-                            Json encoded string with credentials to access cloud
+                            Object with credentials to access cloud
+                    mapping:
+                        type: object
+                        description: |
+                            Focus cloud accounts only: field mapping, not
+                            accepted inside config
         responses:
-            201:
+            200:
                 description: Success
+                schema:
+                    type: object
+                    properties:
+                        status:
+                            type: string
+                            example: ok
+                        warnings:
+                            type: array
+                            items:
+                                type: string
+                            description: >
+                                Non-blocking problems found during the
+                                check, for example no report files found
+                                under the bucket prefix
             400:
                 description: |
                     Wrong arguments:
@@ -49,6 +70,10 @@ class CloudAccountVerifyHandler(BaseAsyncCollectionHandler,
                     - OE0223: Argument should be integer
                     - OE0224: Wrong integer value
                     - OE0226: Wrong boolean value
+                    - OE0344: Argument should be a dictionary
+                    - OE0371: Unable to configure billing report
+                    - OE0437: Can't connect the subscription
+                    - OE0575: Invalid configuration
             401:
                 description: |
                     Unauthorized:
@@ -68,8 +93,8 @@ class CloudAccountVerifyHandler(BaseAsyncCollectionHandler,
         data = self._request_body()
         data.update(url_params)
         try:
-            await run_task(self.controller.verify, data)
+            warnings = await run_task(self.controller.verify, data)
         except ForbiddenException as ex:
             raise OptHTTPError.from_opt_exception(403, ex)
         self.set_status(200)
-        self.write(json.dumps({'status': 'ok'}))
+        self.write(json.dumps({'status': 'ok', 'warnings': warnings or []}))

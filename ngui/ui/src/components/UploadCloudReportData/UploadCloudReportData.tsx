@@ -3,25 +3,22 @@ import { FormattedMessage } from "react-intl";
 import { DropzoneForm } from "components/Dropzone";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOrganizationActionRestrictions } from "hooks/useOrganizationActionRestrictions";
+import { getAcceptedFileTypes } from "./utils";
 
-const FILE_TYPES = [
-  "application/gzip",
-  "application/x-gzip",
-  "application/zip",
-  "application/x-zip-compressed",
-  "",
-  "text/csv",
-  ".csv",
-];
+type UploadCloudReportDataProps = {
+  dataSourceType: string;
+  onUpload: (file: File) => void;
+  isLoading: boolean;
+};
 
-const UploadCloudReportData = ({ onUpload, isLoading }) => {
+const UploadCloudReportData = ({ dataSourceType, onUpload, isLoading }: UploadCloudReportDataProps) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
   const canUpload = useIsAllowed({ requiredActions: ["MANAGE_CLOUD_CREDENTIALS"] });
 
   return canUpload ? (
     <DropzoneForm
-      acceptedFiles={FILE_TYPES}
+      acceptedFiles={getAcceptedFileTypes(dataSourceType)}
       onUpload={onUpload}
       isLoading={isLoading}
       isSubmitDisabled={isRestricted}

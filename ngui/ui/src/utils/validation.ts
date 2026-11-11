@@ -54,6 +54,33 @@ export const validJson = (value) => {
   }
 };
 
+// Lookarounds and backreferences, which RegExp supports and RE2 does not
+const RE2_UNSUPPORTED_SYNTAX = /\(\?<?[=!]|\\[1-9]|\\k</;
+
+// Checks a regular expression that the server compiles with RE2, using a JavaScript RegExp as a close approximation.
+// RE2 syntax that RegExp lacks (inline flags such as (?i) or (?i:re), named groups (?P<name>re)) is rewritten for the check,
+// and RegExp syntax that RE2 lacks fails it.
+export const isValidRegex = (value: string) => {
+  const pattern = value.trim();
+
+  // Escaped backslashes are dropped first, so that \\1 is not taken for a backreference
+  if (RE2_UNSUPPORTED_SYNTAX.test(pattern.replace(/\\\\/g, ""))) {
+    return false;
+  }
+
+  const regExpPattern = pattern
+    .replace(/\(\?[a-zA-Z-]+\)/g, "")
+    .replace(/\(\?[a-zA-Z-]+:/g, "(?:")
+    .replace(/\(\?P</g, "(?<");
+
+  try {
+    new RegExp(regExpPattern);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const validateSchema = (data, schema, options = {}) => {
   const ajv = new Ajv(options);
   const validate = ajv.compile(schema);

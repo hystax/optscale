@@ -16,6 +16,7 @@ from tools.cloud_adapter.exceptions import (
     BucketPrefixValidationError, ReportNameValidationError,
     CloudConnectionError, S3ConnectionError)
 from tools.cloud_adapter.cloud import Cloud as CloudAdapter
+from tools.cloud_adapter.clouds.focus import validate_mapping
 
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException, ForbiddenException,
@@ -215,8 +216,33 @@ class CloudAccountController(BaseController, ClickHouseMixin):
             raise_not_provided_exception('type')
         adapter_cls = self.get_adapter(cloud_acc_type)
         config = params.get('config', {})
-        # TODO: handle validation warnings
-        self.handle_config(adapter_cls, config)
+        self._check_mapping_params(cloud_acc_type, 'mapping' in params,
+                                   params.get('mapping'), config)
+        if 'mapping' in params:
+            config = self._with_mapping(config, params['mapping'])
+        _, _, warnings = self.handle_config(adapter_cls, config)
+        return warnings
+
+    @staticmethod
+    def _check_mapping_params(cloud_acc_type, mapping_passed, mapping,
+                              config):
+        # the mapping of a focus account is passed apart from its config
+        for name, value in (('config', config), ('mapping', mapping)):
+            if value is not None and not isinstance(value, dict):
+                raise WrongArgumentsException(Err.OE0344, [name])
+        if config and 'mapping' in config:
+            raise WrongArgumentsException(Err.OE0212, ['config.mapping'])
+        if mapping_passed and cloud_acc_type != CloudTypes.FOCUS.value:
+            raise WrongArgumentsException(Err.OE0212, ['mapping'])
+
+    @staticmethod
+    def _with_mapping(config, mapping):
+        if config is None:
+            config = {}
+        config = {k: v for k, v in config.items() if k != 'mapping'}
+        if mapping:
+            config['mapping'] = mapping
+        return config
 
     def get_adapter(self, cloud_acc_type):
         try:
@@ -324,8 +350,14 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         if cloud_acc_type is None:
             raise_not_provided_exception('type')
         adapter_cls = self.get_adapter(cloud_acc_type)
+        mapping_passed = 'mapping' in kwargs
+        mapping = kwargs.pop('mapping', None)
+        self._check_mapping_params(cloud_acc_type, mapping_passed, mapping,
+                                   kwargs.get('config'))
         self.check_create_restrictions(**kwargs)
         raw_config = kwargs.pop('config', {})
+        if mapping_passed:
+            raw_config = self._with_mapping(raw_config, mapping)
         config = raw_config
         if root_config:
             config = root_config
@@ -506,8 +538,24 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         return bool(set(kwargs.keys()).intersection(set(NOTIFY_FIELDS)))
 
     def edit(self, item_id, **kwargs):
+        mapping_passed = 'mapping' in kwargs
+        mapping = kwargs.pop('mapping', None)
         self.check_update_restrictions(**kwargs)
         cloud_acc_obj = self.get(item_id)
+        self._check_mapping_params(cloud_acc_obj.type.value, mapping_passed,
+                                   mapping, kwargs.get('config'))
+        # a mapping alone changes nothing the cloud is checked for
+        mapping_only = mapping_passed and not kwargs.get('config')
+        if mapping_only:
+            try:
+                validate_mapping(mapping)
+            except InvalidParameterException as ex:
+                raise ForbiddenException(Err.OE0433, [str(ex)])
+        elif kwargs.get('config') and cloud_acc_obj.type == CloudTypes.FOCUS:
+            # a new config keeps the stored mapping unless one is passed
+            if not mapping_passed:
+                mapping = cloud_acc_obj.decoded_config.get('mapping')
+            kwargs['config'] = self._with_mapping(kwargs['config'], mapping)
         self._validate(cloud_acc_obj, False, **kwargs)
         cloud_acc_type = cloud_acc_obj.type.value
         adapter_cls = self.get_adapter(cloud_acc_type)
@@ -612,13 +660,23 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                                                 cloud_acc_type, account_id,
                                                 cloud_acc_obj.id)
                 # k8s config is always different but must not be changed
-                # on update
-                if cloud_acc_obj.type != CloudTypes.KUBERNETES_CNR:
+                # on update. Focus accounts without a bucket get a random
+                # account_id on every validation, so keep the stored one if
+                # the account had no bucket before either
+                upload_only_focus = (
+                    cloud_acc_obj.type == CloudTypes.FOCUS and
+                    not config.get('bucket_name') and
+                    not old_config.get('bucket_name'))
+                if (cloud_acc_obj.type != CloudTypes.KUBERNETES_CNR and
+                        not upload_only_focus):
                     kwargs['account_id'] = account_id
                 kwargs['config'] = encode_config(config)
                 config_changed = config != old_config
             if cost_model:
                 cost_model_controller.edit(cloud_acc_obj.id, value=cost_model)
+        if mapping_only:
+            kwargs['config'] = encode_config(
+                self._with_mapping(old_config, mapping))
 
         if config_changed and cloud_acc_obj.auto_import:
             configuration_res = self._configure_report(
