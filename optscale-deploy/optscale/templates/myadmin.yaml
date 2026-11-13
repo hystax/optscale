@@ -55,7 +55,7 @@ spec:
 {{ include "wait_mariadb" . | indent 6 }}
       containers:
       - name: {{ $config.name }}
-        image: "phpmyadmin/phpmyadmin:4.7"
+        image: "phpmyadmin:5.2.3"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
