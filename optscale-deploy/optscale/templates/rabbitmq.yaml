@@ -142,6 +142,7 @@ metadata:
     release: {{ .Release.Name }}
   name: {{ $config.name }}
 automountServiceAccountToken: true
+{{- if not $config.usePersistentVolume }}
 ---
 kind: PersistentVolume
 apiVersion: v1
@@ -160,6 +161,7 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   hostPath:
     path: "/optscale/rabbitmq"
+    type: DirectoryOrCreate
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -172,6 +174,7 @@ spec:
   resources:
     requests:
       storage: {{ $config.mnesiaSize }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -860,9 +863,11 @@ spec:
           name: {{ $config.service.name }}-config
       - name: datadir
         emptyDir: {}
+{{- if not $config.usePersistentVolume }}
       - name: mnesia
         persistentVolumeClaim:
           claimName: {{ $config.name }}-claim
+{{- end }}
       - name: definitions
         secret:
           secretName: rabbit-secret
@@ -870,3 +875,18 @@ spec:
           - key: definitions.json
             path: definitions.json
 {{ include "anti-affinity" $config | indent 6 }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: mnesia
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+{{ include "pvc_storage_class" . | indent 6 }}
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ $config.mnesiaSize }}
+{{- end }}

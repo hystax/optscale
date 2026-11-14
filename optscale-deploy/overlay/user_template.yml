@@ -1,3 +1,6 @@
+# Select a storage class for enabled PVCs; see README.md
+storageClass: ""
+
 # secret should be permanent for cluster installation
 # change it before cluster installation
 secrets:
