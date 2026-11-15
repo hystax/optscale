@@ -51,3 +51,5 @@ spec:
           value: {{ $config.name }}
         - name: OTEL_SERVICE_VERSION
           value: {{ $config.image.tag }}
+        - name: AWS_REPORT_CACHE_TTL_DAYS
+          value: {{ $config.cache_ttl_days | quote }}
