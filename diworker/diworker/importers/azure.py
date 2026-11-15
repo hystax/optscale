@@ -10,6 +10,7 @@ from tools.cloud_adapter.clouds.azure import (
     ExpenseImportScheme,
     AzureAuthenticationError,
     AzureResourceNotFoundError,
+    SubscriptionState
 )
 
 from diworker.diworker.importers.base import BaseReportImporter
@@ -448,6 +449,11 @@ class AzureApiImporter(AzureImporterBase):
                    ], raise_codes=[403])
     def load_raw_data(self):
         import_scheme = self.cloud_adapter.expense_import_scheme
+        subscription_state = self.cloud_adapter.subscription_state
+        if subscription_state in  [SubscriptionState.DELETED.value, SubscriptionState.DISABLED.value]:
+            LOG.warning("Subscription %s is in state %s, skipping expenses import",
+                        self.cloud_acc['name'], subscription_state)
+            return
         if import_scheme == ExpenseImportScheme.usage.value:
             self._load_usage_data()
         elif import_scheme == ExpenseImportScheme.raw_usage.value:
