@@ -27,6 +27,7 @@ spec:
             app: {{ $config.name }}
             release: {{ .Release.Name }}
         spec:
+{{ include "image.pullSecrets" $ | indent 10 }}
           initContainers:
 {{ include "wait_for_service" .Values.rabbitmq | indent 10 }}
 {{ include "wait_for_service" .Values.etcd | indent 10 }}
@@ -35,7 +36,7 @@ spec:
 {{- end }}
           containers:
           - name: {{ $config.name }}
-            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            image: "{{ include "image.ref" (dict "registry" $.Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" $.Values.docker_tag) }}"
             imagePullPolicy: {{ $config.image.pullPolicy }}
             env:
             - name: IMAGE_ID

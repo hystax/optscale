@@ -259,6 +259,8 @@ minio:
   replicaCount: 1
   image:
     id:
+    repository: hystax/minio
+    tag: local@sha256:d146037cf1c5475a896c35ff41b88b8c1f084361180fd7541d375cc8c1c21adb
     pullPolicy: IfNotPresent
   service:
     name: *minio_name
@@ -971,9 +973,11 @@ public_port: 443
 
 # filled from base overlay
 # only for humans, no robots here
+# Image loading defaults to the node-local workflow used by runkube.py.
 docker_registry:
 docker_tag:
-
+imagePullSecrets: []
+dockerhub_dockercfg:
 # filled from base overlay
 optscale_key:
 
@@ -1154,6 +1158,6 @@ stripe:
 #open telemetry settings
 opentelemetry:
   enabled: true
-  exporter: 
+  exporter:
     type: otlp
     connection_string: http://tempo.default.svc.cluster.local:4317

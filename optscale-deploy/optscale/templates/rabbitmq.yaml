@@ -195,6 +195,7 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
       terminationGracePeriodSeconds: 10
       serviceAccountName: {{ $config.name }}
 
