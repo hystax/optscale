@@ -70,6 +70,15 @@ from tools.cloud_adapter.utils import (
     gbs_to_bytes,
 )
 
+class SubscriptionState(str, enum.Enum):
+    # Ref: https://learn.microsoft.com/en-us/python/api/azure-mgmt-subscription/azure.mgmt.subscription.models.subscription?view=azure-python
+    ENABLED = "Enabled"
+    WARNED = "Warned"
+    PAST_DUE = "PastDue"
+    DISABLED = "Disabled"
+    DELETED = "Deleted"
+
+
 # Silence annoying logs from Azure SDK
 logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(
     logging.WARNING)
@@ -462,6 +471,7 @@ class Azure(CloudBase):
     def __init__(self, cloud_config, *args, **kwargs):
         self.config = cloud_config
         self._subscription_id = self.config.get('subscription_id')
+        self._subscription_state = None
         self._service_principal_credentials = None
         self._client_secret_credentials = None
         self._msal_credential = None  # MSAL-based credential
@@ -669,6 +679,18 @@ class Azure(CloudBase):
         self._subscription = SubscriptionClient(
             self.service_principal_credentials, base_url=self.base_url)
         return self._subscription
+
+    @property
+    def subscription_state(self):
+        if self._subscription_state is None:
+            try:
+                subscription = self.subscription.subscriptions.get(self._subscription_id)
+            except ResourceNotFoundError:
+                self._subscription_state = SubscriptionState.DELETED.value
+                LOG.warning("Subscription %s not found, assuming state is DELETED", self._subscription_id)
+            else:
+                self._subscription_state = subscription.state
+        return self._subscription_state
 
     @property
     def monitor(self):
