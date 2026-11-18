@@ -249,6 +249,8 @@ etcd:
     timeout: ""
     writing_timeout: 60
     observe_timeout: 7200
+    concurrency: 1
+    max_stall_seconds: 1800
     debug: ""
   bi_settings:
     exporter_run_period: 86400

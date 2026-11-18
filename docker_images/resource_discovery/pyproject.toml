@@ -22,4 +22,11 @@ optscale-time = { path = "../../tools/optscale_time", editable = true }
 dev = [
     "pycodestyle==2.11.1",
     "pylint==3.0.2",
+    "pytest>=8.4.2,<9.0.0",
+    "pytest-mock>=3.15.1,<4.0.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["../.."]
+cache_dir = ".cache/pytest"
