@@ -70,7 +70,13 @@ class TestAuthPolicies(TestAuthBase):
         return assignment
 
     def _login(self, user):
-        self.client.token = self.get_token(user.email, PASSWORD)
+        # cluster secret issuance: a password login of a member of an
+        # enforcing organization would return an MFA challenge instead
+        self.client.token = None
+        self.client.secret = self.cluster_secret
+        code, token = self.client.token_get_user_id(user.id)
+        self.assertEqual(code, 201)
+        self.client.token = token['token']
         self.client.secret = None
 
     def _use_secret(self):

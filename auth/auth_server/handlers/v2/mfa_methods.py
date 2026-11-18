@@ -9,8 +9,14 @@ from auth.auth_server.utils import ModelEncoder, run_task
 
 
 class MfaMethodAuthMixin:
-    async def get_auth_args(self):
-        """Cluster secret or owner's token: returns the controller token arg"""
+    async def get_auth_args(self, data):
+        """
+        Cluster secret or owner's token: returns the controller token arg.
+        With challenge_id in the body the login challenge is the credential,
+        the controller checks it.
+        """
+        if data.get('challenge_id') is not None:
+            return {'token': None}
         if self.secret:
             self.check_cluster_secret()
             return {'token': None}
@@ -46,7 +52,9 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
             returned. For `email` a code is sent to the user's address and
             the label is set to the masked address. Restarting an
             unconfirmed enrollment replaces it.
-            Required permission: TOKEN of the user or CLUSTER_SECRET
+            Required permission: TOKEN of the user, CLUSTER_SECRET or
+            `challenge_id` of an `enrollment_required` login challenge of
+            the user (enforced user signing in without a method)
         tags: [mfa_methods]
         summary: Start MFA method enrollment
         parameters:
@@ -66,6 +74,11 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
                         description: Method type}
                     label: {type: string,
                         description: Free text (device info), totp only}
+                    challenge_id:
+                        type: string
+                        description: >-
+                            enrollment_required login challenge, instead of
+                            a token
         responses:
             201:
                 description: Pending MFA method
@@ -115,10 +128,13 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
                     - OA0012: Forbidden!
                     - OA0072: The verification code can be generated once
                       in a minute (email)
+                    - OA0089: An authentication method is already enrolled
+                      (challenge_id)
             404:
                 description: |
                     Not found:
                     - OA0024: User was not found
+                    - OA0085: Login challenge is invalid or expired
             409:
                 description: |
                     Conflict:
@@ -129,9 +145,8 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
         - token: []
         - secret: []
         """
-        args = await self.get_auth_args()
         data = self.get_body()
-        data.update(args)
+        data.update(await self.get_auth_args(data))
         res = await run_task(self.controller.create, user_id, **data)
         self.set_status(201)
         self.write(json.dumps(res, cls=ModelEncoder))
@@ -163,7 +178,9 @@ class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
             app (totp) or from the e-mail (email). The first confirmed
             method becomes the default one. A TOTP code is accepted only
             once.
-            Required permission: TOKEN of the user or CLUSTER_SECRET
+            Required permission: TOKEN of the user, CLUSTER_SECRET or
+            `challenge_id` of an `enrollment_required` login challenge of
+            the user (enforced user signing in without a method)
         tags: [mfa_methods]
         summary: Confirm MFA method enrollment
         parameters:
@@ -185,6 +202,12 @@ class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
                 required: [code]
                 properties:
                     code: {type: string, description: 6-digit code}
+                    challenge_id:
+                        type: string
+                        description: >-
+                            enrollment_required login challenge, instead of
+                            a token; the challenge is consumed and a token
+                            is returned
         responses:
             200:
                 description: Confirmed MFA method
@@ -205,6 +228,24 @@ class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
                             description: Creation timestamp}
                         deleted_at: {type: integer,
                             description: Deletion timestamp}
+            201:
+                description: |
+                    Challenge mode: confirmed method and authorization token
+                schema:
+                    type: object
+                    properties:
+                        method: {type: object,
+                            description: Confirmed MFA method}
+                        token:
+                            type: object
+                            properties:
+                                created_at: {type: string}
+                                user_id: {type: string}
+                                user_email: {type: string}
+                                valid_until: {type: string}
+                                ip: {type: string}
+                                digest: {type: string}
+                                token: {type: string}
             400:
                 description: |
                     Wrong arguments:
@@ -223,12 +264,22 @@ class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
                     Forbidden:
                     - OA0006: Bad secret
                     - OA0012: Forbidden!
-                    - OA0083: Invalid authentication code
+                    - OA0083: Invalid authentication code (token or
+                      secret)
+                    - OA0086: Verification code is invalid, attempts left
+                      (challenge_id)
+                    - OA0087: Too many failed attempts, sign in again
+                      (challenge_id)
+                    - OA0089: An authentication method is already enrolled
+                      (challenge_id)
+                    - OA0090: Too many failed attempts, try again later
+                      (challenge_id)
             404:
                 description: |
                     Not found:
                     - OA0003: MFA method not found (or enrollment expired)
                     - OA0024: User was not found
+                    - OA0085: Login challenge is invalid or expired
             409:
                 description: |
                     Conflict:
@@ -237,9 +288,15 @@ class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
         - token: []
         - secret: []
         """
-        args = await self.get_auth_args()
         data = self.get_body()
-        data.update(args)
+        data.update(await self.get_auth_args(data))
+        if data.get('challenge_id') is not None:
+            data['ip'] = self.get_ip_addr()
         res = await run_task(self.controller.confirm, user_id, method_id,
                              **data)
-        self.write(res.to_json())
+        if isinstance(res, dict):
+            # challenge mode: method confirmed and token issued
+            self.set_status(201)
+            self.write(json.dumps(res, cls=ModelEncoder))
+        else:
+            self.write(res.to_json())

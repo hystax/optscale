@@ -1,48 +1,34 @@
 import logging
-import datetime
-import hashlib
+import tornado.web
 from sqlalchemy import and_
-from sqlalchemy.exc import IntegrityError
 
-from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.auth_policy import AuthPolicyController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.controllers.login_challenge import (
+    LoginChallengeController)
+from auth.auth_server.controllers.mfa_method import MfaMethodController
+from auth.auth_server.controllers.token_issuer import TokenIssuer
+from auth.auth_server.controllers.verification_code import (
+    VerificationCodeController)
 from auth.auth_server.exceptions import Err
-from auth.auth_server.models.models import Token, User
-from auth.auth_server.auth_token.macaroon import MacaroonToken, MFA_NONE
+from auth.auth_server.models.models import (
+    LoginChallengeState, MFAType, User)
 from auth.auth_server.utils import (hash_password, popkey,
                                     raise_not_provided_error)
 
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   ForbiddenException,
                                                   NotFoundException)
-from tools.optscale_time import utcnow
-from optscale_client.config_client.client import etcd
 
 LOG = logging.getLogger(__name__)
-DEFAULT_TOKEN_EXPIRATION = 168
 
 
-def xstr(s):
-    if s is None:
-        return ''
-    return str(s)
-
-
-class TokenController(BaseController):
-    def _get_model_type(self):
-        return Token
-
+class TokenController(TokenIssuer):
     @property
     def create_restrictions(self):
         return super().create_restrictions + [
-            'email', 'password', 'verification_code']
-
-    @property
-    def expiration(self):
-        try:
-            return int(self._config.read('/token_expiration').value)
-        except (etcd.EtcdKeyNotFound, ValueError):
-            return DEFAULT_TOKEN_EXPIRATION
+            'email', 'password', 'verification_code', 'challenge_id', 'code',
+            'method_id']
 
     def _check_user(self, email, password=None, verification_code=None):
         user = self.session.query(User).filter(
@@ -79,10 +65,100 @@ class TokenController(BaseController):
         return user
 
     def create(self, **kwargs):
+        """
+        Returns a token, or a login challenge (dict with challenge_id) when
+        a second factor is needed. Called again with challenge_id + code to
+        complete the challenge.
+        """
+        if kwargs.get('challenge_id') is not None:
+            return self._complete_challenge(**kwargs)
         user = self._check_input(**kwargs)
+        user_id, salt = user.id, user.salt
         popkey(kwargs, 'password')
         popkey(kwargs, 'verification_code')
+        # from here to the commit of the challenge or of the token under the
+        # user lock: the MFA decision cannot miss a method confirmed (or a
+        # password changed) meanwhile
+        challenges = LoginChallengeController(self.session, self._config)
+        challenges.lock_sign_in(user_id, salt)
+        user = self.session.query(User).filter(User.id == user_id).one()
+        challenge = self._get_login_challenge(user)
+        if challenge is not None:
+            return challenge
         return self.create_user_token(user, **kwargs)
+
+    def _send_challenge_code(self, user):
+        """E-mail code sent along with the challenge. A failure must not
+        break the login: the user can request a new code or switch method"""
+        try:
+            VerificationCodeController(
+                self.session, self._config).send_mfa_code(user)
+            return True
+        except ForbiddenException:
+            LOG.info('MFA code for user %s not sent: throttled', user.id)
+        except tornado.web.HTTPError:
+            LOG.warning('MFA code for user %s not sent: herald unavailable',
+                        user.id)
+        return False
+
+    def _get_login_challenge(self, user):
+        """
+        MFA decision after a successful password / recovery code check,
+        under the user lock (read after it, so up to date):
+        - confirmed methods -> mfa_required challenge
+        - no method, but an organization enforces MFA -> enrollment_required
+        - otherwise None (token issued as before)
+        """
+        challenges = LoginChallengeController(self.session, self._config)
+        methods = MfaMethodController(
+            self.session, self._config).get_confirmed_methods(user.id)
+        if methods:
+            challenge = challenges.create(
+                user, LoginChallengeState.mfa_required)
+            code_sent = False
+            if methods[0].type == MFAType.email:
+                code_sent = self._send_challenge_code(user)
+            return challenges.to_response(challenge, methods, code_sent)
+        policies = AuthPolicyController(self.session, self._config)
+        if policies.is_mfa_enforced_for_user(user.id):
+            challenge = challenges.create(
+                user, LoginChallengeState.enrollment_required)
+            return challenges.to_response(challenge, [])
+        return None
+
+    def _complete_challenge(self, challenge_id=None, code=None,
+                            method_id=None, ip=None, **_):
+        if code is None:
+            raise_not_provided_error('code')
+        for name, value in [('code', code), ('method_id', method_id)]:
+            if value is not None and not isinstance(value, str):
+                raise WrongArgumentsException(Err.OA0033, [name])
+        challenges = LoginChallengeController(self.session, self._config)
+        challenge = challenges.get_valid(challenge_id)
+        if challenge.state == LoginChallengeState.enrollment_required:
+            raise ForbiddenException(Err.OA0088, [])
+        mfa_methods = MfaMethodController(self.session, self._config)
+        methods = mfa_methods.get_confirmed_methods(challenge.user_id)
+        method = next((m for m in methods if m.id == method_id),
+                      None) if method_id else (methods[0] if methods else None)
+        if method is None:
+            raise NotFoundException(Err.OA0003, ['MFAMethod', method_id])
+        challenge_id, user_id = challenge.id, challenge.user_id
+        mfa = method.type.value
+        challenges.verify_attempt(
+            challenge_id, user_id,
+            lambda: mfa_methods.verify_code(method, code))
+        # consume and token in one transaction under the user lock: a
+        # password change (same row) happens before (the challenge is gone)
+        # or after (the token is signed with the old salt, so revoked)
+        challenges.lock_user(user_id)
+        challenges.consume(challenge_id, commit=False)
+        user = challenges.get_active_user(user_id)
+        token = self.create_user_token(user, mfa=mfa, ip=ip)
+        challenges.reset_attempts(user_id)
+        LOG.info('Login challenge completed for user %s with %s',
+                 user_id, mfa)
+        return token
 
     def create_token_by_user_id(self, **kwargs):
         user_id = kwargs.get('user_id')
@@ -101,30 +177,6 @@ class TokenController(BaseController):
         if not user.verified:
             raise ForbiddenException(Err.OA0073, [])
         return self.create_user_token(user, **kwargs)
-
-    def create_user_token(self, user, mfa=MFA_NONE, **kwargs):
-        model_type = self._get_model_type()
-        LOG.info("Creating %s with parameters %s", model_type.__name__, kwargs)
-        now = utcnow()
-        macaroon_token = MacaroonToken(user.salt, user.id).create(
-            xstr(kwargs.get('register', False)),
-            xstr(kwargs.get('provider', 'optscale')),
-            mfa,
-        )
-        params = {
-            'user_id': user.id,
-            'created_at': now,
-            'valid_until': now + datetime.timedelta(hours=self.expiration),
-            'ip': kwargs.get('ip'),
-            'digest': hashlib.md5(macaroon_token.encode('utf-8')).hexdigest()
-        }
-        token = model_type(**params)
-        self.session.add(token)
-        try:
-            self.session.commit()
-        except IntegrityError as ex:
-            raise WrongArgumentsException(Err.OA0061, [str(ex)])
-        return {'token': macaroon_token, **token.to_dict()}
 
 
 class TokenAsyncController(BaseAsyncControllerWrapper):

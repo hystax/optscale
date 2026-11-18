@@ -220,3 +220,21 @@ class Err(enum.Enum):
     OA0084 = [
         "Authentication method %s is already confirmed",
     ]
+    OA0085 = [
+        "Login challenge is invalid or expired",
+    ]
+    OA0086 = [
+        "Verification code is invalid, %s attempts left",
+    ]
+    OA0087 = [
+        "Too many failed attempts, sign in again",
+    ]
+    OA0088 = [
+        "An authentication method must be enrolled first",
+    ]
+    OA0089 = [
+        "An authentication method is already enrolled, sign in again",
+    ]
+    OA0090 = [
+        "Too many failed attempts, try again later",
+    ]

@@ -2,7 +2,8 @@ from unittest.mock import patch, PropertyMock
 
 import tornado.testing
 
-from auth.auth_server.controllers.token import DEFAULT_TOKEN_EXPIRATION
+from auth.auth_server.controllers.token_issuer import (
+    DEFAULT_TOKEN_EXPIRATION)
 from auth.auth_server.models.models import Type, User, gen_id
 from auth.auth_server.models.db_factory import DBType, DBFactory
 from auth.auth_server.models.db_base import BaseDB
@@ -58,8 +59,8 @@ class TestAuthBase(tornado.testing.AsyncHTTPTestCase):
               return_value=None).start()
         patch('auth.auth_server.utils.get_encryption_salt',
               return_value=gen_salt()).start()
-        patch('auth.auth_server.controllers.token.TokenController.expiration',
-              new_callable=PropertyMock,
+        patch('auth.auth_server.controllers.token_issuer.TokenIssuer.'
+              'expiration', new_callable=PropertyMock,
               return_value=DEFAULT_TOKEN_EXPIRATION).start()
 
         patch("auth.auth_server.controllers.base."
