@@ -107,6 +107,9 @@ def get_handlers(handler_kwargs):
         (urls_v2.user_mfa_methods_collection, get_handler_version(
             h_v2, "mfa_methods").MfaMethodAsyncCollectionHandler,
          handler_kwargs),
+        (urls_v2.user_mfa_method, get_handler_version(
+            h_v2, "mfa_methods").MfaMethodAsyncItemHandler,
+         handler_kwargs),
         (urls_v2.user_mfa_method_confirm, get_handler_version(
             h_v2, "mfa_methods").MfaMethodConfirmAsyncHandler,
          handler_kwargs),

@@ -1,8 +1,11 @@
 import hmac
 import logging
+from enum import Enum
 
 import pyotp
 
+from auth.auth_server.controllers.auth_policy import (
+    AuthPolicyController, MANAGE_POLICY_ACTION, ORGANIZATION_TYPE)
 from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
 from auth.auth_server.controllers.login_challenge import (
@@ -12,7 +15,7 @@ from auth.auth_server.controllers.verification_code import (
     MfaCodePurpose, VerificationCodeController)
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (
-    MFAMethod, MFAType, User, VerificationCodePurpose)
+    MFAMethod, MFAType, Token, User, VerificationCodePurpose)
 from auth.auth_server.utils import (
     TOTP_DIGITS, TOTP_PERIOD, build_otpauth_uri, check_kwargs_is_empty,
     check_string_attribute, decrypt_mfa_secret, encrypt_mfa_secret,
@@ -28,6 +31,14 @@ PENDING_LIFETIME_MIN = 15
 # TOTP steps accepted before and after the current one (clock drift)
 TOTP_VALID_WINDOW = 1
 LABEL_MAX_LENGTH = 256
+
+
+class MfaStatus(Enum):
+    """MFA state of a user, for the Security page"""
+    not_configured = 'not_configured'
+    configured = 'configured'
+    # an organization of the user enforces MFA, with or without a method
+    enforced = 'enforced'
 
 
 class MfaMethodController(BaseController):
@@ -329,6 +340,183 @@ class MfaMethodController(BaseController):
         LOG.info('MFA method %s (%s) confirmed for user %s', method_id,
                  method.type.value, user_id)
         return method
+
+    # --- management (MPT-26345) ---
+
+    def status(self, user_id, token=None, **kwargs):
+        """
+        MFA state of a user for the Security page: the confirmed methods,
+        the default one first, and whether an organization enforces MFA.
+        """
+        check_kwargs_is_empty(**kwargs)
+        self.check_user_access(user_id, token)
+        methods = self.get_confirmed_methods(user_id)
+        enforcing = AuthPolicyController(
+            self.session, self._config).get_enforcing_organizations(user_id)
+        if enforcing:
+            status = MfaStatus.enforced
+        elif methods:
+            status = MfaStatus.configured
+        else:
+            status = MfaStatus.not_configured
+        return {
+            'methods': [m.to_dict() for m in methods],
+            'mfa_enforced': bool(enforcing),
+            'enforcing_organizations': enforcing,
+            'status': status.value,
+        }
+
+    def _get_active(self, user_id, method_id, for_update=False):
+        """A method of the user, pending or confirmed, not removed"""
+        query = self.session.query(MFAMethod).filter(
+            MFAMethod.id == method_id,
+            MFAMethod.user_id == user_id,
+            MFAMethod.deleted.is_(False),
+        )
+        if for_update:
+            query = query.with_for_update()
+        return query.one_or_none()
+
+    def _get_confirmed_for_update(self, user_id):
+        # locking read, under the user lock: the latest committed rows
+        return self.session.query(MFAMethod).filter(
+            MFAMethod.user_id == user_id,
+            MFAMethod.deleted.is_(False),
+            MFAMethod.confirmed_at != 0,
+        ).order_by(MFAMethod.created_at).with_for_update().all()
+
+    def update(self, user_id, method_id, token=None, **kwargs):
+        """
+        Renames a method (totp only: the e-mail label is the masked address)
+        or makes it the default one. Only a confirmed method can be the
+        default and there is exactly one: the previous default loses the
+        flag. is_default can only be set, the flag is moved by setting it
+        on another method.
+        """
+        label = kwargs.pop('label', None)
+        is_default = kwargs.pop('is_default', None)
+        check_kwargs_is_empty(**kwargs)
+        if label is None and is_default is None:
+            raise WrongArgumentsException(Err.OA0032, ['label or is_default'])
+        if label is not None:
+            check_string_attribute('label', label,
+                                   max_length=LABEL_MAX_LENGTH)
+        if is_default is not None:
+            if not isinstance(is_default, bool):
+                raise WrongArgumentsException(Err.OA0063, ['is_default'])
+            if not is_default:
+                raise WrongArgumentsException(Err.OA0060, ['is_default'])
+        user = self.check_user_access(user_id, token)
+        method = self.get_method(user.id, method_id)
+        if label is not None and method.type == MFAType.email:
+            raise WrongArgumentsException(Err.OA0060, ['label'])
+        if is_default and not method.confirmed:
+            raise ConflictException(Err.OA0092, [method_id])
+        # under the user lock: serialized with confirmations and removals,
+        # which move the default flag too
+        challenges = LoginChallengeController(self.session, self._config)
+        challenges.lock_user(user_id)
+        method = self._get_active(user_id, method_id, for_update=True)
+        if method is None:
+            challenges.abort(NotFoundException(
+                Err.OA0003, [MFAMethod.__name__, method_id]))
+        if label is not None:
+            method.label = label
+        if is_default:
+            if not method.confirmed:
+                challenges.abort(ConflictException(Err.OA0092, [method_id]))
+            for other in self._get_confirmed_for_update(user_id):
+                other.is_default = other.id == method_id
+        self.session.commit()
+        LOG.info('MFA method %s of user %s updated (%s)', method_id, user_id,
+                 'default' if is_default else 'label')
+        return method
+
+    def delete(self, user_id, method_id, token=None, **kwargs):
+        """
+        Removes a method. A pending enrollment is dropped. For a confirmed
+        method: the last one cannot be removed while an organization
+        enforces MFA, and removing the default one promotes the oldest
+        other confirmed method. Under the user lock: two concurrent
+        removals cannot both pass the last-method check.
+        """
+        check_kwargs_is_empty(**kwargs)
+        user = self.check_user_access(user_id, token)
+        self.get_method(user.id, method_id)
+        challenges = LoginChallengeController(self.session, self._config)
+        challenges.lock_user(user_id)
+        method = self._get_active(user_id, method_id, for_update=True)
+        if method is None:
+            challenges.abort(NotFoundException(
+                Err.OA0003, [MFAMethod.__name__, method_id]))
+        type_ = method.type.value
+        if not method.confirmed:
+            # never confirmed: no history worth keeping
+            self.session.delete(method)
+            self.session.commit()
+            LOG.info('Pending MFA method %s (%s) of user %s dropped',
+                     method_id, type_, user_id)
+            return
+        others = [m for m in self._get_confirmed_for_update(user_id)
+                  if m.id != method_id]
+        if not others and AuthPolicyController(
+                self.session, self._config).is_mfa_enforced_for_user(user_id):
+            challenges.abort(ForbiddenException(Err.OA0091, []))
+        method.deleted_at = utcnow_timestamp()
+        if method.is_default:
+            method.is_default = False
+            if others:
+                others[0].is_default = True
+        self.session.commit()
+        LOG.info('MFA method %s (%s) of user %s removed, %s left', method_id,
+                 type_, user_id, len(others))
+
+    def _check_manager_access(self, token, user_id):
+        """
+        The token must carry the organization manager permission on one of
+        the user's organizations. A user without organizations cannot be
+        reset by a token (cluster secret only).
+        """
+        policies = AuthPolicyController(self.session, self._config)
+        for organization_id in policies.get_user_organizations(user_id):
+            try:
+                self.check_permissions(token, ORGANIZATION_TYPE,
+                                       organization_id, MANAGE_POLICY_ACTION)
+                return
+            except (ForbiddenException, NotFoundException):
+                continue
+        raise ForbiddenException(Err.OA0012, [])
+
+    def reset(self, user_id, token=None, **kwargs):
+        """
+        Clears the MFA of a user (lost device, support case): every method
+        is removed, the user's tokens are deleted and the open login
+        challenges revoked. The next sign-in is password-only and the user
+        enrolls again (forced if an organization enforces MFA).
+        Access: cluster secret or an organization manager of the user.
+        """
+        check_kwargs_is_empty(**kwargs)
+        self.get_user_by_id(user_id)
+        if token:
+            self._check_manager_access(token, user_id)
+        challenges = LoginChallengeController(self.session, self._config)
+        challenges.lock_user(user_id)
+        active = self.session.query(MFAMethod).filter(
+            MFAMethod.user_id == user_id,
+            MFAMethod.deleted.is_(False),
+        )
+        # pending enrollments dropped, confirmed methods kept as history
+        active.filter(MFAMethod.confirmed_at == 0).delete(
+            synchronize_session=False)
+        removed = active.filter(MFAMethod.confirmed_at != 0).update(
+            {MFAMethod.deleted_at: utcnow_timestamp(),
+             MFAMethod.is_default: False}, synchronize_session=False)
+        revoked = self.session.query(Token).filter(
+            Token.user_id == user_id).delete(synchronize_session=False)
+        challenges.invalidate_user_challenges(user_id)
+        self.session.commit()
+        LOG.info('MFA reset for user %s: %s methods removed, %s tokens '
+                 'revoked', user_id, removed, revoked)
 
 
 class MfaMethodAsyncController(BaseAsyncControllerWrapper):

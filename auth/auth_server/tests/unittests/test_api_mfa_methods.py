@@ -436,9 +436,12 @@ class TestMfaMethods(TestAuthBase):
         self.assertEqual(code, 404)
         self.assertEqual(resp['error']['error_code'], 'OA0024')
 
-    def test_list_not_implemented_yet(self):
-        code, _ = self.client.get(self.client.mfa_methods_url(self.user.id))
-        self.assertEqual(code, 405)
+    def test_list_returns_status(self):
+        # GET is the MFA status (MPT-26345, test_api_mfa_management)
+        code, resp = self.client.get(
+            self.client.mfa_methods_url(self.user.id))
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['status'], 'not_configured')
 
     def test_to_dict_never_exposes_secret(self):
         _, method = self._enroll()

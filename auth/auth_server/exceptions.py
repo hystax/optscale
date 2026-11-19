@@ -238,3 +238,10 @@ class Err(enum.Enum):
     OA0090 = [
         "Too many failed attempts, try again later",
     ]
+    OA0091 = [
+        "At least one authentication method must remain configured because "
+        "MFA is enforced by your organization",
+    ]
+    OA0092 = [
+        "Authentication method %s is not confirmed",
+    ]
