@@ -55,8 +55,9 @@ class TokenAsyncCollectionHandler(tokens_v1.TokenAsyncCollectionHandler,
                     method_id:
                         type: string
                         description: |
-                            MFA method the code belongs to, the default
-                            method if not set (with challenge_id)
+                            MFA method the code belongs to; if not set the
+                            code is checked against the default method and
+                            then the other totp methods (with challenge_id)
                 type: object
         responses:
             201:

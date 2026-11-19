@@ -464,13 +464,12 @@ class UserOption(Base, BaseMixin):
 
 class MFAMethod(Base, BaseMixin):
     __tablename__ = 'mfa_method'
-    __table_args__ = (
-        UniqueConstraint('user_id', 'type', 'deleted_at',
-                         name='uc_user_id_type_deleted_at'),
-    )
 
+    # several authenticator apps per user, a single e-mail method: enforced
+    # by the controller under the user lock, MySQL has no partial unique
+    # index. Indexed: the foreign key needs it
     user_id = Column(String(36), ForeignKey('user.id'), nullable=False,
-                     info=ColumnPermissions.create_only)
+                     index=True, info=ColumnPermissions.create_only)
     type = Column(Enum(MFAType), nullable=False,
                   info=ColumnPermissions.create_only)
     secret = Column(String(256), nullable=True, info=ColumnPermissions.full)

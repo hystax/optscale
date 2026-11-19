@@ -83,6 +83,8 @@ class TestMfaMethods(TestAuthBase):
         self.client.secret = self.cluster_secret
 
     def _enroll(self, type_='totp', user_id=None, **body):
+        if type_ == 'totp':
+            body.setdefault('label', 'Pixel 10 Pro')
         return self.client.post(
             self.client.mfa_methods_url(user_id or self.user.id),
             {'type': type_, **body})
@@ -233,12 +235,31 @@ class TestMfaMethods(TestAuthBase):
 
     # --- duplicates and pending enrollments ---
 
-    def test_duplicate_type_conflict(self):
-        _, method = self._enroll()
-        self._confirm(method['id'], self._totp_code(method['secret']))
-        code, resp = self._enroll()
+    def test_duplicate_email_conflict(self):
+        _, method = self._enroll('email')
+        self._confirm(method['id'], self._sent_code())
+        code, resp = self._enroll('email')
         self.assertEqual(code, 409)
         self.assertEqual(resp['error']['error_code'], 'OA0082')
+        self.assertEqual(self.db_session.query(MFAMethod).count(), 1)
+
+    def test_several_totp_methods(self):
+        _, first = self._enroll(label='Phone')
+        self._confirm(first['id'], self._totp_code(first['secret']))
+        code, second = self._enroll(label='Tablet')
+        self.assertEqual(code, 201)
+        self.assertNotEqual(second['secret'], first['secret'])
+        # the confirmed method is not touched by the new enrollment
+        self.assertTrue(self._method(first['id']).confirmed)
+        code, resp = self._confirm(second['id'],
+                                   self._totp_code(second['secret']))
+        self.assertEqual(code, 200)
+        self.assertTrue(resp['confirmed'])
+        self.assertFalse(resp['is_default'])
+        self.assertEqual(resp['label'], 'Tablet')
+        self.assertEqual(
+            [m.label for m in self.controller.get_confirmed_methods(
+                self.user.id)], ['Phone', 'Tablet'])
 
     def test_restart_pending_enrollment(self):
         _, first = self._enroll()
@@ -351,6 +372,8 @@ class TestMfaMethods(TestAuthBase):
     def test_enroll_validation(self):
         for body, error_code in [
             ({'label': 'Pixel 10 Pro'}, 'OA0032'),
+            # the label is required for totp (several apps), not for email
+            ({'type': 'totp'}, 'OA0032'),
             ({'type': 1}, 'OA0033'),
             ({'type': 'sms'}, 'OA0060'),
             ({'type': 'totp', 'label': 'x' * 257}, 'OA0048'),

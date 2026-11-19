@@ -178,6 +178,48 @@ class TestMfaLogin(TestAuthBase):
         self.assertEqual(code, 201)
         self.assertEqual(self._mfa_caveat(token['token']), ['mfa:totp'])
 
+    # --- several totp methods ---
+
+    def test_second_totp_method_without_method_id(self):
+        self._add_method()
+        second, seed = self._add_method(is_default=False)
+        _, resp = self._login()
+        self.assertEqual(resp['methods'][1]['id'], second.id)
+        code, token = self._complete(resp['challenge_id'],
+                                     pyotp.TOTP(seed).now())
+        self.assertEqual(code, 201)
+        self.assertEqual(self._mfa_caveat(token['token']), ['mfa:totp'])
+
+    def test_second_totp_method_with_method_id(self):
+        self._add_method()
+        second, seed = self._add_method(is_default=False)
+        _, resp = self._login()
+        code, token = self._complete(resp['challenge_id'],
+                                     pyotp.TOTP(seed).now(), second.id)
+        self.assertEqual(code, 201)
+        self.assertEqual(self._mfa_caveat(token['token']), ['mfa:totp'])
+
+    def test_totp_method_when_email_is_default(self):
+        self._add_method(type_=MFAType.email)
+        _, seed = self._add_method(is_default=False)
+        _, resp = self._login()
+        self.assertTrue(resp['code_sent'])
+        code, token = self._complete(resp['challenge_id'],
+                                     pyotp.TOTP(seed).now())
+        self.assertEqual(code, 201)
+        self.assertEqual(self._mfa_caveat(token['token']), ['mfa:totp'])
+
+    def test_wrong_code_with_several_methods_is_one_attempt(self):
+        _, seed = self._add_method()
+        self._add_method(is_default=False)
+        _, resp = self._login()
+        code, err = self._complete(resp['challenge_id'],
+                                   self._wrong(pyotp.TOTP(seed).now()))
+        self.assertEqual(code, 403)
+        self.assertEqual(err['error']['error_code'], 'OA0086')
+        self.assertEqual(err['error']['params'], [4])
+        self.assertEqual(self._challenge(resp['challenge_id']).attempts, 1)
+
     def test_challenge_single_use(self):
         _, seed = self._add_method()
         _, resp = self._login()
@@ -545,9 +587,11 @@ class TestMfaLogin(TestAuthBase):
         self.assertEqual(code, 201)
 
     def _enroll(self, challenge_id, type_='totp', user_id=None):
+        body = {'type': type_, 'challenge_id': challenge_id}
+        if type_ == 'totp':
+            body['label'] = 'label'
         return self.client.post(
-            self.client.mfa_methods_url(user_id or self.user.id),
-            {'type': type_, 'challenge_id': challenge_id})
+            self.client.mfa_methods_url(user_id or self.user.id), body)
 
     def _confirm(self, method_id, code, challenge_id, user_id=None):
         return self.client.post(
@@ -676,7 +720,7 @@ class TestMfaLogin(TestAuthBase):
     def test_confirm_with_token_wrong_code_no_attempts(self):
         self.client.secret = self.cluster_secret
         _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp'})
+            self.user.id), {'type': 'totp', 'label': 'label'})
         wrong = self._wrong(pyotp.TOTP(method['secret']).now())
         for _ in range(6):
             code, err = self.client.post(
@@ -764,7 +808,7 @@ class TestMfaLogin(TestAuthBase):
         self._enforce()
         self.client.secret = self.cluster_secret
         _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp'})
+            self.user.id), {'type': 'totp', 'label': 'label'})
         code, resp = self.client.post(
             self.client.mfa_method_confirm_url(self.user.id, method['id']),
             {'code': pyotp.TOTP(method['secret']).now()})
@@ -1072,7 +1116,7 @@ class TestMfaLogin(TestAuthBase):
     def test_non_ascii_code_enrollment_with_token(self):
         self.client.secret = self.cluster_secret
         _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp'})
+            self.user.id), {'type': 'totp', 'label': 'label'})
         code, err = self.client.post(
             self.client.mfa_method_confirm_url(self.user.id, method['id']),
             {'code': self.ARABIC_INDIC})
@@ -1116,7 +1160,7 @@ class TestMfaLogin(TestAuthBase):
     def test_enrollment_with_token_removed_during_totp_check(self):
         self.client.secret = self.cluster_secret
         _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp'})
+            self.user.id), {'type': 'totp', 'label': 'label'})
         with self._remove_during_totp(method['id'], before=False):
             code, err = self.client.post(
                 self.client.mfa_method_confirm_url(self.user.id,
@@ -1129,7 +1173,7 @@ class TestMfaLogin(TestAuthBase):
         self._add_method(type_=MFAType.email)
         self.client.secret = self.cluster_secret
         _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp'})
+            self.user.id), {'type': 'totp', 'label': 'label'})
         code, resp = self.client.post(
             self.client.mfa_method_confirm_url(self.user.id, method['id']),
             {'code': pyotp.TOTP(method['secret']).now()})
