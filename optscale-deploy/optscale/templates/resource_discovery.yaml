@@ -36,6 +36,15 @@ spec:
           value: {{ .Values.etcd.service.externalPort | quote }}
         - name: FAKE_CAD_ENABLED
           value: {{ .Values.fake_cad_enabled | quote }}
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - test $(( $(date +%s) - $(date -r /tmp/worker-alive +%s) )) -lt 90
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          failureThreshold: 3
         resources:
           limits:
             memory: {{ $config.memory_limit }}Mi

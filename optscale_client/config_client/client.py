@@ -11,6 +11,10 @@ ETCD_CODE_INTERNAL_ERROR = 300
 CERTIFICATE_FOLDER = '/usr/local/share/ca-certificates/'
 DEFAULT_RETRY_ARGS = dict(stop_max_attempt_number=300, wait_fixed=1000)
 OBSERVE_TIMEOUT = 2 * 60 * 60
+# resource discovery worker: tasks processed in parallel by one pod, and how
+# long a task may go without reporting progress before the pod is unhealthy
+DISCOVERY_CONCURRENCY = 1
+DISCOVERY_MAX_STALL_SECONDS = 30 * 60
 
 
 class RetriableException(Exception):
@@ -499,6 +503,25 @@ class Client(etcd.Client):
             observe_timeout = OBSERVE_TIMEOUT
         debug = params['debug'] == 'True'
         return discover_size, timeout, writing_timeout, observe_timeout, debug
+
+    def resource_discovery_worker_params(self):
+        """
+        Get settings of the resource discovery worker process, read at startup
+        :return: ('concurrency', 'max_stall_seconds')
+        """
+        try:
+            params = self.read_branch('/resource_discovery_settings')
+        except etcd.EtcdKeyNotFound:
+            params = {}
+        try:
+            concurrency = int(params['concurrency'])
+        except (KeyError, ValueError):
+            concurrency = DISCOVERY_CONCURRENCY
+        try:
+            max_stall_seconds = int(params['max_stall_seconds'])
+        except (KeyError, ValueError):
+            max_stall_seconds = DISCOVERY_MAX_STALL_SECONDS
+        return concurrency, max_stall_seconds
 
     def domains_blacklist(self, blacklist_key='registration'):
         """

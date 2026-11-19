@@ -1,21 +1,22 @@
 #!/usr/bin/env python
+import logging
 import os
 import resource
 import threading
-import time
 import traceback
 from etcd import EtcdKeyError
 
 from concurrent.futures.thread import ThreadPoolExecutor
+from pathlib import Path
 from threading import Event, Thread
 import queue
-from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue
 import urllib3
 
+from docker_images.resource_discovery.consumer import ConcurrentConsumer
 from tools.cloud_adapter.cloud import Cloud as CloudAdapter
 from tools.cloud_adapter.exceptions import InvalidResourceTypeException
 from tools.cloud_adapter.model import (
@@ -38,6 +39,13 @@ task_exchange = Exchange(EXCHANGE_NAME, type='direct')
 task_queue = Queue(QUEUE_NAME, task_exchange, routing_key=QUEUE_NAME)
 LOG = get_logger(__name__)
 DEFAULT_DISCOVER_SIZE = 10000
+# used when resource_discovery_settings.timeout / writing_timeout are empty
+DEFAULT_PUT_TIMEOUT = 600
+DEFAULT_WRITING_TIMEOUT = 600
+# AMQP heartbeat: safe because the I/O thread never runs task code
+AMQP_HEARTBEAT = 30
+# the k8s liveness probe fails when this file is older than 90 seconds
+LIVENESS_FILE = '/tmp/worker-alive'
 
 
 def get_current_rss_mb():
@@ -59,77 +67,58 @@ class ResourcesSaver:
         **{v: k for k, v in RES_MODEL_MAP.items()}
     }
 
-    def __init__(self, rest_cl, insider_cl, limit, timeout, pause_timeout,
+    # how often the saver thread checks whether close() was called
+    POLL_SECONDS = 1
+
+    def __init__(self, rest_cl, insider_cl, limit, timeout,
                  product_tracking_id):
+        """Saves discovered resources of ONE task in a background thread.
+
+        Create one saver per task: savers share no state, so concurrent
+        tasks cannot block or drop each other's chunks.
+        """
         queue_len = int(limit / CHUNK_SIZE) if CHUNK_SIZE else 0
         self.queue = queue.Queue(queue_len)
         self.insider_cl = insider_cl
         self.rest_cl = rest_cl
-        self.timeout = timeout
-        self.pause_timeout = pause_timeout
-        self.recording_available = Event()
+        self.timeout = timeout or DEFAULT_PUT_TIMEOUT
         self.product_tracking_id = product_tracking_id
-        self.empty = Event()
-        self._proc = None
-        self.start()
-
-    def __del__(self):
-        self.stop()
-
-    def start(self):
-        self.proc.start()
-        self.resume()
-
-    def stop(self):
-        self.pause()
-        if self._proc:
-            self.proc.join()
-
-    def shutdown(self):
-        self.pause()
-        if self.queue.qsize():
-            LOG.warning('Shutdown a resource saver with a non-empty queue')
-        self.queue.queue.clear()
-        if self._proc:
-            self.proc.join()
-
-    def pause(self):
-        self.recording_available.clear()
-
-    def resume(self):
-        self.recording_available.set()
+        self._closing = Event()
+        # daemon: a stuck saver must never keep a dead process alive
+        self._thread = Thread(target=self._save_chunks, daemon=True,
+                              name='resources-saver')
+        self._thread.start()
 
     def send(self, chunk):
         try:
-            recording_available = self.recording_available.wait(
-                timeout=self.pause_timeout)
-            if recording_available:
-                self.queue.put(chunk, timeout=self.timeout)
-            else:
-                LOG.exception('Failed to add a chunk to the queue: '
-                              'writing paused, timeout exceeded')
-        except queue.Full as exc:
-            LOG.exception('Failed to add a chunk to the queue: %s', str(exc))
+            self.queue.put(chunk, timeout=self.timeout)
+        except queue.Full:
+            LOG.error('Failed to add a chunk of %s resources to the queue: '
+                      'the saver did not accept it in %s seconds',
+                      len(chunk), self.timeout)
 
-    @property
-    def proc(self):
-        if self._proc is None:
-            self._proc = Thread(target=self._save_chunks)
-        return self._proc
+    def close(self, timeout):
+        """Wait until all the queued chunks are saved and stop the saver.
 
-    @property
-    def is_finished(self):
-        return self.empty.wait(
-            self.pause_timeout) and not self.recording_available.is_set()
+        :return: True if the saver finished within `timeout` seconds. If not,
+            the daemon thread keeps saving the remaining chunks in the
+            background.
+        """
+        self._closing.set()
+        self._thread.join(timeout)
+        return not self._thread.is_alive()
 
     def _save_chunks(self):
         while True:
             try:
-                chunk = self.queue.get(timeout=1)
-                self.empty.clear()
-                self.save_bulk_resources(chunk)
+                chunk = self.queue.get(timeout=self.POLL_SECONDS)
             except queue.Empty:
-                self.empty.set()
+                # only stop once everything that was queued has been saved
+                if self._closing.is_set():
+                    return
+                continue
+            try:
+                self.save_bulk_resources(chunk)
             except Exception as exc:
                 LOG.warning('Failed to save a chunk: %s', str(exc))
 
@@ -230,18 +219,26 @@ class ResourcesSaver:
                 LOG.error('Post discover actions failed: %s', str(exc))
 
 
-class DiscoveryWorker(ConsumerMixin):
-    def __init__(self, connection, config_cl):
-        self.connection = connection
+class DiscoveryWorker:
+    """Resource discovery business logic.
+
+    Knows nothing about RabbitMQ: `process_task` is called by
+    ConcurrentConsumer from its task threads, possibly concurrently. HTTP
+    clients are therefore per thread, and every task gets its own
+    ResourcesSaver.
+    """
+
+    def __init__(self, config_cl, progress=None):
+        """
+        :param progress: callable(), invoked whenever a task does real work
+            (a page of resources received, a chunk handed to the saver). The
+            consumer uses it to tell a slow task from a hung one.
+        """
         self.config_cl = config_cl
+        self.progress = progress or (lambda: None)
         self.set_discover_settings()
-        self._insider_cl = None
-        self._rest_cl = None
-        self._res_saving = None
-        self.running = True
+        self._local = threading.local()
         self._product_tracking_id = None
-        self.thread = Thread(target=self.heartbeat)
-        self.thread.start()
 
     @property
     def product_tracking_id(self):
@@ -254,39 +251,33 @@ class DiscoveryWorker(ConsumerMixin):
                 raise Exception('product_tracking_id is not set')
         return self._product_tracking_id
 
-    def __del__(self):
-        if self._res_saving:
-            self.res_saving.shutdown()
+    def new_insider_cl(self):
+        return InsiderClient(
+            url=self.config_cl.insider_url(),
+            secret=self.config_cl.cluster_secret())
 
-    @property
-    def insider_cl(self):
-        if not self._insider_cl:
-            self._insider_cl = InsiderClient(
-                url=self.config_cl.insider_url(),
-                secret=self.config_cl.cluster_secret())
-        return self._insider_cl
+    def new_rest_cl(self):
+        return RestClient(
+            url=self.config_cl.restapi_url(),
+            secret=self.config_cl.cluster_secret(),
+            verify=False)
 
     @property
     def rest_cl(self):
-        if self._rest_cl is None:
-            self._rest_cl = RestClient(
-                url=self.config_cl.restapi_url(),
-                secret=self.config_cl.cluster_secret(),
-                verify=False)
-        return self._rest_cl
+        # requests.Session is not guaranteed to be thread safe
+        if getattr(self._local, 'rest_cl', None) is None:
+            self._local.rest_cl = self.new_rest_cl()
+        return self._local.rest_cl
 
-    @property
-    def res_saving(self):
-        if self._res_saving is None:
-            self._res_saving = ResourcesSaver(
-                insider_cl=self.insider_cl,
-                rest_cl=self.rest_cl,
-                limit=self.discover_size,
-                timeout=self.timeout,
-                pause_timeout=self.writing_timeout,
-                product_tracking_id=self.product_tracking_id
-            )
-        return self._res_saving
+    def new_resources_saver(self):
+        # own clients: the saver runs in its own thread
+        return ResourcesSaver(
+            insider_cl=self.new_insider_cl(),
+            rest_cl=self.new_rest_cl(),
+            limit=self.discover_size,
+            timeout=self.timeout,
+            product_tracking_id=self.product_tracking_id
+        )
 
     def set_discover_settings(self):
         (discover_size, timeout, writing_timeout,
@@ -294,11 +285,7 @@ class DiscoveryWorker(ConsumerMixin):
         self.discover_size = discover_size if (
             discover_size) else DEFAULT_DISCOVER_SIZE
         self.timeout = timeout
-        self.writing_timeout = writing_timeout
-
-    def get_consumers(self, Consumer, channel):
-        return [Consumer(queues=[task_queue], accept=['json'],
-                         callbacks=[self.process_task], prefetch_count=1)]
+        self.writing_timeout = writing_timeout or DEFAULT_WRITING_TIMEOUT
 
     def get_config(self, cloud_account_id):
         _, cloud_account = self.rest_cl.cloud_account_get(cloud_account_id)
@@ -348,6 +335,7 @@ class DiscoveryWorker(ConsumerMixin):
                     futures.append(executor.submit(call[0], *call[1]))
                 for f in futures:
                     res.append(f.result())
+                    self.progress()
         except Exception:
             adapter.close()
             raise
@@ -370,21 +358,7 @@ class DiscoveryWorker(ConsumerMixin):
             not_found = False
         return not_found
 
-    def _discover_resources(self, cloud_acc_id, resource_type):
-        LOG.info('Starting %s discovery for cloud_account %s',
-                 resource_type, cloud_acc_id)
-        start_time = utcnow()
-        if not self.check_discover_enabled(cloud_acc_id, resource_type):
-            LOG.info('Discover of cloud account id %s for resource type %s is '
-                     'not enabled. Discover will be skipped.', cloud_acc_id,
-                     resource_type)
-            return
-        config = self.get_config(cloud_acc_id)
-        if self.is_org_disabled(config['organization_id']):
-            LOG.info('Discover of cloud account id %s for resource type %s is '
-                     'skipped due to disabled organization.', cloud_acc_id,
-                     resource_type)
-            return
+    def _discover_and_save(self, cloud_acc_id, resource_type, config, saver):
         discovered_resources = set()
         resources_count = 0
         errors = set()
@@ -402,6 +376,7 @@ class DiscoveryWorker(ConsumerMixin):
                             for gen in gen_list_chunk]
                         for f in futures:
                             res, gen = f.result()
+                            self.progress()
                             if isinstance(res, Exception):
                                 if self.is_404(res):
                                     LOG.debug("Got 404 exception: %s, skipping it",
@@ -419,22 +394,43 @@ class DiscoveryWorker(ConsumerMixin):
                                 gen_list_chunk.remove(gen)
                             if len(discovered_resources) >= CHUNK_SIZE:
                                 resources_count += len(discovered_resources)
-                                self.res_saving.send(discovered_resources)
+                                saver.send(discovered_resources)
+                                self.progress()
                                 discovered_resources = set()
         finally:
             if adapter is not None:
                 adapter.close()
         if len(discovered_resources):
             resources_count += len(discovered_resources)
-            self.res_saving.send(discovered_resources)
+            saver.send(discovered_resources)
+        return resources_count, errors
+
+    def _discover_resources(self, cloud_acc_id, resource_type):
+        LOG.info('Starting %s discovery for cloud_account %s',
+                 resource_type, cloud_acc_id)
+        start_time = utcnow()
+        if not self.check_discover_enabled(cloud_acc_id, resource_type):
+            LOG.info('Discover of cloud account id %s for resource type %s is '
+                     'not enabled. Discover will be skipped.', cloud_acc_id,
+                     resource_type)
+            return
+        config = self.get_config(cloud_acc_id)
+        if self.is_org_disabled(config['organization_id']):
+            LOG.info('Discover of cloud account id %s for resource type %s is '
+                     'skipped due to disabled organization.', cloud_acc_id,
+                     resource_type)
+            return
+        saver = self.new_resources_saver()
+        try:
+            resources_count, errors = self._discover_and_save(
+                cloud_acc_id, resource_type, config, saver)
+        finally:
+            if not saver.close(timeout=self.writing_timeout):
+                LOG.warning('The timeout for writing %s resources for the'
+                            ' cloud account %s has been exceeded',
+                            resource_type, cloud_acc_id)
         LOG.info("%s %s resources have been discovered for cloud %s",
                  resources_count, resource_type, cloud_acc_id)
-        self.res_saving.pause()
-        if not self.res_saving.is_finished:
-            LOG.warning('The timeout for writing %s resources for the'
-                        ' cloud account %s has been exceeded',
-                        resource_type, cloud_acc_id)
-        self.res_saving.resume()
         if errors:
             LOG.error('%s discovery call failed for cloud %s with errors %s',
                       resource_type, cloud_acc_id, errors)
@@ -467,13 +463,13 @@ class DiscoveryWorker(ConsumerMixin):
             self.rest_cl.discovery_info_update(
                 di_info['id'], kwargs)
 
-    def process_task(self, body, message):
+    def process_task(self, body):
+        body = body if isinstance(body, dict) else {}
         try:
             self.discover_resources(body)
         except Exception as exc:
             LOG.exception('Resource discovery failed: %s', str(exc))
         finally:
-            body = body if isinstance(body, dict) else {}
             # ru_maxrss is the process' peak resident set size so far (KB on
             # Linux) - monotonically non-decreasing, so logging it after
             # every task lets us correlate RSS growth with a specific
@@ -490,15 +486,14 @@ class DiscoveryWorker(ConsumerMixin):
                 max_rss_mb,
                 f'{current_rss_mb:.1f}' if current_rss_mb is not None else 'n/a',
                 threading.active_count())
-        message.ack()
-
-    def heartbeat(self):
-        while self.running:
-            self.connection.heartbeat_check()
-            time.sleep(1)
 
 
-if __name__ == '__main__':
+def touch_liveness_file():
+    """Refresh the file checked by the k8s liveness probe"""
+    Path(LIVENESS_FILE).touch()
+
+
+def main():
     urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
 
     config_cl = ConfigClient(
@@ -511,11 +506,29 @@ if __name__ == '__main__':
     setup_logging(loglevel=log_level, loggers=[''])
     conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
         **config_cl.read_branch('/rabbit'))
-    with Connection(conn_str) as conn:
-        try:
-            worker = DiscoveryWorker(conn, config_cl)
-            worker.run()
-        except KeyboardInterrupt:
-            worker.running = False
-            worker.thread.join()
-            LOG.info('Shutdown received')
+    # /resource_discovery_settings in etcd; read once, at startup
+    concurrency, max_stall_seconds = config_cl.resource_discovery_worker_params()
+    worker = DiscoveryWorker(config_cl)
+    consumer = ConcurrentConsumer(
+        Connection(conn_str, heartbeat=AMQP_HEARTBEAT), task_queue,
+        worker.process_task, concurrency=concurrency,
+        max_stall_seconds=max_stall_seconds, on_healthy=touch_liveness_file)
+    # tasks report progress to the consumer so that a slow task is not
+    # mistaken for a hung one
+    worker.progress = consumer.progress
+    LOG.info('Starting discovery worker: concurrency=%s, max_stall_seconds=%s',
+             concurrency, max_stall_seconds)
+    try:
+        consumer.run()
+    except BaseException:  # pylint: disable=broad-exception-caught
+        LOG.exception('Consumer loop died, exiting')
+    # run() only returns by raising. Exit hard: a normal exit joins every
+    # pool thread, so a task stuck in a blocking call would keep the dead
+    # process alive forever (a "zombie" pod). os._exit skips that, and also
+    # skips flushing, hence logging.shutdown() first.
+    logging.shutdown()
+    os._exit(1)
+
+
+if __name__ == '__main__':
+    main()

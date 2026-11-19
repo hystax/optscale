@@ -268,6 +268,8 @@ etcd:
     timeout: {{ .Values.resource_discovery_settings.timeout }}
     writing_timeout: {{ .Values.resource_discovery_settings.writing_timeout }}
     observe_timeout: {{ .Values.resource_discovery_settings.observe_timeout }}
+    concurrency: {{ .Values.resource_discovery_settings.concurrency }}
+    max_stall_seconds: {{ .Values.resource_discovery_settings.max_stall_seconds }}
     debug: {{ .Values.resource_discovery_settings.debug }}
   bi_settings:
     exporter_run_period: {{ .Values.bi_settings.exporter_run_period }}
