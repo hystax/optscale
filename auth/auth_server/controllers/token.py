@@ -140,15 +140,27 @@ class TokenController(TokenIssuer):
             raise ForbiddenException(Err.OA0088, [])
         mfa_methods = MfaMethodController(self.session, self._config)
         methods = mfa_methods.get_confirmed_methods(challenge.user_id)
-        method = next((m for m in methods if m.id == method_id),
-                      None) if method_id else (methods[0] if methods else None)
-        if method is None:
+        if method_id:
+            candidates = [m for m in methods if m.id == method_id]
+        else:
+            # the default method, then the other authenticator apps: the
+            # user does not have to tell which app generated the code
+            candidates = methods[:1] + [
+                m for m in methods[1:] if m.type == MFAType.totp]
+        if not candidates:
             raise NotFoundException(Err.OA0003, ['MFAMethod', method_id])
         challenge_id, user_id = challenge.id, challenge.user_id
-        mfa = method.type.value
-        challenges.verify_attempt(
-            challenge_id, user_id,
-            lambda: mfa_methods.verify_code(method, code))
+        matched = []
+
+        def verify():
+            # one attempt for the request, whatever the number of methods
+            for method in candidates:
+                if mfa_methods.verify_code(method, code):
+                    matched.append(method.type.value)
+                    return True
+            return False
+        challenges.verify_attempt(challenge_id, user_id, verify)
+        mfa = matched[0]
         # consume and token in one transaction under the user lock: a
         # password change (same row) happens before (the challenge is gone)
         # or after (the token is signed with the old salt, so revoked)

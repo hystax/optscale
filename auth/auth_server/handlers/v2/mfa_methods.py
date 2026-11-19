@@ -50,8 +50,10 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
             code. For `totp` the response includes the shared `secret` and
             the `otpauth_uri` (QR code) - this is the only time they are
             returned. For `email` a code is sent to the user's address and
-            the label is set to the masked address. Restarting an
-            unconfirmed enrollment replaces it.
+            the label is set to the masked address. A user can enroll
+            several `totp` methods (one per device, told apart by the
+            label) and a single `email` method. Restarting an unconfirmed
+            enrollment of a type replaces it.
             Required permission: TOKEN of the user, CLUSTER_SECRET or
             `challenge_id` of an `enrollment_required` login challenge of
             the user (enforced user signing in without a method)
@@ -73,7 +75,8 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
                     type: {type: string, enum: [totp, email],
                         description: Method type}
                     label: {type: string,
-                        description: Free text (device info), totp only}
+                        description: Device name, required for totp (tells
+                            the authenticator apps apart), ignored for email}
                     challenge_id:
                         type: string
                         description: >-
@@ -138,7 +141,8 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
             409:
                 description: |
                     Conflict:
-                    - OA0082: Authentication method of type already exists
+                    - OA0082: An e-mail method already exists (a single
+                      one per user, any number of totp methods)
             503:
                 description: E-mail service unavailable (email)
         security:

@@ -2,7 +2,6 @@ import hmac
 import logging
 
 import pyotp
-from sqlalchemy.exc import IntegrityError
 
 from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
@@ -107,6 +106,10 @@ class MfaMethodController(BaseController):
         type_ = self._check_type(kwargs.pop('type', None))
         label = kwargs.pop('label', None)
         check_kwargs_is_empty(**kwargs)
+        if type_ == MFAType.totp and label is None:
+            # several authenticator apps can be enrolled, the label tells
+            # them apart
+            raise WrongArgumentsException(Err.OA0032, ['label'])
         if label is not None:
             check_string_attribute('label', label,
                                    max_length=LABEL_MAX_LENGTH)
@@ -114,7 +117,11 @@ class MfaMethodController(BaseController):
         user_id = user.id
         challenge_id = challenge.id if challenge is not None else None
         self._discard_stale_pending(user_id)
-        if any(m.confirmed for m in self._get_methods(user_id, type_)):
+        # a single e-mail method (one address), any number of authenticator
+        # apps
+        unique = type_ == MFAType.email
+        if unique and any(
+                m.confirmed for m in self._get_methods(user_id, type_)):
             raise ConflictException(Err.OA0082, [type_.value])
         seed = None
         if type_ == MFAType.totp:
@@ -137,7 +144,7 @@ class MfaMethodController(BaseController):
                 challenges.get_enrollment_challenge(challenge_id, user_id)
             except (ForbiddenException, NotFoundException) as exc:
                 challenges.abort(exc)
-        if self._has_confirmed_type(user_id, type_):
+        if unique and self._has_confirmed_type(user_id, type_):
             challenges.abort(ConflictException(Err.OA0082, [type_.value]))
         # restarting an unfinished enrollment replaces it; conditional, a
         # confirmed method is never removed
@@ -151,12 +158,7 @@ class MfaMethodController(BaseController):
         method = MFAMethod(user_id=user_id, type=type_, secret=secret,
                            label=label, is_default=False)
         self.session.add(method)
-        try:
-            self.session.commit()
-        except IntegrityError:
-            # concurrent enrollment of the same type
-            self.session.rollback()
-            raise ConflictException(Err.OA0082, [type_.value])
+        self.session.commit()
         LOG.info('MFA method %s (%s) enrollment started for user %s',
                  method.id, type_.value, user_id)
         result = method.to_dict()
