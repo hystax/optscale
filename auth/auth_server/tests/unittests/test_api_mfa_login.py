@@ -12,7 +12,7 @@ from auth.auth_server.controllers.login_challenge import (
     LoginChallengeController)
 from auth.auth_server.controllers.mfa_method import MfaMethodController
 from auth.auth_server.controllers.verification_code import (
-    VerificationCodeController)
+    MfaCodePurpose, VerificationCodeController)
 from auth.auth_server.models.models import (
     User, Token, Assignment, AuthPolicy, AuthPolicyPurpose, AuthPolicyScope,
     LoginChallenge, MFAMethod, MFAType, Role, Type)
@@ -203,8 +203,11 @@ class TestMfaLogin(TestAuthBase):
         self.assertEqual(code, 202)
         self.assertTrue(resp['code_sent'])
         self.herald.email_send.assert_called_once()
-        self.assertEqual(self.herald.email_send.call_args.kwargs[
-            'template_type'], 'mfa_code')
+        # the sign-in e-mail, not the enrollment one
+        args, kwargs = self.herald.email_send.call_args
+        self.assertEqual(args, (['user@example.com'],
+                                f'{PRODUCT_NAME}: your sign-in code'))
+        self.assertEqual(kwargs['template_type'], 'mfa_login_code')
         code, token = self._complete(resp['challenge_id'], self._sent_code())
         self.assertEqual(code, 201)
         self.assertEqual(self._mfa_caveat(token['token']), ['mfa:email'])
@@ -223,7 +226,7 @@ class TestMfaLogin(TestAuthBase):
         config = MagicMock()
         config.product_name.return_value = PRODUCT_NAME
         VerificationCodeController(self.db_session, config).send_mfa_code(
-            self.user)
+            self.user, MfaCodePurpose.login)
         code, token = self._complete(resp['challenge_id'], self._sent_code(),
                                      email.id)
         self.assertEqual(code, 201)
@@ -902,7 +905,7 @@ class TestMfaLogin(TestAuthBase):
     def _confirm_meanwhile(self, first_challenge_id):
         """send_mfa_code side effect: another challenge confirms the
         pending email method while the new enrollment sends its e-mail"""
-        def send(controller, user):
+        def send(controller, user, _purpose):
             method = self.db_session.query(MFAMethod).filter(
                 MFAMethod.user_id == user.id,
                 MFAMethod.type == MFAType.email).one()

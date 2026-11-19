@@ -9,7 +9,7 @@ from freezegun import freeze_time
 from tools.optscale_exceptions.common_exc import ForbiddenException
 from tools.optscale_time import utcnow
 from auth.auth_server.controllers.verification_code import (
-    VerificationCodeController)
+    MfaCodePurpose, VerificationCodeController)
 from auth.auth_server.models.models import (VerificationCode,
                                             VerificationCodePurpose)
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
@@ -51,22 +51,44 @@ class TestMfaCode(TestAuthBase):
         return self.controller.create_verification_code(
             self.user.email, code)
 
+    def _send(self, purpose=MfaCodePurpose.login):
+        return self.controller.send_mfa_code(self.user, purpose)
+
     def test_send_mfa_code(self):
         now = utcnow().replace(microsecond=0)
         with freeze_time(now):
-            result = self.controller.send_mfa_code(self.user)
+            result = self.controller.send_mfa_code(
+                self.user, MfaCodePurpose.enrollment)
         self.herald_cls.assert_called_once_with(url='http://herald',
                                                 secret='secret')
         self.herald.email_send.assert_called_once()
         args, kwargs = self.herald.email_send.call_args
+        # the subject and the template say what the code is for
         self.assertEqual(args, ([self.user.email],
-                                'FinOps for Cloud verification code'))
-        self.assertEqual(kwargs['template_type'], 'mfa_code')
+                                'FinOps for Cloud: confirm your e-mail as '
+                                'authentication method'))
+        self.assertEqual(kwargs['template_type'], 'mfa_enrollment_code')
         code = self._sent_code()
         self.assertRegex(code, r'^\d{6}$')
         self.assertEqual(result.code, get_digest(code))
         self.assertEqual(result.purpose, VerificationCodePurpose.mfa)
         self.assertEqual(result.valid_until, now + timedelta(minutes=10))
+
+    def test_send_login_code(self):
+        self.controller.send_mfa_code(self.user, MfaCodePurpose.login)
+        args, kwargs = self.herald.email_send.call_args
+        self.assertEqual(args, ([self.user.email],
+                                'FinOps for Cloud: your sign-in code'))
+        self.assertEqual(kwargs['template_type'], 'mfa_login_code')
+        # same code store and lifetime whatever the purpose of the e-mail
+        self.assertEqual(self._codes(VerificationCodePurpose.mfa)[0].code,
+                         get_digest(self._sent_code()))
+
+    def test_send_unknown_purpose(self):
+        with self.assertRaises(ValueError):
+            self.controller.send_mfa_code(self.user, 'reset')
+        self.herald.email_send.assert_not_called()
+        self.assertEqual(self._codes(), [])
 
     def test_password_code_lifetime(self):
         now = utcnow().replace(microsecond=0)
@@ -78,7 +100,7 @@ class TestMfaCode(TestAuthBase):
     def test_mfa_code_lifetime(self):
         now = utcnow()
         with freeze_time(now):
-            self.controller.send_mfa_code(self.user)
+            self._send()
         code = self._sent_code()
         with freeze_time(now + timedelta(minutes=10, seconds=1)):
             self.assertFalse(self.controller.use_verification_code(
@@ -96,7 +118,7 @@ class TestMfaCode(TestAuthBase):
                 self.user.email, '123456'))
 
     def test_mfa_code_rejected_as_password_code(self):
-        self.controller.send_mfa_code(self.user)
+        self._send()
         code = self._sent_code()
         self.assertFalse(self.controller.use_verification_code(
             self.user.email, code))
@@ -113,7 +135,7 @@ class TestMfaCode(TestAuthBase):
             self.user.email, '123456'))
 
     def test_mfa_code_cannot_obtain_token(self):
-        self.controller.send_mfa_code(self.user)
+        self._send()
         code = self._sent_code()
         self.client.secret = None
         code_, resp = self.client.post('tokens', {
@@ -124,15 +146,15 @@ class TestMfaCode(TestAuthBase):
     def test_generation_threshold(self):
         now = utcnow()
         with freeze_time(now):
-            self.controller.send_mfa_code(self.user)
+            self._send()
         first = self._codes(VerificationCodePurpose.mfa)[0]
         with freeze_time(now + timedelta(seconds=59)):
             with self.assertRaises(ForbiddenException) as ctx:
-                self.controller.send_mfa_code(self.user)
+                self._send()
             self.assertEqual(ctx.exception.error_code, 'OA0072')
         self.assertEqual(self.herald.email_send.call_count, 1)
         with freeze_time(now + timedelta(minutes=1, seconds=1)):
-            second = self.controller.send_mfa_code(self.user)
+            second = self._send()
         self.assertEqual(self.herald.email_send.call_count, 2)
         self.db_session.refresh(first)
         self.assertNotEqual(first.deleted_at, 0)
@@ -151,7 +173,7 @@ class TestMfaCode(TestAuthBase):
         with freeze_time(now):
             password_code = self._create_password_code('123456')
             # a fresh password code neither throttles nor invalidates MFA
-            mfa_code = self.controller.send_mfa_code(self.user)
+            mfa_code = self._send()
         self.db_session.refresh(password_code)
         self.assertEqual(password_code.deleted_at, 0)
         with freeze_time(now + timedelta(minutes=1, seconds=1)):
@@ -167,7 +189,7 @@ class TestMfaCode(TestAuthBase):
     def test_mfa_code_does_not_throttle_password_code(self):
         now = utcnow()
         with freeze_time(now):
-            self.controller.send_mfa_code(self.user)
+            self._send()
         with freeze_time(now + timedelta(seconds=10)):
             code, _ = self.client.verification_code_create(
                 self.user.email, '123456')
@@ -178,26 +200,26 @@ class TestMfaCode(TestAuthBase):
             response=MagicMock(status_code=500))
         with self.assertLogs(LOGGER, level=logging.INFO) as logs:
             with self.assertRaises(tornado.web.HTTPError) as ctx:
-                self.controller.send_mfa_code(self.user)
+                self._send()
         self.assertEqual(ctx.exception.status_code, 503)
         code = self._sent_code()
         self.assertFalse(any(code in line for line in logs.output))
         # undelivered code is dropped, a new one can be requested at once
         self.assertEqual(self._codes(VerificationCodePurpose.mfa), [])
         self.herald.email_send.side_effect = None
-        self.controller.send_mfa_code(self.user)
+        self._send()
         self.assertEqual(len(self._codes(VerificationCodePurpose.mfa)), 1)
 
     def test_herald_connection_error(self):
         self.herald.email_send.side_effect = (
             requests.exceptions.ConnectionError())
         with self.assertRaises(tornado.web.HTTPError) as ctx:
-            self.controller.send_mfa_code(self.user)
+            self._send()
         self.assertEqual(ctx.exception.status_code, 503)
 
     def test_code_never_logged(self):
         with self.assertLogs(level=logging.DEBUG) as logs:
-            self.controller.send_mfa_code(self.user)
+            self._send()
         code = self._sent_code()
         self.assertFalse(any(code in line for line in logs.output))
 

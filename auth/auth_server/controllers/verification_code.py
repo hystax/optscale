@@ -1,6 +1,7 @@
 import logging
 import secrets
 from datetime import timedelta
+from enum import Enum
 from functools import cached_property
 
 import requests
@@ -24,7 +25,21 @@ VERIFICATION_CODE_LIFETIME_HRS = 1
 MFA_CODE_LIFETIME_MIN = 10
 GENERATION_THRESHOLD_MIN = 1
 MFA_CODE_LENGTH = 6
-MFA_CODE_TEMPLATE = 'mfa_code'
+
+
+class MfaCodePurpose(Enum):
+    """Why an MFA code is sent: the e-mail must say what the code is for"""
+    enrollment = 'enrollment'
+    login = 'login'
+
+
+# herald template and subject (after the product name) per purpose
+MFA_CODE_EMAILS = {
+    MfaCodePurpose.enrollment: (
+        'mfa_enrollment_code',
+        'confirm your e-mail as authentication method'),
+    MfaCodePurpose.login: ('mfa_login_code', 'your sign-in code'),
+}
 
 
 def get_code_lifetime(purpose):
@@ -125,24 +140,27 @@ class VerificationCodeController(BaseController):
         return HeraldClient(url=self._config.herald_url(),
                             secret=self._config.cluster_secret())
 
-    def send_mfa_code(self, user):
+    def send_mfa_code(self, user, purpose):
         """
         Generates an MFA code for the user, stores its digest (purpose mfa,
-        previous MFA codes invalidated) and sends it by e-mail via herald.
+        previous MFA codes invalidated) and sends it by e-mail via herald,
+        with the template and subject of the given MfaCodePurpose
+        (enrollment of the e-mail method or sign-in).
         Raises ForbiddenException (OA0072) if a code was generated less than
         a minute ago and HTTPError 503 if herald is unavailable.
         The code itself is never logged.
         """
-        purpose = VerificationCodePurpose.mfa
-        self._check_generation_timeout(user.email, purpose)
+        template, subject = MFA_CODE_EMAILS[MfaCodePurpose(purpose)]
+        self._check_generation_timeout(user.email,
+                                       VerificationCodePurpose.mfa)
         code = generate_code()
         verification_code = self.create_verification_code(
-            user.email, code, purpose)
+            user.email, code, VerificationCodePurpose.mfa)
         try:
             self.herald_client.email_send(
                 [user.email],
-                f'{self._config.product_name()} verification code',
-                template_type=MFA_CODE_TEMPLATE,
+                f'{self._config.product_name()}: {subject}',
+                template_type=template,
                 template_params={'texts': {'code': code}})
         except requests.exceptions.RequestException as exc:
             LOG.error('Failed to send MFA code to user %s: %s',

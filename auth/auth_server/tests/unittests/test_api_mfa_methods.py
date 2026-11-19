@@ -300,9 +300,11 @@ class TestMfaMethods(TestAuthBase):
         self.assertIsNone(self._method(resp['id']).secret)
         self.herald.email_send.assert_called_once()
         args, kwargs = self.herald.email_send.call_args
+        # the enrollment e-mail, not the sign-in one
         self.assertEqual(args, (['owner@example.com'],
-                                f'{PRODUCT_NAME} verification code'))
-        self.assertEqual(kwargs['template_type'], 'mfa_code')
+                                f'{PRODUCT_NAME}: confirm your e-mail as '
+                                'authentication method'))
+        self.assertEqual(kwargs['template_type'], 'mfa_enrollment_code')
 
     def test_confirm_email(self):
         _, method = self._enroll('email')
