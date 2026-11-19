@@ -10,7 +10,7 @@ from auth.auth_server.controllers.login_challenge import (
     LoginChallengeController)
 from auth.auth_server.controllers.token_issuer import TokenIssuer
 from auth.auth_server.controllers.verification_code import (
-    VerificationCodeController)
+    MfaCodePurpose, VerificationCodeController)
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (
     MFAMethod, MFAType, User, VerificationCodePurpose)
@@ -126,7 +126,8 @@ class MfaMethodController(BaseController):
             # sent before anything is changed: if it is throttled or herald
             # is down, a previous pending enrollment is left untouched
             VerificationCodeController(
-                self.session, self._config).send_mfa_code(user)
+                self.session, self._config).send_mfa_code(
+                    user, MfaCodePurpose.enrollment)
         # from here to the commit under the user lock, serialized with the
         # confirmations: checked again as things may have changed meanwhile
         challenges = LoginChallengeController(self.session, self._config)

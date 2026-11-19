@@ -9,7 +9,7 @@ from auth.auth_server.controllers.login_challenge import (
 from auth.auth_server.controllers.mfa_method import MfaMethodController
 from auth.auth_server.controllers.token_issuer import TokenIssuer
 from auth.auth_server.controllers.verification_code import (
-    VerificationCodeController)
+    MfaCodePurpose, VerificationCodeController)
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (
     LoginChallengeState, MFAType, User)
@@ -92,7 +92,8 @@ class TokenController(TokenIssuer):
         break the login: the user can request a new code or switch method"""
         try:
             VerificationCodeController(
-                self.session, self._config).send_mfa_code(user)
+                self.session, self._config).send_mfa_code(
+                    user, MfaCodePurpose.login)
             return True
         except ForbiddenException:
             LOG.info('MFA code for user %s not sent: throttled', user.id)
