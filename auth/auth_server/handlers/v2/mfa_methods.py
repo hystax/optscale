@@ -60,12 +60,13 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
                 schema:
                     type: object
                     properties:
-                        status: {type: string,
-                            enum: [not_configured, configured, enforced],
-                            description: enforced when an organization of
-                                the user enforces MFA (with or without a
-                                method), configured when a method is
-                                confirmed}
+                        status:
+                            type: string
+                            enum: [not_configured, configured, enforced]
+                            description: >-
+                                enforced when an organization of the user
+                                enforces MFA (with or without a method),
+                                configured when a method is confirmed
                         mfa_enforced: {type: boolean}
                         enforcing_organizations:
                             type: array
@@ -189,9 +190,11 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
                 properties:
                     type: {type: string, enum: [totp, email],
                         description: Method type}
-                    label: {type: string,
-                        description: Device name, required for totp (tells
-                            the authenticator apps apart), ignored for email}
+                    label:
+                        type: string
+                        description: >-
+                            Device name, required for totp (tells the
+                            authenticator apps apart), ignored for email
                     challenge_id:
                         type: string
                         description: >-
@@ -218,11 +221,13 @@ class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
                             description: Creation timestamp}
                         deleted_at: {type: integer,
                             description: Deletion timestamp}
-                        secret: {type: string,
-                            description: TOTP shared secret, totp only}
-                        otpauth_uri: {type: string,
-                            description: otpauth URI for the QR code,
-                                totp only}
+                        secret:
+                            type: string
+                            description: TOTP shared secret (totp only)
+                        otpauth_uri:
+                            type: string
+                            description: otpauth URI for the QR code (totp
+                                only)
             400:
                 description: |
                     Wrong arguments:
@@ -507,7 +512,7 @@ class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
                         label: {type: string, description: Method label}
                         is_default: {type: boolean,
                             description: true if it is the first method}
-                        confirmed: {type: boolean, description: true}
+                        confirmed: {type: boolean, description: always true}
                         confirmed_at: {type: integer,
                             description: Confirmation timestamp}
                         created_at: {type: integer,
@@ -520,8 +525,20 @@ class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
                 schema:
                     type: object
                     properties:
-                        method: {type: object,
-                            description: Confirmed MFA method}
+                        method:
+                            type: object
+                            description: Confirmed MFA method
+                            properties:
+                                id: {type: string}
+                                user_id: {type: string}
+                                type: {type: string, enum: [totp, email]}
+                                label: {type: string}
+                                is_default: {type: boolean,
+                                    description: true (first method)}
+                                confirmed: {type: boolean}
+                                confirmed_at: {type: integer}
+                                created_at: {type: integer}
+                                deleted_at: {type: integer}
                         token:
                             type: object
                             properties:

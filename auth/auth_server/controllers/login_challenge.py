@@ -3,9 +3,12 @@ import logging
 from sqlalchemy import func, or_
 
 from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.controllers.verification_code import (
+    MfaCodePurpose, VerificationCodeController)
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (
-    LoginChallenge, LoginChallengeState, MFAMethod, User)
+    LoginChallenge, LoginChallengeState, MFAMethod, MFAType, User)
 from tools.optscale_exceptions.common_exc import (
     ForbiddenException, NotFoundException, WrongArgumentsException)
 from tools.optscale_time import utcnow_timestamp
@@ -162,6 +165,53 @@ class LoginChallengeController(BaseController):
             raise ForbiddenException(Err.OA0089, [])
         return challenge
 
+    def send_code(self, challenge_id, method_id=None):
+        """
+        Sends (again) the e-mail code during the MFA step, with the
+        challenge as the credential: the browser has no token yet. The
+        one-per-minute throttle of the codes applies, so a challenge cannot
+        be used to flood a mailbox; the previous code is invalidated.
+        method_id: the confirmed e-mail method of the user; optional, as a
+        user has a single one. Not an attempt: guesses are not consumed.
+        """
+        if challenge_id is None:
+            raise WrongArgumentsException(Err.OA0032, ['challenge_id'])
+        if method_id is not None and not isinstance(method_id, str):
+            raise WrongArgumentsException(Err.OA0033, ['method_id'])
+        challenge = self.get_valid(challenge_id)
+        user_id = challenge.user_id
+        if challenge.state != LoginChallengeState.mfa_required:
+            # an enrollment_required challenge has no method to send to
+            raise NotFoundException(Err.OA0085, [])
+        query = self.session.query(MFAMethod.id).filter(
+            MFAMethod.user_id == user_id,
+            MFAMethod.type == MFAType.email,
+            MFAMethod.deleted.is_(False),
+            MFAMethod.confirmed_at != 0,
+        )
+        if method_id is not None:
+            query = query.filter(MFAMethod.id == method_id)
+        if query.first() is None:
+            # unknown, foreign, pending or totp: not an e-mail method of
+            # this user
+            raise WrongArgumentsException(Err.OA0060, ['method_id'])
+        # Under the user lock (released by the commit of the new code, or by
+        # the rollback of abort): the throttle check and the replacement of
+        # the code are serialized with the other senders, two concurrent
+        # requests cannot both pass the check and send two e-mails. The
+        # challenge is read again under the lock: one completed meanwhile
+        # gets 404 instead of a useless e-mail, and its row may be gone
+        # (reset_attempts), so the object loaded before is not used anymore.
+        self.lock_user(user_id)
+        try:
+            challenge = self.get_valid(challenge_id)
+            VerificationCodeController(
+                self.session, self._config).send_mfa_code(
+                    challenge.user, MfaCodePurpose.login)
+        except (NotFoundException, ForbiddenException) as exc:
+            self.abort(exc)
+        LOG.info('MFA code sent for a login challenge of user %s', user_id)
+
     def invalidate_user_challenges(self, user_id, exclude_id=None):
         """
         Discards the open challenges of a user (password changed, first
@@ -279,3 +329,8 @@ class LoginChallengeController(BaseController):
             'code_sent': code_sent,
             'attempts_left': MAX_ATTEMPTS - challenge.attempts,
         }
+
+
+class LoginChallengeAsyncController(BaseAsyncControllerWrapper):
+    def _get_controller_class(self):
+        return LoginChallengeController
