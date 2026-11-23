@@ -19,6 +19,7 @@ export const AWS_S3 = "awsS3";
 
 export const AZURE_COMPUTE = "azureCompute";
 export const AZURE_NETWORK = "azureNetwork";
+export const AZURE_STORAGE = "azureStorage";
 
 export const GCP_COMPUTE_ENGINE = "gcpComputeEngine";
 export const GCP_IAM = "gcpAim";
@@ -88,6 +89,10 @@ const AZURE_SERVICES = Object.freeze({
   [AZURE_NETWORK]: {
     type: AZURE_CNR,
     name: "services.network",
+  },
+  [AZURE_STORAGE]: {
+    type: AZURE_CNR,
+    name: "services.storage",
   },
 });
 
