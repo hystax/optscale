@@ -7,7 +7,8 @@ class ResourceRecommendations(ServiceBase):
         super().__init__(organization_id, config_client, created_at)
         self.modules_without_saving = {'insecure_security_groups',
                                        's3_public_buckets'}
-        self.modules_with_possible_zero_saving = {'instance_generation_upgrade'}
+        self.modules_with_possible_zero_saving = {'instance_generation_upgrade',
+                                                   'azure_orphan_nics'}
 
     def _get_recommendation_template(self):
         return {
