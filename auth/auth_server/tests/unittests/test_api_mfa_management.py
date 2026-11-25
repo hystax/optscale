@@ -124,21 +124,18 @@ class TestMfaManagement(TestAuthBase):
             MFAMethod.deleted.is_(False)).all()
 
     def _status(self, user_id=None):
-        return self.client.get(
-            self.client.mfa_methods_url(user_id or self.user.id))
+        return self.client.mfa_methods_get(user_id or self.user.id)
 
     def _patch(self, method_id, body, user_id=None):
-        return self.client.patch(
-            self.client.mfa_methods_url(user_id or self.user.id, method_id),
-            body)
+        return self.client.mfa_method_update(user_id or self.user.id,
+                                             method_id, **body)
 
     def _delete(self, method_id, user_id=None):
-        return self.client.delete(
-            self.client.mfa_methods_url(user_id or self.user.id, method_id))
+        return self.client.mfa_method_delete(user_id or self.user.id,
+                                             method_id)
 
     def _reset(self, user_id=None):
-        return self.client.delete(
-            self.client.mfa_methods_url(user_id or self.user.id))
+        return self.client.mfa_methods_reset(user_id or self.user.id)
 
     # --- status ---
 
@@ -427,8 +424,7 @@ class TestMfaManagement(TestAuthBase):
         # a removed e-mail method does not block a new enrollment
         email = self._add_method(type_=MFAType.email, is_default=True)
         self._delete(email.id)
-        code, _ = self.client.post(self.client.mfa_methods_url(self.user.id),
-                                   {'type': 'email'})
+        code, _ = self.client.mfa_method_create(self.user.id, 'email')
         self.assertEqual(code, 201)
 
     # --- reset ---

@@ -85,13 +85,12 @@ class TestMfaMethods(TestAuthBase):
     def _enroll(self, type_='totp', user_id=None, **body):
         if type_ == 'totp':
             body.setdefault('label', 'Pixel 10 Pro')
-        return self.client.post(
-            self.client.mfa_methods_url(user_id or self.user.id),
-            {'type': type_, **body})
+        return self.client.mfa_method_create(user_id or self.user.id, type_,
+                                             **body)
 
     def _confirm(self, method_id, code, user_id=None):
-        return self.client.post(self.client.mfa_method_confirm_url(
-            user_id or self.user.id, method_id), {'code': code})
+        return self.client.mfa_method_confirm(user_id or self.user.id,
+                                              method_id, code)
 
     def _method(self, method_id):
         self.db_session.expire_all()
@@ -438,8 +437,7 @@ class TestMfaMethods(TestAuthBase):
 
     def test_list_returns_status(self):
         # GET is the MFA status (MPT-26345, test_api_mfa_management)
-        code, resp = self.client.get(
-            self.client.mfa_methods_url(self.user.id))
+        code, resp = self.client.mfa_methods_get(self.user.id)
         self.assertEqual(code, 200)
         self.assertEqual(resp['status'], 'not_configured')
 

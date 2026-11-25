@@ -84,10 +84,8 @@ class TestMfaLogin(TestAuthBase):
                                 {'email': email, **body})
 
     def _complete(self, challenge_id, code, method_id=None):
-        body = {'challenge_id': challenge_id, 'code': code}
-        if method_id is not None:
-            body['method_id'] = method_id
-        return self.client.post(self.client.token_url(), body)
+        return self.client.token_get_by_challenge(challenge_id, code,
+                                                  method_id)
 
     def _challenge(self, challenge_id):
         self.db_session.expire_all()
@@ -590,17 +588,15 @@ class TestMfaLogin(TestAuthBase):
         self.assertEqual(code, 201)
 
     def _enroll(self, challenge_id, type_='totp', user_id=None):
-        body = {'type': type_, 'challenge_id': challenge_id}
-        if type_ == 'totp':
-            body['label'] = 'label'
-        return self.client.post(
-            self.client.mfa_methods_url(user_id or self.user.id), body)
+        return self.client.mfa_method_create(
+            user_id or self.user.id, type_,
+            label='label' if type_ == 'totp' else None,
+            challenge_id=challenge_id)
 
     def _confirm(self, method_id, code, challenge_id, user_id=None):
-        return self.client.post(
-            self.client.mfa_method_confirm_url(user_id or self.user.id,
-                                               method_id),
-            {'code': code, 'challenge_id': challenge_id})
+        return self.client.mfa_method_confirm(
+            user_id or self.user.id, method_id, code,
+            challenge_id=challenge_id)
 
     def test_enroll_with_challenge(self):
         self._enforce()
@@ -722,14 +718,12 @@ class TestMfaLogin(TestAuthBase):
 
     def test_confirm_with_token_wrong_code_no_attempts(self):
         self.client.secret = self.cluster_secret
-        _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp', 'label': 'label'})
+        _, method = self.client.mfa_method_create(self.user.id, 'totp',
+                                                  label='label')
         wrong = self._wrong(pyotp.TOTP(method['secret']).now())
         for _ in range(6):
-            code, err = self.client.post(
-                self.client.mfa_method_confirm_url(self.user.id,
-                                                   method['id']),
-                {'code': wrong})
+            code, err = self.client.mfa_method_confirm(
+                self.user.id, method['id'], wrong)
             self.assertEqual(code, 403)
             self.assertEqual(err['error']['error_code'], 'OA0083')
 
@@ -810,11 +804,10 @@ class TestMfaLogin(TestAuthBase):
     def test_confirm_without_challenge_still_200(self):
         self._enforce()
         self.client.secret = self.cluster_secret
-        _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp', 'label': 'label'})
-        code, resp = self.client.post(
-            self.client.mfa_method_confirm_url(self.user.id, method['id']),
-            {'code': pyotp.TOTP(method['secret']).now()})
+        _, method = self.client.mfa_method_create(self.user.id, 'totp',
+                                                  label='label')
+        code, resp = self.client.mfa_method_confirm(
+            self.user.id, method['id'], pyotp.TOTP(method['secret']).now())
         self.assertEqual(code, 200)
         self.assertNotIn('token', resp)
 
@@ -981,13 +974,11 @@ class TestMfaLogin(TestAuthBase):
 
     def test_enrollment_with_token_does_not_remove_confirmed_method(self):
         self.client.secret = self.cluster_secret
-        _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'email'})
+        _, method = self.client.mfa_method_create(self.user.id, 'email')
         with patch.object(VerificationCodeController, 'send_mfa_code',
                           autospec=True,
                           side_effect=self._confirm_meanwhile(None)):
-            code, err = self.client.post(self.client.mfa_methods_url(
-                self.user.id), {'type': 'email'})
+            code, err = self.client.mfa_method_create(self.user.id, 'email')
         self.assertEqual(code, 409)
         self.assertEqual(err['error']['error_code'], 'OA0082')
         self.db_session.expire_all()
@@ -1118,11 +1109,10 @@ class TestMfaLogin(TestAuthBase):
 
     def test_non_ascii_code_enrollment_with_token(self):
         self.client.secret = self.cluster_secret
-        _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp', 'label': 'label'})
-        code, err = self.client.post(
-            self.client.mfa_method_confirm_url(self.user.id, method['id']),
-            {'code': self.ARABIC_INDIC})
+        _, method = self.client.mfa_method_create(self.user.id, 'totp',
+                                                  label='label')
+        code, err = self.client.mfa_method_confirm(
+            self.user.id, method['id'], self.ARABIC_INDIC)
         self.assertEqual(code, 403)
         self.assertEqual(err['error']['error_code'], 'OA0083')
 
@@ -1162,24 +1152,22 @@ class TestMfaLogin(TestAuthBase):
 
     def test_enrollment_with_token_removed_during_totp_check(self):
         self.client.secret = self.cluster_secret
-        _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp', 'label': 'label'})
+        _, method = self.client.mfa_method_create(self.user.id, 'totp',
+                                                  label='label')
         with self._remove_during_totp(method['id'], before=False):
-            code, err = self.client.post(
-                self.client.mfa_method_confirm_url(self.user.id,
-                                                   method['id']),
-                {'code': pyotp.TOTP(method['secret']).now()})
+            code, err = self.client.mfa_method_confirm(
+                self.user.id, method['id'],
+                pyotp.TOTP(method['secret']).now())
         self.assertEqual(code, 404)
         self.assertEqual(err['error']['error_code'], 'OA0003')
 
     def test_enrollment_with_token_second_method_not_default(self):
         self._add_method(type_=MFAType.email)
         self.client.secret = self.cluster_secret
-        _, method = self.client.post(self.client.mfa_methods_url(
-            self.user.id), {'type': 'totp', 'label': 'label'})
-        code, resp = self.client.post(
-            self.client.mfa_method_confirm_url(self.user.id, method['id']),
-            {'code': pyotp.TOTP(method['secret']).now()})
+        _, method = self.client.mfa_method_create(self.user.id, 'totp',
+                                                  label='label')
+        code, resp = self.client.mfa_method_confirm(
+            self.user.id, method['id'], pyotp.TOTP(method['secret']).now())
         self.assertEqual(code, 200)
         self.assertTrue(resp['confirmed'])
         self.assertFalse(resp['is_default'])
