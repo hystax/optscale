@@ -1,3 +1,4 @@
+import base64
 import enum
 import hashlib
 import json
@@ -5,6 +6,11 @@ import os
 import re
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+from urllib.parse import quote, urlencode
+
+from cryptography.fernet import Fernet, InvalidToken
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from sqlalchemy import inspect
 from auth.auth_server.exceptions import Err
 from optscale_client.config_client.client import Client as ConfigClient
@@ -16,6 +22,9 @@ from tools.optscale_exceptions.common_exc import (
 
 tp_executor = ThreadPoolExecutor(15)
 MAX_32_INT = 2 ** 31 - 1
+_MFA_SECRET_KDF_INFO = b'optscale-auth-mfa-secret-v1'
+TOTP_DIGITS = 6
+TOTP_PERIOD = 30
 
 
 def singleton(class_):
@@ -84,6 +93,53 @@ def hash_password(password, salt):
     return hashlib.sha256(
         password.encode('utf-8') + salt.encode('utf-8') +
         get_encryption_salt().encode('utf-8')).hexdigest()
+
+
+def _get_mfa_fernet():
+    """Fernet keyed by an HKDF derivation of the auth encryption salt.
+
+    The salt is high-entropy random data, so HKDF (not a password KDF) is
+    enough; ``info`` keeps this key separate from any other use of the salt.
+    """
+    master = get_encryption_salt()
+    if isinstance(master, str):
+        master = master.encode('utf-8')
+    derived = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=_MFA_SECRET_KDF_INFO,
+    ).derive(master)
+    return Fernet(base64.urlsafe_b64encode(derived))
+
+
+def encrypt_mfa_secret(secret):
+    return _get_mfa_fernet().encrypt(secret.encode('utf-8')).decode('utf-8')
+
+
+def decrypt_mfa_secret(encrypted):
+    try:
+        return _get_mfa_fernet().decrypt(
+            encrypted.encode('utf-8')).decode('utf-8')
+    except InvalidToken as exc:
+        raise ValueError('invalid MFA secret token') from exc
+
+
+def build_otpauth_uri(issuer, email, secret):
+    label = f'{quote(issuer, safe="")}:{quote(email, safe="")}'
+    query = urlencode({
+        'secret': secret,
+        'issuer': issuer,
+        'digits': TOTP_DIGITS,
+        'period': TOTP_PERIOD,
+    }, quote_via=quote)
+    return f'otpauth://totp/{label}?{query}'
+
+
+def mask_email(email):
+    """fi***@example.com, used as the label of e-mail MFA methods"""
+    local, _, domain = email.partition('@')
+    return f'{local[:2]}***@{domain}'
 
 
 def get_digest(val):

@@ -208,3 +208,40 @@ class Err(enum.Enum):
     OA0074 = [
         "Validation error: %s",
     ]
+    OA0081 = [
+        "Authentication policy already exists",
+    ]
+    OA0082 = [
+        "Authentication method of type %s already exists",
+    ]
+    OA0083 = [
+        "Invalid authentication code",
+    ]
+    OA0084 = [
+        "Authentication method %s is already confirmed",
+    ]
+    OA0085 = [
+        "Login challenge is invalid or expired",
+    ]
+    OA0086 = [
+        "Verification code is invalid, %s attempts left",
+    ]
+    OA0087 = [
+        "Too many failed attempts, sign in again",
+    ]
+    OA0088 = [
+        "An authentication method must be enrolled first",
+    ]
+    OA0089 = [
+        "An authentication method is already enrolled, sign in again",
+    ]
+    OA0090 = [
+        "Too many failed attempts, try again later",
+    ]
+    OA0091 = [
+        "At least one authentication method must remain configured because "
+        "MFA is enforced by your organization",
+    ]
+    OA0092 = [
+        "Authentication method %s is not confirmed",
+    ]

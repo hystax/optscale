@@ -1,6 +1,6 @@
 import logging
 import requests
-from random import randrange
+import secrets
 from rest_api.rest_api_server.controllers.base import BaseController
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.utils import query_url
@@ -20,10 +20,7 @@ class RestorePasswordController(BaseController):
 
     @staticmethod
     def _generate_code():
-        ints = []
-        for _ in range(6):
-            ints.append(str(randrange(10)))
-        return ''.join(ints)
+        return f'{secrets.randbelow(1_000_000):06d}'
 
     def create_verification_code(self, email, code):
         auth_client = AuthClient(url=self._config.auth_url(),

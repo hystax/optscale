@@ -8,7 +8,8 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (Token, Type, User, Role,
-                                            PermissionKeys, VerificationCode)
+                                            PermissionKeys, VerificationCode,
+                                            VerificationCodePurpose)
 from auth.auth_server.auth_token.token_store import TokenStore
 from auth.auth_server.utils import Config, popkey, get_digest
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
@@ -115,6 +116,16 @@ class BaseController(object):
         if not user or user.deleted:
             raise NotFoundException(Err.OA0024, [id_])
         return user
+
+    def check_user_access(self, user_id, token):
+        """The user must exist; a token is accepted only from that user
+        (no token means the call was authorized with the cluster secret)"""
+        req_user = self.get_user_by_id(user_id)
+        if token:
+            token_user = self.get_user(token)
+            if token_user.id != user_id:
+                raise ForbiddenException(Err.OA0012, [])
+        return req_user
 
     def get_users_by_ids(self, ids):
         users = self.session.query(User).filter(
@@ -307,13 +318,15 @@ class BaseController(object):
         nested_dict_iter(downward_hierarchy)
         return res
 
-    def use_verification_code(self, email, code):
+    def use_verification_code(self, email, code,
+                              purpose=VerificationCodePurpose.password):
         if not email or not code:
             return
         now = opttime.utcnow()
         return self.session.query(VerificationCode).filter(
             and_(
                 VerificationCode.email == email,
+                VerificationCode.purpose == VerificationCodePurpose(purpose),
                 VerificationCode.deleted.is_(False),
                 VerificationCode.code == get_digest(str(code)),
                 VerificationCode.valid_until > now

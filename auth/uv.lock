@@ -47,6 +47,7 @@ dependencies = [
     { name = "config-client" },
     { name = "cryptography" },
     { name = "google-auth" },
+    { name = "herald-client" },
     { name = "mysql-connector-python" },
     { name = "optscale-exceptions" },
     { name = "optscale-password" },
@@ -55,6 +56,7 @@ dependencies = [
     { name = "ordered-set" },
     { name = "pyjwt" },
     { name = "pymacaroons" },
+    { name = "pyotp" },
     { name = "pyyaml" },
     { name = "requests" },
     { name = "restapi-client" },
@@ -82,6 +84,7 @@ requires-dist = [
     { name = "config-client", directory = "../optscale_client/config_client" },
     { name = "cryptography", specifier = "==44.0.1" },
     { name = "google-auth", specifier = "==1.23.0" },
+    { name = "herald-client", directory = "../optscale_client/herald_client" },
     { name = "mysql-connector-python", specifier = "==9.1.0" },
     { name = "optscale-exceptions", directory = "../tools/optscale_exceptions" },
     { name = "optscale-password", directory = "../tools/optscale_password" },
@@ -90,6 +93,7 @@ requires-dist = [
     { name = "ordered-set", specifier = "==4.1.0" },
     { name = "pyjwt", specifier = ">=2.4.0" },
     { name = "pymacaroons", specifier = "==0.13.0" },
+    { name = "pyotp", specifier = "==2.9.0" },
     { name = "pyyaml", specifier = "==6.0.1" },
     { name = "requests", specifier = "==2.32.4" },
     { name = "restapi-client", directory = "../optscale_client/rest_api_client" },
@@ -401,6 +405,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f3/e4/ea3c0caf5468537f27ad5aab92b681ed7cc0ef5f8c9196d3fd42c8c2286b/grpcio-1.78.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:fd5f135b1bd58ab088930b3c613455796dfa0393626a6972663ccdda5b4ac6ce", size = 7698222, upload-time = "2026-02-06T09:55:44.629Z" },
     { url = "https://files.pythonhosted.org/packages/d7/47/7f05f81e4bb6b831e93271fb12fd52ba7b319b5402cbc101d588f435df00/grpcio-1.78.0-cp312-cp312-win32.whl", hash = "sha256:94309f498bcc07e5a7d16089ab984d42ad96af1d94b5a4eb966a266d9fcabf68", size = 4066123, upload-time = "2026-02-06T09:55:47.644Z" },
     { url = "https://files.pythonhosted.org/packages/ad/e7/d6914822c88aa2974dbbd10903d801a28a19ce9cd8bad7e694cbbcf61528/grpcio-1.78.0-cp312-cp312-win_amd64.whl", hash = "sha256:9566fe4ababbb2610c39190791e5b829869351d14369603702e890ef3ad2d06e", size = 4797657, upload-time = "2026-02-06T09:55:49.86Z" },
+]
+
+[[package]]
+name = "herald-client"
+version = "0.0.0"
+source = { directory = "../optscale_client/herald_client" }
+dependencies = [
+    { name = "requests" },
+    { name = "retrying" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "requests", specifier = "==2.32.4" },
+    { name = "retrying", specifier = "==1.4.1" },
 ]
 
 [[package]]
@@ -1020,6 +1039,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/48/47/e761c254f410c023a469284a9bc210933e18588ca87706ae93002c05114c/pynacl-1.6.2-cp38-abi3-win32.whl", hash = "sha256:5811c72b473b2f38f7e2a3dc4f8642e3a3e9b5e7317266e4ced1fba85cae41aa", size = 227421, upload-time = "2026-01-01T17:32:33.076Z" },
     { url = "https://files.pythonhosted.org/packages/41/ad/334600e8cacc7d86587fe5f565480fde569dfb487389c8e1be56ac21d8ac/pynacl-1.6.2-cp38-abi3-win_amd64.whl", hash = "sha256:62985f233210dee6548c223301b6c25440852e13d59a8b81490203c3227c5ba0", size = 239754, upload-time = "2026-01-01T17:32:34.557Z" },
     { url = "https://files.pythonhosted.org/packages/29/7d/5945b5af29534641820d3bd7b00962abbbdfee84ec7e19f0d5b3175f9a31/pynacl-1.6.2-cp38-abi3-win_arm64.whl", hash = "sha256:834a43af110f743a754448463e8fd61259cd4ab5bbedcf70f9dabad1d28a394c", size = 184801, upload-time = "2026-01-01T17:32:36.309Z" },
+]
+
+[[package]]
+name = "pyotp"
+version = "2.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/b2/1d5994ba2acde054a443bd5e2d384175449c7d2b6d1a0614dbca3a63abfc/pyotp-2.9.0.tar.gz", hash = "sha256:346b6642e0dbdde3b4ff5a930b664ca82abfa116356ed48cc42c7d6590d36f63", size = 17763, upload-time = "2023-07-27T23:41:03.295Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/c0/c33c8792c3e50193ef55adb95c1c3c2786fe281123291c2dbf0eaab95a6f/pyotp-2.9.0-py3-none-any.whl", hash = "sha256:81c2e5865b8ac55e825b0358e496e1d9387c811e85bb40e71a3b29b288963612", size = 13376, upload-time = "2023-07-27T23:41:01.685Z" },
 ]
 
 [[package]]

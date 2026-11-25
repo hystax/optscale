@@ -95,7 +95,27 @@ def get_handlers(handler_kwargs):
          handler_kwargs),
         (urls_v2.user_options, get_handler_version(
             h_v2, "user_options").UserOptionsAsyncItemHandler,
-         handler_kwargs)
+         handler_kwargs),
+        (urls_v2.login_options, get_handler_version(
+            h_v2, "login_options").LoginOptionsAsyncHandler, handler_kwargs),
+        (urls_v2.login_challenge_codes, get_handler_version(
+            h_v2, "login_challenges").LoginChallengeCodesAsyncHandler,
+         handler_kwargs),
+        (urls_v2.auth_policies_collection, get_handler_version(
+            h_v2, "auth_policies").AuthPolicyAsyncCollectionHandler,
+         handler_kwargs),
+        (urls_v2.auth_policies, get_handler_version(
+            h_v2, "auth_policies").AuthPolicyAsyncItemHandler,
+         handler_kwargs),
+        (urls_v2.user_mfa_methods_collection, get_handler_version(
+            h_v2, "mfa_methods").MfaMethodAsyncCollectionHandler,
+         handler_kwargs),
+        (urls_v2.user_mfa_method, get_handler_version(
+            h_v2, "mfa_methods").MfaMethodAsyncItemHandler,
+         handler_kwargs),
+        (urls_v2.user_mfa_method_confirm, get_handler_version(
+            h_v2, "mfa_methods").MfaMethodConfirmAsyncHandler,
+         handler_kwargs),
     ]
 
 

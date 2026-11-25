@@ -49,6 +49,31 @@ class RolePurpose(enum.Enum):
     optscale_manager = 'optscale_manager'
 
 
+class MFAType(enum.Enum):
+    totp = 'totp'
+    email = 'email'
+
+
+class LoginChallengeState(enum.Enum):
+    mfa_required = 'mfa_required'
+    enrollment_required = 'enrollment_required'
+
+
+class AuthPolicyScope(enum.Enum):
+    organization = 'organization'
+    domain = 'domain'
+
+
+class AuthPolicyPurpose(enum.Enum):
+    mfa = 'mfa'
+    sso = 'sso'
+
+
+class VerificationCodePurpose(enum.Enum):
+    password = 'password'
+    mfa = 'mfa'
+
+
 class Base(object):
     __name__: str
     __table__: Table
@@ -413,6 +438,11 @@ class VerificationCode(Base, BaseMixin):
     valid_until = Column(TIMESTAMP, nullable=False)
     code = Column(String(32), nullable=False,
                   info=ColumnPermissions.create_only)
+    purpose = Column(Enum(VerificationCodePurpose),
+                     default=VerificationCodePurpose.password,
+                     info=ColumnPermissions.create_only,
+                     nullable=False,
+                     )
 
 
 class UserOption(Base, BaseMixin):
@@ -430,3 +460,79 @@ class UserOption(Base, BaseMixin):
                   info=ColumnPermissions.create_only)
     value = Column(TEXT, nullable=False, default='{}',
                    info=ColumnPermissions.full)
+
+
+class MFAMethod(Base, BaseMixin):
+    __tablename__ = 'mfa_method'
+
+    # several authenticator apps per user, a single e-mail method: enforced
+    # by the controller under the user lock, MySQL has no partial unique
+    # index. Indexed: the foreign key needs it
+    user_id = Column(String(36), ForeignKey('user.id'), nullable=False,
+                     index=True, info=ColumnPermissions.create_only)
+    type = Column(Enum(MFAType), nullable=False,
+                  info=ColumnPermissions.create_only)
+    secret = Column(String(256), nullable=True, info=ColumnPermissions.full)
+    label = Column(String(256), nullable=True, info=ColumnPermissions.full)
+    is_default = Column(Boolean, nullable=False, default=False,
+                        info=ColumnPermissions.full)
+    confirmed_at = Column(Integer, default=0, nullable=False,
+                          info=ColumnPermissions.update_only)
+    last_used_step = Column(Integer, default=0, nullable=False,
+                            info=ColumnPermissions.update_only)
+
+    user = relationship("User", backref='mfa_methods')
+
+    @hybrid_property
+    def confirmed(self):
+        return self.confirmed_at != 0
+
+    def to_dict(self):
+        method_dict = as_dict(self)
+        method_dict = dict(filter(
+            lambda x: x[0] not in [MFAMethod.secret.name,
+                                   MFAMethod.last_used_step.name],
+            method_dict.items()))
+        method_dict['confirmed'] = self.confirmed
+        return method_dict
+
+    def __repr__(self):
+        return f'<MfaMethod {self.type} user: {self.user_id}>'
+
+
+class LoginChallenge(Base, BaseMixin):
+    __tablename__ = 'login_challenge'
+
+    user_id = Column(String(36), ForeignKey('user.id'), nullable=False,
+                     info=ColumnPermissions.create_only)
+    state = Column(Enum(LoginChallengeState), nullable=False,
+                   info=ColumnPermissions.create_only)
+    expires_at = Column(Integer, nullable=False,
+                        info=ColumnPermissions.create_only)
+    attempts = Column(Integer, nullable=False, default=0, index=True,
+                      info=ColumnPermissions.full)
+
+    user = relationship("User", backref='login_challenges')
+
+    def __repr__(self):
+        return f'<LoginChallenge {self.id} user: {self.user_id} ' \
+               f'state: {self.state}>'
+
+
+class AuthPolicy(Base, BaseMixin):
+    __tablename__ = 'auth_policy'
+    __table_args__ = (
+        UniqueConstraint('scope_type', 'scope_id', 'purpose', 'deleted_at',
+                         name='uc_scope_type_scope_id_purpose_deleted_at'),
+    )
+
+    scope_type = Column(Enum(AuthPolicyScope), nullable=False,
+                        info=ColumnPermissions.create_only)
+    scope_id = Column(String(256), nullable=False,
+                      info=ColumnPermissions.create_only)
+    purpose = Column(Enum(AuthPolicyPurpose), nullable=False,
+                     info=ColumnPermissions.create_only)
+
+    def __repr__(self):
+        return f'<AuthPolicy {self.purpose} {self.scope_type}: ' \
+               f'{self.scope_id}>'

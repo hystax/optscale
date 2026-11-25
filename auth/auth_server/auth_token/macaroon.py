@@ -3,6 +3,7 @@ import logging
 from pymacaroons import Macaroon, Verifier
 
 LOG = logging.getLogger(__name__)
+MFA_NONE = 'none'
 
 
 class MacaroonToken(object):
@@ -12,7 +13,7 @@ class MacaroonToken(object):
         self._ident = ident
         self._location = location
 
-    def create(self, register, provider):
+    def create(self, register, provider, mfa=MFA_NONE):
         macaroon = Macaroon(
             location=self._location,
             identifier=self._ident,
@@ -21,6 +22,7 @@ class MacaroonToken(object):
         macaroon.add_first_party_caveat(f'created:{time.time()}')
         macaroon.add_first_party_caveat(f'register:{register}')
         macaroon.add_first_party_caveat(f'provider:{provider}')
+        macaroon.add_first_party_caveat(f'mfa:{mfa}')
         return macaroon.serialize()
 
     def verify(self, token):

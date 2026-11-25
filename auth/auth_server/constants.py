@@ -31,7 +31,20 @@ class Urls:
         'verification_codes': r"%s/verification_codes",
         'user_options_collection': r"%s/users/(?P<user_id>[^/]+)/options",
         'user_options':
-            r"%s/users/(?P<user_id>[^/]+)/options/(?P<option_name>[^/]+)"
+            r"%s/users/(?P<user_id>[^/]+)/options/(?P<option_name>[^/]+)",
+        'login_options': r"%s/login_options",
+        # the challenge id is a credential: in the body, not in the URL
+        # (access logs)
+        'login_challenge_codes': r"%s/login_challenge_codes",
+        'auth_policies_collection': r"%s/auth_policies",
+        'auth_policies': r"%s/auth_policies/(?P<policy_id>[^/]+)",
+        'user_mfa_methods_collection':
+            r"%s/users/(?P<user_id>[^/]+)/mfa_methods",
+        'user_mfa_method':
+            r"%s/users/(?P<user_id>[^/]+)/mfa_methods/(?P<method_id>[^/]+)",
+        'user_mfa_method_confirm':
+            r"%s/users/(?P<user_id>[^/]+)/mfa_methods/"
+            r"(?P<method_id>[^/]+)/confirm",
     }
 
     def __init__(self):

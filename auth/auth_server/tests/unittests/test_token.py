@@ -1,5 +1,5 @@
 import uuid
-from auth.auth_server.auth_token.macaroon import MacaroonToken
+from auth.auth_server.auth_token.macaroon import MacaroonToken, MFA_NONE
 from auth.auth_server.models.models import Type, User
 from auth.auth_server.tests.unittests.test_model_base import TestModelBase
 from auth.auth_server.tests.unittests.utils import extract_caveats
@@ -41,6 +41,7 @@ class TestToken(TestModelBase):
         caveats = extract_caveats(token)
         self.assertEqual(provider, caveats['provider'])
         self.assertEqual(register, caveats['register'])
+        self.assertEqual(MFA_NONE, caveats['mfa'])
 
     def test_token_root(self):
         user_root = User('root@hystax.com', self.type_root, 'pass',
@@ -86,3 +87,15 @@ class TestToken(TestModelBase):
         # pylint: disable=W0212
         macaroon_token._secret = 'fake'
         self.assertFalse(macaroon_token.verify(token))
+
+    def test_token_mfa_caveat(self):
+        session = self.db_session
+        user = User('mfa@hystax.com', self.type_customer, 'pass',
+                    display_name='MFA user', scope_id=str(uuid.uuid4()))
+        session.add(user)
+        session.commit()
+        macaroon_token = MacaroonToken(user.salt, user.id)
+        token = macaroon_token.create(register=False, provider='optscale',
+                                      mfa='totp')
+        self.assertTrue(macaroon_token.verify(token))
+        self.assertEqual('totp', extract_caveats(token)['mfa'])

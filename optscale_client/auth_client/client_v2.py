@@ -57,6 +57,33 @@ class Client(Client_v1):
         return url
 
     @staticmethod
+    def login_options_url():
+        url = 'login_options'
+        return url
+
+    @staticmethod
+    def auth_policies_url(policy_id=None):
+        url = 'auth_policies'
+        if policy_id is not None:
+            url = '%s/%s' % (url, policy_id)
+        return url
+
+    @staticmethod
+    def mfa_methods_url(user_id, method_id=None):
+        url = '%s/mfa_methods' % Client.user_url(user_id)
+        if method_id is not None:
+            url = '%s/%s' % (url, method_id)
+        return url
+
+    @staticmethod
+    def mfa_method_confirm_url(user_id, method_id):
+        return '%s/confirm' % Client.mfa_methods_url(user_id, method_id)
+
+    @staticmethod
+    def login_challenge_codes_url():
+        return 'login_challenge_codes'
+
+    @staticmethod
     def query_url(**query):
         query = {
             key: value for key, value in query.items() if value is not None
@@ -205,3 +232,128 @@ class Client(Client_v1):
     def user_options_delete(self, user_id, option_name):
         url = self.user_options_url(user_id, option_name)
         return self.delete(url)
+
+    # --- MFA (two-step login, methods, policies) ---
+    # Credentials: TOKEN is the user's token (self.token), SECRET the cluster
+    # secret (self.secret), CHALLENGE a login challenge id passed in the body
+    # (the browser has no token yet). Every method returns (code, response).
+
+    def login_options(self, email):
+        """
+        Step 1 of the sign-in: how the user can authenticate (password,
+        identity providers). Credential: none.
+        """
+        return self.post(self.login_options_url(), {'email': email})
+
+    def token_get_by_challenge(self, challenge_id, code, method_id=None):
+        """
+        Completes an `mfa_required` login challenge (a 202 of token_get)
+        with a TOTP or e-mail code: 201 with the token. Credential:
+        CHALLENGE. method_id: the method the code belongs to; without it
+        the default method is tried (then every TOTP method).
+        """
+        body = {'challenge_id': challenge_id, 'code': code}
+        if method_id is not None:
+            body['method_id'] = method_id
+        return self.post(self.token_url(), body)
+
+    def login_challenge_code_send(self, challenge_id, method_id=None):
+        """
+        Sends (again) the e-mail code of an `mfa_required` login challenge:
+        204. One code per minute per user (403 OA0072 meanwhile).
+        Credential: CHALLENGE. method_id: the confirmed e-mail method of
+        the user, optional as a user has a single one.
+        """
+        body = {'challenge_id': challenge_id}
+        if method_id is not None:
+            body['method_id'] = method_id
+        return self.post(self.login_challenge_codes_url(), body)
+
+    def mfa_methods_get(self, user_id):
+        """
+        MFA status of a user: status (disabled / configured / enforced)
+        and the confirmed methods. Credential: TOKEN of the user or SECRET.
+        """
+        return self.get(self.mfa_methods_url(user_id))
+
+    def mfa_method_create(self, user_id, type_, label=None,
+                          challenge_id=None):
+        """
+        Starts the enrollment of a method: 201 with the pending method
+        (plus secret and otpauth_uri for totp). type_: totp or email.
+        label: required for totp. Credential: TOKEN of the user, SECRET or
+        CHALLENGE (an `enrollment_required` login challenge of the user).
+        """
+        body = {'type': type_}
+        if label is not None:
+            body['label'] = label
+        if challenge_id is not None:
+            body['challenge_id'] = challenge_id
+        return self.post(self.mfa_methods_url(user_id), body)
+
+    def mfa_method_confirm(self, user_id, method_id, code,
+                           challenge_id=None):
+        """
+        Confirms a pending method with a code of the device / mailbox:
+        200 with the method, or 201 with {method, token} in challenge mode.
+        Credential: TOKEN of the user, SECRET or CHALLENGE.
+        """
+        body = {'code': code}
+        if challenge_id is not None:
+            body['challenge_id'] = challenge_id
+        return self.post(self.mfa_method_confirm_url(user_id, method_id),
+                         body)
+
+    def mfa_method_update(self, user_id, method_id, **params):
+        """
+        Updates a confirmed method: label and / or is_default (true only,
+        it replaces the current default). Credential: TOKEN of the user or
+        SECRET.
+        """
+        return self.patch(self.mfa_methods_url(user_id, method_id), params)
+
+    def mfa_method_delete(self, user_id, method_id):
+        """
+        Removes a method: 204. The last one cannot be removed while an
+        organization enforces MFA (403 OA0091). Credential: TOKEN of the
+        user or SECRET.
+        """
+        return self.delete(self.mfa_methods_url(user_id, method_id))
+
+    def mfa_methods_reset(self, user_id):
+        """
+        Resets the MFA of a user (lost device): every method removed, the
+        user's tokens deleted, 204. Credential: SECRET or TOKEN of an
+        organization manager of the user.
+        """
+        return self.delete(self.mfa_methods_url(user_id))
+
+    def auth_policy_list(self, scope_type, scope_id):
+        """
+        Active authentication policies of a scope (organization).
+        Credential: TOKEN (INFO_ORGANIZATION) or SECRET.
+        """
+        url = self.auth_policies_url() + self.query_url(
+            scope_type=scope_type, scope_id=scope_id)
+        code, response = self.get(url)
+        return (code, response['auth_policies']) if code == 200 else (
+            code, response)
+
+    def auth_policy_create(self, scope_type, scope_id, purpose):
+        """
+        Creates a policy, e.g. purpose `mfa` to enforce MFA for the users
+        of an organization: 201. Credential: TOKEN (EDIT_PARTNER) or
+        SECRET.
+        """
+        body = {
+            'scope_type': scope_type,
+            'scope_id': scope_id,
+            'purpose': purpose,
+        }
+        return self.post(self.auth_policies_url(), body)
+
+    def auth_policy_delete(self, policy_id):
+        """
+        Deletes a policy: 204. Credential: TOKEN (EDIT_PARTNER) or SECRET.
+        """
+        return self.delete(self.auth_policies_url(policy_id))

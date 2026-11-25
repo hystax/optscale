@@ -8,6 +8,7 @@ dependencies = [
     "config-client",
     "cryptography==44.0.1",
     "google-auth==1.23.0",
+    "herald-client",
     "mysql-connector-python==9.1.0",
     "optscale-exceptions",
     "optscale-password",
@@ -16,6 +17,7 @@ dependencies = [
     "ordered-set==4.1.0",
     "pyjwt>=2.4.0",
     "pymacaroons==0.13.0",
+    "pyotp==2.9.0",
     "pyyaml==6.0.1",
     "requests==2.32.4",
     "restapi-client",
@@ -37,6 +39,7 @@ optscale-exceptions = { path = "../tools/optscale_exceptions" }
 optscale-time = { path = "../tools/optscale_time" }
 optscale-password = { path = "../tools/optscale_password" }
 config-client = { path = "../optscale_client/config_client" }
+herald-client = { path = "../optscale_client/herald_client" }
 restapi-client = { path = "../optscale_client/rest_api_client" }
 auth-client = { path = "../optscale_client/auth_client" }
 check-alembic-down-revisions = { path = "../tools/check_alembic_down_revisions" }

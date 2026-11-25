@@ -8,6 +8,8 @@ from tools.zoho_integrator.zoho_client import ZohoClient
 from tools.zoho_integrator.registered_app import RegisteredApp
 from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.controllers.login_challenge import (
+    LoginChallengeController)
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import User, gen_salt, Type, Token
 from auth.auth_server.utils import (
@@ -295,6 +297,12 @@ class UserController(BaseController):
         try:
             if params:
                 self.session.query(User).filter_by(id=item_id).update(params)
+                if password is not None:
+                    # like the tokens (new salt), the login challenges
+                    # obtained with the old password are not valid anymore
+                    LoginChallengeController(
+                        self.session, self._config
+                    ).invalidate_user_challenges(item_id)
                 self.session.commit()
         except IntegrityError as ex:
             raise WrongArgumentsException(Err.OA0061, [str(ex)])

@@ -1,0 +1,605 @@
+import json
+
+from auth.auth_server.controllers.mfa_method import MfaMethodAsyncController
+from auth.auth_server.handlers.v1.base import (
+    BaseAsyncAuthCollectionHandler, BaseAsyncAuthItemHandler,
+    BaseSecretHandler)
+from auth.auth_server.handlers.v2.base import BaseHandler as BaseHandler_v2
+from auth.auth_server.utils import ModelEncoder, run_task
+
+
+class MfaMethodAuthMixin:
+    async def get_auth_args(self, data):
+        """
+        Cluster secret or owner's token: returns the controller token arg.
+        With challenge_id in the body the login challenge is the credential,
+        the controller checks it.
+        """
+        if data.get('challenge_id') is not None:
+            return {'token': None}
+        if self.secret:
+            self.check_cluster_secret()
+            return {'token': None}
+        await self.check_token()
+        return self.token
+
+    def get_body(self):
+        data = self._request_body()
+        data.pop('token', None)
+        return data
+
+
+class MfaMethodAsyncCollectionHandler(MfaMethodAuthMixin,
+                                      BaseAsyncAuthCollectionHandler,
+                                      BaseSecretHandler, BaseHandler_v2):
+    def _get_controller_class(self):
+        return MfaMethodAsyncController
+
+    def prepare(self):
+        pass
+
+    async def get(self, user_id, **url_params):
+        """
+        ---
+        description: |
+            MFA state of the user for the Security page: the confirmed
+            methods (the default one first) and whether an organization of
+            the user enforces MFA. Pending enrollments are not listed.
+            Required permission: TOKEN of the user or CLUSTER_SECRET
+        tags: [mfa_methods]
+        summary: MFA status of a user
+        parameters:
+        -   name: user_id
+            in: path
+            description: User ID
+            required: true
+            type: string
+        responses:
+            200:
+                description: MFA status
+                schema:
+                    type: object
+                    properties:
+                        status:
+                            type: string
+                            enum: [not_configured, configured, enforced]
+                            description: >-
+                                enforced when an organization of the user
+                                enforces MFA (with or without a method),
+                                configured when a method is confirmed
+                        mfa_enforced: {type: boolean}
+                        enforcing_organizations:
+                            type: array
+                            description: ids of the organizations of the
+                                user with an mfa policy
+                            items: {type: string}
+                        methods:
+                            type: array
+                            description: confirmed methods, default first
+                            items:
+                                type: object
+                                properties:
+                                    id: {type: string}
+                                    user_id: {type: string}
+                                    type: {type: string,
+                                        enum: [totp, email]}
+                                    label: {type: string}
+                                    is_default: {type: boolean}
+                                    confirmed: {type: boolean}
+                                    confirmed_at: {type: integer}
+                                    created_at: {type: integer}
+                                    deleted_at: {type: integer}
+            401:
+                description: |
+                    Unauthorized:
+                    - OA0010: Token not found
+                    - OA0023: Unauthorized
+                    - OA0062: This resource requires an authorization token
+            403:
+                description: |
+                    Forbidden:
+                    - OA0006: Bad secret
+                    - OA0012: Forbidden!
+            404:
+                description: |
+                    Not found:
+                    - OA0024: User was not found
+        security:
+        - token: []
+        - secret: []
+        """
+        args = await self.get_auth_args({})
+        res = await run_task(self.controller.status, user_id, **args)
+        self.write(json.dumps(res, cls=ModelEncoder))
+
+    async def delete(self, user_id, **url_params):
+        """
+        ---
+        description: |
+            Resets the MFA of a user (lost device, support case): every
+            method is removed, the user's tokens are deleted and the open
+            login challenges revoked. The next sign-in is password-only and
+            the user enrolls again (forced if an organization enforces MFA).
+            Required permission: CLUSTER_SECRET or TOKEN of an organization
+            manager (EDIT_PARTNER) of one of the user's organizations
+        tags: [mfa_methods]
+        summary: Reset the MFA of a user
+        parameters:
+        -   name: user_id
+            in: path
+            description: User ID
+            required: true
+            type: string
+        responses:
+            204:
+                description: MFA reset
+            401:
+                description: |
+                    Unauthorized:
+                    - OA0010: Token not found
+                    - OA0023: Unauthorized
+                    - OA0062: This resource requires an authorization token
+            403:
+                description: |
+                    Forbidden:
+                    - OA0006: Bad secret
+                    - OA0012: Forbidden! (not a manager of the user's
+                      organizations)
+            404:
+                description: |
+                    Not found:
+                    - OA0024: User was not found
+        security:
+        - token: []
+        - secret: []
+        """
+        args = await self.get_auth_args({})
+        await run_task(self.controller.reset, user_id, **args)
+        self.set_status(204)
+
+    async def post(self, user_id, **url_params):
+        """
+        ---
+        description: |
+            Starts the enrollment of an MFA method. The method is created
+            pending and becomes active only after it is confirmed with a
+            code. For `totp` the response includes the shared `secret` and
+            the `otpauth_uri` (QR code) - this is the only time they are
+            returned. For `email` a code is sent to the user's address and
+            the label is set to the masked address. A user can enroll
+            several `totp` methods (one per device, told apart by the
+            label) and a single `email` method. Restarting an unconfirmed
+            enrollment of a type replaces it.
+            Required permission: TOKEN of the user, CLUSTER_SECRET or
+            `challenge_id` of an `enrollment_required` login challenge of
+            the user (enforced user signing in without a method)
+        tags: [mfa_methods]
+        summary: Start MFA method enrollment
+        parameters:
+        -   name: user_id
+            in: path
+            description: User ID
+            required: true
+            type: string
+        -   in: body
+            name: body
+            required: true
+            schema:
+                type: object
+                required: [type]
+                properties:
+                    type: {type: string, enum: [totp, email],
+                        description: Method type}
+                    label:
+                        type: string
+                        description: >-
+                            Device name, required for totp (tells the
+                            authenticator apps apart), ignored for email
+                    challenge_id:
+                        type: string
+                        description: >-
+                            enrollment_required login challenge, instead of
+                            a token
+        responses:
+            201:
+                description: Pending MFA method
+                schema:
+                    type: object
+                    properties:
+                        id: {type: string, description: Method ID}
+                        user_id: {type: string, description: User ID}
+                        type: {type: string, enum: [totp, email],
+                            description: Method type}
+                        label: {type: string, description: Method label}
+                        is_default: {type: boolean,
+                            description: Always false while pending}
+                        confirmed: {type: boolean,
+                            description: Always false while pending}
+                        confirmed_at: {type: integer,
+                            description: Always 0 while pending}
+                        created_at: {type: integer,
+                            description: Creation timestamp}
+                        deleted_at: {type: integer,
+                            description: Deletion timestamp}
+                        secret:
+                            type: string
+                            description: TOTP shared secret (totp only)
+                        otpauth_uri:
+                            type: string
+                            description: otpauth URI for the QR code (totp
+                                only)
+            400:
+                description: |
+                    Wrong arguments:
+                    - OA0022: Unexpected parameters
+                    - OA0032: Parameter is not provided
+                    - OA0033: Parameter should be a string
+                    - OA0048: Parameter should contain 1-256 characters
+                    - OA0050: Incorrect request body received
+                    - OA0060: Invalid parameter
+                    - OA0065: Parameter should not contain only whitespaces
+            401:
+                description: |
+                    Unauthorized:
+                    - OA0010: Token not found
+                    - OA0023: Unauthorized
+                    - OA0062: This resource requires an authorization token
+            403:
+                description: |
+                    Forbidden:
+                    - OA0006: Bad secret
+                    - OA0012: Forbidden!
+                    - OA0072: The verification code can be generated once
+                      in a minute (email)
+                    - OA0089: An authentication method is already enrolled
+                      (challenge_id)
+            404:
+                description: |
+                    Not found:
+                    - OA0024: User was not found
+                    - OA0085: Login challenge is invalid or expired
+            409:
+                description: |
+                    Conflict:
+                    - OA0082: An e-mail method already exists (a single
+                      one per user, any number of totp methods)
+            503:
+                description: E-mail service unavailable (email)
+        security:
+        - token: []
+        - secret: []
+        """
+        data = self.get_body()
+        data.update(await self.get_auth_args(data))
+        res = await run_task(self.controller.create, user_id, **data)
+        self.set_status(201)
+        self.write(json.dumps(res, cls=ModelEncoder))
+
+
+class MfaMethodAsyncItemHandler(MfaMethodAuthMixin,
+                                BaseAsyncAuthItemHandler,
+                                BaseSecretHandler, BaseHandler_v2):
+    def _get_controller_class(self):
+        return MfaMethodAsyncController
+
+    def prepare(self):
+        pass
+
+    async def get(self, *args, **kwargs):
+        self.raise405()
+
+    async def post(self, *args, **kwargs):
+        self.raise405()
+
+    async def put(self, *args, **kwargs):
+        self.raise405()
+
+    async def patch(self, user_id, method_id, **url_params):
+        """
+        ---
+        description: |
+            Renames an MFA method (`totp` only, the `email` label is the
+            masked address) or makes it the default one. Only a confirmed
+            method can be the default and there is exactly one default:
+            the previous one loses the flag. `is_default` can only be set to
+            true, the flag is moved by setting it on another method.
+            Required permission: TOKEN of the user or CLUSTER_SECRET
+        tags: [mfa_methods]
+        summary: Update MFA method
+        parameters:
+        -   name: user_id
+            in: path
+            description: User ID
+            required: true
+            type: string
+        -   name: method_id
+            in: path
+            description: MFA method ID
+            required: true
+            type: string
+        -   in: body
+            name: body
+            required: true
+            schema:
+                type: object
+                properties:
+                    label: {type: string, description: New label (totp)}
+                    is_default: {type: boolean,
+                        description: true to make it the default method}
+        responses:
+            200:
+                description: Updated MFA method
+                schema:
+                    type: object
+                    properties:
+                        id: {type: string, description: Method ID}
+                        user_id: {type: string, description: User ID}
+                        type: {type: string, enum: [totp, email],
+                            description: Method type}
+                        label: {type: string, description: Method label}
+                        is_default: {type: boolean}
+                        confirmed: {type: boolean}
+                        confirmed_at: {type: integer,
+                            description: Confirmation timestamp}
+                        created_at: {type: integer,
+                            description: Creation timestamp}
+                        deleted_at: {type: integer,
+                            description: Deletion timestamp}
+            400:
+                description: |
+                    Wrong arguments:
+                    - OA0022: Unexpected parameters
+                    - OA0032: Parameter is not provided (label or
+                      is_default)
+                    - OA0033: Parameter should be a string
+                    - OA0048: Parameter should contain 1-256 characters
+                    - OA0050: Incorrect request body received
+                    - OA0060: Invalid parameter (is_default false, label of
+                      an email method)
+                    - OA0063: is_default should be true or false
+                    - OA0065: Parameter should not contain only whitespaces
+            401:
+                description: |
+                    Unauthorized:
+                    - OA0010: Token not found
+                    - OA0023: Unauthorized
+                    - OA0062: This resource requires an authorization token
+            403:
+                description: |
+                    Forbidden:
+                    - OA0006: Bad secret
+                    - OA0012: Forbidden!
+            404:
+                description: |
+                    Not found:
+                    - OA0003: MFA method not found
+                    - OA0024: User was not found
+            409:
+                description: |
+                    Conflict:
+                    - OA0092: Authentication method is not confirmed (only
+                      a confirmed method can be the default)
+        security:
+        - token: []
+        - secret: []
+        """
+        # never the challenge credential: the body is not looked at for auth
+        args = await self.get_auth_args({})
+        data = self.get_body()
+        data.update(args)
+        res = await run_task(self.controller.update, user_id, method_id,
+                             **data)
+        self.write(res.to_json())
+
+    async def delete(self, user_id, method_id, **url_params):
+        """
+        ---
+        description: |
+            Removes an MFA method. A pending enrollment is dropped. For a
+            confirmed method: the last one cannot be removed while an
+            organization of the user enforces MFA, and removing the default
+            one makes the oldest other confirmed method the default.
+            Required permission: TOKEN of the user or CLUSTER_SECRET
+        tags: [mfa_methods]
+        summary: Remove MFA method
+        parameters:
+        -   name: user_id
+            in: path
+            description: User ID
+            required: true
+            type: string
+        -   name: method_id
+            in: path
+            description: MFA method ID
+            required: true
+            type: string
+        responses:
+            204:
+                description: MFA method removed
+            401:
+                description: |
+                    Unauthorized:
+                    - OA0010: Token not found
+                    - OA0023: Unauthorized
+                    - OA0062: This resource requires an authorization token
+            403:
+                description: |
+                    Forbidden:
+                    - OA0006: Bad secret
+                    - OA0012: Forbidden!
+                    - OA0091: At least one authentication method must
+                      remain configured because MFA is enforced
+            404:
+                description: |
+                    Not found:
+                    - OA0003: MFA method not found
+                    - OA0024: User was not found
+        security:
+        - token: []
+        - secret: []
+        """
+        args = await self.get_auth_args({})
+        await run_task(self.controller.delete, user_id, method_id, **args)
+        self.set_status(204)
+
+
+class MfaMethodConfirmAsyncHandler(MfaMethodAuthMixin,
+                                   BaseAsyncAuthItemHandler,
+                                   BaseSecretHandler, BaseHandler_v2):
+    def _get_controller_class(self):
+        return MfaMethodAsyncController
+
+    def prepare(self):
+        pass
+
+    async def get(self, *args, **kwargs):
+        self.raise405()
+
+    async def patch(self, *args, **kwargs):
+        self.raise405()
+
+    async def delete(self, *args, **kwargs):
+        self.raise405()
+
+    async def post(self, user_id, method_id, **url_params):
+        """
+        ---
+        description: |
+            Confirms a pending MFA method with a code from the authenticator
+            app (totp) or from the e-mail (email). The first confirmed
+            method becomes the default one. A TOTP code is accepted only
+            once.
+            Required permission: TOKEN of the user, CLUSTER_SECRET or
+            `challenge_id` of an `enrollment_required` login challenge of
+            the user (enforced user signing in without a method)
+        tags: [mfa_methods]
+        summary: Confirm MFA method enrollment
+        parameters:
+        -   name: user_id
+            in: path
+            description: User ID
+            required: true
+            type: string
+        -   name: method_id
+            in: path
+            description: MFA method ID
+            required: true
+            type: string
+        -   in: body
+            name: body
+            required: true
+            schema:
+                type: object
+                required: [code]
+                properties:
+                    code: {type: string, description: 6-digit code}
+                    challenge_id:
+                        type: string
+                        description: >-
+                            enrollment_required login challenge, instead of
+                            a token; the challenge is consumed and a token
+                            is returned
+        responses:
+            200:
+                description: Confirmed MFA method
+                schema:
+                    type: object
+                    properties:
+                        id: {type: string, description: Method ID}
+                        user_id: {type: string, description: User ID}
+                        type: {type: string, enum: [totp, email],
+                            description: Method type}
+                        label: {type: string, description: Method label}
+                        is_default: {type: boolean,
+                            description: true if it is the first method}
+                        confirmed: {type: boolean, description: always true}
+                        confirmed_at: {type: integer,
+                            description: Confirmation timestamp}
+                        created_at: {type: integer,
+                            description: Creation timestamp}
+                        deleted_at: {type: integer,
+                            description: Deletion timestamp}
+            201:
+                description: |
+                    Challenge mode: confirmed method and authorization token
+                schema:
+                    type: object
+                    properties:
+                        method:
+                            type: object
+                            description: Confirmed MFA method
+                            properties:
+                                id: {type: string}
+                                user_id: {type: string}
+                                type: {type: string, enum: [totp, email]}
+                                label: {type: string}
+                                is_default: {type: boolean,
+                                    description: true (first method)}
+                                confirmed: {type: boolean}
+                                confirmed_at: {type: integer}
+                                created_at: {type: integer}
+                                deleted_at: {type: integer}
+                        token:
+                            type: object
+                            properties:
+                                created_at: {type: string}
+                                user_id: {type: string}
+                                user_email: {type: string}
+                                valid_until: {type: string}
+                                ip: {type: string}
+                                digest: {type: string}
+                                token: {type: string}
+            400:
+                description: |
+                    Wrong arguments:
+                    - OA0022: Unexpected parameters
+                    - OA0032: Parameter is not provided
+                    - OA0033: Parameter should be a string
+                    - OA0050: Incorrect request body received
+            401:
+                description: |
+                    Unauthorized:
+                    - OA0010: Token not found
+                    - OA0023: Unauthorized
+                    - OA0062: This resource requires an authorization token
+            403:
+                description: |
+                    Forbidden:
+                    - OA0006: Bad secret
+                    - OA0012: Forbidden!
+                    - OA0083: Invalid authentication code (token or
+                      secret)
+                    - OA0086: Verification code is invalid, attempts left
+                      (challenge_id)
+                    - OA0087: Too many failed attempts, sign in again
+                      (challenge_id)
+                    - OA0089: An authentication method is already enrolled
+                      (challenge_id)
+                    - OA0090: Too many failed attempts, try again later
+                      (challenge_id)
+            404:
+                description: |
+                    Not found:
+                    - OA0003: MFA method not found (or enrollment expired)
+                    - OA0024: User was not found
+                    - OA0085: Login challenge is invalid or expired
+            409:
+                description: |
+                    Conflict:
+                    - OA0084: Authentication method is already confirmed
+        security:
+        - token: []
+        - secret: []
+        """
+        data = self.get_body()
+        data.update(await self.get_auth_args(data))
+        if data.get('challenge_id') is not None:
+            data['ip'] = self.get_ip_addr()
+        res = await run_task(self.controller.confirm, user_id, method_id,
+                             **data)
+        if isinstance(res, dict):
+            # challenge mode: method confirmed and token issued
+            self.set_status(201)
+            self.write(json.dumps(res, cls=ModelEncoder))
+        else:
+            self.write(res.to_json())
