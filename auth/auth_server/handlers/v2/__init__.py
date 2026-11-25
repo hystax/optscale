@@ -5,6 +5,7 @@ import auth.auth_server.handlers.v2.assignments
 import auth.auth_server.handlers.v2.authorization
 import auth.auth_server.handlers.v2.authorization_userlist
 import auth.auth_server.handlers.v2.digests
+import auth.auth_server.handlers.v2.login_challenges
 import auth.auth_server.handlers.v2.login_options
 import auth.auth_server.handlers.v2.mfa_methods
 import auth.auth_server.handlers.v2.users

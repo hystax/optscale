@@ -98,6 +98,9 @@ def get_handlers(handler_kwargs):
          handler_kwargs),
         (urls_v2.login_options, get_handler_version(
             h_v2, "login_options").LoginOptionsAsyncHandler, handler_kwargs),
+        (urls_v2.login_challenge_codes, get_handler_version(
+            h_v2, "login_challenges").LoginChallengeCodesAsyncHandler,
+         handler_kwargs),
         (urls_v2.auth_policies_collection, get_handler_version(
             h_v2, "auth_policies").AuthPolicyAsyncCollectionHandler,
          handler_kwargs),

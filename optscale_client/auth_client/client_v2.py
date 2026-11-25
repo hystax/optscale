@@ -80,6 +80,10 @@ class Client(Client_v1):
         return '%s/confirm' % Client.mfa_methods_url(user_id, method_id)
 
     @staticmethod
+    def login_challenge_codes_url():
+        return 'login_challenge_codes'
+
+    @staticmethod
     def query_url(**query):
         query = {
             key: value for key, value in query.items() if value is not None
