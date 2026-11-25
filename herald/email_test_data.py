@@ -1439,10 +1439,18 @@ EMAIL_TEST_DATA = {
             },
         },
     },
-    "mfa_code": {
+    "mfa_enrollment_code": {
         "email": ["serviceuser@hystax.com"],
-        "subject": "OptScale verification code",
-        "template_type": "mfa_code",
+        "subject": "OptScale: confirm your e-mail as authentication method",
+        "template_type": "mfa_enrollment_code",
+        "template_params": {
+            "texts": {"code": "048213"},
+        },
+    },
+    "mfa_login_code": {
+        "email": ["serviceuser@hystax.com"],
+        "subject": "OptScale: your sign-in code",
+        "template_type": "mfa_login_code",
         "template_params": {
             "texts": {"code": "048213"},
         },
