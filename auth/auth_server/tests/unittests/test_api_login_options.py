@@ -8,8 +8,7 @@ class TestLoginOptions(TestAuthBase):
         super().setUp(version=version)
 
     def test_email_not_provided(self):
-        code, resp = self.client.post(
-            self.client.login_options_url(), {'email': ''})
+        code, resp = self.client.login_options('')
         self.assertEqual(code, 400)
         self.assertEqual(resp['error']['error_code'], 'OA0032')
 
@@ -21,17 +20,12 @@ class TestLoginOptions(TestAuthBase):
         self.assertEqual(resp['error']['error_code'], 'OA0022')
 
     def test_email_invalid(self):
-        code, resp = self.client.post(
-            self.client.login_options_url(),
-            {'email': 123456})
+        code, resp = self.client.login_options(123456)
         self.assertEqual(code, 400)
         self.assertEqual(resp['error']['error_code'], 'OA0033')
 
     def test_resolve(self):
-        code, resp = self.client.post(
-            self.client.login_options_url(),
-            {'email': 'customer@domain.com'}
-        )
+        code, resp = self.client.login_options('customer@domain.com')
         self.assertEqual(code, 200)
         self.assertEqual(resp['methods'], ['password'])
         self.assertEqual(resp['sso']['state'], 'not_configured')

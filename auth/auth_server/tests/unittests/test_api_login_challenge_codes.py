@@ -72,17 +72,18 @@ class TestLoginChallengeCodes(TestAuthBase):
         return resp
 
     def _send(self, challenge_id, body=None):
-        # the challenge id is the credential: in the body, not in the URL
-        data = {'challenge_id': challenge_id}
-        data.update(body or {})
+        body = body or {}
+        if set(body) <= {'method_id'}:
+            return self.client.login_challenge_code_send(
+                challenge_id, body.get('method_id'))
+        # unexpected keys the client method cannot send: raw request, the
+        # challenge id is the credential, in the body not in the URL
         return self.client.post(self.client.login_challenge_codes_url(),
-                                data)
+                                {'challenge_id': challenge_id, **body})
 
     def _complete(self, challenge_id, code, method_id=None):
-        body = {'challenge_id': challenge_id, 'code': code}
-        if method_id is not None:
-            body['method_id'] = method_id
-        return self.client.post(self.client.token_url(), body)
+        return self.client.token_get_by_challenge(challenge_id, code,
+                                                  method_id)
 
     def _sent_code(self, call_idx=-1):
         kwargs = self.herald.email_send.call_args_list[call_idx].kwargs

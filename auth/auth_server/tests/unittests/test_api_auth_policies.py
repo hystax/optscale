@@ -85,15 +85,13 @@ class TestAuthPolicies(TestAuthBase):
 
     def _create_policy(self, org_id=None, purpose='mfa',
                        scope_type='organization'):
-        return self.client.post(self.client.auth_policies_url(), {
-            'scope_type': scope_type,
-            'scope_id': org_id or self.org_id,
-            'purpose': purpose,
-        })
+        return self.client.auth_policy_create(
+            scope_type, org_id or self.org_id, purpose)
 
     def _list_policies(self, org_id=None, scope_type='organization'):
-        return self.client.get(self.client.auth_policies_url(), {
-            'scope_type': scope_type, 'scope_id': org_id or self.org_id})
+        # the policies list on 200, the error body otherwise
+        return self.client.auth_policy_list(scope_type,
+                                            org_id or self.org_id)
 
     # --- create ---
 
@@ -150,8 +148,7 @@ class TestAuthPolicies(TestAuthBase):
     def test_create_after_delete(self):
         self._use_secret()
         _, policy = self._create_policy()
-        code, _ = self.client.delete(
-            self.client.auth_policies_url(policy['id']))
+        code, _ = self.client.auth_policy_delete(policy['id'])
         self.assertEqual(code, 204)
         code, resp = self._create_policy()
         self.assertEqual(code, 201)
@@ -193,14 +190,14 @@ class TestAuthPolicies(TestAuthBase):
         self._login(self.member)
         code, resp = self._list_policies()
         self.assertEqual(code, 200)
-        self.assertEqual(len(resp['auth_policies']), 1)
-        self.assertEqual(resp['auth_policies'][0]['scope_id'], self.org_id)
+        self.assertEqual(len(resp), 1)
+        self.assertEqual(resp[0]['scope_id'], self.org_id)
 
     def test_list_empty(self):
         self._login(self.member)
         code, resp = self._list_policies()
         self.assertEqual(code, 200)
-        self.assertEqual(resp['auth_policies'], [])
+        self.assertEqual(resp, [])
 
     def test_list_other_organization_forbidden(self):
         self._login(self.member)
@@ -213,20 +210,19 @@ class TestAuthPolicies(TestAuthBase):
         self._create_policy(org_id=self.org2_id)
         code, resp = self._list_policies(org_id=self.org2_id)
         self.assertEqual(code, 200)
-        self.assertEqual(len(resp['auth_policies']), 1)
+        self.assertEqual(len(resp), 1)
 
     def test_list_excludes_deleted(self):
         self._use_secret()
         _, policy = self._create_policy()
-        self.client.delete(self.client.auth_policies_url(policy['id']))
+        self.client.auth_policy_delete(policy['id'])
         code, resp = self._list_policies()
         self.assertEqual(code, 200)
-        self.assertEqual(resp['auth_policies'], [])
+        self.assertEqual(resp, [])
 
     def test_list_invalid_params(self):
         self._use_secret()
-        code, resp = self.client.get(self.client.auth_policies_url(),
-                                     {'scope_type': 'organization'})
+        code, resp = self.client.auth_policy_list('organization', None)
         self.assertEqual(code, 400)
         self.assertEqual(resp['error']['error_code'], 'OA0032')
         code, resp = self._list_policies(scope_type='domain')
@@ -239,8 +235,7 @@ class TestAuthPolicies(TestAuthBase):
         self._use_secret()
         _, policy = self._create_policy()
         self._login(self.manager)
-        code, _ = self.client.delete(
-            self.client.auth_policies_url(policy['id']))
+        code, _ = self.client.auth_policy_delete(policy['id'])
         self.assertEqual(code, 204)
         db_policy = self.db_session.query(AuthPolicy).get(policy['id'])
         self.db_session.refresh(db_policy)
@@ -250,25 +245,22 @@ class TestAuthPolicies(TestAuthBase):
         self._use_secret()
         _, policy = self._create_policy()
         self._login(self.member)
-        code, resp = self.client.delete(
-            self.client.auth_policies_url(policy['id']))
+        code, resp = self.client.auth_policy_delete(policy['id'])
         self.assertEqual(code, 403)
         self.assertEqual(resp['error']['error_code'], 'OA0012')
 
     def test_delete_not_found(self):
         self._use_secret()
-        code, resp = self.client.delete(
-            self.client.auth_policies_url(str(uuid.uuid4())))
+        code, resp = self.client.auth_policy_delete(str(uuid.uuid4()))
         self.assertEqual(code, 404)
         self.assertEqual(resp['error']['error_code'], 'OA0003')
 
     def test_delete_twice(self):
         self._use_secret()
         _, policy = self._create_policy()
-        url = self.client.auth_policies_url(policy['id'])
-        code, _ = self.client.delete(url)
+        code, _ = self.client.auth_policy_delete(policy['id'])
         self.assertEqual(code, 204)
-        code, _ = self.client.delete(url)
+        code, _ = self.client.auth_policy_delete(policy['id'])
         self.assertEqual(code, 404)
 
     def test_item_methods_not_allowed(self):
@@ -322,7 +314,7 @@ class TestAuthPolicies(TestAuthBase):
         _, policy = self._create_policy()
         self.assertTrue(self.controller.is_mfa_enforced_for_user(
             self.member.id))
-        self.client.delete(self.client.auth_policies_url(policy['id']))
+        self.client.auth_policy_delete(policy['id'])
         self.assertFalse(self.controller.is_mfa_enforced_for_user(
             self.member.id))
 
