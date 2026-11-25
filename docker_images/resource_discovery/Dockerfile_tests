@@ -1,0 +1,11 @@
+ARG BUILDTAG=build
+FROM resource_discovery:${BUILDTAG}
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /usr/src/app/
+
+COPY docker_images/resource_discovery/pyproject.toml docker_images/resource_discovery/uv.lock docker_images/resource_discovery/
+RUN uv --project docker_images/resource_discovery sync --locked
+
+COPY docker_images/resource_discovery/tests/*.py docker_images/resource_discovery/tests/
+COPY docker_images/resource_discovery/run_test.sh docker_images/resource_discovery/run_test.sh

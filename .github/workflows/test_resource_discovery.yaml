@@ -28,3 +28,5 @@ jobs:
         run: bash -x build.sh resource_discovery build
       - name: Build test image and run tests
         run: bash -x docker_images/run_test.sh resource_discovery
+      - name: Build test image and run unit tests
+        run: bash -x docker_images/resource_discovery/run_test.sh

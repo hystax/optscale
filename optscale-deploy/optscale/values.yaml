@@ -1116,9 +1116,16 @@ smtp:
 #the cloud adapter and the number of resources stored in memory before writing
 resource_discovery_settings:
   discover_size: 10000
-  timeout:
-  writing_timeout: 60
+  # timeout / writing_timeout: seconds the resources saver may go without
+  # completing a chunk (while discovering / after discovery) before the task
+  # fails with last_error. Resources are never dropped silently.
+  timeout: 600
+  writing_timeout: 600
   observe_timeout: 7200
+  # discovery tasks processed in parallel by each worker pod (read at startup)
+  concurrency: 1
+  # the worker pod is restarted if a task makes no progress for this long
+  max_stall_seconds: 1800
   debug:
 
 encryption_salt:
