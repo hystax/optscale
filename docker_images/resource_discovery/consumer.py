@@ -21,6 +21,8 @@ tasks run at once.
 Health is based on progress, not duration: a task may run for as long as
 it keeps calling ``progress()``. A task that reports nothing for
 ``max_stall_seconds`` is considered hung and makes the consumer unhealthy.
+Health keeps being reported while the broker is unreachable: the process
+is only unhealthy when its own loop or one of its tasks is stuck.
 """
 import logging
 import threading
@@ -87,13 +89,19 @@ class ConcurrentConsumer(ConsumerMixin):
 
     def on_iteration(self):
         # runs at least once a second while connected
-        self._running = {future: task
-                         for future, task in self._running.items()
-                         if not future.done()}
+        self._reap()
         if self._paused and not self._full():
             self._resume()
-        if self.longest_stall_seconds() < self.max_stall_seconds:
-            self.on_healthy()
+        self._check_health()
+
+    def on_connection_error(self, exc, interval):
+        # runs before every reconnect attempt (kombu retries at most 30 s
+        # apart). The broker being down does not make this process
+        # unhealthy: running tasks talk to the clouds and rest_api, not to
+        # RabbitMQ, so keep reporting health while waiting for the broker
+        super().on_connection_error(exc, interval)
+        self._reap()
+        self._check_health()
 
     def on_message(self, body, message):
         message.ack()
@@ -125,6 +133,15 @@ class ConcurrentConsumer(ConsumerMixin):
             LOG.exception('Task failed: %s', body)
         finally:
             self._local.task = None
+
+    def _reap(self):
+        self._running = {future: task
+                         for future, task in self._running.items()
+                         if not future.done()}
+
+    def _check_health(self):
+        if self.longest_stall_seconds() < self.max_stall_seconds:
+            self.on_healthy()
 
     def _full(self):
         return len(self._running) >= self.concurrency

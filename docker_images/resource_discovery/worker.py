@@ -3,6 +3,7 @@ import logging
 import os
 import resource
 import threading
+import time
 import traceback
 from etcd import EtcdKeyError
 
@@ -60,6 +61,10 @@ def get_current_rss_mb():
     return None
 
 
+class ResourcesNotSaved(Exception):
+    """The saver stopped making progress; the task must not complete"""
+
+
 class ResourcesSaver:
 
     MODEL_MAP_INVERTED = {
@@ -67,15 +72,26 @@ class ResourcesSaver:
         **{v: k for k, v in RES_MODEL_MAP.items()}
     }
 
-    # how often the saver thread checks whether close() was called
+    # how often the task thread and the saver thread check on each other
     POLL_SECONDS = 1
 
     def __init__(self, rest_cl, insider_cl, limit, timeout,
-                 product_tracking_id):
+                 product_tracking_id, progress=None):
         """Saves discovered resources of ONE task in a background thread.
 
         Create one saver per task: savers share no state, so concurrent
         tasks cannot block or drop each other's chunks.
+
+        The saver never outlives its task: send() and close() wait for the
+        saver thread, and give up (abort the saver, raise/report) only when
+        it has not completed a single chunk for `timeout` seconds. The
+        bounded queue therefore gives backpressure as before: a slow
+        rest_api slows discovery down, it never makes chunks pile up.
+
+        :param timeout: seconds without a completed chunk after which the
+            saver is considered stuck
+        :param progress: callable(), invoked whenever a chunk is completed
+            while the task thread is waiting on the saver
         """
         queue_len = int(limit / CHUNK_SIZE) if CHUNK_SIZE else 0
         self.queue = queue.Queue(queue_len)
@@ -83,33 +99,89 @@ class ResourcesSaver:
         self.rest_cl = rest_cl
         self.timeout = timeout or DEFAULT_PUT_TIMEOUT
         self.product_tracking_id = product_tracking_id
+        self.progress = progress or (lambda: None)
+        # counters: sent is written by the task thread, saved and failed
+        # by the saver thread
+        self.sent = 0
+        self.saved = 0
+        self.failed = 0
         self._closing = Event()
+        self._aborted = Event()
         # daemon: a stuck saver must never keep a dead process alive
         self._thread = Thread(target=self._save_chunks, daemon=True,
                               name='resources-saver')
         self._thread.start()
 
+    @property
+    def unsaved(self):
+        """Chunks handed to send() that were not written (yet)"""
+        return self.sent - self.saved
+
+    def _completed(self):
+        return self.saved + self.failed
+
     def send(self, chunk):
+        """Queue a chunk, waiting for a free slot while the saver is slow.
+
+        :raises ResourcesNotSaved: the saver completed no chunk for
+            `timeout` seconds; it is aborted and the task must fail
+        """
+        self.sent += 1
+        if not self._wait(lambda: self._try_put(chunk)):
+            raise ResourcesNotSaved(
+                f'the saver did not complete a chunk in {self.timeout} '
+                f'seconds, {self.unsaved} chunks were not saved')
+
+    def _try_put(self, chunk):
         try:
-            self.queue.put(chunk, timeout=self.timeout)
+            self.queue.put(chunk, timeout=self.POLL_SECONDS)
+            return True
         except queue.Full:
-            LOG.error('Failed to add a chunk of %s resources to the queue: '
-                      'the saver did not accept it in %s seconds',
-                      len(chunk), self.timeout)
+            return False
 
     def close(self, timeout):
-        """Wait until all the queued chunks are saved and stop the saver.
+        """Wait until every queued chunk is written, then stop the saver.
 
-        :return: True if the saver finished within `timeout` seconds. If not,
-            the daemon thread keeps saving the remaining chunks in the
-            background.
+        :param timeout: seconds without a completed chunk after which the
+            saver is aborted and the remaining chunks are given up
+        :return: the number of chunks that were not saved (0 on success)
         """
         self._closing.set()
-        self._thread.join(timeout)
+        if self._aborted.is_set():      # send() already gave up
+            return self.unsaved
+        if not self._wait(self._joined, timeout):
+            LOG.error('The saver did not complete a chunk in %s seconds, '
+                      'giving up on %s chunks', timeout, self.unsaved)
+        return self.unsaved
+
+    def _joined(self):
+        self._thread.join(self.POLL_SECONDS)
         return not self._thread.is_alive()
 
+    def _wait(self, done, timeout=None):
+        """Run `done()` until it returns True. Called from the task thread.
+
+        Every completed chunk counts as progress and resets the timeout; the
+        saver is aborted and False is returned when no chunk is completed
+        for `timeout` seconds.
+        """
+        timeout = self.timeout if timeout is None else timeout
+        completed = self._completed()
+        deadline = time.monotonic() + timeout
+        while not self._aborted.is_set():
+            finished = done()
+            if self._completed() != completed:
+                completed = self._completed()
+                self.progress()
+                deadline = time.monotonic() + timeout
+            if finished:
+                return True
+            if time.monotonic() >= deadline:
+                self._aborted.set()
+        return False
+
     def _save_chunks(self):
-        while True:
+        while not self._aborted.is_set():
             try:
                 chunk = self.queue.get(timeout=self.POLL_SECONDS)
             except queue.Empty:
@@ -119,8 +191,10 @@ class ResourcesSaver:
                 continue
             try:
                 self.save_bulk_resources(chunk)
+                self.saved += 1
             except Exception as exc:
                 LOG.warning('Failed to save a chunk: %s', str(exc))
+                self.failed += 1
 
     @staticmethod
     def get_resource_type_model(resource_type):
@@ -276,7 +350,8 @@ class DiscoveryWorker:
             rest_cl=self.new_rest_cl(),
             limit=self.discover_size,
             timeout=self.timeout,
-            product_tracking_id=self.product_tracking_id
+            product_tracking_id=self.product_tracking_id,
+            progress=self.progress,
         )
 
     def set_discover_settings(self):
@@ -425,16 +500,20 @@ class DiscoveryWorker:
             resources_count, errors = self._discover_and_save(
                 cloud_acc_id, resource_type, config, saver)
         finally:
-            if not saver.close(timeout=self.writing_timeout):
-                LOG.warning('The timeout for writing %s resources for the'
-                            ' cloud account %s has been exceeded',
-                            resource_type, cloud_acc_id)
+            unsaved = saver.close(timeout=self.writing_timeout)
         LOG.info("%s %s resources have been discovered for cloud %s",
                  resources_count, resource_type, cloud_acc_id)
         if errors:
             LOG.error('%s discovery call failed for cloud %s with errors %s',
                       resource_type, cloud_acc_id, errors)
             raise Exception(next(iter(errors)))
+        if unsaved:
+            # last_discovery_at must not move: resource_observer marks every
+            # resource with last_seen < last_discovery_at as inactive, which
+            # would hit the resources of the chunks that were not written
+            raise ResourcesNotSaved(
+                f'{unsaved} chunks of {resource_type} resources were not '
+                f'saved for cloud account {cloud_acc_id}')
         self._update_discovery_info(
             cloud_acc_id, resource_type,
             last_discovery_at=int(start_time.timestamp()))

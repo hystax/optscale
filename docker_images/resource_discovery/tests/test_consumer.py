@@ -187,6 +187,27 @@ def test_on_healthy_is_not_called_when_a_task_has_stalled(blocking_handler,
     on_healthy.assert_not_called()
 
 
+def test_on_healthy_is_called_while_reconnecting(blocking_handler):
+    """A broker outage must not make the pod unhealthy"""
+    on_healthy = MagicMock()
+    consumer, _ = make_consumer(blocking_handler, max_stall_seconds=60,
+                                on_healthy=on_healthy)
+    consumer.on_message({'id': 1}, MagicMock())
+    consumer.on_connection_error(ConnectionRefusedError('broker down'), 2)
+    on_healthy.assert_called_once()
+
+
+def test_on_healthy_is_not_called_while_reconnecting_with_a_stalled_task(
+        blocking_handler, mocker):
+    on_healthy = MagicMock()
+    consumer, _ = make_consumer(blocking_handler, max_stall_seconds=60,
+                                on_healthy=on_healthy)
+    consumer.on_message({'id': 1}, MagicMock())
+    mocker.patch.object(consumer, 'longest_stall_seconds', return_value=120)
+    consumer.on_connection_error(ConnectionRefusedError('broker down'), 2)
+    on_healthy.assert_not_called()
+
+
 def test_longest_stall_seconds(blocking_handler):
     consumer, _ = make_consumer(blocking_handler, concurrency=2)
     assert consumer.longest_stall_seconds() == 0

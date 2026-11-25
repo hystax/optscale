@@ -6,10 +6,12 @@ import pytest
 
 from docker_images.resource_discovery import worker as worker_module
 from docker_images.resource_discovery.worker import (
-    CHUNK_SIZE, DiscoveryWorker, ResourcesSaver, touch_liveness_file)
+    CHUNK_SIZE, DiscoveryWorker, ResourcesNotSaved, ResourcesSaver,
+    touch_liveness_file)
 
 WAIT = 5
-WRITING_TIMEOUT = 5
+# seconds the saver may go without completing a chunk in the tests
+SAVER_TIMEOUT = 0.5
 
 
 class FakeResource:
@@ -78,7 +80,7 @@ def rest_cl():
 def discovery(mocker, rest_cl):
     config_cl = MagicMock()
     config_cl.resource_discovery_params.return_value = (
-        10000, None, WRITING_TIMEOUT, 7200, None)
+        10000, SAVER_TIMEOUT, SAVER_TIMEOUT, 7200, None)
     config_cl.product_tracking_id.return_value = 'tracking-id'
     mocker.patch.object(DiscoveryWorker, 'new_rest_cl', return_value=rest_cl)
     mocker.patch.object(DiscoveryWorker, 'new_insider_cl',
@@ -98,10 +100,11 @@ def discovery_info_updates(rest_cl):
 
 # ResourcesSaver
 
-def make_saver(limit=10000, timeout=None):
+def make_saver(limit=10000, timeout=None, progress=None):
     return ResourcesSaver(rest_cl=MagicMock(), insider_cl=MagicMock(),
                           limit=limit, timeout=timeout,
-                          product_tracking_id='tracking-id')
+                          product_tracking_id='tracking-id',
+                          progress=progress)
 
 
 def test_saver_saves_all_chunks_before_close_returns(saved_chunks):
@@ -111,27 +114,28 @@ def test_saver_saves_all_chunks_before_close_returns(saved_chunks):
         for res in chunk:
             res.cloud_account_id = f'ca-{i}'
         saver.send(chunk)
-    assert saver.close(timeout=WAIT)
+    assert saver.close(timeout=WAIT) == 0
     assert saved_chunks == [('ca-0', 10), ('ca-1', 10), ('ca-2', 10)]
 
 
 def test_saver_thread_is_a_daemon(saved_chunks):
     saver = make_saver()
     assert saver._thread.daemon  # pylint: disable=protected-access
-    assert saver.close(timeout=WAIT)
+    assert saver.close(timeout=WAIT) == 0
 
 
-def test_saver_close_times_out_when_saving_is_stuck(mocker):
+def test_saver_close_gives_up_when_saving_is_stuck(mocker, caplog):
     release = threading.Event()
     mocker.patch.object(ResourcesSaver, 'save_bulk_resources',
                         lambda _saver, _chunk: release.wait(WAIT))
     saver = make_saver()
     saver.send({FakeResource('r')})
-    assert not saver.close(timeout=0.2)
+    assert saver.close(timeout=0.2) == 1
+    assert 'giving up on 1 chunks' in caplog.text
     release.set()
 
 
-def test_saver_send_gives_up_when_the_queue_stays_full(mocker, caplog):
+def test_saver_send_raises_when_saving_is_stuck(mocker):
     release = threading.Event()
     mocker.patch.object(ResourcesSaver, 'save_bulk_resources',
                         lambda _saver, _chunk: release.wait(WAIT))
@@ -141,13 +145,29 @@ def test_saver_send_gives_up_when_the_queue_stays_full(mocker, caplog):
     while saver.queue.qsize() and time.monotonic() < deadline:
         time.sleep(0.01)
     saver.send({FakeResource('r2')})                    # queued
-    saver.send({FakeResource('r3')})                    # queue full
-    assert 'Failed to add a chunk of 1 resources' in caplog.text
+    with pytest.raises(ResourcesNotSaved):
+        saver.send({FakeResource('r3')})                # queue full
+    # the saver is aborted: close() does not wait any longer
+    assert saver.close(timeout=WAIT) == 3
     release.set()
-    assert saver.close(timeout=WAIT)
 
 
-def test_saver_keeps_going_after_a_failed_chunk(mocker, caplog):
+def test_saver_send_waits_for_a_slow_saver_and_reports_progress(mocker):
+    """A slow rest_api slows discovery down (backpressure), it does not
+    make the task fail or chunks pile up"""
+    mocker.patch.object(ResourcesSaver, 'save_bulk_resources',
+                        lambda _saver, _chunk: time.sleep(0.05))
+    progress = MagicMock()
+    saver = make_saver(limit=CHUNK_SIZE, timeout=0.2,   # queue of 1 chunk
+                       progress=progress)
+    for i in range(6):
+        saver.send({FakeResource(f'r{i}')})
+    assert saver.close(timeout=WAIT) == 0
+    assert saver.saved == 6
+    assert progress.call_count >= 4
+
+
+def test_saver_counts_a_failed_chunk_as_unsaved(mocker, caplog):
     calls = []
 
     def save(_saver, chunk):
@@ -159,8 +179,8 @@ def test_saver_keeps_going_after_a_failed_chunk(mocker, caplog):
     saver = make_saver()
     saver.send({FakeResource('r1')})
     saver.send({FakeResource('r2'), FakeResource('r3')})
-    assert saver.close(timeout=WAIT)
-    assert calls == [1, 2]
+    assert saver.close(timeout=WAIT) == 1
+    assert calls == [1, 2]          # it keeps going after the failure
     assert 'rest api down' in caplog.text
 
 
@@ -208,6 +228,41 @@ def test_discovery_errors_are_recorded_and_not_raised(mocker, discovery,
     assert len(updates) == 1
     assert updates[0]['last_error'] == 'throttled'
     assert 'Resource discovery failed' in caplog.text
+
+
+def test_discovery_fails_when_chunks_are_not_saved(mocker, discovery,
+                                                   rest_cl):
+    """resource_observer marks resources with last_seen < last_discovery_at
+    as inactive, so last_discovery_at must not move when chunks are lost"""
+    mocker.patch.object(ResourcesSaver, 'save_bulk_resources',
+                        side_effect=RuntimeError('rest api down'))
+    use_adapters(mocker, {'ca-1': FakeAdapter([resources('a', 250)])})
+
+    discovery.process_task({'cloud_account_id': 'ca-1',
+                            'resource_type': 'instance'})
+
+    updates = discovery_info_updates(rest_cl)
+    assert len(updates) == 1
+    assert 'last_discovery_at' not in updates[0]
+    assert updates[0]['last_error'] == (
+        '2 chunks of instance resources were not saved for cloud account '
+        'ca-1')
+
+
+def test_discovery_fails_when_the_saver_is_stuck(mocker, discovery, rest_cl):
+    release = threading.Event()
+    mocker.patch.object(ResourcesSaver, 'save_bulk_resources',
+                        lambda _saver, _chunk: release.wait(WAIT))
+    use_adapters(mocker, {'ca-1': FakeAdapter([resources('a', 250)])})
+
+    discovery.process_task({'cloud_account_id': 'ca-1',
+                            'resource_type': 'instance'})
+    release.set()
+
+    updates = discovery_info_updates(rest_cl)
+    assert len(updates) == 1
+    assert 'last_discovery_at' not in updates[0]
+    assert 'were not saved' in updates[0]['last_error']
 
 
 def test_disabled_discovery_is_skipped(mocker, discovery, rest_cl,
